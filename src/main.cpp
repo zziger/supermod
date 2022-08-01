@@ -18,6 +18,7 @@
 #include "patches/CAllowMultipleInstances.h"
 #include "patches/CRenderUnfocused.h"
 #include "patches/CWidescreenFix.h"
+#include "patches/CAdditionalMusic.h"
 
 #include "mods/CPowerupsKill.h"
 #include "mods/CLadno.h"
@@ -45,6 +46,7 @@ DWORD WINAPI Init() {
         new CWidescreenFix,
         new CEditor,
 
+        new CAdditionalMusic,
         new CPowerupsKill,
         new CLadno
     });
