@@ -72,9 +72,9 @@ public:
     }
 
     void LogDescription() override {
-        Log::Instance() << Log::Color::GRAY << "    Available commands:" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - overrideRes 1920 1020\tOverrides set resolution" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - resetResOverride\t\tResets resolution override" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    Доступные команды:" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - overrideRes 1920 1020\tПерезаписывает разрешение" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - resetResOverride\t\tСбрасывает перезапись разрешения" << Log::Endl;
     }
 
     std::string GetName() override {

@@ -83,9 +83,14 @@ public:
     }
 
     void LogDescription() override {
-        Log::Instance() << Log::Color::GRAY << "    Available commands:" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - addMusic path/to/file.ogg\t\tAdds new sound, requires game restart" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - removeMusic path/to/file.ogg\tRemoves additional sound, requires game restart" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - additionalMusic\t\t\tPrints out all additional sounds" << Log::Endl;
+        std::stringstream ss;
+        for (auto& file : GetMusic()) { 
+            ss << file << " ";
+        }
+        Log::Instance() << Log::Color::GRAY << "    Загруженная дополнительная музыка: " << ss.str() << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    Доступные команды:" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - addMusic path/to/file.ogg\t\tДобавляет новую музыку, требует рестарта игры" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - removeMusic path/to/file.ogg\tУдаляет дополнительную музыку, требует рестарта игры" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - additionalMusic\t\t\tВыводит все дополнительные файлы музыки" << Log::Endl;
     }
 };

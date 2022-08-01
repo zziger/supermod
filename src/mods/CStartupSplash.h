@@ -35,7 +35,7 @@ public:
     
     void LogDescription() override {
         Log::Instance() << Log::Color::GRAY << "    Текущий текст сплеша: " << GetMsg("не установлен") << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    Available commands:" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - setStartupSplash\tSets startup splash message" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    Доступные команды:" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - setStartupSplash\tУстанавливает текст сплеша" << Log::Endl;
     }
 };
