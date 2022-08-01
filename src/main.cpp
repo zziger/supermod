@@ -28,6 +28,7 @@ DWORD WINAPI Init() {
     auto cwd = std::filesystem::current_path();
     CConfig::Instance().Initialize(cwd);
     CConsole::Initialize();
+    Log::Info << "Initializing mod..." << Log::Endl;
     
     const auto base = (uintptr_t) GetModuleHandle(nullptr);
     

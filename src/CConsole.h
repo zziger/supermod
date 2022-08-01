@@ -14,6 +14,8 @@ class CConsole {
 public:
     
     static void Initialize() {
+        auto cfg = CConfig::Instance().cfg;
+        if (cfg.contains("console") && !cfg["console"].get<bool>()) return;
         AllocConsole();
         FILE* pFile = nullptr;
         freopen_s(&pFile, "CONIN$", "r", stdin);
@@ -21,7 +23,6 @@ public:
         SetConsoleTitle(L"SuperCow mod console");
         SetConsoleOutputCP( CP_UTF8);
         SetConsoleCP( CP_UTF8);
-        Log::Info << "Initializing mod..." << Log::Endl;
         
         CreateThread(nullptr, 0, [](LPVOID _) -> DWORD {
             ListenForConsole();
