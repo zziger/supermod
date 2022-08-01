@@ -9,12 +9,12 @@ class CStartupSplash final : public IMod {
 public:
     void Load() override {
         IMod::Load();
-        CGameApis::ShowLowerMessage(U16(GetMsg()));
+        CGameApis::ShowLowerMessage(U16(GetMsg("Ваш текст")));
     }
 
-    static std::string GetMsg() {
+    static std::string GetMsg(std::string def) {
         auto cfg = CConfig::Instance().cfg;
-        if (!cfg.contains("startupSplashMessage")) return "Ваш текст";
+        if (!cfg.contains("startupSplashMessage")) return def;
         return cfg["startupSplashMessage"].get<std::string>();
     }
 
@@ -34,6 +34,7 @@ public:
     }
     
     void LogDescription() override {
+        Log::Instance() << Log::Color::GRAY << "    Текущий текст сплеша: " << GetMsg("не установлен") << Log::Endl;
         Log::Instance() << Log::Color::GRAY << "    Available commands:" << Log::Endl;
         Log::Instance() << Log::Color::GRAY << "    - setStartupSplash\tSets startup splash message" << Log::Endl;
     }
