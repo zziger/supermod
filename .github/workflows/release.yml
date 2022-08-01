@@ -14,3 +14,11 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Build
         run: ./build.bat
+      - uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./BUILD/Release/msimg32.dll
+          asset_name: msimg32.dll
+          asset_content_type: application/octet-stream
