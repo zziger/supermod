@@ -28,15 +28,15 @@ class CWidescreenFix final : public IPatch {
             ptr[2] = 21;
             return value;
         }
-    )
+    );
     
 public:
     void Load() override {
         IPatch::Load();
         auto cfg = CConfig::Instance().cfg; 
-        if (cfg.contains("WIDESCREEN_FIX_OVERRIDE")) {
+        if (cfg.contains("widescreenFixOverride")) {
             overrideResolution = true;
-            auto arr = cfg["WIDESCREEN_FIX_OVERRIDE"].get<std::vector<int>>();
+            auto arr = cfg["widescreenFixOverride"].get<std::vector<int>>();
             width = arr[0];
             height = arr[1];
         }
@@ -54,7 +54,7 @@ public:
             width = std::stoi(command.args[0]);
             height = std::stoi(command.args[1]);
             overrideResolution = true;
-            CConfig::Instance().cfg["WIDESCREEN_FIX_OVERRIDE"] = { width, height };
+            CConfig::Instance().cfg["widescreenFixOverride"] = { width, height };
             CConfig::Instance().Save();
             return true;
         }
@@ -63,13 +63,13 @@ public:
             width = 0;
             height = 0;
             overrideResolution = false;
-            CConfig::Instance().cfg.erase("WIDESCREEN_FIX_OVERRIDE");
+            CConfig::Instance().cfg.erase("widescreenFixOverride");
             CConfig::Instance().Save();
             return true;
         }
 
         return false;
-    };
+    }
 
     void LogDescription() override {
         Log::Instance() << Log::Color::GRAY << "    Available commands:" << Log::Endl;

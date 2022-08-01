@@ -25,7 +25,7 @@ class CPowerupsKill final : public IMod {
         
             return updatePowerupsUi_orig();
         }
-    )
+    );
     
 public:
     void Load() override {

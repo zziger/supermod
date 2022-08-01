@@ -10,7 +10,7 @@ class CLadno final : public IMod {
         {
             return drawText_orig(U16("ладно"));
         }
-    )
+    );
 
     HOOK_DEF(
         "55 8B EC 81 EC ? ? ? ? 8D 4D F0",
