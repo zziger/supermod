@@ -20,7 +20,7 @@ public:
         return false;
     }
 
-    virtual void LogDescription() {};
+    virtual void LogDescription(bool loaded) {}
 
 protected:
     std::vector<CMemory> _hooks;

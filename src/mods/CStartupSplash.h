@@ -33,7 +33,8 @@ public:
         return false;
     }
     
-    void LogDescription() override {
+    void LogDescription(const bool loaded) override {
+        if (!loaded) return;
         Log::Instance() << Log::Color::GRAY << "    Текущий текст сплеша: " << GetMsg("не установлен") << Log::Endl;
         Log::Instance() << Log::Color::GRAY << "    Доступные команды:" << Log::Endl;
         Log::Instance() << Log::Color::GRAY << "    - setStartupSplash\tУстанавливает текст сплеша" << Log::Endl;

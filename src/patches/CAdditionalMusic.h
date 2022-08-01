@@ -82,7 +82,8 @@ public:
         return false;
     }
 
-    void LogDescription() override {
+    void LogDescription(const bool loaded) override {
+        if (!loaded) return;
         std::stringstream ss;
         for (auto& file : GetMusic()) { 
             ss << file << " ";

@@ -37,7 +37,7 @@ void CModuleManager::LogModules() {
     for (auto [ key, module ] : _modules) {
         const auto loaded = _loadedModules.count(module->GetName());
         Log::Instance() << Log::Color::GRAY << "- " << (loaded ? Log::Color::LIGHT_GREEN : Log::Color::LIGHT_RED) << module->GetName() << Log::Endl;
-        module->LogDescription();
+        module->LogDescription(loaded);
     }
 }
 
