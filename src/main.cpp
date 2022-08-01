@@ -19,10 +19,11 @@
 #include "patches/CRenderUnfocused.h"
 #include "patches/CWidescreenFix.h"
 #include "patches/CAdditionalMusic.h"
+#include "patches/CEditor.h"
 
 #include "mods/CPowerupsKill.h"
 #include "mods/CLadno.h"
-#include "patches/CEditor.h"
+#include "mods/CStartupSplash.h"
 
 DWORD WINAPI Init() {
     auto cwd = std::filesystem::current_path();
@@ -46,8 +47,9 @@ DWORD WINAPI Init() {
         new CRenderUnfocused,
         new CWidescreenFix,
         // new CEditor,
-
         new CAdditionalMusic,
+        
+        new CStartupSplash,
         new CPowerupsKill,
         new CLadno
     });
@@ -56,8 +58,6 @@ DWORD WINAPI Init() {
     
     return true;
 }
-
-#define CONSOLE
 
 BOOL APIENTRY main(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
