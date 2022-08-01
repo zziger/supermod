@@ -38,7 +38,8 @@ std::vector<std::string> CConfig::GetModules() {
 }
 
 void CConfig::AddModule(const std::string& name) {
-    cfg["modules"].push_back(name);
+    if (std::find(cfg["modules"].begin(), cfg["modules"].end(), name) == cfg["modules"].end())
+        cfg["modules"].push_back(name);
     Save();
 }
 
