@@ -45,7 +45,7 @@ DWORD WINAPI Init() {
         new CAllowMultipleInstances,
         new CRenderUnfocused,
         new CWidescreenFix,
-        new CEditor,
+        // new CEditor,
 
         new CAdditionalMusic,
         new CPowerupsKill,
