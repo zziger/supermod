@@ -48,7 +48,7 @@ public:
             }
             
             if (!cfg.contains("additionalMusic")) cfg["additionalMusic"] = {};
-            CConfig::Instance().cfg["additionalMusic"].push_back(command.args[0]);
+            CConfig::Instance().cfg["additionalMusic"].push_back(command.rawArgs);
             CConfig::Instance().Save();
             return true;
         }
@@ -60,7 +60,7 @@ public:
             
             if (!cfg.contains("additionalMusic")) cfg["additionalMusic"] = {};
             auto v = cfg["additionalMusic"].get<std::vector<std::string>>();
-            const auto itr = std::find(v.begin(), v.end(), command.args[0]);
+            const auto itr = std::find(v.begin(), v.end(), command.rawArgs);
             if (itr != v.end()) v.erase(itr);
             cfg["additionalMusic"] = v;
             CConfig::Instance().Save();
