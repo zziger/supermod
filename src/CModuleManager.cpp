@@ -42,5 +42,8 @@ void CModuleManager::LogModules() {
 }
 
 void CModuleManager::Initialize() {
-    for (const auto& module : CConfig::Instance().GetModules()) LoadModule(module);
+    for (const auto& module : CConfig::Instance().GetModules()) {
+        _modules[module]->Load();
+        _loadedModules.insert(module);
+    }
 }
