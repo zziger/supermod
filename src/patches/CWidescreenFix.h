@@ -44,8 +44,7 @@ public:
     }
 
     bool HandleCommand(Command command) override {
-        if (command.cmd == "overrideRes") {
-            Log::Info << command.args.size() << Log::Endl; 
+        if (command.cmd == "overrideRes") { 
             if (command.args.size() < 2) {
                 Log::Error << "Usage: overrideRes 1920 1080" << Log::Endl;
                 return true;
