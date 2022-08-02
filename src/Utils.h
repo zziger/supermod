@@ -55,7 +55,10 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
 #define HOOK_DEF(pat, retn, name, args, fn) static inline retn (*name##_orig)##(args) = nullptr;\
     static retn name##_hook##(args) fn; \
     static constexpr CMemory::Pattern name##_pattern## = { pat }
-#define HOOK_APPLY(name) auto name##_mem = name##_pattern.Search(); \
-    name##_mem.Detour((void*) name##_hook, (void**) &name##_orig); \
+
+#define HOOK_APPLY_NO_MEM(name) name##_mem.Detour((void*) name##_hook, (void**) &name##_orig); \
     RegisterHook(name##_mem); \
     Log::Debug << "Hooking " << #name << " function..." << Log::Endl
+
+#define HOOK_APPLY(name) auto name##_mem = name##_pattern.Search(); \
+    HOOK_APPLY_NO_MEM(name)

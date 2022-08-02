@@ -3,14 +3,20 @@
 #include "module/IPatch.h"
 
 class CAdditionalMusic : public IPatch {
-    static void LoadSound(const char* soundFile) {
+    static CMemory::Pattern GetLoadSoundPat() {
         static constexpr CMemory::Pattern loadSoundPat("55 8B EC 68 ? ? ? ? 8B 45 08");
-        static auto mem = loadSoundPat.Search();
-        mem.Call(soundFile);
+        return loadSoundPat;
     }
     
+    static void LoadSound(const char* soundFile) {
+        static auto mem = GetLoadSoundPat().Search();
+        mem.Call(soundFile);
+    }
+
+    // not a unique pattern, hooking first occurence after loadSound subroutine
+    // needed for compatibility between versions
     HOOK_DEF(
-            "55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 89 45 FC 68 ? ? ? ? E8",
+        "55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 89 45 FC",
         void, loadSounds, ARGS(char* filename),
         {
             loadSounds_orig(filename);
@@ -26,7 +32,8 @@ class CAdditionalMusic : public IPatch {
 public:
     void Load() override {
         IPatch::Load();
-        HOOK_APPLY(loadSounds);
+        auto loadSounds_mem = loadSounds_pattern.Search(true, GetLoadSoundPat().Search().Get<uintptr_t>());
+        HOOK_APPLY_NO_MEM(loadSounds);
     }
 
     std::string GetName() override {

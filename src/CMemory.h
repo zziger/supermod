@@ -108,7 +108,7 @@ public:
 			size = j;
 		}
 
-		CMemory Search(bool useCaching = true) const
+		CMemory Search(bool useCaching = true, uintptr_t base = 0) const
 		{
 			uint32_t sigHash = 0;
 			if (useCaching && GetCacheStorage())
@@ -120,7 +120,7 @@ public:
 					return CMemory(cachedAddress);
 			}
 
-			BYTE* res = Find((PBYTE)Base(), (DWORD)GetSize(), sig, mask);
+			BYTE* res = Find(base == 0 ? (PBYTE)Base() : (PBYTE)base, (DWORD)GetSize(), sig, mask);
 
 			if (!res)
 			{
