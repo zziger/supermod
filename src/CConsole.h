@@ -48,6 +48,7 @@ private:
 
     static void HandleCommand(const Command& command) {
         auto [cmd, args, rawArgs] = command;
+        bool found = true;
         
         if (cmd == "show") {
             CGameApis::ShowLowerMessage(U16(rawArgs));
@@ -63,7 +64,7 @@ private:
         } else if (cmd == "checkpoint") {
             CGameApis::TriggerCheckpoint();
         } else {
-            auto found = false;
+            found = false;
 
             const auto modules = CModuleManager::GetLoadedModules();
             for (auto module : modules) {
@@ -74,6 +75,8 @@ private:
 
             if (!found) std::cout << "Command not found" << std::endl;
         }
+
+        if (found) std::cout << "Command executed successfully" << std::endl;
     }
 
     [[nodiscard]] static Command ParseCommand(std::string str) {
