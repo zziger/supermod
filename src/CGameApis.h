@@ -1,14 +1,19 @@
 #pragma once
 #include "CMemory.h"
 #include "data.h"
+#include "directx/d3d8.h"
 
 class CGameApis {
 public:
     static inline void* globalThis = nullptr;
+    static inline IDirect3DDevice8** d3dDevice = nullptr;
 
     static void InitializeThis() {
         constexpr CMemory::Pattern movGlobalThis("B9 ? ? ? ? E8 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 6A ? 6A ?");
         globalThis = *movGlobalThis.Search().Get<void**>(1);
+        
+        constexpr CMemory::Pattern pushD3dDevicePointer("68 ? ? ? ? 68 ? ? ? ? 6A ? 8B 4D 08");
+        d3dDevice = *pushD3dDevicePointer.Search().Get<IDirect3DDevice8***>(1);
     }
     
     
