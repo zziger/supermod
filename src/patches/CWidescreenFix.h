@@ -1,11 +1,75 @@
 #pragma once
+#include <intrin.h>
+
 #include "Utils.h"
 #include "module/IPatch.h"
 
 class CWidescreenFix final : public IPatch {
     static inline bool overrideResolution = false;
-    static inline int width = 0;
-    static inline int height = 0;
+    static inline int overrideWidth = 0;
+    static inline int overrideHeight = 0;
+    static inline void* lastTex = nullptr;
+
+    static int GetTextureDimensions(int a1) {
+        int v3 = 1;
+        for ( int i = 2; i < 18; ++i ) // 12 in original fn
+            {
+            v3 *= 2;
+            if ( a1 <= v3 )
+                return v3;
+            }
+        return 0;
+    }
+
+    static float GetTextureDimensionsUv(int a1) {
+        return (float) a1 / (float) GetTextureDimensions(a1);
+    }
+
+    static inline std::unordered_map<std::string, vector2i> textureOverrides = {};
+    static inline std::unordered_map<void*, vector2> cachedTextures = {};
+
+    HOOK_DEF("55 8B EC 83 EC ? C7 45 FC ? ? ? ? C7 45 F8 ? ? ? ? EB ? 8B 45 F8 83 C0 ? 89 45 F8 83 7D F8",
+        int, getTextureDimensions, ARGS(int a1), {
+            return GetTextureDimensions(a1); // patches larger image loading
+        });
+
+    HOOK_DEF("55 8B EC 83 7D 08 ? 74 ? 8B 45 08 8B 88 88 00 00 00",
+        int, setTexture, ARGS(void* shit), {
+            lastTex = shit;
+            return setTexture_orig(shit);
+        });
+
+    HOOK_THISCALL_DEF(
+        "55 8B EC 83 EC ? 89 4D D8 8B 45 08",
+        void*, loadTexture, ARGS(char* filename, int width, int height), {
+            const auto overriden = textureOverrides.count(filename) != 0;
+            Log::Debug << (overriden ? "Overriden texture " : "Texture ") << filename << " loaded" << Log::Endl;
+            vector2i vec;
+            if (overriden) {
+                vec = textureOverrides[filename];
+                width = vec.x;
+                height = vec.y;
+            }
+            const auto res = loadTexture_orig(this_, filename, width, height);
+            if (overriden) {
+                vector2 uv;
+                uv.x = GetTextureDimensionsUv(vec.x);
+                uv.y = GetTextureDimensionsUv(vec.y);
+                cachedTextures[res] = uv;
+            }
+            return res;
+        });
+
+    HOOK_DEF("55 8B EC 83 EC ? 8D 4D C0 E8 ? ? ? ? 8D 4D E0",
+        int, renderUiTexture, ARGS(float *pos, float *uv, MANYARGS_T(DWORD)), {
+            if (cachedTextures.count(lastTex)) {
+                const auto vec = cachedTextures[lastTex];
+                uv[2] = vec.x;
+                uv[3] = vec.y;
+            }
+
+            return renderUiTexture_orig(pos, uv, MANYARGS);
+        });
     
     HOOK_DEF(
         "55 8B EC 51 C7 45 FC ? ? ? ? EB ? 8B 45 FC 83 C0 ? 89 45 FC 8B 4D FC 3B 0D ? ? ? ? 7D ? 8B 55 FC 8B 04 D5",
@@ -20,7 +84,7 @@ class CWidescreenFix final : public IPatch {
             *set32BitPtr = 1;
             const auto value = setupD3dParams_orig();
             RECT desktop;
-            if (overrideResolution) desktop = RECT({ 0, 0, width, height });
+            if (overrideResolution) desktop = RECT({ 0, 0, overrideWidth, overrideHeight });
             else GetWindowRect(desktopWnd, &desktop);
             Log::Debug << "Setting render params to " << desktop.right << "x" << desktop.bottom << Log::Endl;
             ptr[0] = desktop.right;
@@ -37,10 +101,20 @@ public:
         if (cfg.contains("widescreenFixOverride")) {
             overrideResolution = true;
             auto arr = cfg["widescreenFixOverride"].get<std::vector<int>>();
-            width = arr[0];
-            height = arr[1];
+            overrideWidth = arr[0];
+            overrideHeight = arr[1];
+        }
+        if (cfg.contains("widescreenFixTextureOverride")) {
+            auto obj = cfg["widescreenFixTextureOverride"].get<std::map<std::string, std::vector<int>>>();
+            for (auto [key, val] : obj) {
+                textureOverrides[key] = { val[0], val[1] };
+            }
         }
         HOOK_APPLY(setupD3dParams);
+        HOOK_APPLY(getTextureDimensions);
+        HOOK_APPLY(loadTexture);
+        HOOK_APPLY(renderUiTexture);
+        HOOK_APPLY(setTexture);
     }
 
     bool HandleCommand(Command command) override {
@@ -50,19 +124,48 @@ public:
                 return true;
             }
             
-            width = std::stoi(command.args[0]);
-            height = std::stoi(command.args[1]);
+            overrideWidth = std::stoi(command.args[0]);
+            overrideHeight = std::stoi(command.args[1]);
             overrideResolution = true;
-            CConfig::Instance().cfg["widescreenFixOverride"] = { width, height };
+            CConfig::Instance().cfg["widescreenFixOverride"] = { overrideWidth, overrideHeight };
             CConfig::Instance().Save();
             return true;
         }
 
         if (command.cmd == "resetResOverride") {
-            width = 0;
-            height = 0;
+            overrideWidth = 0;
+            overrideHeight = 0;
             overrideResolution = false;
             CConfig::Instance().cfg.erase("widescreenFixOverride");
+            CConfig::Instance().Save();
+            return true;
+        }
+
+        if (command.cmd == "addTextureOverride") { 
+            if (command.args.size() < 3) {
+                Log::Error << "Usage: addTextureOverride loadscreen.jpg 1366 768" << Log::Endl;
+                return true;
+            }
+
+            auto width = std::stoi(command.args[1]);
+            auto height = std::stoi(command.args[2]);
+            textureOverrides[command.args[0]] = { width, height };
+            auto cfg = CConfig::Instance();
+            if (!cfg.cfg.count("widescreenFixTextureOverride")) cfg.cfg["widescreenFixTextureOverride"] = nlohmann::json::object();
+            cfg.cfg["widescreenFixTextureOverride"][command.args[0]] = { width, height };
+            cfg.Save();
+            return true;
+        }
+
+        if (command.cmd == "removeTextureOverride") {
+            if (command.args.size() < 1) {
+                Log::Error << "Usage: removeTextureOverride loadscreen.jpg" << Log::Endl;
+                return true;
+            }
+
+            if (!CConfig::Instance().cfg.count("widescreenFixTextureOverride")) return true;
+            textureOverrides.erase(command.args[0]);
+            CConfig::Instance().cfg["widescreenFixTextureOverride"].erase(command.args[0]);
             CConfig::Instance().Save();
             return true;
         }

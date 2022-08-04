@@ -54,7 +54,12 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
 
 #define HOOK_DEF(pat, retn, name, args, fn) static inline retn (*name##_orig)##(args) = nullptr;\
     static retn name##_hook##(args) fn; \
-    static constexpr CMemory::Pattern name##_pattern## = { pat }
+    static constexpr CMemory::Pattern name##_pattern = { pat }
+
+#define HOOK_THISCALL_DEF(pat, retn, name, args, fn) static inline retn (__thiscall *name##_orig)##(void* this_, args) = nullptr;\
+    static retn __fastcall name##_hook##(void* this_, void* unk, args) fn; \
+    static constexpr CMemory::Pattern name##_pattern = { pat }\
+    
 
 #define HOOK_APPLY_NO_MEM(name) name##_mem.Detour((void*) name##_hook, (void**) &name##_orig); \
     RegisterHook(name##_mem); \
@@ -62,3 +67,6 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
 
 #define HOOK_APPLY(name) auto name##_mem = name##_pattern.Search(); \
     HOOK_APPLY_NO_MEM(name)
+
+#define MANYARGS_T(type)  type va_arg1, type va_arg2, type va_arg3, type va_arg4, type va_arg5, type va_arg6, type va_arg7, type va_arg8
+#define MANYARGS     va_arg1, va_arg2, va_arg3, va_arg4, va_arg5, va_arg6, va_arg7, va_arg8
