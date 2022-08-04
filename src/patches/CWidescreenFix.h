@@ -176,8 +176,10 @@ public:
     void LogDescription(const bool loaded) override {
         if (!loaded) return;
         Log::Instance() << Log::Color::GRAY << "    Доступные команды:" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - overrideRes 1920 1020\tПерезаписывает разрешение" << Log::Endl;
-        Log::Instance() << Log::Color::GRAY << "    - resetResOverride\t\tСбрасывает перезапись разрешения" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - overrideRes 1920 1020\t\t\t\tПерезаписывает разрешение" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - resetResOverride\t\t\t\t\tСбрасывает перезапись разрешения" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - addTextureOverride loadscreen.jpg 1366 768\tПерезаписывает разрешение загрузки выбранной текстуры" << Log::Endl;
+        Log::Instance() << Log::Color::GRAY << "    - removeTextureOverride loadscreen.jpg\t\tСбрасывает перезапись разрешения текстуры" << Log::Endl;
     }
 
     std::string GetName() override {
