@@ -29,7 +29,7 @@ DWORD WINAPI Init() {
     auto cwd = std::filesystem::current_path();
     CConfig::Instance().Initialize(cwd);
     CConsole::Initialize();
-    Log::Info << "Initializing SuperMod by zziger..." << Log::Endl;
+    Log::Info << "Initializing SuperMod " << VERSION << " by zziger..." << Log::Endl;
     
     const auto base = (uintptr_t) GetModuleHandle(nullptr);
     
