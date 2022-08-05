@@ -60,8 +60,30 @@ class CWidescreenFix final : public IPatch {
             return res;
         });
 
+    HOOK_THISCALL_DEF(
+        "55 8B EC 83 EC ? 89 4D A8 8B 45 08",
+        void*, loadTexture2, ARGS(char* filename, int width, int height), {
+            const auto overriden = textureOverrides.count(filename) != 0;
+            Log::Debug << (overriden ? "Overriden texture " : "Texture ") << filename << " loaded" << Log::Endl;
+            vector2i vec;
+            if (overriden) {
+                vec = textureOverrides[filename];
+                width = vec.x;
+                height = vec.y;
+            }
+            const auto res = loadTexture_orig(this_, filename, width, height);
+            if (overriden) {
+                vector2 uv;
+                uv.x = GetTextureDimensionsUv(vec.x);
+                uv.y = GetTextureDimensionsUv(vec.y);
+                cachedTextures[res] = uv;
+            }
+            return res;
+        });
+
     HOOK_DEF("55 8B EC 83 EC ? 8D 4D C0 E8 ? ? ? ? 8D 4D E0",
         int, renderUiTexture, ARGS(float *pos, float *uv, MANYARGS_T(DWORD)), {
+            // if (va_arg1) va_arg1 &= 0xffff0000; // killer cow mode
             if (cachedTextures.count(lastTex)) {
                 const auto vec = cachedTextures[lastTex];
                 uv[2] = vec.x;
@@ -69,6 +91,50 @@ class CWidescreenFix final : public IPatch {
             }
 
             return renderUiTexture_orig(pos, uv, MANYARGS);
+        });
+
+    HOOK_DEF("55 8B EC 83 EC ? 8B 45 0C 50 B9",
+        int, renderUiTexture2Inner, ARGS(vector3* a1, vector3* a2, vector3* a3, vector3* a4, float* a5, float* a6, float* a7, float* a8, int a9), {
+            
+            if (cachedTextures.count(lastTex)) {
+                const auto vec = cachedTextures[lastTex];
+                a6[0] = vec.x;
+                a5[0] = vec.x;
+                a5[1] = vec.y;
+                a8[1] = vec.y;
+            }
+            
+            // a9 &= 0xffff0000; // killer cow mode
+
+            return renderUiTexture2Inner_orig(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        });
+
+    HOOK_DEF("55 8B EC 81 EC ? ? ? ? D9 ? ? D8 ? ? ? ? ? D9",
+        int, renderUiTexture3, ARGS(float a1, float a2, float a3, float a4, float* a5, int a6, MANYARGS_T(DWORD)), {
+            
+            if (cachedTextures.count(lastTex)) {
+                const auto vec = cachedTextures[lastTex];
+                a5[2] = vec.x;
+                a5[3] = vec.y;
+            }
+            
+            // a6 &= 0xffff0000; // killer cow mode
+
+            return renderUiTexture3_orig(a1, a2, a3, a4, a5, a6, MANYARGS);
+        });
+
+    HOOK_DEF("55 8B EC 81 EC ? ? ? ? 8D 4D B4",
+        int, renderUiTexture4, ARGS(float a2, float a3, int a4, float a5, float a6, float a7, float a8, float* a9, int a10, int a11, float a12, float a13, MANYARGS_T(DWORD)), {
+            
+            if (cachedTextures.count(lastTex)) {
+                const auto vec = cachedTextures[lastTex];
+                a9[2] = vec.x;
+                a9[3] = vec.y;
+            }
+            
+            // a10 &= 0xffff0000; // killer cow mode
+
+            return renderUiTexture4_orig(a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, MANYARGS);
         });
     
     HOOK_DEF(
@@ -113,7 +179,11 @@ public:
         HOOK_APPLY(setupD3dParams);
         HOOK_APPLY(getTextureDimensions);
         HOOK_APPLY(loadTexture);
+        HOOK_APPLY(loadTexture2);
         HOOK_APPLY(renderUiTexture);
+        HOOK_APPLY(renderUiTexture2Inner);
+        HOOK_APPLY(renderUiTexture3);
+        HOOK_APPLY(renderUiTexture4);
         HOOK_APPLY(setTexture);
     }
 
