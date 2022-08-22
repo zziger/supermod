@@ -26,7 +26,7 @@ set(DEFS
     -DVERSION="${VERSION}"
 )
 
-file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp" "src/proxy/msimg32.def")
+file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp" "src/proxy/dinput8.def")
 
 if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_definitions(/MT)

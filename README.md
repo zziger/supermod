@@ -8,12 +8,12 @@
 - CMake 3.8 или новее
 
 Для сборки нужно выполнить `build.bat` в корне проекта.<br>
-Итоговая DLL будет находиться по пути `BUILD\Release\msimg32.dll`
+Итоговая DLL будет находиться по пути `BUILD\Release\dinput8.dll`
 
 ## Установка
 
-- Скачать последнюю версию мода со страницы [Releases](https://github.com/zziger/supercow-mod/releases/latest). (качать файл `msimg32.dll`)
-- Поместить файл `msimg32.dll` в папку с игрой. Название файла менять нельзя.
+- Скачать последнюю версию мода [тут](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll).
+- Поместить скачанный файл `dinput8.dll` в папку с игрой. Название файла менять нельзя.
 
 ## Функции
 

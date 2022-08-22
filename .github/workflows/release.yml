@@ -29,6 +29,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./BUILD/Release/msimg32.dll
-          asset_name: msimg32.dll
+          asset_path: ./BUILD/Release/dinput8.dll
+          asset_name: dinput8.dll
           asset_content_type: application/octet-stream
