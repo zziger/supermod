@@ -24,6 +24,7 @@
 #include "mods/CPowerupsKill.h"
 #include "mods/CLadno.h"
 #include "mods/CStartupSplash.h"
+#include "mods/CEarlyStats.h"
 
 DWORD WINAPI Init() {
     auto cwd = std::filesystem::current_path();
@@ -51,7 +52,8 @@ DWORD WINAPI Init() {
         
         new CStartupSplash,
         new CPowerupsKill,
-        new CLadno
+        new CLadno,
+        new CEarlyStats
     });
     CModuleManager::Initialize();
     CModuleManager::LogModules();
