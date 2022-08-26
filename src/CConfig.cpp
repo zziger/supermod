@@ -22,7 +22,7 @@ void CConfig::Initialize(std::filesystem::path cwd) {
 }
 
 void CConfig::EnsureModuleArr() {
-    if (!cfg.contains("modules")) cfg["modules"] = { "WIDESCREEN_FIX", "ALLOW_MULTIPLE_INSTANCES", "RENDER_UNFOCUSED" };
+    if (!cfg.contains("modules")) cfg["modules"] = { "WIDESCREEN_FIX", "ALLOW_MULTIPLE_INSTANCES", "FPS_LIMIT" };
 }
 
 void CConfig::Save() const {

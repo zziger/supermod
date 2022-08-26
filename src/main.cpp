@@ -20,6 +20,7 @@
 #include "patches/CWidescreenFix.h"
 #include "patches/CAdditionalMusic.h"
 #include "patches/CEditor.h"
+#include "patches/CFpsLimit.h"
 
 #include "mods/CPowerupsKill.h"
 #include "mods/CLadno.h"
@@ -46,6 +47,7 @@ DWORD WINAPI Init() {
     CModuleManager::RegisterModules({
         new CAllowMultipleInstances,
         new CRenderUnfocused,
+        new CFpsLimit,
         new CWidescreenFix,
         // new CEditor,
         new CAdditionalMusic,

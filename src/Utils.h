@@ -60,6 +60,10 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
     static retn __fastcall name##_hook##(void* this_, void* unk, args) fn; \
     static constexpr CMemory::Pattern name##_pattern = { pat }\
     
+#define HOOK_THISCALL_NOARG_DEF(pat, retn, name, fn) static inline retn (__thiscall *name##_orig)##(void* this_) = nullptr;\
+    static retn __fastcall name##_hook##(void* this_, void* unk) fn; \
+    static constexpr CMemory::Pattern name##_pattern = { pat }\
+    
 
 #define HOOK_APPLY_NO_MEM(name) name##_mem.Detour((void*) name##_hook, (void**) &name##_orig); \
     RegisterHook(name##_mem); \
