@@ -14,21 +14,18 @@ class CFpsLimit final : public IPatch {
 
     HOOK_THISCALL_NOARG_DEF("55 8B EC 51 E8 ? ? ? ? 6A ?",
         int, render, {
+            static constexpr CMemory::Pattern gameLoadFinishedPat("C6 05 ? ? ? ? ? E8 ? ? ? ? 68 ? ? ? ?");
+            static int* gameLoadFinished = *gameLoadFinishedPat.Search().Get<int**>(2);
+            if (!*gameLoadFinished) return render_orig(this_);
+            
             const auto begin = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
             const auto res = render_orig(this_);
             const auto end = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
-            std::this_thread::sleep_for(frameTimeLimit - (end - begin));
+            auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+            if (time < frameTimeLimit) std::this_thread::sleep_for(frameTimeLimit - (end - begin));
             return res;
         });
-    
 
-    // HOOK_DEF("55 8B EC 83 EC ? 83 3D ? ? ? ? ? 74 ? 0F B6 05 ? ? ? ?",
-    //     void, probablyRelatedToPhysics, ARGS(int a1, int a2, int a3, int a4, int a5),
-    //     {
-    //         *(int*) 0xA3C90C = 1;
-    //         probablyRelatedToPhysics_orig(a1, a2, a3, a4, a5);
-    //     });
-    
 public:
     void Load() override {
         IPatch::Load();
