@@ -2,6 +2,8 @@
 #include "CMemory.h"
 #include "data.h"
 #include "directx/d3d8.h"
+#include <filesystem>
+#include <optional>
 
 class CGameApis {
 public:
@@ -53,5 +55,21 @@ public:
         static auto fn = triggerCheckpointPat.Search().Get<triggerCheckpointType>();
         // todo most likely requires different this, crashes the game now
         return fn(globalThis);        
+    }
+
+    inline static std::filesystem::path* dataPath = nullptr;
+    static std::filesystem::path GetDataPath() {
+        if (dataPath) return *dataPath; 
+        static constexpr CMemory::Pattern pathToDataPat("68 ? ? ? ? FF 15 ? ? ? ? 68 ? ? ? ? 6A ? 6A ?");
+        std::string strPath;
+        auto strPtr = *pathToDataPat.Search().Get<char**>(1);
+        strPath.assign(strPtr, std::find(strPtr, strPtr + 256, '\0'));
+        static auto pathToData = strPath.empty() ? std::filesystem::current_path() / "data" : std::filesystem::path(strPath);
+        dataPath = new std::filesystem::path(pathToData);
+        return pathToData;
+    }
+
+    static std::filesystem::path GetModsPath() {
+        return GetDataPath() / ".." / "mods";
     }
 };

@@ -13,6 +13,7 @@
 #include "CConfig.h"
 #include "CConsole.h"
 #include "CGameApis.h"
+#include "CModLoader.h"
 #include "Log.h"
 
 #include "patches/CAllowMultipleInstances.h"
@@ -59,6 +60,7 @@ DWORD WINAPI Init() {
     });
     CModuleManager::Initialize();
     CModuleManager::LogModules();
+    CModLoader::Instance().Initialize();
     
     return true;
 }
