@@ -27,6 +27,10 @@ void* __cdecl CModLoader::resolveFile_hook(PCSTR lpFileName, SIZE_T *outBuf, cha
 
 void CModLoader::Initialize() {
     Log::Debug << "Searching for external mods..." << Log::Endl;
+    if (!exists(CGameApis::GetModsPath())) {
+        Log::Warn << "Mods folder not found" << Log::Endl;
+        return
+    }
     for (const auto& entry : std::filesystem::directory_iterator(CGameApis::GetModsPath())) {
         if (!entry.is_directory()) continue;
         auto name = entry.path().filename().generic_string();
