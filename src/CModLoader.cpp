@@ -29,7 +29,7 @@ void CModLoader::Initialize() {
     Log::Debug << "Searching for external mods..." << Log::Endl;
     if (!exists(CGameApis::GetModsPath())) {
         Log::Warn << "Mods folder not found" << Log::Endl;
-        return
+        return;
     }
     for (const auto& entry : std::filesystem::directory_iterator(CGameApis::GetModsPath())) {
         if (!entry.is_directory()) continue;
