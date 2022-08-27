@@ -7,22 +7,25 @@
 #include "Log.h"
 #include "Utils.h"
 void* __cdecl CModLoader::resolveFile_hook(PCSTR lpFileName, SIZE_T *outBuf, char isCritical) {
-    const auto fullPath = std::filesystem::current_path() / lpFileName;
-    const auto relPath = relative(fullPath, CGameApis::GetDataPath());
+    const auto curPath = std::filesystem::current_path();
+    const auto relPath = relative(curPath, CGameApis::GetDataPath());
     const auto relPathStr = relPath.generic_string();
-    auto modPathStr = std::string(lpFileName);
-            
+    bool changed = false;
+    
     if (relPathStr.size() < 2 || relPathStr[0] != '.' && relPathStr[1] != '.') {
         for (const auto& loadedMod : Instance()._loadedMods) {
             const auto modPath = CGameApis::GetModsPath() / loadedMod / relPath;
-            if (exists(modPath)) {
-                modPathStr = relative(modPath, std::filesystem::current_path()).generic_string();
-                Log::Debug << "Loaded mod file " << relPathStr << Log::Endl;   
+            if (exists(modPath / lpFileName)) {
+                Log::Debug << "Loaded mod file " << lpFileName << Log::Endl;
+                current_path(modPath);
+                changed = true;
+                break;
             }
         }
     }
-    
-    return resolveFile_orig(modPathStr.c_str(), outBuf, isCritical);  
+    const auto ptr = resolveFile_orig(lpFileName, outBuf, isCritical);
+    if (changed) current_path(curPath);
+    return ptr;
 }
 
 void CModLoader::Initialize() {
