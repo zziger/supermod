@@ -153,8 +153,8 @@ class CWidescreenFix final : public IPatch {
             if (overrideResolution) desktop = RECT({ 0, 0, overrideWidth, overrideHeight });
             else GetWindowRect(desktopWnd, &desktop);
             Log::Debug << "Setting render params to " << desktop.right << "x" << desktop.bottom << Log::Endl;
-            ptr[0] = desktop.right;
-            ptr[1] = desktop.bottom;
+            ptr[0] = desktop.right - desktop.left;
+            ptr[1] = desktop.bottom - desktop.top;
             ptr[2] = 21;
             return value;
         }
@@ -237,6 +237,13 @@ public:
             textureOverrides.erase(command.args[0]);
             CConfig::Instance().cfg["widescreenFixTextureOverride"].erase(command.args[0]);
             CConfig::Instance().Save();
+            return true;
+        }
+
+        if (command.cmd == "reset") {
+            static constexpr CMemory::Pattern resetDevicePat("55 8B EC 83 EC ? E8 ? ? ? ? A1 ? ? ? ?");
+            static auto mem = resetDevicePat.Search();
+            mem.Call();
             return true;
         }
 

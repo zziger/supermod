@@ -13,6 +13,7 @@
 #include "CConfig.h"
 #include "CConsole.h"
 #include "CGameApis.h"
+#include "CGUI.h"
 #include "CModLoader.h"
 #include "Log.h"
 

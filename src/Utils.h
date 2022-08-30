@@ -52,6 +52,14 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
         DETOUR_HOOK(pattern, name); \
     })
 
+#define GLOBAL_HOOK_THISCALL_NOARG(pat, retn, name, fn) retn (__thiscall *name##_orig)##(void* this_) = nullptr;\
+    retn __fastcall name##_hook##(void* this_, void* unk) fn; \
+    static CMemory::Hook name##_([] { \
+        Log::Debug << "Hooking " << #name << " __thiscall function..." << Log::Endl; \
+        static constexpr CMemory::Pattern pattern(pat);\
+        DETOUR_HOOK(pattern, name); \
+    })
+
 #define HOOK_DEF(pat, retn, name, args, fn) static inline retn (*name##_orig)##(args) = nullptr;\
     static retn name##_hook##(args) fn; \
     static constexpr CMemory::Pattern name##_pattern = { pat }

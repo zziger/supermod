@@ -9,6 +9,7 @@ class CGameApis {
 public:
     static inline void* globalThis = nullptr;
     static inline IDirect3DDevice8** d3dDevice = nullptr;
+    static inline HWND* window = nullptr;
 
     static void InitializeThis() {
         constexpr CMemory::Pattern movGlobalThis("B9 ? ? ? ? E8 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 6A ? 6A ?");
@@ -16,6 +17,9 @@ public:
         
         constexpr CMemory::Pattern pushD3dDevicePointer("68 ? ? ? ? 68 ? ? ? ? 6A ? 8B 4D 08");
         d3dDevice = *pushD3dDevicePointer.Search().Get<IDirect3DDevice8***>(1);
+        
+        constexpr CMemory::Pattern movWindow("A3 ? ? ? ? 83 3D ? ? ? ? ? 74 ? 68 ? ? ? ? E8 ? ? ? ?");
+        window = *movWindow.Search().Get<HWND**>(1);
     }
     
     
