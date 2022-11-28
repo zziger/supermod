@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -18,4 +19,6 @@ public:
         static CModLoader instance;
         return instance;
     }
+
+    static std::filesystem::path ResolveFilePath(char* file);
 };

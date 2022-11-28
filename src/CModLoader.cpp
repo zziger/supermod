@@ -6,6 +6,7 @@
 #include "CGameApis.h"
 #include "Log.h"
 #include "Utils.h"
+
 void* __cdecl CModLoader::resolveFile_hook(PCSTR lpFileName, SIZE_T *outBuf, char isCritical) {
     const auto curPath = std::filesystem::current_path();
     const auto relPath = relative(curPath, CGameApis::GetDataPath());
@@ -43,4 +44,19 @@ void CModLoader::Initialize() {
 
     auto resolveFile_mem = resolveFile_pattern.Search();
     resolveFile_mem.Detour(resolveFile_hook, &resolveFile_orig);
+}
+std::filesystem::path CModLoader::ResolveFilePath(char* file) {
+    auto curPath = std::filesystem::current_path();
+    const auto relPath = relative(curPath, CGameApis::GetDataPath());
+    const auto relPathStr = relPath.generic_string();
+    
+    if (relPathStr.size() < 2 || relPathStr[0] != '.' && relPathStr[1] != '.') {
+        for (const auto& loadedMod : Instance()._loadedMods) {
+            const auto modPath = CGameApis::GetModsPath() / loadedMod / relPath;
+            if (exists(modPath / file)) {
+                return modPath / file;
+            }
+        }
+    }
+    return curPath;
 }
