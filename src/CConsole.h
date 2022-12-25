@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "CGameApis.h"
-#include "CModuleManager.h"
+#include "Config.h"
 #include "Log.h"
 #include "Utils.h"
 
@@ -14,8 +14,7 @@ class CConsole {
 public:
     
     static void Initialize() {
-        auto cfg = CConfig::Instance().cfg;
-        if (cfg.contains("console") && !cfg["console"].get<bool>()) return;
+        if (!Config::Get()["console"].as<bool>(true)) return;
         AllocConsole();
         FILE* pFile = nullptr;
         freopen_s(&pFile, "CONIN$", "r", stdin);
@@ -55,23 +54,10 @@ private:
         } else if (cmd == "editor") {
             std::cout << "Editor enabled" << std::endl;
             CGameApis::ToggleEditor(true);
-        } else if (cmd == "load") {
-            if (!CModuleManager::LoadModule(rawArgs))
-                Log::Error << "Failed to load module " << Log::Color::GREEN << rawArgs << Log::Endl; 
-        } else if (cmd == "unload") {
-            if (!CModuleManager::UnloadModule(rawArgs))
-                Log::Error << "Failed to unload module " << Log::Color::GREEN << rawArgs << Log::Endl;
         } else if (cmd == "checkpoint") {
             CGameApis::TriggerCheckpoint();
         } else {
             found = false;
-
-            const auto modules = CModuleManager::GetLoadedModules();
-            for (auto module : modules) {
-                if (!module->HandleCommand(command)) continue;
-                found = true;
-                break;
-            }
 
             if (!found) std::cout << "Command not found" << std::endl;
         }
@@ -93,7 +79,7 @@ private:
         } else {
             cmd = str.substr(0, delimIndex);
             rawArgs = str.substr(delimIndex);
-            Utils::Trim(rawArgs);
+            utils::trim(rawArgs);
         }
         
         static std::regex re("[^ ]+");
@@ -110,7 +96,7 @@ private:
 
     static void ListenForConsole() {
         while (_listenForConsole) {
-            const auto str = Utils::Readline();
+            const auto str = utils::readline();
             ExecuteCommand(str);
         }
     }
