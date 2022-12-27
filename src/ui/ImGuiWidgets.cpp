@@ -4,6 +4,8 @@
 #include "events/WindowEvent.h"
 #include <imgui/imgui_internal.h>
 
+#include "thirdparty/IconsMaterialDesign.h"
+
 namespace ui::widgets
 {
     void TextCentered(const std::string text) {
@@ -85,5 +87,17 @@ namespace ui::widgets
         ImGui::SetCursorScreenPos(endCursorPos);
         ImGui::PopID();
         return val;
+    }
+
+    void HelpMarker(const char* desc, const char* icon) {
+        ImGui::TextDisabled(icon);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+        {
+            ImGui::BeginTooltip();
+            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+            ImGui::TextUnformatted(desc);
+            ImGui::PopTextWrapPos();
+            ImGui::EndTooltip();
+        }
     }
 }
