@@ -307,6 +307,8 @@ void ImGui_ImplDX8_RenderDrawData(ImDrawData* draw_data)
         // d3d9_state_block->Apply();
         // d3d9_state_block->Release();
         g_pd3dDevice->SetRenderTarget(nullptr, realDepthStencilBuffer);
+        realDepthStencilBuffer->Release();
+        realDepthStencilBuffer = nullptr;
         g_pd3dDevice->ApplyStateBlock(stateBlockToken);
         g_pd3dDevice->DeleteStateBlock(stateBlockToken);
     }
@@ -371,6 +373,7 @@ static bool ImGui_ImplD3D8_CreateDepthStencilBuffer() {
 		if (realDepth->GetDesc(&sfcDesc)) {
 			return false;
 		}
+	    realDepth->Release();
 		if (g_pd3dDevice->CreateDepthStencilSurface(sfcDesc.Width, sfcDesc.Height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, &g_DepthBuffer)) {
 			return false;
 		}
@@ -418,13 +421,11 @@ void ImGui_ImplDX8_InvalidateDeviceObjects()
 		g_DepthBuffer->Release();
 		g_DepthBuffer = nullptr;
 	}
+    if (realDepthStencilBuffer) {
+        realDepthStencilBuffer->Release();
+        realDepthStencilBuffer = nullptr;
+    }
     if (g_FontTexture) { g_FontTexture->Release(); g_FontTexture = NULL; ImGui::GetIO().Fonts->TexID = NULL; }
-    //if (LPDIRECT3DTEXTURE8 tex = (LPDIRECT3DTEXTURE8)ImGui::GetIO().Fonts->TexID)
-    //{
-    //    tex->Release();
-    //    g_FontTexture = NULL;
-    //    ImGui::GetIO().Fonts->TexID = 0;
-    //}
 }
 
 void ImGui_ImplDX8_NewFrame()
