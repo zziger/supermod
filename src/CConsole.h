@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 
-#include "CGameApis.h"
 #include "Config.h"
 #include "Log.h"
 #include "Utils.h"
@@ -46,23 +45,26 @@ private:
     inline static bool _listenForConsole = true;
 
     static void HandleCommand(const Command& command) {
-        auto [cmd, args, rawArgs] = command;
-        bool found = true;
+        Log::Warn << "Commands are temporarily disabled" << Log::Endl;
         
-        if (cmd == "show") {
-            CGameApis::ShowLowerMessage(U16(rawArgs));
-        } else if (cmd == "editor") {
-            std::cout << "Editor enabled" << std::endl;
-            CGameApis::ToggleEditor(true);
-        } else if (cmd == "checkpoint") {
-            CGameApis::TriggerCheckpoint();
-        } else {
-            found = false;
-
-            if (!found) std::cout << "Command not found" << std::endl;
-        }
-
-        if (found) std::cout << "Command executed successfully" << std::endl;
+        
+        // auto [cmd, args, rawArgs] = command;
+        // bool found = true;
+        
+        // if (cmd == "show") {
+        //     CGameApis::ShowLowerMessage(U16(rawArgs));
+        // } else if (cmd == "editor") {
+        //     std::cout << "Editor enabled" << std::endl;
+        //     CGameApis::ToggleEditor(true);
+        // } else if (cmd == "checkpoint") {
+        //     CGameApis::TriggerCheckpoint();
+        // } else {
+        //     found = false;
+        //
+        //     if (!found) std::cout << "Command not found" << std::endl;
+        // }
+        //
+        // if (found) std::cout << "Command executed successfully" << std::endl;
     }
 
     [[nodiscard]] static Command ParseCommand(std::string str) {
