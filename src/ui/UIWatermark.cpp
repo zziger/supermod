@@ -51,24 +51,6 @@ void UI::RenderWatermark() {
     if (ImGui::Begin("watermark", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize
                      | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
         ImGui::TextColored(0xFFCC00FF_color, "SuperMod");
-        std::stringstream ss{};
-        ss << std::hex << std::showbase << *(int*)0x01424D0C;
-        ImGui::SameLine(); ImGui::Text("%s", ss.str().c_str());
-        ImGui::SameLine(); ImGui::Text("amgous %f", *(float*)0x1424D60);
-        if (ImGui::IsKeyPressed(ImGuiKey_1, false)) {
-            // *(int*)0x1424D04 = ;
-            
-            // constexpr Memory::Pattern pat("55 8B EC 51 89 4D ? C6 05 ? ? ? ? ? 8B 45");
-            // static auto mem = pat.Search();
-            // mem.Call(0x01430908);
-            // *(int*)0x01424D0C = 0x01424DB8;
-            ((int*)0x142FCC4)[2] = 2;
-        }
-        // if (ImGui::IsKeyPressed(ImGuiKey_2, false))((int*)0x142FCC4)[2] = 2;
-        // if (ImGui::IsKeyPressed(ImGuiKey_3, false))((int*)0x142FCC4)[2] = 4;
-        // if (ImGui::IsKeyPressed(ImGuiKey_4, false))((int*)0x142FCC4)[2] = 6;
-        // ImGui::SameLine(); ImGui::Text("tri %d", triggered);
-        // ImGui::SameLine(); ImGui::Text("%d patches", CModuleManager::CountLoadedPatches());
     }
     ImGui::End();
     ImGui::PopStyleVar();

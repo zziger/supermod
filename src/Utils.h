@@ -4,8 +4,6 @@
 #include <string>
 #include <Windows.h>
 
-#define _SILENCE_CXX20_CODECVT_FACETS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include <thirdparty/directx/d3d8.h>
 #include <format>
 

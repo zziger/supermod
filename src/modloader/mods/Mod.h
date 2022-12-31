@@ -22,8 +22,8 @@ protected:
         auto arr = { AddModule(std::make_shared<Modules>())... };
     }
     
-    virtual void OnLoad();;
-    virtual void OnUnload();;
+    virtual void OnLoad();
+    virtual void OnUnload();
 
 public:
     explicit Mod(ModInfo info);

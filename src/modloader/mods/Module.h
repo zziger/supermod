@@ -7,18 +7,19 @@ class Module : public HookUser, public EventUser {
     bool _loaded = false;
     
 protected:
-    Module(std::string id, std::string name, bool defaultLoaded = false);
+    Module(std::string id, std::string name, const char* desc = nullptr, bool defaultLoaded = false);
 
-    virtual void OnLoad() {}
-    virtual void OnUnload() {}
+    virtual void OnLoad(bool manual) {}
+    virtual void OnUnload(bool manual) {}
     
 public:
     std::string fullId;
     const std::string id;
     const std::string name;
+    const char* desc;
     const bool defaultLoaded;
 
-    virtual void RenderUI() {}
+    virtual void RenderModuleUI() {}
     
     void Load(bool manual);
     void Unload(bool manual);

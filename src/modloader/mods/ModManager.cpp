@@ -1,8 +1,10 @@
 #include "modloader/mods/ModManager.h"
 
-#include "CGameApis.h"
 #include "DirectXUtils.h"
 #include "exceptions/Error.h"
+#include "mod/InternalMod.h"
+#include "sdk/DirectX.h"
+#include "sdk/Game.h"
 
 std::shared_ptr<Mod> ModManager::GetInternalMod() {
     return _internalMod;
@@ -11,8 +13,7 @@ std::shared_ptr<Mod> ModManager::GetInternalMod() {
 void ModManager::Init() {
     _mods_folder = std::filesystem::current_path() / "mods";
         
-    ModInfo info("$internal", "SuperMod", "zziger", VERSION);
-    const auto ptr = std::make_shared<Mod>(info);
+    const auto ptr = std::make_shared<InternalMod>();
     ptr->Load(false);
     _loadedMods.push_back(ptr);
 }
@@ -44,10 +45,10 @@ void ModManager::LoadMod(const std::string_view modName) {
     auto info = ModInfo(modBase, module);
     const auto mod = createMod ? createMod(info) : std::make_shared<Mod>(info);
 
-    if (*CGameApis::d3dDevice) {
+    if (*sdk::DirectX::d3dDevice) {
         if (exists(modBase / icon_file_name)) {
             try {
-                mod->info.icon = dx_utils::load_png(*CGameApis::d3dDevice, (modBase / icon_file_name).generic_string().c_str());
+                mod->info.icon = dx_utils::load_png(*sdk::DirectX::d3dDevice, (modBase / icon_file_name).generic_string().c_str());
             } catch(std::exception&  e) {
                 Log::Warn << "Ошибка загрузки иконки мода " << mod->info.id << ":" << Log::Endl;
                 Log::Warn << e.what() << Log::Endl;
@@ -78,7 +79,7 @@ void ModManager::LoadMods() {
 }
 
 void ModManager::ReloadIcons() {
-    if (!*CGameApis::d3dDevice) return;
+    if (!*sdk::DirectX::d3dDevice) return;
     std::lock_guard lock(_modMutex);
 
     for (const auto loadedMod : _loadedMods) {

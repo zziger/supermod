@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
+#include "sdk/Game.h"
 
 struct ResolveFileEvent final : IEvent<"resolveFile"> {
     const std::filesystem::path absolutePath;
@@ -30,7 +31,7 @@ private:
 
 template <typename T>
 T resolve(std::string filename, std::function<T (const std::string&)> fn) {
-    const auto basePath = CGameApis::GetDataPath() / "..";
+    const auto basePath = sdk::Game::GetDataPath() / "..";
     const auto curPath = std::filesystem::current_path();
     const auto path = curPath / filename;
     

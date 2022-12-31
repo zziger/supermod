@@ -5,12 +5,12 @@
 
 static const char* config_key = "modules";
 
-Module::Module(std::string id, std::string name, const bool defaultLoaded): fullId(id), id(std::move(id)), name(std::move(name)), defaultLoaded(defaultLoaded) {
+Module::Module(std::string id, std::string name, const char* desc, const bool defaultLoaded): fullId(id), id(std::move(id)), name(std::move(name)), desc(desc), defaultLoaded(defaultLoaded) {
 }
 
 void Module::Load(bool manual) {
     try {
-        OnLoad();
+        OnLoad(manual);
         _loaded = true;
         if (manual) {
             const Config cfg;
@@ -32,7 +32,9 @@ void Module::Unload(bool manual) {
             if (!cfg.data[config_key].IsMap()) cfg.data[config_key] = YAML::Node(YAML::NodeType::Map);
             cfg.data[config_key][fullId] = false;
         }
-        OnUnload();
+        UnloadEvents();
+        UnloadHooks();
+        OnUnload(manual);
         Log::Info << "Модуль " << fullId << " выгружен" << Log::Endl;
     } catch(std::exception& e) {
         Log::Error << "Ошибка выгрузки модуля " << fullId << ":" << Log::Endl;

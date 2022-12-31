@@ -1,11 +1,12 @@
 #pragma once
 #include <mutex>
+#include <set>
 #include <unordered_set>
 
 #include "modloader/mods/Module.h"
 
 struct ModuleContainer {
-    std::unordered_set<std::shared_ptr<Module>> items {};
+    std::set<std::shared_ptr<Module>> items {};
 
     std::shared_ptr<Module> operator += (std::shared_ptr<Module> module);
 

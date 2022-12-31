@@ -3,10 +3,11 @@
 #include <regex>
 #include <yaml-cpp/yaml.h>
 
-#include "CGameApis.h"
 #include "DirectXUtils.h"
 #include "Log.h"
 #include "exceptions/Error.h"
+#include "sdk/DirectX.h"
+#include "sdk/Game.h"
 
 void ModInfo::ReadManifest() {
     const auto filePath = basePath / "manifest.yml";
@@ -33,8 +34,8 @@ void ModInfo::ReadManifest() {
 }
 
 bool ModInfo::ReadIcon() {
-    if (!*CGameApis::d3dDevice) return false;
-    icon = dx_utils::load_png(*CGameApis::d3dDevice, (basePath / "icon.png").string().c_str());
+    if (!*sdk::DirectX::d3dDevice) return false;
+    icon = dx_utils::load_png(*sdk::DirectX::d3dDevice, (basePath / "icon.png").string().c_str());
     return true;
 }
 ModInfo::ModInfo(): id("invalid"), title("Invalid"), author("unknown"), version("invalid") {}

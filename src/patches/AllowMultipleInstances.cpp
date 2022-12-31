@@ -9,6 +9,5 @@ HOOK_FN_CONV(inline int, can_start_game, ARGS(const char* lpName), __cdecl) {
 }
 
 inline EventManager::Ready $allow_multiple_instances_patch([] {
-    Log::Info << "test1" << Log::Endl;
     HookManager::RegisterHook("55 8B EC 51 8B 45 ? 50 6A ? 6A ? FF 15", HOOK_REF(can_start_game));
 });

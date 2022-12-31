@@ -16,7 +16,6 @@ inline int __fastcall update_load(void* this_, void*, int a2) {
 }
 
 inline EventManager::Ready $loading_freeze_patch([] {
-    Log::Info << "test2" << Log::Endl;
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? 0F B6 05 ? ? ? ? 85 C0 75 ? E9 ? ? ? ? E8", HOOK_REF_FORCE(update_load));
 });
 

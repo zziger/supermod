@@ -8,23 +8,20 @@
 #include "main.h"
 
 #include <filesystem>
-#include <memory>
 #include <yaml-cpp/yaml.h>
 
 #include "Config.h"
 #include "CConsole.h"
-#include "CGameApis.h"
 #include "ui/UI.h"
 #include "Log.h"
 #include "events/EventManager.h"
+#include "events/ResolveFileEvent.h"
 #include "events/GameLoadedEvent.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
-#include "CWidescreenFix.h"
 #include "modloader/mods/ModFileResolver.h"
 #include "modloader/mods/ModManager.h"
-#include "patches/LoadingFreezePatch.cpp"
-#include "patches/AllowMultipleInstances.cpp"
+#include "sdk/Game.h"
 
 // #include "patches/CAllowMultipleInstances.h"
 // #include "patches/CRenderUnfocused.h"
@@ -44,16 +41,6 @@
 // }
 
 
-int (*debug_log_orig)(char* format, ...);
-int debug_log(char* format, ...) {
-    va_list va;
-    va_start(va, format);
-    char buffer[1024];
-    vsprintf_s(buffer, 1024, format, va);
-    // Log::Game << buffer << Log::Endl;
-    return 0;
-}
-
 DWORD WINAPI Init() {
     auto cwd = std::filesystem::current_path();
     Config::Init(); 
@@ -68,7 +55,7 @@ DWORD WINAPI Init() {
     });
     Memory::InitCacheStorage(new MemoryCacheStorage());
 
-    CGameApis::InitializeThis();
+    sdk::Game::Init();
     MH_Initialize();
     Memory::RunHooks();
 
@@ -92,17 +79,18 @@ DWORD WINAPI Init() {
     // CModuleManager::LogModules();
     // CModLoader::Instance().Initialize();
 
-    HookManager::RegisterHook("55 8B EC 83 EC ? 0F B6 05 ? ? ? ? 85 C0 75 ? E9 ? ? ? ? 8D 4D", HOOK_REF_FORCE(debug_log));
     ModFileResolver::Init();
     EventManager::Emit(ReadyEvent());
     
     EventManager::On<GameLoadedEvent>([](auto ev) {
         // CGameApis::ShowLowerMessage(?"sussy"_u16);
         Log::Info << "Game startup!" << Log::Endl;
+        
         ModManager::ReloadIcons();
-        DragAcceptFiles(*CGameApis::window, true);
+        DragAcceptFiles(*sdk::Game::window, true);
     });
 
+    
     EventManager::On<WindowEvent>([](auto ev) {
         if (ev.msg == WM_DROPFILES) {
             auto drop = (HDROP) (ev.wParam);

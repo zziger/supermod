@@ -322,7 +322,7 @@ bool ImGui_ImplDX8_Init(IDirect3DDevice8* device)
 {
     // Setup back-end capabilities flags
     ImGuiIO& io = ImGui::GetIO();
-    io.BackendRendererName = "cf0f1aa24cbb7951ebcf8dbda5f80855eba60fc7";
+    io.BackendRendererName = "imgui_impl_dx8";
     io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 
     g_pd3dDevice = device;

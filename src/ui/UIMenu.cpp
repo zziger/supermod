@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <shellapi.h>
 
-#include "CGameApis.h"
 #include "Config.h"
 #include "DirectXUtils.h"
 #include "thirdparty/IconsFontAwesome5Brands.h"
@@ -11,6 +10,8 @@
 #include "UI.h"
 #include "modloader/mods/ModManager.h"
 #include "ImGuiWidgets.h"
+#include "game/AssetPool.h"
+#include "sdk/Game.h"
 
 using namespace ui;
 
@@ -52,9 +53,11 @@ void UI::RenderModsTab() {
     if (activeMod) {
         auto mod = *activeMod;
         auto info = mod->info;
-        if (info.icon) ImGui::Image(info.icon, { 50, 50 });
-
-        ImGui::SameLine();
+        if (info.icon) {
+            ImGui::Image(info.icon, { 50, 50 });
+            ImGui::SameLine();
+        }
+        
         ImGui::BeginGroup();
         ImGui::Text("%s", info.title.c_str());
         ImGui::Text("%s", info.version.c_str());
@@ -96,14 +99,22 @@ void UI::RenderModsTab() {
         auto& modules = mod->modules.items;
         for (auto module : modules) {
             if (!module) continue;
+            ImGui::PushID(module->fullId.c_str());
             auto state = module->IsLoaded();
             ImGui::Checkbox(module->name.c_str(), &state);
+
+            if (module->desc != nullptr) {
+                ImGui::SameLine();
+                widgets::HelpMarker(module->desc);
+            }
+            
             if (state != module->IsLoaded()) {
                 if (state) module->Load(true);
                 else module->Unload(true);
             }
 
-            module->RenderUI();
+            module->RenderModuleUI();
+            ImGui::PopID();
         }
         
         ImGui::Separator();
@@ -153,7 +164,7 @@ void UI::RenderToolsTab() {
         ImGui::Text("Вы уверены, что хотите перезапустить игру?");
     
         if (ImGui::Button("Да")) {
-            CGameApis::Restart();
+            sdk::Game::Restart();
         }
         ImGui::SetItemDefaultFocus();
     
@@ -164,9 +175,19 @@ void UI::RenderToolsTab() {
     
         ImGui::EndPopup();
     }
+
+    if (ImGui::Button("Просмотр текстур")) {
+        _textureViewerOpen = true;
+    }
+
+    // auto pool = game::AssetPool::GetInstance();
+    // auto asset = pool->GetByName("particles.tga");
+    // ImGui::Image(asset->texture, ImGui::GetContentRegionMax());
 }
 
 void UI::RenderMenu() {
+    RenderWindows();
+    
     if (!menuOpen) return;
     
     const auto mods = ModManager::GetLoadedMods();

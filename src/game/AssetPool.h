@@ -2,6 +2,7 @@
 #include <string>
 
 #include "Asset.h"
+#include "memory/Memory.h"
 
 namespace game
 {
@@ -20,7 +21,9 @@ namespace game
         }
 
         static AssetPool* GetInstance() {
-            return (AssetPool*) 0x1423CF8;
+            static constexpr Memory::Pattern pat("B9 ? ? ? ? E8 ? ? ? ? 68 ? ? ? ? A1 ? ? ? ? 8B 08"); //  mov ecx, offset AssetPool__instance
+            static auto mem = pat.Search();
+            return *mem.Get<AssetPool**>(1);
         }
     };
 }

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Config.h"
+#include "data.h"
 #include "Log.h"
 #include "Utils.h"
 

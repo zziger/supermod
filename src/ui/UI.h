@@ -34,6 +34,11 @@ namespace ui
     
         static void Render();
 
+        static void RenderWindows();
+
+        static inline bool _textureViewerOpen = false;
+        static void RenderTextureViewer();
+
     public:
         static inline bool initialized = false;
         static inline bool menuOpen = false;

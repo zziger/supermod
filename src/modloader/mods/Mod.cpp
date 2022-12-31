@@ -56,9 +56,9 @@ void Mod::Unload(bool manual) {
             if (!cfg.data[config_key].IsSequence()) cfg.data[config_key] = YAML::Node(YAML::NodeType::Sequence);
             cfg.data[config_key].push_back(info.id);
         }
-        OnUnload();
         UnloadEvents();
         UnloadHooks();
+        OnUnload();
         modules.Unload();
         Log::Info << "Мод " << info.title << " выгружен" << Log::Endl;
     } catch(std::exception& e) {

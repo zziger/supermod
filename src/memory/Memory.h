@@ -349,7 +349,7 @@ public:
 	}
 
 	template<class T = void*>
-	T Get(int offset = 0)
+	T Get(int offset = 0) const
 	{
 		return (T)(address + offset);
 	}
