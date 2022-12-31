@@ -10,7 +10,6 @@ using namespace std::chrono_literals;
 
 void FpsLimitModule::OnLoad(bool manual) {
     frameStart = time_point_cast<milliseconds>(high_resolution_clock::now());
-    fpsLimit = Config::Get()[id]["limit"].as<int>(120);
     UpdateFrameTimeLimit();
     
     OnEvent<BeforeTickEvent>([this] {

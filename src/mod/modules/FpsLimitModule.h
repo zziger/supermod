@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Config.h"
 #include "modloader/mods/Module.h"
 
 class FpsLimitModule final : public Module {
@@ -9,6 +10,7 @@ public:
             "Ограничение FPS",
             "Позволяет ограничить максимальное количество кадров в секунду.\n\n"
             "До 1.0.0 модуль назывался FPS_LIMIT", false) {
+        fpsLimit = Config::Get()[id]["limit"].as<int>(120);
     }
 
     int fpsLimit;
