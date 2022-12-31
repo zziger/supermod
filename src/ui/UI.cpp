@@ -111,9 +111,12 @@ void UI::Init() {
 
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? C7 45 ? ? ? ? ? EB ? 8B 45 ? 83 C0 ? 89 45 ? 8B 4D ? 8B 55 ? 3B 91 ? ? ? ? 7D ? 8B 45 ? 8B 4D ? 8B 54 81 ? 0F B6 82",
         HOOK_REF_FORCE(AssetPool__freeAssetsFromD3d));
-    
-    showWatermark = Config::Get()["showWatermark"].as<bool>(true);
-    
+
+    auto watermarkCfg = Config::Get()["watermark"];
+    showWatermark = watermarkCfg["show"].as<bool>(true);
+    watermarkPosition = (WatermarkPosition) watermarkCfg["position"].as<int>(TOP_CENTER);
+    watermarkOpacity = watermarkCfg["opacity"].as<float>(1.0f);
+    watermarkBgOpacity = watermarkCfg["bgOpacity"].as<float>(0.35f);
 }
 
 inline EventManager::Ready $([] {

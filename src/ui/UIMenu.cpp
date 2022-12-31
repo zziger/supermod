@@ -137,18 +137,25 @@ void UI::RenderSettingsTab() {
     ImGui::Text("Водяной знак");
     if (ImGui::Checkbox("Отображать", &showWatermark)) {
         const Config cfg;
-        cfg.data["showWatermark"] = showWatermark;
+        cfg.data["watermark"]["show"] = showWatermark;
     }
     
     if (showWatermark) {
         const char* positions[] = { "Сверху слева", "Сверху по центру", "Сверху справа", "Снизу слева", "Снизу по центру", "Снизу справа" };
         if (ImGui::Combo("Позиция", (int*) &watermarkPosition, positions, IM_ARRAYSIZE(positions))) {
             const Config cfg;
-            cfg.data["watermarkPosition"] = (int) watermarkPosition;
+            cfg.data["watermark"]["position"] = (int) watermarkPosition;
         }
 
-        ImGui::SliderFloat("Непрозрачность", &watermarkOpacity, 0, 1);
-        ImGui::SliderFloat("Непрозрачность фона", &watermarkBgOpacity, 0, 1);
+        if (ImGui::SliderFloat("Непрозрачность", &watermarkOpacity, 0, 1)) {
+            const Config cfg;
+            cfg.data["watermark"]["opacity"] = watermarkOpacity;
+        }
+        
+        if (ImGui::SliderFloat("Непрозрачность фона", &watermarkBgOpacity, 0, 1)) {
+            const Config cfg;
+            cfg.data["watermark"]["bgOpacity"] = watermarkBgOpacity;
+        }
     }
     ImGui::PopID();
 
