@@ -10,7 +10,7 @@
 #include "Log.h"
 #include "Utils.h"
 
-class CConsole {
+class Console {
 public:
     
     static void Initialize() {

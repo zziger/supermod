@@ -11,7 +11,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "Config.h"
-#include "CConsole.h"
+#include "Console.h"
 #include "ui/UI.h"
 #include "Log.h"
 #include "events/EventManager.h"
@@ -44,7 +44,7 @@
 DWORD WINAPI Init() {
     auto cwd = std::filesystem::current_path();
     Config::Init(); 
-    CConsole::Initialize();
+    Console::Initialize();
     Log::Info << "Загрузка SuperMod " << VERSION << " by zziger..." << Log::Endl;
     
     const auto base = (uintptr_t) GetModuleHandle(nullptr);
@@ -120,7 +120,7 @@ BOOL APIENTRY main(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
     }
 
     if (ul_reason_for_call == DLL_PROCESS_DETACH) {
-        CConsole::Destroy();
+        Console::Destroy();
         ShowWindow(GetConsoleWindow(), SW_HIDE);
     }
     return TRUE;
