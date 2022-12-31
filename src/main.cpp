@@ -120,7 +120,7 @@ BOOL APIENTRY main(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
     }
 
     if (ul_reason_for_call == DLL_PROCESS_DETACH) {
-        Console::Destroy();
+        Console::Disable();
         ShowWindow(GetConsoleWindow(), SW_HIDE);
     }
     return TRUE;

@@ -4,6 +4,7 @@
 #include <shellapi.h>
 
 #include "Config.h"
+#include "Console.h"
 #include "DirectXUtils.h"
 #include "thirdparty/IconsFontAwesome5Brands.h"
 #include "thirdparty/IconsMaterialDesign.h"
@@ -131,7 +132,8 @@ void UI::RenderModsTab() {
 void UI::RenderSettingsTab() {
     auto width = ImGui::GetContentRegionMax().x / 2;
     ImGui::PushItemWidth(width);
-    
+
+    ImGui::PushID("watermark");
     ImGui::Text("Водяной знак");
     if (ImGui::Checkbox("Отображать", &showWatermark)) {
         const Config cfg;
@@ -148,6 +150,18 @@ void UI::RenderSettingsTab() {
         ImGui::SliderFloat("Непрозрачность", &watermarkOpacity, 0, 1);
         ImGui::SliderFloat("Непрозрачность фона", &watermarkBgOpacity, 0, 1);
     }
+    ImGui::PopID();
+
+    ImGui::PushID("console");
+    ImGui::Text("Консоль");
+    bool consoleEnabled = Console::enabled;
+    if (ImGui::Checkbox("Отображать", &consoleEnabled)) {
+        const Config cfg;
+        cfg.data["console"] = consoleEnabled;
+        if (consoleEnabled) Console::Enable();
+        else Console::Disable();
+    }
+    ImGui::PopID();
 
     ImGui::EndChild();
 }
