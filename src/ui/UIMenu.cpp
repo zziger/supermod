@@ -169,8 +169,6 @@ void UI::RenderSettingsTab() {
         else Console::Disable();
     }
     ImGui::PopID();
-
-    ImGui::EndChild();
 }
 
 void UI::RenderToolsTab() {
