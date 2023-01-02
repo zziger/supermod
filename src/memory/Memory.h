@@ -8,66 +8,34 @@
 
 #include <Windows.h>
 #include <Psapi.h>
-#include <immintrin.h>
-#include <emmintrin.h>
 #include <cstdint>
 #include <thirdparty/MinHook.h>
 
-#include "Log.h"
+#include "MemoryCacheStorage.h"
 
 #define MAX_SIG_SIZE 128
 
-#define INRANGE(x,a,b)		(x >= a && x <= b) 
-#define getBits( x )		(INRANGE(x,'0','9') ? (x - '0') : ((x&(~0x20)) - 'A' + 0xa))
-#define getByte( x )		(getBits(x[0]) << 4 | getBits(x[1]))
-
-class Memory;
-
-class IMemoryCacheStorage
-{
-public:
-	virtual ~IMemoryCacheStorage() = default;
-	virtual uintptr_t Get(uint32_t hash) = 0;
-	virtual void Put(uint32_t hash, uintptr_t address) = 0;
-	virtual uint32_t Hash(const std::string& pattern) = 0;
-};
-
-class MemoryCacheStorage : public IMemoryCacheStorage {
-public:
-	uintptr_t Get(uint32_t hash) override {
-		return _map[hash];
-	}
-
-	void Put(uint32_t hash, uintptr_t address) override {
-		_map[hash] = address;
-	}
-
-	uint32_t Hash(const std::string& pattern) override {
-		static std::hash<std::string> hash;
-		return hash(pattern);
-	}
-	
-private:
-	std::unordered_map<uint32_t, uintptr_t> _map;
-};
-
 class Memory {
-	uintptr_t address;
-public:
-	bool operator==(const Memory &other) const {
-		return address == other.address;
-	}
+	uintptr_t _address;
 	
-	using PatternNotFoundCallback = void(*)(const std::string& pattern);
+public:
+	using pattern_not_found_callback = void(*)(const std::string& pattern);
+
+	static pattern_not_found_callback OnPatternNotFound(const pattern_not_found_callback cb = nullptr)
+	{
+		static pattern_not_found_callback callback = nullptr;
+		if (cb != nullptr)
+			callback = cb;
+		return callback;
+	}
 
 	class Pattern
 	{
-	private:
-		static bool Match(const PBYTE addr, const PBYTE pat, const PBYTE msk)
+		static bool Match(const byte* addr, const byte* pat, const byte* msk)
 		{
 			size_t n = 0;
 
-			while (addr[n] == pat[n] || msk[n] == (BYTE)'?')
+			while (addr[n] == pat[n] || msk[n] == (byte)'?')
 			{
 				if (!msk[++n])
 					return true;
@@ -76,19 +44,19 @@ public:
 			return false;
 		}
 
-		static PBYTE Find(const PBYTE rangeStart, DWORD len, const char* sig, const char* mask)
+		static byte* Find(byte* rangeStart, const int len, const char* sig, const char* mask)
 		{
-			size_t l = strlen(mask);
-			for (DWORD n = 0; n < (len - l); ++n)
+			const size_t maskLength = strlen(mask);
+			for (int n = 0; n < len - maskLength; ++n)
 			{
-				if (Match(rangeStart + n, (PBYTE)sig, (PBYTE)mask)) {
+				if (Match(rangeStart + n, (byte*)sig, (byte*)mask)) {
 					return rangeStart + n;
 				}
 			}
-			return NULL;
+			return nullptr;
 		}
 
-		constexpr static unsigned char FromHex(char c)
+		constexpr static unsigned char FromHex(const char c)
 		{
 			if (c >= 'a' && c <= 'f')
 				return c - 'a' + 10;
@@ -106,12 +74,12 @@ public:
 		std::size_t size;
 
 		template<std::size_t Size>
-		constexpr Pattern(const char(&idaPattern)[Size]) :sig{ 0 }, mask{ 0 }, size(0)
+		explicit constexpr Pattern(const char(&idaPattern)[Size]) :sig{ 0 }, mask{ 0 }, size(0)
 		{
 			std::size_t j = 0;
 			for (std::size_t i = 0; i < Size; ++i, ++j)
 			{
-				char c = idaPattern[i];
+				const char c = idaPattern[i];
 
 				if (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' || c >= '0' && c <= '9')
 				{
@@ -134,31 +102,31 @@ public:
 			size = j;
 		}
 
-		Memory Search(bool useCaching = true, uintptr_t base = 0) const
+		Memory Search(const bool useCaching = true, const uintptr_t base = 0) const
 		{
-			uint32_t sigHash = 0;
+			uint32_t sigHash;
+			
 			if (useCaching && GetCacheStorage())
 			{
-				std::string patString = ToString();
+				const std::string patString = ToString();
 				sigHash = GetCacheStorage()->Hash(patString);
-				uintptr_t cachedAddress = GetCacheStorage()->Get(sigHash);
-				if (cachedAddress)
+				if (const uintptr_t cachedAddress = GetCacheStorage()->Get(sigHash))
 					return Memory(cachedAddress);
 			}
 
-			BYTE* res = Find(base == 0 ? (PBYTE)Base() : (PBYTE)base, (DWORD)GetSize(), sig, mask);
+			byte* res = Find(base == 0 ? (byte*)Base() : (byte*)base, (int)GetSize(), sig, mask);
 
 			if (!res)
 			{
-				std::string patString = ToString();
+				const std::string patString = ToString();
 				if (OnPatternNotFound())
 					OnPatternNotFound()(patString);
-				return Memory(0xFFFFFFFF, false);
+				return Memory(UINTPTR_MAX, false);
 			}
 
 			if (useCaching && GetCacheStorage())
 			{
-				std::string patString = ToString();
+				const std::string patString = ToString();
 				sigHash = GetCacheStorage()->Hash(patString);
 				GetCacheStorage()->Put(sigHash, (uintptr_t)res - Memory::Base());
 			}
@@ -181,22 +149,14 @@ public:
 		}
 	};
 
-	inline static PatternNotFoundCallback OnPatternNotFound(PatternNotFoundCallback cb = nullptr)
+	static size_t GetSize()
 	{
-		static PatternNotFoundCallback callback = nullptr;
-		if (cb != nullptr)
-			callback = cb;
-		return callback;
-	}
-
-	inline static size_t GetSize()
-	{
-		static MODULEINFO info = { 0 };
-		static bool ok = GetModuleInformation(GetCurrentProcess(), NULL, &info, sizeof(MODULEINFO));
+		static MODULEINFO info { nullptr };
+		GetModuleInformation(GetCurrentProcess(), nullptr, &info, sizeof(MODULEINFO));
 		return info.SizeOfImage;
 	}
 
-	inline static IMemoryCacheStorage* InitCacheStorage(IMemoryCacheStorage* storage = nullptr)
+	static IMemoryCacheStorage* InitCacheStorage(IMemoryCacheStorage* storage = nullptr)
 	{
 		static IMemoryCacheStorage* cStorage = nullptr;
 		if (storage != nullptr)
@@ -204,30 +164,15 @@ public:
 		return cStorage;
 	}
 
-	inline static IMemoryCacheStorage* GetCacheStorage()
+	static IMemoryCacheStorage* GetCacheStorage()
 	{
 		return InitCacheStorage();
 	}
 
-	inline static uintptr_t& Base()
+	static uintptr_t& Base()
 	{
 		static uintptr_t _Base;
 		return _Base;
-	}
-
-	inline static Memory& Unused()
-	{
-		static Memory _Unused(nullptr);
-		return _Unused;
-	}
-
-	inline static Memory AllocUnused(std::size_t size)
-	{
-		static Memory NextUnused = Unused();
-
-		Memory res(NextUnused);
-		NextUnused += (int)size;
-		return res;
 	}
 
 	struct Hook
@@ -248,118 +193,123 @@ public:
 		for (auto& fn : Hook::Hooks())
 			fn();
 	}
+	
+	explicit Memory(const uintptr_t address, const bool addBase = true) : _address(addBase ? Base() + address : address) { }
+	explicit Memory(void* address) : _address((uintptr_t)address) { }
+	explicit Memory() : _address(0) { }
 
-	Memory(uintptr_t _address, bool addBase = true) : address(addBase ? Base() + _address : _address) { }
-	Memory(void* address) : address((uintptr_t)address) { }
-	Memory() : address(0) { }
-
-	bool IsValid()
+	bool IsValid() const
 	{
-		return address != 0xFFFFFFFFFFFFFFFF;
+		return _address != UINTPTR_MAX;
 	}
 
 	uintptr_t GetAddress() const {
-		return address;
+		return _address;
 	}
 
 	Memory& Add(int offset)
 	{
-		address += offset;
+		_address += offset;
 		return *this;
 	}
 
 	void FarJump(void* func)
 	{
-		MemUnlock lock(address, 12);
+		MemUnlock lock(_address, 12);
 
-		*((WORD*)address) = 0xB848;
-		*((intptr_t *)(address + 2)) = (uintptr_t)func;
-		*((WORD*)(address + 10)) = 0xE0FF;
+		*((WORD*)_address) = 0xB848;
+		*((intptr_t *)(_address + 2)) = (uintptr_t)func;
+		*((WORD*)(_address + 10)) = 0xE0FF;
 	}
 
 	void FarJump(const Memory& func)
 	{
-		FarJump((void*)func.address);
+		FarJump((void*)func._address);
 	}
 
 	void NearCall(uint64_t func)
 	{
 		Put<uint8_t>(0xE8);
-		(*this + 1).Put(int32_t(func - address - 5));
+		(*this + 1).Put(int32_t(func - _address - 5));
 	}
 
 	void NearCall(const Memory& func)
 	{
-		NearCall(func.address);
+		NearCall(func._address);
 	}
 
 	void SetOffset(uint64_t value, int offset = 1)
 	{
-		(*this + offset).Put(int32_t(value - address - (4 + offset)));
+		(*this + offset).Put(static_cast<int32_t>(value - _address - (4 + offset)));
 	}
 
 	void SetOffset(const Memory& func)
 	{
-		SetOffset(func.address);
+		SetOffset(func._address);
 	}
 
 	void Nop(size_t len)
 	{
-		MemUnlock lock(address, len);
+		MemUnlock lock(_address, len);
 
-		memset((void*)address, 0x90, len);
+		memset((void*)_address, 0x90, len);
 	}
 
-	void Retn()
+	void PutRetn()
 	{
 		Put<uint8_t>(0xC3);
 	}
 
-	Memory GetOffset(int offset = 3)
+	Memory GetOffset(int offset = 3) const
 	{
-		int32_t* ptr = (int32_t*)(address + offset);
-		return Memory(*ptr + (address + offset + 4), false);
+		const auto ptr = (int32_t*)(_address + offset);
+		return Memory(*ptr + (_address + offset + 4), false);
 	}
 
-	Memory& operator+=(int rhs)
+	Memory& operator+=(const int rhs)
 	{
-		address += rhs;
+		_address += rhs;
 		return *this;
 	}
 
-	Memory& operator-=(int rhs)
+	Memory& operator-=(const int rhs)
 	{
-		return (*this) += (-rhs);
+		_address -= rhs;
+		return *this;
 	}
 
-	Memory operator+(int right) const
+	Memory operator+(const int right) const
 	{
 		return Memory(*this) += right;
 	}
 
-	Memory operator-(int right) const
+	Memory operator-(const int right) const
 	{
 		return Memory(*this) -= right;
+	}
+	
+	bool operator==(const Memory &other) const {
+		return _address == other._address;
 	}
 
 	template <typename R = void*, typename ...Args>
 	R Call(Args... args)
 	{
-		return ((R(*)(Args...))address)(args...);
+		return ((R(*)(Args...))_address)(args...);
 	}
 
 	template<class T = void*>
-	T Get(int offset = 0) const
+	T Get(const int offset = 0) const
 	{
-		return (T)(address + offset);
+		return (T)(_address + offset);
 	}
 
 	template<typename T>
 	void Put(const T& value)
 	{
-		MemUnlock lock(address, sizeof(T));
+		MemUnlock lock(_address, sizeof(T));
 
-		memcpy((void*)address, &value, sizeof(T));
+		memcpy((void*)_address, &value, sizeof(T));
 	}
 
 	template<std::size_t N>
@@ -369,40 +319,39 @@ public:
 	}
 
 	template<class T>
-	T GetCall()
+	T GetCall() const
 	{
-		return (T)(*(int32_t*)(address + 1) + address + 5);
+		return (T)(*(int32_t*)(_address + 1) + _address + 5);
 	}
 
 #ifdef MH_ALL_HOOKS
 	template<class T>
-	bool Detour(T* fn, T** orig = nullptr)
+	bool Detour(T* fn, T** orig = nullptr) const
 	{
-		MH_CreateHook((void*)address, (void*)fn, (void**)orig);
-		return MH_EnableHook((void*)address) == MH_OK;
+		MH_CreateHook((void*)_address, (void*)fn, (void**)orig);
+		return MH_EnableHook((void*)_address) == MH_OK;
 	}
 
-	void DeactivateDetour()
-	{
-		MH_DisableHook((void*)address);
+	void DeactivateDetour() const {
+		MH_DisableHook((void*)_address);
 	}
 #endif
 
 private:
 	struct MemUnlock
 	{
-		DWORD rights;
-		size_t len;
-		void * addr;
+		unsigned long rights;
+		size_t size;
+		void * address;
 
-		MemUnlock(uint64_t _addr, size_t _len) :addr((void*)_addr), len(_len)
+		MemUnlock(const uint64_t addr, const size_t len) : size(len), address((void*)addr)
 		{
-			VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, &rights);
+			VirtualProtect(address, len, PAGE_EXECUTE_READWRITE, &rights);
 		}
 
 		~MemUnlock()
 		{
-			VirtualProtect(addr, len, rights, NULL);
+			VirtualProtect(address, size, rights, nullptr);
 		}
 	};
 };
