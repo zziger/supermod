@@ -35,6 +35,7 @@ void ModInfo::ReadManifest() {
 
 bool ModInfo::ReadIcon() {
     if (!*sdk::DirectX::d3dDevice) return false;
+    if (!exists(basePath / "icon.png")) return false;
     icon = dx_utils::load_png(*sdk::DirectX::d3dDevice, (basePath / "icon.png").string().c_str());
     return true;
 }

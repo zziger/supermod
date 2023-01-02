@@ -43,18 +43,9 @@ void ModManager::LoadMod(const std::string_view modName) {
     }
 
     auto info = ModInfo(modBase, module);
+    info.ReadIcon();
+    
     const auto mod = createMod ? createMod(info) : std::make_shared<Mod>(info);
-
-    if (*sdk::DirectX::d3dDevice) {
-        if (exists(modBase / icon_file_name)) {
-            try {
-                mod->info.icon = dx_utils::load_png(*sdk::DirectX::d3dDevice, (modBase / icon_file_name).generic_string().c_str());
-            } catch(std::exception&  e) {
-                Log::Warn << "Ошибка загрузки иконки мода " << mod->info.id << ":" << Log::Endl;
-                Log::Warn << e.what() << Log::Endl;
-            }
-        }
-    }
 
     if (mod->ShouldBeLoaded()) mod->Load(false);
         
@@ -83,13 +74,11 @@ void ModManager::ReloadIcons() {
     std::lock_guard lock(_modMutex);
 
     for (const auto loadedMod : _loadedMods) {
-        if (exists(loadedMod->info.basePath / icon_file_name)) {
-            try {
-                loadedMod->info.ReadIcon();
-            } catch(std::exception&  e) {
-                Log::Warn << "Ошибка загрузки иконки мода " << loadedMod->info.id << ":" << Log::Endl;
-                Log::Warn << e.what() << Log::Endl;
-            }
+        try {
+            loadedMod->info.ReadIcon();
+        } catch(std::exception&  e) {
+            Log::Warn << "Ошибка загрузки иконки мода " << loadedMod->info.id << ":" << Log::Endl;
+            Log::Warn << e.what() << Log::Endl;
         }
     }
 

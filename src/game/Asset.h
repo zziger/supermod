@@ -15,5 +15,10 @@ namespace game
         void Anonymize() {
             const_cast<char*>(name)[0] = '\0';
         }
+
+        void ReplaceTexture(IDirect3DTexture8* tex) {
+            texture->Release();
+            texture = tex;
+        }
     };
 }

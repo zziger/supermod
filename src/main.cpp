@@ -19,7 +19,7 @@
 #include "events/GameLoadedEvent.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
-#include "modloader/mods/ModFileResolver.h"
+#include "modloader/mods/files/ModFileResolver.h"
 #include "modloader/mods/ModManager.h"
 #include "sdk/Game.h"
 
