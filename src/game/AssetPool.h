@@ -1,29 +1,35 @@
 ﻿#pragma once
 #include <string>
 
-#include "Asset.h"
 #include "memory/Memory.h"
+#include "thirdparty/directx/d3d8.h"
 
 namespace game
 {
+    struct Asset {
+        const char name[128];
+        int width;
+        int height;
+        IDirect3DTexture8* texture;
+        byte isTga;
+        byte isPoolDefault;
+        D3DFORMAT format;
+
+        void Anonymize() const;
+
+        void ReplaceTexture(IDirect3DTexture8* tex);
+    };
+    
     class AssetPool {
     public:
         virtual ~AssetPool() = default;
+        AssetPool() = delete;
+        
         Asset* assets[1024];
         int assetCount;
 
-        Asset* GetByName(const std::string& name) const {
-            for (auto i = 0; i < assetCount; i++) {
-                if (assets[i]->name == name) return assets[i];
-            }
-            
-            return nullptr;
-        }
+        [[nodiscard]] Asset* GetByName(const std::string& name) const;
 
-        static AssetPool* GetInstance() {
-            static constexpr Memory::Pattern pat("B9 ? ? ? ? E8 ? ? ? ? 68 ? ? ? ? A1 ? ? ? ? 8B 08"); //  mov ecx, offset AssetPool__instance
-            static auto mem = pat.Search();
-            return *mem.Get<AssetPool**>(1);
-        }
+        static AssetPool* GetInstance();
     };
 }
