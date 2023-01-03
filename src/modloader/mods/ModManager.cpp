@@ -2,6 +2,7 @@
 
 #include "DirectXUtils.h"
 #include "exceptions/Error.h"
+#include "files/ModFileResolver.h"
 #include "mod/InternalMod.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"

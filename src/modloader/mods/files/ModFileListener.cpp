@@ -1,10 +1,11 @@
 ﻿#include "ModFileResolver.h"
 #include "Utils.h"
+#include "sdk/Game.h"
 
 void ModFileResolver::FileListenerThread() {
-    Log::Info << "Listening at " << std::filesystem::current_path().generic_string().c_str() << Log::Endl;
+    auto sus = (std::filesystem::current_path() / "mods").generic_string();
     const HANDLE hDir = CreateFileA(
-        std::filesystem::current_path().generic_string().c_str(),
+        sus.c_str(),
         FILE_LIST_DIRECTORY,
         FILE_SHARE_WRITE | FILE_SHARE_READ | FILE_SHARE_DELETE,
         nullptr, 
@@ -33,13 +34,20 @@ void ModFileResolver::FileListenerThread() {
             BYTE* ptr = buf;
             while(true) {
                 const auto info = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(ptr);
-                auto filename = std::wstring(info->FileName, info->FileName + info->FileNameLength / sizeof(char16_t));
-                
-                if (resolvedFilePaths.contains(filename)) {
-                    auto normalName = convert.to_bytes((char16_t*) filename.c_str());
-                    std::lock_guard lock(_reloadMutex);
-                    filesToReload.emplace(normalName);
+                auto widePath = std::wstring(info->FileName, info->FileName + info->FileNameLength / sizeof(char16_t));
+                auto path = std::filesystem::path(convert.to_bytes((char16_t*) widePath.c_str()));
+                auto newPath = std::filesystem::path();
+
+                auto foundData = false;
+                for(const auto& el : path) {
+                    if (el != "data" && !foundData) continue;
+                    foundData = true;
+                    newPath = newPath / el;
                 }
+                if (!foundData) continue;
+                
+                std::lock_guard lock(_reloadMutex);
+                filesToReload.emplace(newPath.generic_string());
                 
                 if (!info->NextEntryOffset) break;
                 ptr += info->NextEntryOffset;

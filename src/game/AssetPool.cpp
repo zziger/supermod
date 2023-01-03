@@ -11,6 +11,18 @@ namespace game
         texture = tex;
     }
 
+    Memory AssetPool::GetReadConstJpgMem() {
+        static constexpr Memory::Pattern pat("55 8B EC 83 EC ? 89 4D ? 8B 45 ? 50 8B 4D ? E8 ? ? ? ? 89 45 ? 83 7D ? ? 74 ? 8B 45 ? E9 ? ? ? ? 6A ? 6A ? 8B 4D");
+        static auto mem = pat.Search();
+        return mem;
+    }
+    
+    Memory AssetPool::GetReadConstSurfaceMem() {
+        static constexpr Memory::Pattern pat("55 8B EC 83 EC ? 89 4D ? 8B 45 ? 50 8B 4D ? E8 ? ? ? ? 89 45 ? 83 7D ? ? 74 ? 8B 45 ? E9 ? ? ? ? C7 45");
+        static auto mem = pat.Search();
+        return mem;
+    }
+    
     Asset* AssetPool::GetByName(const std::string& name) const {
         for (auto i = 0; i < assetCount; i++) {
             if (assets[i]->name == name) return assets[i];

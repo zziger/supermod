@@ -15,12 +15,14 @@ class ModFileResolver {
     static std::string GetPoolFileName(const std::string& filename);
     static void LoadTexture(std::filesystem::path filepath);
     static void LoadFile(std::filesystem::path filepath);
-    
+
 public:
     [[nodiscard]] static std::optional<std::filesystem::path> ResolveFile(const std::filesystem::path& path);
+    [[nodiscard]] static std::filesystem::path ResolveFileOrOriginal(const std::filesystem::path& path);
 
     [[nodiscard]] static std::optional<std::filesystem::path> ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path);
 
     static void Init();
     static void ToggleFileListener(bool state);
+    static void ReloadModFiles(std::filesystem::path dataFolder);
 };

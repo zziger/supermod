@@ -9,8 +9,12 @@ namespace ui
         static auto pool = game::AssetPool::GetInstance();
         const auto& io = ImGui::GetIO();
         if (ImGui::Begin("Просмотр текстур", &_textureViewerOpen)) {
+            static char str0[128] = "";
+            ImGui::InputText("Поиск", str0, IM_ARRAYSIZE(str0));
+            
             for (auto i = 0; i < pool->assetCount; i++) {
                 const auto asset = pool->assets[i];
+                if (str0[0] != '\0' && std::string(asset->name).find(str0) == std::string::npos) continue;
                 if (ImGui::TreeNode(asset->name, "%s (%dx%d)", asset->name, asset->width, asset->height)) {
                     const ImVec2 pos = ImGui::GetCursorScreenPos();
                     const auto aspectRatio = asset->height / (float) asset->width;

@@ -43,7 +43,6 @@ namespace dx_utils
     LPDIRECT3DTEXTURE8 load_jpg(IDirect3DDevice8* device, const char* filename) {
         // std::vector<uint8_t> buf;
 
-        Log::Debug << "The what" << Log::Endl;
         std::ifstream fstream { filename, std::ios::binary | std::ios::ate };
         int size = fstream.tellg();
         fstream.seekg(0, std::ios::beg);
@@ -53,7 +52,7 @@ namespace dx_utils
 
         
         const auto readRes = njDecode(buffer.data(), buffer.size());
-        if (readRes != 0) throw Error("Не удалось прочитать файл " + std::string(filename));
+        if (readRes != 0) throw Error(std::format("Не удалось прочитать файл {}. Ошибка: {}", filename, (int) readRes));
         
         uint32_t width = njGetWidth(), height = njGetHeight();
         auto buf = njGetImage();
@@ -71,7 +70,7 @@ namespace dx_utils
         
         for (uint32_t i = 0; i < width * height; i++) {
             const auto out = (uint8_t*) bits.pBits; 
-            out[i * 4 + 3] = 255;
+                out[i * 4 + 3] = 255;
             out[i * 4 + 2] = buf[i * 3 + 0];
             out[i * 4 + 1] = buf[i * 3 + 1];
             out[i * 4 + 0] = buf[i * 3 + 2];

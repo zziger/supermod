@@ -3,15 +3,11 @@
 #include <filesystem>
 
 #include "DirectX.h"
+#include "Log.h"
 #include "Utils.h"
 #include "game/AssetPool.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
-
-HOOK_FN_CONV(char*, getCachedFile, ARGS(char* name), __cdecl) {
-    return nullptr;
-}
-
 
 namespace sdk
 {
@@ -20,24 +16,12 @@ namespace sdk
         window = *movWindow.Search().Get<HWND**>(1);
 
         sdk::DirectX::Init();
-        HookManager::RegisterHook("55 8B EC 83 EC ? A1 ? ? ? ? 89 45 ? 8B 45 ? 50 8D 4D", HOOK_REF(getCachedFile));
     }
 
 
     
     
     void Game::Restart() {
-        // ReloadTexture(GetDataPath() / "ui" / "_a_lifebar.jpg");
-        // auto pool = (game::AssetPool*) 0x1423CF8;
-        // Log::Debug << "Asset count was " << pool->assetCount << Log::Endl;
-        // Log::Debug << "Assets:" << Log::Endl;
-        //
-        // for (auto i = 0; i < pool->assetCount; i++) {
-        //     Log::Debug << "Asset " << i << ": " << pool->assets[i]->name << Log::Endl;
-        // }
-        // static constexpr Memory::Pattern pat("55 8B EC E8 ? ? ? ? E8 ? ? ? ? E8");
-        // static auto mem = pat.Search();
-        // mem.Call();
         char buf[MAX_PATH];
         GetModuleFileNameA(nullptr, buf, MAX_PATH);
         std::filesystem::current_path(GetDataPath() / "..");

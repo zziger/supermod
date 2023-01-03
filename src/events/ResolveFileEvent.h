@@ -29,8 +29,12 @@ private:
     std::optional<std::filesystem::path> _resolvedPath = std::nullopt;
 };
 
+static inline bool should_resolve_files = true;
+
 template <typename T>
 T resolve(std::string filename, std::function<T (const std::string&)> fn) {
+    if (!should_resolve_files) return fn(filename);
+    
     const auto basePath = sdk::Game::GetDataPath() / "..";
     const auto curPath = std::filesystem::current_path();
     const auto path = curPath / filename;
@@ -63,6 +67,10 @@ HOOK_FN(inline void, load_audio, ARGS(const char* lpFileName)) {
         load_audio_orig(filename.c_str());
         return nullptr;
     });
+}
+
+inline void set_should_resolve_files(bool state) {
+    should_resolve_files = state;
 }
 
 inline EventManager::Ready $resolve_file_event_hook([] {

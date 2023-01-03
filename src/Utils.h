@@ -3,6 +3,7 @@
 #include <locale>
 #include <string>
 #include <Windows.h>
+#include <fstream>
 
 #include <thirdparty/directx/d3d8.h>
 #include <format>
@@ -29,6 +30,16 @@ namespace utils
         str.erase(str.find_last_not_of(' ') + 1);
         str.erase(0, str.find_first_not_of(' '));
         return str;
+    }
+
+    inline void* read_file(const std::string& filename, int& size) {
+        std::ifstream fstream { filename, std::ios::binary | std::ios::ate };
+        size = fstream.tellg();
+        fstream.seekg(0, std::ios::beg);
+        const auto mem = malloc(size);
+        fstream.read((char*)mem, size);
+
+        return mem;
     }
 }
 

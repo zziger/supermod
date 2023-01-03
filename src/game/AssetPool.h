@@ -7,7 +7,8 @@
 namespace game
 {
     struct Asset {
-        const char name[128];
+        const char name[127];
+        char constTex;
         int width;
         int height;
         IDirect3DTexture8* texture;
@@ -27,6 +28,9 @@ namespace game
         
         Asset* assets[1024];
         int assetCount;
+
+        static Memory GetReadConstJpgMem();
+        static Memory GetReadConstSurfaceMem();
 
         [[nodiscard]] Asset* GetByName(const std::string& name) const;
 

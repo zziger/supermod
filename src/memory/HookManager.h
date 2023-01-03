@@ -12,6 +12,12 @@ public:
         mem.Detour(fn, orig);
         return mem;
     }
+    
+    template <class T>
+    static Memory RegisterHook(Memory mem, T* fn, T** orig) {
+        mem.Detour(fn, orig);
+        return mem;
+    }
 
     static Memory UnregisterHook(Memory mem);
 };

@@ -30,6 +30,7 @@ void Mod::Load(bool manual) {
         OnLoad();
         modules.LoadNeeded();
         _loaded = true;
+        if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         Log::Info << "Мод " << info.title << " загружен" << Log::Endl;
         const Config cfg;
         const auto& node = cfg.data[config_key];
@@ -60,6 +61,7 @@ void Mod::Unload(bool manual) {
         UnloadHooks();
         OnUnload();
         modules.Unload();
+        if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         Log::Info << "Мод " << info.title << " выгружен" << Log::Endl;
     } catch(std::exception& e) {
         Log::Error << "Ошибка выгрузки мода " << info.id << ":" << Log::Endl;

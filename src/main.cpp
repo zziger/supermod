@@ -55,8 +55,8 @@ DWORD WINAPI Init() {
     });
     Memory::InitCacheStorage(new MemoryCacheStorage());
 
-    sdk::Game::Init();
     MH_Initialize();
+    sdk::Game::Init();
     Memory::RunHooks();
 
     ModManager::Init();

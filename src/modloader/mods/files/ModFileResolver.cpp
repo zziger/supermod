@@ -11,17 +11,22 @@
 #include "sdk/DirectX.h"
 
 std::optional<std::filesystem::path> ModFileResolver::ResolveFile(const std::filesystem::path& path) {
-    for (const auto& mod : ModManager::GetLoadedMods()) {
-        const auto resolvedPath = ResolveModFile(mod, path);
+    auto mods = ModManager::GetLoadedMods();
+    for (auto el = mods.rbegin(); el != mods.rend(); ++el) {
+        const auto resolvedPath = ResolveModFile(*el, path);
         if (!resolvedPath) continue;
 
         auto rel = relative(*resolvedPath, sdk::Game::GetDataPath() / "..");
-        resolvedFilePaths.emplace(rel.wstring());
-        Log::Debug << "Resolved file " << *resolvedPath << Log::Endl;
+        // Log::Debug << "Resolved file " << *resolvedPath << Log::Endl;
         return *resolvedPath;
     }
 
     return std::nullopt;
+}
+
+std::filesystem::path ModFileResolver::ResolveFileOrOriginal(const std::filesystem::path& path) {
+    const auto resolvedPath = ResolveFile(path);
+    return resolvedPath ? *resolvedPath : path;
 }
 
 std::optional<std::filesystem::path> ModFileResolver::ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
@@ -45,7 +50,8 @@ void ModFileResolver::Init() {
     EventManager::On<AfterTickEvent>([]() {
         std::lock_guard lock(_reloadMutex);
         for (auto toReload : filesToReload) {
-            LoadFile(sdk::Game::GetDataPath() / ".." / toReload);
+            auto path = sdk::Game::GetDataPath() / ".." / toReload;
+            LoadFile(path);
         }
         filesToReload.clear();
     });
@@ -68,14 +74,33 @@ void ModFileResolver::ToggleFileListener(bool state) {
 }
 
 std::string ModFileResolver::GetPoolFileName(const std::string& filename) {
-    return std::regex_replace(filename, std::regex("^_a_(.*?)\\.jpg$"), "$1.tga");
+    static auto tgaRegex = std::regex("^_a_(.*?)\\.jpg$");
+    static auto excludeRegex = std::regex("^_a_back\\d+\\.jpg$");
+
+    if (!filename.starts_with("_a_")) return filename;
+    if (std::regex_match(filename, excludeRegex)) return filename;
+    return std::regex_replace(filename, tgaRegex, "$1.tga");
 }
 
 void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
     auto extension = filepath.extension().generic_string();
     std::ranges::transform(extension, extension.begin(), tolower);
 
-    Log::Info << "Loading " << filepath << Log::Endl;
-    if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(filepath);
-    else Log::Warn << "Loading of " << extension << " files is not supported" << Log::Endl;
+    if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
+    else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
+}
+
+void ModFileResolver::ReloadModFiles(std::filesystem::path dataFolder) {
+    if (!exists(dataFolder)) return;
+    
+    const auto it = std::filesystem::recursive_directory_iterator(dataFolder);
+    for (auto& file : it) {
+        if (file.is_directory()) continue;
+        auto relPath = relative(file.path(), dataFolder);
+        try {
+            LoadFile(sdk::Game::GetDataPath() / relPath);
+        } catch(std::exception& e) {
+            Log::Warn << "Не удалось загрузить файл " << relPath.generic_string() << ": " << e.what() << Log::Endl;
+        }
+    }
 }
