@@ -34,12 +34,7 @@ void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
     const auto cwd = std::filesystem::current_path();
     current_path(texturePath.parent_path());
 
-    auto cachedFile = game::CachedFilePool::GetInstance()->GetByName(filename);
-    if (cachedFile) {
-        int size;
-        cachedFile->content = utils::read_file(filename, size);
-        cachedFile->size = size;
-    }
+    game::CachedFilePool::DeleteByName(filename);
     game::Asset* newAsset;
     set_should_resolve_files(false);
     if (asset->constTex == 1) {

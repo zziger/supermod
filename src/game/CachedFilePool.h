@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <filesystem>
 #include <string>
 
 namespace game
@@ -7,7 +8,9 @@ namespace game
         char filename[128];
         int size;
         void* content;
-        int unk1;
+        int loaded;
+
+        void ReplaceContent(const std::string& filepath);
     };
 
     class CachedFilePool {
@@ -17,6 +20,7 @@ namespace game
 
         static CachedFilePool* GetInstance();
 
-        [[nodiscard]] CachedFile* GetByName(const std::string& name) const;
+        [[nodiscard]] static CachedFile* GetByName(const std::string& name);
+        static bool DeleteByName(const std::string& name);
     };
 }
