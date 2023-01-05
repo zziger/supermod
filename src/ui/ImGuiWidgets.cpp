@@ -100,4 +100,16 @@ namespace ui::widgets
             ImGui::EndTooltip();
         }
     }
+
+    namespace styles
+    {
+        void PushButtonDanger() {
+            ImGui::PushStyleColor(ImGuiCol_Button, 0x993D3DFF_color);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xB33636FF_color);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, 0xCC2929FF_color);
+        }
+        void PopButtonDanger() {
+            ImGui::PopStyleColor(3);
+        }
+    }
 }

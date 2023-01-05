@@ -82,15 +82,33 @@ void UI::RenderModsTab() {
             if (ImGui::Button("Открыть папку")) {
                 ShellExecuteA(nullptr, "explore", mod->info.basePath.string().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
             }
-        
-            ImGui::PushStyleColor(ImGuiCol_Button, 0x993D3DFF_color);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xB33636FF_color);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, 0xCC2929FF_color);
+
+            widgets::styles::PushButtonDanger();
             if (ImGui::Button("Удалить")) {
-                ModManager::DeleteMod(mod);
-                activeMod = std::nullopt;
+                ImGui::OpenPopup("Удаление мода");
             };
-            ImGui::PopStyleColor(3);
+            widgets::styles::PopButtonDanger();
+
+            if (ImGui::BeginPopupModal("Удаление мода", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::Text("Вы уверены, что хотите удалить мод %s?", mod->info.title);
+
+                ImGui::Spacing();
+                widgets::styles::PushButtonDanger();
+                if (ImGui::Button("Да, удалить")) {
+                    ModManager::DeleteMod(mod);
+                    activeMod = std::nullopt;
+                }
+                widgets::styles::PopButtonDanger();
+                ImGui::SetItemDefaultFocus();
+    
+                ImGui::SameLine();
+                if (ImGui::Button("Отмена")) {
+                    ImGui::CloseCurrentPopup();
+                }
+    
+                ImGui::EndPopup();
+            }
         }
 
         if (mod->modules.items.size() != 0) {
