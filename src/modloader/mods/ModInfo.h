@@ -11,6 +11,7 @@ struct ModInfo {
     std::string author;
     std::string version;
     std::filesystem::path basePath;
+    std::string luaScript;
     LPDIRECT3DTEXTURE8 icon = nullptr; // nullptr if no icon
     HMODULE dll = nullptr;
     bool internal = false;

@@ -4,6 +4,7 @@
 #include "exceptions/Error.h"
 #include "files/ModFileResolver.h"
 #include "mod/InternalMod.h"
+#include "scripting/LuaMod.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 
@@ -46,7 +47,7 @@ void ModManager::LoadMod(const std::string_view modName) {
     auto info = ModInfo(modBase, module);
     info.ReadIcon();
     
-    const auto mod = createMod ? createMod(info) : std::make_shared<Mod>(info);
+    const auto mod = createMod ? createMod(info) : info.luaScript == "" ? std::make_shared<Mod>(info) : std::make_shared<LuaMod>(info);
 
     if (mod->ShouldBeLoaded()) mod->Load(false);
         

@@ -29,6 +29,7 @@ void ModInfo::ReadManifest() {
     title = node["title"].as<std::string>(id);
     author = node["author"].as<std::string>("unknown");
     version = node["version"].as<std::string>("0.0.0");
+    luaScript = node["lua-script"].as<std::string>("");
         
     if (!node["title"]) Log::Warn << "Не указано название для мода " << id << Log::Endl;
 }

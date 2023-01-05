@@ -28,6 +28,23 @@ if(NOT yaml-cpp_POPULATED)
 endif()
 include_directories(BEFORE SYSTEM ${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR}/include)
 
+FetchContent_Declare(
+    libluajit
+    GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT.git
+    GIT_SHALLOW	ON
+    GIT_TAG 113eb1d172dfb6b91f67e9d0478a113a3ccced80
+)
+FetchContent_GetProperties(libluajit)
+
+if(NOT libluajit_POPULATED)
+    message(STATUS "Populating libluajit...")
+    FetchContent_Populate(libluajit)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+    add_subdirectory(${libluajit_SOURCE_DIR} ${libluajit_BINARY_DIR})
+    message(STATUS "Done.")
+endif()
+include_directories(BEFORE SYSTEM ${libluajit_SOURCE_DIR}/src)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Release)
@@ -74,4 +91,4 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "dinput8")
 # add_executable(${TARGET_NAME} "${PROJECT_SOURCE_FILES}")
 target_compile_definitions(${TARGET_NAME} PRIVATE ${DEFS} )
 include_directories(${TARGET_NAME} PRIVATE "src" "libs" "include" "libs/imgui")
-target_link_libraries(${TARGET_NAME} ${PROJECT_SOURCE_DIR}/libs/minhook.lib yaml-cpp)
+target_link_libraries(${TARGET_NAME} ${PROJECT_SOURCE_DIR}/libs/minhook.lib libluajit yaml-cpp)

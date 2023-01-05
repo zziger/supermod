@@ -2,6 +2,7 @@
 #include <fstream>
 #include <optional>
 
+#include "thirdparty/LuaContext.h"
 #include "thirdparty/directx/d3d8.h"
 
 namespace sdk
@@ -20,6 +21,7 @@ namespace sdk
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 
+        static void AddToLua(LuaContext& context);
     private:
         inline static std::filesystem::path* _dataPath;
     };

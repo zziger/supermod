@@ -10,6 +10,8 @@
 
 #define MAX_INPUT_LENGTH 255
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
 namespace utils
 {
     inline std::string readline() {
@@ -40,6 +42,12 @@ namespace utils
         fstream.read((char*)mem, size);
 
         return mem;
+    }
+
+    inline std::string get_module_name() {
+        char dllPath[MAX_PATH] = {0};
+        GetModuleFileNameA((HINSTANCE)&__ImageBase, dllPath, _countof(dllPath));
+        return std::string(dllPath); 
     }
 }
 

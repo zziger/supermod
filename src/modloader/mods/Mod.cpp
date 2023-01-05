@@ -2,7 +2,6 @@
 
 #include "Config.h"
 #include "modloader/mods/files/ModFileResolver.h"
-#include "exceptions/Error.h"
 
 std::shared_ptr<Module> Mod::AddModule(std::shared_ptr<Module> module) {
     modules += module;

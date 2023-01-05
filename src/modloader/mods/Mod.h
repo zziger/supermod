@@ -37,7 +37,7 @@ public:
     bool IsLoaded() const;
     bool ShouldBeLoaded() const;
     
-    virtual void RenderUI();;
+    virtual void RenderUI();
 };
 
 typedef std::shared_ptr<Mod> (*create_mod_fn)(ModInfo& info);

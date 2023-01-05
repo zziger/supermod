@@ -17,9 +17,6 @@ namespace sdk
 
         sdk::DirectX::Init();
     }
-
-
-    
     
     void Game::Restart() {
         char buf[MAX_PATH];
@@ -57,5 +54,13 @@ namespace sdk
 
     std::filesystem::path Game::GetModsPath() {
         return GetDataPath() / ".." / "mods";
+    }
+    
+    void Game::AddToLua(LuaContext& context) {
+        context.writeVariable("Game", Game{});
+        context.registerStaticFunction<Game>("restart", Restart);
+        context.registerStaticFunction<Game>("isGameLoaded", IsGameLoaded);
+        context.registerStaticFunction<Game>("getDataPath", GetDataPath);
+        context.registerStaticFunction<Game>("getModsPath", GetModsPath);
     }
 }
