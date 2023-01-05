@@ -61,10 +61,10 @@ void UI::RenderModsTab() {
         
         ImGui::BeginGroup();
         ImGui::Text("%s", info.title.c_str());
-        ImGui::Text("%s", info.version.c_str());
+        if (info.version != "") ImGui::Text("%s", info.version.c_str());
         ImGui::EndGroup();
 
-        ImGui::Text("Автор: %s", info.author.c_str());
+        if (info.author != "") ImGui::Text("Автор: %s", info.author.c_str());
         
         if (!mod->info.internal) {
             ImGui::Text("Состояние:");

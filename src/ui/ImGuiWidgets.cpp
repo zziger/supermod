@@ -57,7 +57,7 @@ namespace ui::widgets
             
             ImGui::SameLine();
         
-            ImGui::SetCursorScreenPos({ startCursorPos.x + elementHeight + style.ItemInnerSpacing.x, startCursorPos.y });
+            ImGui::SetCursorScreenPos({ startCursorPos.x + elementHeight + style.ItemInnerSpacing.x * 2, startCursorPos.y });
         }
             
         ImGui::BeginGroup();
@@ -65,9 +65,12 @@ namespace ui::widgets
         const auto basePos = window->DC.CursorPos;
 
         if (disabled) ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+        
         {
+            // moving mod name half a line down if no author is specified
+            ImVec2 pos = { window->DC.CursorPos.x, window->DC.CursorPos.y + (strlen(author) ? 0 : lh / 2.f) };
             ImVec2 size = { availableWidth, lh };
-            ImGui::RenderTextEllipsis(draw_list, basePos, { basePos.x + size.x, basePos.y + size.y }, basePos.x + size.x, basePos.x + size.x, title, nullptr, nullptr);
+            ImGui::RenderTextEllipsis(draw_list, pos, { pos.x + size.x, pos.y + size.y }, pos.x + size.x, pos.x + size.x, title, nullptr, nullptr);
         }
 
         {
