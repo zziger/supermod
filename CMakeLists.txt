@@ -66,7 +66,7 @@ set(IMGUI_FILES
 )
 
 if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-    add_definitions(/MT /utf-8)
+    add_definitions(/MT /MP /FS /utf-8)
 endif()
 
 add_library(${TARGET_NAME} SHARED "${PROJECT_SOURCE_FILES}" "${IMGUI_FILES}")
