@@ -1,4 +1,6 @@
-#pragma once
+/// By default the game does not handle window messages while loading, resulting in a "lagged" window, that you can't even move
+/// This patch fixes the issue by handling messages in a loading state update method
+
 #include "Utils.h"
 #include "events/EventManager.h"
 #include "memory/HookManager.h"
