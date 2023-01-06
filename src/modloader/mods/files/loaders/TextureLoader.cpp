@@ -1,4 +1,5 @@
 ﻿#include <regex>
+#include <queue>
 
 #include "DirectXUtils.h"
 #include "Utils.h"
@@ -8,18 +9,6 @@
 #include "game/CachedFilePool.h"
 #include "sdk/DirectX.h"
 
-game::Asset* (__thiscall * readJpg_orig)(game::AssetPool* this_, char* name, int width, int height) = nullptr;
-game::Asset* __fastcall readJpg(game::AssetPool* this_, void*, char* name, int width, int height) {
-    auto asset = readJpg_orig(this_, name, width, height);
-    asset->constTex = 1;
-    return asset;
-}
-game::Asset* (__thiscall * readJpg2_orig)(game::AssetPool* this_, char* name, int width, int height) = nullptr;
-game::Asset* __fastcall readJpg2(game::AssetPool* this_, void*, char* name, int width, int height) {
-    auto asset = readJpg_orig(this_, name, width, height);
-    asset->constTex = 2;
-    return asset;
-}
 
 void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
     // Log::Debug << "Reloading texture " << texturePath << Log::Endl;
@@ -38,9 +27,9 @@ void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
     game::Asset* newAsset;
     set_should_resolve_files(false);
     if (asset->constTex == 1) {
-        newAsset = game::AssetPool::GetReadConstJpgMem().Get<game::Asset* (__thiscall *)(game::AssetPool*, const char*, int, int)>()(pool, filename.c_str(), asset->width, asset->height);
+        newAsset = game::AssetPool::GetReadConstJpgMem().Get<game::Asset* (__thiscall *)(game::AssetPool*, const char*, int, int)>()(pool, filename.c_str(), asset->origWidth, asset->origHeight);
     } else if (asset->constTex == 2) {
-        newAsset = game::AssetPool::GetReadConstSurfaceMem().Get<game::Asset* (__thiscall *)(game::AssetPool*, const char*, int, int)>()(pool, filename.c_str(), asset->width, asset->height);
+        newAsset = game::AssetPool::GetReadConstSurfaceMem().Get<game::Asset* (__thiscall *)(game::AssetPool*, const char*, int, int)>()(pool, filename.c_str(), asset->origWidth, asset->origHeight);
     } else {
         static constexpr Memory::Pattern loadTex("55 8B EC 51 89 4D ? 6A ? 6A ? 6A");
         static auto mem = loadTex.Search();
@@ -56,9 +45,3 @@ void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
     pool->assetCount--;
 
 }
-
-inline EventManager::Ready $debug([] {
-    
-    HookManager::RegisterHook(game::AssetPool::GetReadConstJpgMem(), HOOK_REF_FORCE(readJpg));
-    HookManager::RegisterHook(game::AssetPool::GetReadConstSurfaceMem(), HOOK_REF_FORCE(readJpg2));
-}) ;

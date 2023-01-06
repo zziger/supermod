@@ -7,8 +7,10 @@
 namespace game
 {
     struct Asset {
-        const char name[127];
-        char constTex;
+        const char name[119]; // ingame has length of 128, 9 bytes went for my custom fields
+        char constTex; // my custom field for asset swap impl
+        int origWidth; // my custom field for asset swap impl
+        int origHeight; // my custom field for asset swap impl
         int width;
         int height;
         IDirect3DTexture8* texture;
