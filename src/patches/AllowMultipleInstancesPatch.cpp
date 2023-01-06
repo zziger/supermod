@@ -1,5 +1,6 @@
+/// This patch allows to start multiple game instances at the same time
+/// It's important for game restart feature implementation
 
-#pragma once
 #include "Utils.h"
 #include "events/EventManager.h"
 #include "memory/HookManager.h"
