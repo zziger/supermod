@@ -56,11 +56,32 @@ namespace sdk
         return GetDataPath() / ".." / "mods";
     }
     
+    uint64_t Game::GetGameVersion() {
+        const auto dosHeader = (IMAGE_DOS_HEADER*) GetModuleHandleA(nullptr);
+        const auto ntHeaders = (IMAGE_NT_HEADERS*) ((byte*)dosHeader + dosHeader->e_lfanew);
+        return ntHeaders->FileHeader.TimeDateStamp;
+    }
+    
+    std::string Game::SerializeGameVersion(uint64_t version) {
+        auto timestamp = (std::chrono::sys_seconds) (std::chrono::seconds) version;
+        return std::format("{:%d.%m.%Y %T}", timestamp);
+    }
+    
+    uint64_t Game::ParseGameVersion(const std::string& version) {
+        std::chrono::sys_seconds timestamp;
+        std::istringstream in(version);
+        in >> parse("%d.%m.%Y %T", timestamp);
+        return timestamp.time_since_epoch().count();
+    }
+
     void Game::AddToLua(LuaContext& context) {
         context.writeVariable("Game", Game{});
         context.registerStaticFunction<Game>("restart", Restart);
         context.registerStaticFunction<Game>("isGameLoaded", IsGameLoaded);
         context.registerStaticFunction<Game>("getDataPath", GetDataPath);
         context.registerStaticFunction<Game>("getModsPath", GetModsPath);
+        context.registerStaticFunction<Game>("getGameVersion", GetGameVersion);
+        context.registerStaticFunction<Game>("serializeGameVersion", SerializeGameVersion);
+        context.registerStaticFunction<Game>("parseGameVersion", ParseGameVersion);
     }
 }

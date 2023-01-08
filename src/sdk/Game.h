@@ -21,6 +21,11 @@ namespace sdk
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 
+        static uint64_t GetGameVersion();
+
+        static std::string SerializeGameVersion(uint64_t version);
+        static uint64_t ParseGameVersion(const std::string& version);
+
         static void AddToLua(LuaContext& context);
     private:
         inline static std::filesystem::path* _dataPath;

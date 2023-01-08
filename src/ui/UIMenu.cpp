@@ -73,6 +73,26 @@ void UI::RenderModsTab() {
             if (mod->IsLoaded()) ImGui::TextColored(0x77EE77FF_color, "Включен");
             else ImGui::TextColored(0xEE7777FF_color, "Выключен");
 
+            if (!mod->info.compatible) {
+                ImGui::PushStyleColor(ImGuiCol_Text, 0xFFA000FF_color);
+                ImGui::TextWrapped("Мод не совместим с текущей версией игры!");
+                ImGui::PopStyleColor();
+            }
+
+            const auto currentVersion = sdk::Game::GetGameVersion();
+            if (!mod->info.gameVersions.empty()) {
+                if (ImGui::TreeNode("Поддерживаемые версии игры:")) {
+                    for (auto gameVersion : mod->info.gameVersions) {
+                        ImGui::Text(sdk::Game::SerializeGameVersion(gameVersion).c_str());
+                        if (currentVersion == gameVersion) {
+                            ImGui::SameLine();
+                            widgets::HelpMarker("Текущая версия", ICON_MD_DONE);
+                        }
+                    } 
+                    ImGui::TreePop();   
+                }
+            }
+
             if (ImGui::Button(mod->IsLoaded() ? "Выключить" : "Включить")) {
                 if (mod->IsLoaded()) mod->Unload(true);
                 else mod->Load(true);

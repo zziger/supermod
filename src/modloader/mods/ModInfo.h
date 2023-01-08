@@ -12,6 +12,8 @@ struct ModInfo {
     std::string version;
     std::filesystem::path basePath;
     std::string luaScript;
+    std::vector<uint64_t> gameVersions {}; // empty if no version restrictions
+    bool compatible = true;
     LPDIRECT3DTEXTURE8 icon = nullptr; // nullptr if no icon
     HMODULE dll = nullptr;
     bool internal = false;

@@ -30,8 +30,28 @@ void ModInfo::ReadManifest() {
     author = node["author"].as<std::string>("");
     version = node["version"].as<std::string>("");
     luaScript = node["lua-script"].as<std::string>("");
-        
+
+    const auto currentGameVersion = sdk::Game::GetGameVersion();
+    const auto versions = node["game-versions"].as<std::vector<std::string>>(std::vector<std::string>{});
+
+    if (!versions.empty()) {
+        compatible = false;
+        for (const auto& gameVersionString : versions) {
+            auto gameVersion = sdk::Game::ParseGameVersion(gameVersionString);
+            if (!gameVersion) {
+                Log::Warn << "Неверная версия " << gameVersionString << " в моде " << title << Log::Endl;
+                continue;
+            }
+            gameVersions.push_back(gameVersion);
+            if (gameVersion == currentGameVersion) {
+                compatible = true;
+                break;
+            }
+        } 
+    }
+
     if (!node["title"]) Log::Warn << "Не указано название для мода " << id << Log::Endl;
+    if (!compatible) Log::Warn << "Мод " << title << " не совместим с текущей версией игры" << Log::Endl;
 }
 
 bool ModInfo::ReadIcon() {
