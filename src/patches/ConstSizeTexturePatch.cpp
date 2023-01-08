@@ -47,7 +47,6 @@ void override_squared_dimensions(char* name, int& width, int& height) {
 
     int realWidth = 0, realHeight = 0;
     dx_utils::get_image_dimensions(final.generic_string(), realWidth, realHeight);
-    Log::Debug << squarify_dimensions_algorithm(height) << " " << height << " " << realHeight << Log::Endl;
     overriden_dimensions_queue.push(squarify_dimensions_algorithm(height) / (float) height * realHeight);
     overriden_dimensions_queue.push(squarify_dimensions_algorithm(width) / (float) width * realWidth);
 
