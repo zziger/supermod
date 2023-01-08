@@ -19,7 +19,7 @@ protected:
 
     template<simple_module... Modules> 
     void AddModules() {
-        auto arr = { AddModule(std::make_shared<Modules>())... };
+        (AddModule(std::make_shared<Modules>()), ...);
     }
     
     virtual void OnLoad();
