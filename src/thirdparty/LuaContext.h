@@ -422,15 +422,6 @@ public:
         static_assert(std::is_function<TFunctionType>::value, "registerFunction must take a function type as template parameter");
         registerFunctionImpl(functionName, std::move(fn), tag<TObject>{}, tag<TFunctionType>{});
     }
-
-    /**
-     * Tells that Lua will be allowed to access an object's function
-     * This is the alternative version with an explicit template parameter: "registerFunction<Foo, void (*)()>(name, [](Foo&) { })"
-     * @param fn                Function object which takes as first parameter a reference to the object
-     * @tparam TObject          Object to register this function to
-     * @tparam TFunctionType    Function type
-    */
-    template <typename...> struct WhichType;
     
     template<typename TObject, typename TType>
     void registerStaticFunction(const std::string& functionName, TType fn)
@@ -1798,7 +1789,7 @@ private:
         if (index >= 0)
             throw std::logic_error("Wrong number of parameters");
 
-        const tl::optional<TFirstType>& firstElem = Reader<typename std::decay<TFirstType>::type>::read(state, index);
+        const auto& firstElem = Reader<typename std::decay<TFirstType>::type>::read(state, index);
         if (!firstElem)
             throw WrongTypeException(lua_typename(state, lua_type(state, index)), typeid(TFirstType));
 

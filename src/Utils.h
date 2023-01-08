@@ -51,6 +51,8 @@ namespace utils
     }
 }
 
+template <typename...> struct WhichType;
+
 constexpr ImVec4 operator "" _color(unsigned long long int color) {
     return { (color >> 24 & 0xFF) / 255.f, (color >> 16 & 0xFF) / 255.f, (color >> 8 & 0xFF) / 255.f, (color & 0xFF) / 255.f  };
 }
