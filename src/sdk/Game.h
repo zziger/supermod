@@ -18,6 +18,7 @@ namespace sdk
 
         static bool IsGameLoaded();
 
+        static std::filesystem::path GetRootPath();
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 
@@ -28,6 +29,6 @@ namespace sdk
 
         static void AddToLua(LuaContext& context);
     private:
-        inline static std::filesystem::path* _dataPath;
+        inline static std::optional<std::filesystem::path> _rootPath;
     };
 }

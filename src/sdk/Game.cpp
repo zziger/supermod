@@ -39,21 +39,28 @@ namespace sdk
         return ptr;
     }
 
-    // todo wtf is this
-    std::filesystem::path Game::GetDataPath() {
-        if (_dataPath) return *_dataPath;
+    std::filesystem::path Game::GetRootPath() {
+        if (_rootPath) return *_rootPath;
+
+        const auto hModule = GetModuleHandleA(nullptr);
+        if (hModule != nullptr)
+        {
+            char path[MAX_PATH];
+            GetModuleFileNameA(hModule, path, sizeof path);
+            auto rootPath = std::filesystem::path(path).parent_path(); 
+            _rootPath = rootPath;
+            return rootPath;
+        }
         
-        static constexpr Memory::Pattern path_to_data_pat("68 ? ? ? ? FF 15 ? ? ? ? 68 ? ? ? ? 6A ? 6A ?");
-        std::string strPath;
-        auto strPtr = *path_to_data_pat.Search().Get<char**>(1);
-        strPath.assign(strPtr, std::find(strPtr, strPtr + 256, '\0'));
-        static auto pathToData = strPath.empty() ? std::filesystem::current_path() / "data" : std::filesystem::path(strPath);
-        _dataPath = new std::filesystem::path(pathToData);
-        return pathToData;
+        return std::filesystem::path {};
+    }
+
+    std::filesystem::path Game::GetDataPath() {
+        return GetRootPath() / "data";
     }
 
     std::filesystem::path Game::GetModsPath() {
-        return GetDataPath() / ".." / "mods";
+        return GetRootPath() / "mods";
     }
     
     uint64_t Game::GetGameVersion() {
