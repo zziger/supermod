@@ -1480,6 +1480,8 @@ private:
                     // rethrowing it with an additional ExecutionErrorException
                     try {
                         std::rethrow_exception(readTopAndPop<std::exception_ptr>(state, std::move(errorCode)));
+                    } catch(std::exception& e) {
+                        std::throw_with_nested(ExecutionErrorException{std::format("Exception: {} {}", e.what(), traceBack)});
                     } catch(...) {
                         std::throw_with_nested(ExecutionErrorException{"Exception thrown by a callback function called by Lua. "+traceBack});
                     }
@@ -2400,7 +2402,8 @@ private:
             lua_pushstring(state, "Unable to convert parameter from ");
             lua_pushstring(state, ex.luaType.c_str());
             lua_pushstring(state, " to ");
-            lua_pushstring(state, ex.destination.name());
+            if (ex.destination == typeid(std::string)) lua_pushstring(state, "string");
+            else lua_pushstring(state, ex.destination.name());
             lua_concat(state, 4);
             luaError(state);
 
