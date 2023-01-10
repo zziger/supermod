@@ -2915,22 +2915,23 @@ struct LuaContext::Reader<std::variant<TTypes...>>
 //     typedef VariantReader<typename boost::mpl::begin<typename ReturnType::types>::type, typename boost::mpl::end<typename ReturnType::types>::type>
 //         MainVariantReader;
 
-    template<std::size_t I>
-    static auto read(lua_State* state, int index) -> tl::optional<ReturnType> {
-        if constexpr (I < std::variant_size_v<ReturnType>)
-        {
-            if (const auto val = Reader<std::variant_alternative_t<I, ReturnType>>::read(state, index))
+    template<class T, class... Ts>
+    static auto readHelper(lua_State* state, int index) -> tl::optional<ReturnType> {
+        if constexpr (std::is_same_v<T, void>) {
+            return tl::nullopt;
+        } else {
+            if (const auto val = Reader<T>::read(state, index))
                 return std::variant<TTypes...>{*val};
-            return read<I + 1>(state, index);
+
+            return readHelper<Ts...>(state, index);
         }
-        return tl::nullopt;
     }
     
 public:
     static auto read(lua_State* state, int index)
         -> tl::optional<ReturnType>
     {
-        return read<0>(state, index);
+        return readHelper<TTypes..., void>(state, index);
     }
 };
 
