@@ -5,7 +5,9 @@
 #include "DirectXUtils.h"
 #include "../ModManager.h"
 #include "events/EventManager.h"
+#include "events/GameLoadedEvent.h"
 #include "events/ResolveFileEvent.h"
+#include "events/SoundsLoadedEvent.h"
 #include "events/TickEvent.h"
 #include "game/AssetPool.h"
 #include "sdk/DirectX.h"
@@ -55,6 +57,10 @@ void ModFileResolver::Init() {
         }
         filesToReload.clear();
     });
+    EventManager::On<SoundsLoadedEvent>([] {
+        Log::Debug << "Sounds loaded" << Log::Endl;
+        LoadAdditionalMusic();
+    });
     ToggleFileListener(true);
     _initialized = true;
 }
@@ -86,7 +92,9 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
     auto extension = filepath.extension().generic_string();
     std::ranges::transform(extension, extension.begin(), tolower);
 
+    if (extension == "") return;
     if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
+    if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
     else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
 }
 

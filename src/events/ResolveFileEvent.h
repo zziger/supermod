@@ -62,10 +62,16 @@ HOOK_FN(inline void*, resolve_file, ARGS(const char* lpFileName, size_t* outBuf,
     });
 }
 
-HOOK_FN(inline void, load_audio, ARGS(const char* lpFileName)) {
+HOOK_FN(inline void, load_sound, ARGS(const char* lpFileName)) {
     resolve<void*>(std::string(lpFileName), [](auto& filename) {
-        load_audio_orig(filename.c_str());
+        load_sound_orig(filename.c_str());
         return nullptr;
+    });
+}
+
+HOOK_FN(inline char*, load_music, ARGS(const char* lpFileName)) {
+    return resolve<char*>(std::string(lpFileName), [](auto& filename) {
+        return load_music_orig(filename.c_str());
     });
 }
 
@@ -75,5 +81,6 @@ inline void set_should_resolve_files(bool state) {
 
 inline EventManager::Ready $resolve_file_event_hook([] {
     HookManager::RegisterHook("55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 89 45 EC 8B 45 08", HOOK_REF(resolve_file));
-    HookManager::RegisterHook("55 8B EC 81 3D ? ? ? ? ? ? ? ? 7C ? E9 ? ? ? ? 8B 45", HOOK_REF(load_audio));
+    HookManager::RegisterHook("55 8B EC 81 3D ? ? ? ? ? ? ? ? 7C ? E9 ? ? ? ? 8B 45", HOOK_REF(load_sound));
+    HookManager::RegisterHook("55 8B EC 68 ? ? ? ? 8B 45 ? 50 E8", HOOK_REF(load_music));
 });

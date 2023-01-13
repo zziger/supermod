@@ -87,6 +87,7 @@ set(IMGUI_FILES
 
 if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_definitions(/MT /MP /FS /utf-8)
+    add_link_options(/safeseh:NO)
 endif()
 
 add_library(${TARGET_NAME} SHARED "${PROJECT_SOURCE_FILES}" "${IMGUI_FILES}")
@@ -94,4 +95,4 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "dinput8")
 # add_executable(${TARGET_NAME} "${PROJECT_SOURCE_FILES}")
 target_compile_definitions(${TARGET_NAME} PRIVATE ${DEFS} )
 include_directories(${TARGET_NAME} PRIVATE "src" "libs" "include" "libs/imgui")
-target_link_libraries(${TARGET_NAME} ${PROJECT_SOURCE_DIR}/libs/minhook.lib libluajit yaml-cpp)
+target_link_libraries(${TARGET_NAME} ${PROJECT_SOURCE_DIR}/libs/minhook.lib ${PROJECT_SOURCE_DIR}/libs/bass.lib libluajit yaml-cpp)

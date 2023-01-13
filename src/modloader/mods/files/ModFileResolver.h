@@ -16,6 +16,10 @@ class ModFileResolver {
     static void LoadTexture(std::filesystem::path filepath);
     static void LoadFile(std::filesystem::path filepath);
 
+    static inline std::unordered_map<std::string, void*> _soundMemory{};
+    static void LoadSound(std::filesystem::path soundPath);
+    static void LoadAdditionalMusic();
+
 public:
     [[nodiscard]] static std::optional<std::filesystem::path> ResolveFile(const std::filesystem::path& path);
     [[nodiscard]] static std::filesystem::path ResolveFileOrOriginal(const std::filesystem::path& path);
