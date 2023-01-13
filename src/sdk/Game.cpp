@@ -38,6 +38,12 @@ namespace sdk
         if (ptr == nullptr) return false;
         return ptr;
     }
+    
+    bool Game::IsGameFullscreen() {
+        static constexpr Memory::Pattern pat("83 3D ? ? ? ? ? 0F 94 C0"); // cmp fullscreen, 0
+        static auto mem = pat.Search();
+        return **mem.Get<bool**>(2);
+    }
 
     std::filesystem::path Game::GetRootPath() {
         if (_rootPath) return *_rootPath;

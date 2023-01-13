@@ -2,7 +2,9 @@
 
 vector2i AdaptiveResolutionModule::GetTargetResolution() {
     auto cfgBlock = Config::Get()["adaptiveResolution"];
-    const auto mode = cfgBlock["mode"].as<int>(window); 
+    auto mode = cfgBlock["mode"].as<int>(window);
+
+    if (mode == window && sdk::Game::IsGameFullscreen()) mode = screen;
     vector2i res {};
     RECT rect;
         
@@ -26,10 +28,10 @@ vector2i AdaptiveResolutionModule::GetTargetResolution() {
 HOOK_FN(inline static int, setup_d3d_params, ARGS())
 {
     static constexpr Memory::Pattern paramsSetPat("89 15 ? ? ? ? 8B 41 04");
-    static constexpr Memory::Pattern set32BitPat("C7 05 ? ? ? ? ? ? ? ? D9 ? ? ? ? ? D8 ? ? ? ? ? E8");
-        
-    static int* set32BitPtr = *set32BitPat.Search().Get<int**>(2);
-    *set32BitPtr = 1;
+    // static constexpr Memory::Pattern set32BitPat("C7 05 ? ? ? ? ? ? ? ? D9 ? ? ? ? ? D8 ? ? ? ? ? E8");
+    //     
+    // static int* set32BitPtr = *set32BitPat.Search().Get<int**>(2);
+    // *set32BitPtr = 1;
         
     static int* ptr = *paramsSetPat.Search().Get<int**>(2);
     const auto value = setup_d3d_params_orig();
@@ -39,7 +41,7 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
         
     ptr[0] = x;
     ptr[1] = y;
-    ptr[2] = 21;
+    // ptr[2] = 21;
         
     return value;
 }
@@ -54,13 +56,13 @@ void AdaptiveResolutionModule::OnLoad(const bool manual) {
             
         if (evt.msg == WM_SIZE) sdk::DirectX::ResetDevice();
             
-        if (evt.msg == WM_STYLECHANGED && evt.wParam == GWL_STYLE) {
+        if (evt.msg == WM_STYLECHANGED && evt.wParam == GWL_STYLE && !sdk::Game::IsGameFullscreen()) {
             const auto style = (STYLESTRUCT*) evt.lParam;
             if ((style->styleNew & required_styles) != required_styles)
                 SetWindowLongA(evt.hWnd, GWL_STYLE, style->styleNew | required_styles);
         }
             
-        if (evt.msg == WM_ACTIVATE) {
+        if (evt.msg == WM_ACTIVATE && !sdk::Game::IsGameFullscreen()) {
             const auto oldStyle = GetWindowLongA(*sdk::Game::window, GWL_STYLE);
             if ((oldStyle & required_styles) != required_styles)
                 SetWindowLongA(*sdk::Game::window, GWL_STYLE, oldStyle | required_styles);
@@ -69,7 +71,7 @@ void AdaptiveResolutionModule::OnLoad(const bool manual) {
         
     if (manual) {
         sdk::DirectX::ResetDevice();
-        SetWindowLongA(*sdk::Game::window, GWL_STYLE, GetWindowLongA(*sdk::Game::window, GWL_STYLE) | required_styles);
+        if (!sdk::Game::IsGameFullscreen()) SetWindowLongA(*sdk::Game::window, GWL_STYLE, GetWindowLongA(*sdk::Game::window, GWL_STYLE) | required_styles);
     }
 }
 
