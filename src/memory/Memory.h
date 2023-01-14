@@ -324,6 +324,11 @@ public:
 		return (T)(*(int32_t*)(_address + 1) + _address + 5);
 	}
 
+	Memory& GoToNearCall() {
+		Add(*(int32_t*)(_address + 1) + 5);
+		return *this;
+	}
+
 #ifdef MH_ALL_HOOKS
 	template<class T>
 	bool Detour(T* fn, T** orig = nullptr) const

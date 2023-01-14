@@ -7,9 +7,10 @@ class ModFileResolver {
     inline static bool _initialized = false;
     inline static std::unordered_set<std::wstring> resolvedFilePaths {}; 
     inline static std::unordered_set<std::string> filesToReload {};
-    inline static std::recursive_mutex _reloadMutex {};
+    inline static std::mutex _reloadMutex {};
 
     static inline bool listenerEnabled = false;
+    static inline bool ignoreTick = false; // used to prevent unnecessary recursion in tick event when reloading assets
     static void FileListenerThread();
 
     static std::string GetPoolFileName(const std::string& filename);

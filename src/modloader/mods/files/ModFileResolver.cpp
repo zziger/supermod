@@ -51,12 +51,20 @@ void ModFileResolver::Init() {
         if (path) evt.SetResolvedPath(*path);
     });
     EventManager::On<AfterTickEvent>([]() {
-        std::lock_guard lock(_reloadMutex);
-        for (auto toReload : filesToReload) {
-            auto path = sdk::Game::GetDataPath() / ".." / toReload;
-            LoadFile(path);
+        if (ignoreTick) return;
+
+        try {
+            std::lock_guard lock(_reloadMutex);
+            for (auto toReload : filesToReload) {
+                auto path = sdk::Game::GetRootPath() / toReload;
+                LoadFile(path);
+            }
+            filesToReload.clear();
+        } catch(std::exception& e) {
+            Log::Debug << "Ошибка хотсвапа файлов: " << e.what() << Log::Endl;
+        } catch(...) {
+            Log::Debug << "Неизвестная ошибка хотсвапа файлов: " << Log::Endl;
         }
-        filesToReload.clear();
     });
     EventManager::On<SoundsLoadedEvent>([] {
         LoadAdditionalMusic();
@@ -93,23 +101,35 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
     std::ranges::transform(extension, extension.begin(), tolower);
 
     if (extension == "") return;
-    
-    if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
-    else if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
-    else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
+
+    ignoreTick = false;
+
+    try {
+        ignoreTick = true;
+        
+        if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
+        else if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
+        else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
+
+        ignoreTick = false;
+    } catch (std::exception& e) {
+        Log::Error << "Ошибка при загрузке файла " << filepath << ": " << e.what() << Log::Endl;
+        ignoreTick = false;
+    } catch (...) {
+        Log::Error << "Неизвестная ошибка при загрузке файла " << filepath << Log::Endl;
+        ignoreTick = false;
+    }
 }
 
 void ModFileResolver::ReloadModFiles(std::filesystem::path dataFolder) {
     if (!exists(dataFolder)) return;
+    std::lock_guard lock(_reloadMutex);
     
     const auto it = std::filesystem::recursive_directory_iterator(dataFolder);
     for (auto& file : it) {
         if (file.is_directory()) continue;
-        auto relPath = relative(file.path(), dataFolder);
-        try {
-            LoadFile(sdk::Game::GetDataPath() / relPath);
-        } catch(std::exception& e) {
-            Log::Warn << "Не удалось загрузить файл " << relPath.generic_string() << ": " << e.what() << Log::Endl;
-        }
+        auto relPath = relative(file.path(), dataFolder / "..");
+        Log::Debug << relPath << Log::Endl;
+        filesToReload.emplace(relPath.generic_string());
     }
 }

@@ -59,7 +59,7 @@ void clear_override() {
 }
 
 game::Asset* (__thiscall * read_const_jpg_orig)(game::AssetPool* this_, char* name, int width, int height) = nullptr;
-game::Asset* __fastcall read_const_jpg(game::AssetPool* this_, void*, char* name, int width, int height) {
+game::Asset* __fastcall read_const_jpg(game::AssetPool* this_, void* ecx_, char* name, int width, int height) {
     if (const auto existing = this_->GetByName(name)) return existing;
 
     int newWidth = width, newHeight = height;
