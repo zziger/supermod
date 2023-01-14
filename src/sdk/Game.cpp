@@ -36,7 +36,7 @@ namespace sdk
         const auto mem = gameLoadFinishedPat.Search();
         const auto ptr = *mem.Get<bool**>(2);
         if (ptr == nullptr) return false;
-        return ptr;
+        return *ptr;
     }
     
     bool Game::IsGameFullscreen() {
