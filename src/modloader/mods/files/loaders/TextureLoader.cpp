@@ -11,8 +11,6 @@
 
 
 void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
-    // Log::Debug << "Reloading texture " << texturePath << Log::Endl;
-
     const auto filename = GetPoolFileName(texturePath.filename().generic_string());
 
     const auto pool = game::AssetPool::GetInstance();
@@ -36,12 +34,12 @@ void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
         newAsset = mem.Get<game::Asset* (__thiscall *)(game::AssetPool*, const char*)>()(pool, filename.c_str());
     }
     set_should_resolve_files(true);
-    // } else {
-    // }
+    
     current_path(cwd);
     asset->texture->Release();
     memcpy(asset, newAsset, sizeof(game::Asset));
     memset(newAsset, 0, sizeof(game::Asset));
     pool->assetCount--;
 
+    Log::Info << "Текстура " << filename << " перезагружена" << Log::Endl;
 }

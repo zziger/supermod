@@ -28,20 +28,15 @@ vector2i AdaptiveResolutionModule::GetTargetResolution() {
 HOOK_FN(inline static int, setup_d3d_params, ARGS())
 {
     static constexpr Memory::Pattern paramsSetPat("89 15 ? ? ? ? 8B 41 04");
-    // static constexpr Memory::Pattern set32BitPat("C7 05 ? ? ? ? ? ? ? ? D9 ? ? ? ? ? D8 ? ? ? ? ? E8");
-    //     
-    // static int* set32BitPtr = *set32BitPat.Search().Get<int**>(2);
-    // *set32BitPtr = 1;
-        
+    
     static int* ptr = *paramsSetPat.Search().Get<int**>(2);
     const auto value = setup_d3d_params_orig();
         
     const auto [x, y] = AdaptiveResolutionModule::GetTargetResolution();
-    Log::Debug << "Setting render params to " << x << "x" << y << Log::Endl;
+    Log::Debug << "Разрешение рендера установлено на " << x << "x" << y << Log::Endl;
         
     ptr[0] = x;
     ptr[1] = y;
-    // ptr[2] = 21;
         
     return value;
 }

@@ -12,7 +12,7 @@ namespace ui
         auto width = ImGui::GetContentRegionMax().x / 2;
         ImGui::BeginChild("mods", ImVec2(width, 0), true);
 
-        for (const auto& loadedMod : ModManager::GetLoadedMods()) {
+        for (const auto& loadedMod : ModManager::GetMods()) {
             if (!loadedMod) continue;
             auto info = loadedMod->info;
             if (widgets::ModSelectable(info.id.c_str(), info.title.c_str(), info.author.c_str(),

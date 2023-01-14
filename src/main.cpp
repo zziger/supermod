@@ -29,7 +29,7 @@ void init_memory() {
     
     Memory::Base() = base;
     Memory::OnPatternNotFound([](const std::string& pattern) {
-        Log::Error << "Failed to find pattern " << pattern << Log::Endl;
+        Log::Error << "Не удалось найти паттерн " << pattern << Log::Endl;
     });
     Memory::InitCacheStorage(new MemoryCacheStorage());
 }
@@ -49,7 +49,7 @@ void init() {
     EventManager::Emit(ReadyEvent());
     
     EventManager::On<GameLoadedEvent>([] {
-        Log::Info << "Game startup!" << Log::Endl;
+        Log::Info << "Игра загружена!" << Log::Endl;
         
         ModManager::ReloadIcons();
         DragAcceptFiles(*sdk::Game::window, true);
@@ -80,7 +80,7 @@ BOOL APIENTRY main(HMODULE, const DWORD ulReasonForCall, LPVOID) {
         utils::handle_error(init_crash_handler, "инициализации обработчика ошибок");
         utils::handle_error(init, "инициализации мода");
 
-        Log::Info << "Mod initialized!" << Log::Endl;
+        Log::Info << "Мод загружен!" << Log::Endl;
     }
 
     if (ulReasonForCall == DLL_PROCESS_DETACH) {

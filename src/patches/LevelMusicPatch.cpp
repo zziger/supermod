@@ -13,7 +13,7 @@ HOOK_FN_CONV(inline int, parse_level_int, ARGS(const char* content, const char* 
         parse_level_string(musicName, content, "curlevelmusicname=");
         auto index = game::SoundHost::GetInstance()->GetMusicIndex(musicName);
         if (index != -1) {
-            Log::Debug << "Forcing music at level to " << musicName << " at index " << index << Log::Endl;
+            Log::Debug << "Музыка уровня перезаписана на " << musicName << " с индексом " << index << Log::Endl;
             return index;
         }
     }

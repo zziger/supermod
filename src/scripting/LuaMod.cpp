@@ -33,7 +33,7 @@ void LuaMod::RenderUI() {
         auto fn = lua->readVariable<tl::optional<std::function<void()>>>("render");
         if (fn) (*fn)();
     } catch(std::exception& e) {
-        Log::Error << "Error while rendering: " << e.what() << Log::Endl;
+        Log::Error << "Ошибка рендера из LUA скрипта: " << e.what() << Log::Endl;
     }
     // todo move error handling to outer scope
 }

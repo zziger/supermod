@@ -9,7 +9,7 @@ class ModManager {
     inline static const std::filesystem::path dll_file_name = "main.dll";
     
     inline static std::filesystem::path _mods_folder;
-    inline static std::list<std::shared_ptr<Mod>> _loadedMods {};
+    inline static std::list<std::shared_ptr<Mod>> _mods {};
     inline static std::recursive_mutex _modMutex {};
     
     inline static std::shared_ptr<Mod> _internalMod {};
@@ -30,5 +30,5 @@ public:
 
     static void DeleteMod(std::shared_ptr<Mod> mod);
 
-    static std::list<std::shared_ptr<Mod>> GetLoadedMods();
+    static std::list<std::shared_ptr<Mod>> GetMods();
 };

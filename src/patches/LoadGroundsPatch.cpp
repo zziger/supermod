@@ -18,9 +18,9 @@ static void* buffer;
 HOOK_FN(inline void*, load_ground_textures, ARGS()) {
     auto grounds = 5;
     
-    for (auto& loadedMod : ModManager::GetLoadedMods()) {
-        if (loadedMod->info.internal) continue;
-        const auto levelobjs = loadedMod->info.basePath / "data" / "levelobjs";
+    for (auto& mod : ModManager::GetMods()) {
+        if (mod->info.internal || !mod->IsLoaded()) continue;
+        const auto levelobjs = mod->info.basePath / "data" / "levelobjs";
         auto i = 5;
         while (exists(levelobjs / std::format("ground{}.tga", i + 1)) || exists(levelobjs / std::format("_a_ground{}.jpg", i + 1)))
             i++;

@@ -59,8 +59,6 @@ namespace dx_utils
         uint32_t width = njGetWidth(), height = njGetHeight();
         auto buf = njGetImage();
 
-        Log::Debug << "Sussy " << width << " " << height << Log::Endl;
-
         LPDIRECT3DTEXTURE8 texture = nullptr;
         const auto res = device->CreateTexture(width, height, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 

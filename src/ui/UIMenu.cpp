@@ -37,7 +37,7 @@ void UI::RenderMenu() {
     
     if (!menuOpen) return;
     
-    const auto mods = ModManager::GetLoadedMods();
+    const auto mods = ModManager::GetMods();
 
     constexpr auto lowerElements = 2;
     constexpr auto upperElements = 3;

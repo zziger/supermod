@@ -17,7 +17,7 @@ void ModManager::Init() {
         
     const auto ptr = std::make_shared<InternalMod>();
     ptr->Load(false);
-    _loadedMods.push_back(ptr);
+    _mods.push_back(ptr);
 }
 
 std::filesystem::path ModManager::GetModsRoot() {
@@ -51,7 +51,7 @@ void ModManager::LoadMod(const std::string_view modName) {
 
     if (mod->ShouldBeLoaded()) mod->Load(false);
         
-    _loadedMods.push_back(mod);
+    _mods.push_back(mod);
         
 }
 
@@ -84,7 +84,7 @@ void ModManager::ReloadIcons() {
     if (!*sdk::DirectX::d3dDevice) return;
     std::lock_guard lock(_modMutex);
 
-    for (const auto loadedMod : _loadedMods) {
+    for (const auto loadedMod : _mods) {
         try {
             loadedMod->info.ReadIcon();
         } catch(std::exception&  e) {
@@ -98,14 +98,14 @@ void ModManager::ReloadIcons() {
 void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     std::lock_guard lock(_modMutex);
 
-    _loadedMods.remove(mod);
+    _mods.remove(mod);
     mod->Unload(false);
     mod->UnloadModule();
     remove_all(mod->info.basePath);
 }
 
-std::list<std::shared_ptr<Mod>> ModManager::GetLoadedMods() {
+std::list<std::shared_ptr<Mod>> ModManager::GetMods() {
     std::lock_guard lock(_modMutex);
 
-    return _loadedMods;
+    return _mods;
 }

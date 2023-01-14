@@ -29,7 +29,7 @@ void ModFileResolver::LoadSound(std::filesystem::path soundPath) {
         const auto stream = BASS_StreamCreateFile(true, mem, 0, size, 4);
 
         if (!stream) {
-            Log::Debug << "Не удалось загрузить файл " << filename << ". Ошибка: " << BASS_ErrorGetCode() << Log::Endl;
+            Log::Error << "Не удалось загрузить файл " << filename << ". Ошибка: " << BASS_ErrorGetCode() << Log::Endl;
             return;
         }
         
@@ -37,11 +37,13 @@ void ModFileResolver::LoadSound(std::filesystem::path soundPath) {
             host->musicPool[host->loadedMusic] = stream;
             filename.copy(host->loadedMusicNames[host->loadedMusic], 32);
             host->loadedMusic++;
+            Log::Info << "Музыка " << filename << " перезагружена" << Log::Endl;
         } else {
             const auto old = host->musicPool[index];
 
             BASS_StreamFree(old);
             host->musicPool[index] = stream;
+            Log::Info << "Музыка " << filename << " загружена" << Log::Endl;
         }
     } else {
         const auto index = host->GetSoundIndex(filename.c_str());
@@ -61,6 +63,8 @@ void ModFileResolver::LoadSound(std::filesystem::path soundPath) {
     
         BASS_SampleFree(sound.soundSample);
         sound.soundSample = sample;
+
+        Log::Info << "Звук " << filename << " перезагружен" << Log::Endl;
     }
 }
 
@@ -70,8 +74,8 @@ void ModFileResolver::LoadAdditionalMusic() {
     for (const auto& entry : std::filesystem::directory_iterator(sdk::Game::GetDataPath() / "audio" / "music"))
         defaultMusic.emplace(entry.path().filename().generic_string());
 
-    for (const auto& loadedMod : ModManager::GetLoadedMods()) {
-        if (loadedMod->info.internal) continue;
+    for (const auto& loadedMod : ModManager::GetMods()) {
+        if (loadedMod->info.internal || !loadedMod->IsLoaded()) continue;
         if (!exists(loadedMod->info.basePath / "data" / "audio" / "music")) continue;
         
         for (const auto& entry : std::filesystem::directory_iterator(loadedMod->info.basePath / "data" / "audio" / "music")) {

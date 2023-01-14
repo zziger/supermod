@@ -13,8 +13,9 @@
 #include "sdk/DirectX.h"
 
 std::optional<std::filesystem::path> ModFileResolver::ResolveFile(const std::filesystem::path& path) {
-    auto mods = ModManager::GetLoadedMods();
+    auto mods = ModManager::GetMods();
     for (auto el = mods.rbegin(); el != mods.rend(); ++el) {
+        if (!(*el)->IsLoaded()) continue;
         const auto resolvedPath = ResolveModFile(*el, path);
         if (!resolvedPath) continue;
 
@@ -92,8 +93,9 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
     std::ranges::transform(extension, extension.begin(), tolower);
 
     if (extension == "") return;
+    
     if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
-    if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
+    else if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
     else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
 }
 
