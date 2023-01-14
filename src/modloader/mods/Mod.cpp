@@ -1,6 +1,7 @@
 #include "modloader/mods/Mod.h"
 
 #include "Config.h"
+#include "events/ModEvent.h"
 #include "modloader/mods/files/ModFileResolver.h"
 
 std::shared_ptr<Module> Mod::AddModule(std::shared_ptr<Module> module) {
@@ -30,6 +31,7 @@ void Mod::Load(bool manual) {
         modules.LoadNeeded();
         _loaded = true;
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
+        EventManager::Emit(ModLoadEvent(info));
         Log::Info << "Мод " << info.title << " загружен" << Log::Endl;
         const Config cfg;
         const auto& node = cfg.data[config_key];
@@ -61,6 +63,7 @@ void Mod::Unload(bool manual) {
         OnUnload();
         modules.Unload();
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
+        EventManager::Emit(ModUnloadEvent(info));
         Log::Info << "Мод " << info.title << " выгружен" << Log::Endl;
     } catch(std::exception& e) {
         Log::Error << "Ошибка выгрузки мода " << info.id << ":" << Log::Endl;
