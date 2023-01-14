@@ -15,6 +15,9 @@ void LuaMod::OnLoad() {
     lua->writeFunction("logDebug", [](std::string str) {
         Log::Debug << str << Log::Endl;
     });
+    lua->writeFunction("wait", [](const float time) {
+        std::this_thread::sleep_for(std::chrono::milliseconds((int) (time * 1000)));
+    });
     
     sdk::Game::AddToLua(*lua);
     
