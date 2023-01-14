@@ -55,9 +55,9 @@ void ModFileResolver::FileListenerThread() {
         }
         else
         {
-            Log::Debug << "FAILED! " << GetLastError() << Log::Endl;   
+            Log::Error << "Ошибка обработки изменения файлов: " << GetLastError() << Log::Endl;   
         }
     }
 
-    Log::Info << "File listener finished" << Log::Endl;
+    Log::Info << "Поток обработки изменения файлов завершен" << Log::Endl;
 }

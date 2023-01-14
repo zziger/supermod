@@ -58,7 +58,6 @@ void ModFileResolver::Init() {
         filesToReload.clear();
     });
     EventManager::On<SoundsLoadedEvent>([] {
-        Log::Debug << "Sounds loaded" << Log::Endl;
         LoadAdditionalMusic();
     });
     ToggleFileListener(true);

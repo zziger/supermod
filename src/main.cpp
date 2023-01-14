@@ -42,7 +42,6 @@ void init() {
 
     MH_Initialize();
     sdk::Game::Init();
-    Memory::RunHooks();
 
     ModManager::Init();
     ModManager::LoadMods();
@@ -77,9 +76,9 @@ void init() {
 
 BOOL APIENTRY main(HMODULE, const DWORD ulReasonForCall, LPVOID) {
     if (ulReasonForCall == DLL_PROCESS_ATTACH) {
-        init_memory();
-        init_crash_handler();
-        init();
+        utils::handle_error(init_memory, "инициализации памяти");
+        utils::handle_error(init_crash_handler, "инициализации обработчика ошибок");
+        utils::handle_error(init, "инициализации мода");
 
         Log::Info << "Mod initialized!" << Log::Endl;
     }

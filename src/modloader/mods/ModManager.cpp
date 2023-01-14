@@ -57,17 +57,26 @@ void ModManager::LoadMod(const std::string_view modName) {
 
 void ModManager::LoadMods() {
     std::lock_guard lock(_modMutex);
-        
-    const auto it = std::filesystem::directory_iterator(_mods_folder);
-    for (auto& file : it) {
-        if (!file.is_directory()) continue;
-        const auto modName = file.path().filename().generic_string();
-        try {
-            LoadMod(modName);
-        } catch(std::exception& e) {
-            Log::Error << "Ошибка загрузки мода " << modName << ":" << Log::Endl;
-            Log::Error << e.what() << Log::Endl;
+
+    try {
+        if (!exists(_mods_folder)) return;
+        const auto it = std::filesystem::directory_iterator(_mods_folder);
+        for (auto& file : it) {
+            if (!file.is_directory()) continue;
+            const auto modName = file.path().filename().generic_string();
+            try {
+                LoadMod(modName);
+            } catch(std::exception& e) {
+                Log::Error << "Ошибка загрузки мода " << modName << ":" << Log::Endl;
+                Log::Error << e.what() << Log::Endl;
+            } catch(...) {
+                Log::Error << "Неизвестная ошибка загрузки мода " << modName << Log::Endl;
+            }
         }
+    } catch (std::exception& e) {
+        Log::Error << "Ошибка загрузки модов: " << e.what() << Log::Endl;
+    } catch(...) {
+        Log::Error << "Неизвестная ошибка загрузки модов" << Log::Endl;
     }
 }
 

@@ -7,6 +7,7 @@
 
 #include <thirdparty/directx/d3d8.h>
 #include <format>
+#include <functional>
 
 #define MAX_INPUT_LENGTH 255
 
@@ -59,6 +60,26 @@ namespace utils
         EmptyClipboard();
         SetClipboardData(CF_TEXT, hMem);
         CloseClipboard();
+    }
+
+    inline std::wstring str_to_wstr(const std::string& str)
+    {
+        int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+        std::wstring wstrTo(size_needed, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+        return wstrTo;
+    }
+
+    inline void handle_error(std::function<void()> fn, std::string where) {
+        try {
+            fn();
+        } catch(std::exception& e) {
+            MessageBox(nullptr, str_to_wstr(std::format("Произошла ошибка {}:\r\n{}", where, e.what())).c_str(), L"SuperMod", MB_OK);
+            exit(1);
+        } catch(...) {
+            MessageBox(nullptr, str_to_wstr(std::format("Произошла неизвестная ошибка {}", where)).c_str(), L"SuperMod", MB_OK);
+            exit(1);
+        }
     }
 }
 
