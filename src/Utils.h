@@ -49,6 +49,17 @@ namespace utils
         GetModuleFileNameA((HINSTANCE)&__ImageBase, dllPath, _countof(dllPath));
         return std::string(dllPath); 
     }
+
+    inline void copy_text(std::string text) {
+        const size_t len = text.size() + 1;
+        HGLOBAL hMem =  GlobalAlloc(GMEM_MOVEABLE, len);
+        memcpy(GlobalLock(hMem), text.c_str(), len);
+        GlobalUnlock(hMem);
+        OpenClipboard(0);
+        EmptyClipboard();
+        SetClipboardData(CF_TEXT, hMem);
+        CloseClipboard();
+    }
 }
 
 template <typename...> struct WhichType;

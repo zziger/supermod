@@ -29,13 +29,13 @@ void UI::InitImGui() {
         
     ImGuiIO& io = ImGui::GetIO();
 
-    const auto iniFilename = (sdk::Game::GetDataPath() / ".." / "imgui.ini").generic_string();
+    const auto iniFilename = (sdk::Game::GetRootPath() / "imgui.ini").string();
     const auto iniCFilename = new char[iniFilename.size() + 1];
     iniFilename.copy(iniCFilename, iniFilename.size());
     iniCFilename[iniFilename.size()] = '\0';
     io.IniFilename = iniCFilename;
     
-    const auto logFilename = (sdk::Game::GetDataPath() / ".." / "imguilog.txt").generic_string();
+    const auto logFilename = (sdk::Game::GetRootPath() / "imguilog.txt").string();
     const auto logCFilename = new char[logFilename.size() + 1];
     logFilename.copy(iniCFilename, logFilename.size());
     logCFilename[logFilename.size()] = '\0';
@@ -46,6 +46,9 @@ void UI::InitImGui() {
         
     ImGui_ImplWin32_Init(*sdk::Game::window);
     ImGui_ImplDX8_Init(*sdk::DirectX::d3dDevice);
+    
+    io.IniFilename = iniCFilename;
+    io.LogFilename = logCFilename;
         
     initialized = true;
 }
