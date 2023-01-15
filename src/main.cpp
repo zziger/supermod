@@ -9,6 +9,8 @@
 
 #include <filesystem>
 #include <yaml-cpp/yaml.h>
+#include <objidl.h>
+#include <gdiplus.h>
 
 #include "Config.h"
 #include "Console.h"
@@ -40,6 +42,12 @@ void init() {
     Console::Initialize();
     Log::Info << "Загрузка SuperMod " << VERSION << " by zziger..." << Log::Endl;
 
+
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR           gdiplusToken;
+
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    
     MH_Initialize();
     sdk::Game::Init();
 

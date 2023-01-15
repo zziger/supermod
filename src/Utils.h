@@ -96,7 +96,7 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
 #define ARGS(...) __VA_ARGS__
 
 #define HOOK_FN(retn, name, args) retn (*name##_orig)(args) = nullptr;\
-retn name(args)
+    retn name(args)
 #define HOOK_FN_CONV(retn, name, args, conv) retn (conv *name##_orig)(args) = nullptr;\
     retn conv name(args)
 
