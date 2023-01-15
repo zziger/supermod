@@ -49,7 +49,7 @@ void override_squared_dimensions(char* name, int& width, int& height) {
     dx_utils::get_image_dimensions(final.generic_string(), realWidth, realHeight);
     overriden_dimensions_queue.push(squarify_dimensions_algorithm(height) / (float) height * realHeight);
     overriden_dimensions_queue.push(squarify_dimensions_algorithm(width) / (float) width * realWidth);
-    overriden_dimensions_queue.push(squarify_dimensions_algorithm(width) / (float) width * realWidth);
+    overriden_dimensions_queue.push(squarify_dimensions_algorithm(width) / (float) width * realWidth); // second width for silhouette reader
 
     width = realWidth;
     height = realHeight;
