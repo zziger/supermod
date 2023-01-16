@@ -15,8 +15,10 @@ namespace sdk
         static void Init();
 
         static void Restart();
+        static void StartEditor();
 
         static bool IsGameLoaded();
+        static bool IsGameInLoadingTick();
         static bool IsGameFullscreen();
 
         static std::filesystem::path GetRootPath();

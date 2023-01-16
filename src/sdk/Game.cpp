@@ -6,6 +6,7 @@
 #include "Log.h"
 #include "Utils.h"
 #include "game/AssetPool.h"
+#include "game/SoundHost.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 
@@ -31,10 +32,25 @@ namespace sdk
         ExitProcess(0);
     }
     
+    void Game::StartEditor() {
+        static constexpr Memory::Pattern editorDisableInstruction("C6 05 ? ? ? ? ? 0F B6 15 ? ? ? ? 85 D2 75 ? C7 05 ? ? ? ? ? ? ? ?");
+        static auto mem4 = editorDisableInstruction.Search();
+        const auto ptr = *mem4.Get<byte**>(2); 
+        *ptr = 1;
+    }
+
     bool Game::IsGameLoaded() {
         static constexpr Memory::Pattern gameLoadFinishedPat("C6 05 ? ? ? ? ? E8 ? ? ? ? 68"); // mov gameLoadFinished, 1
-        const auto mem = gameLoadFinishedPat.Search();
-        const auto ptr = *mem.Get<bool**>(2);
+        static auto mem = gameLoadFinishedPat.Search();
+        static auto ptr = *mem.Get<bool**>(2);
+        if (ptr == nullptr) return false;
+        return *ptr;
+    }
+
+    bool Game::IsGameInLoadingTick() {
+        static constexpr Memory::Pattern gameLoadFinishedPat("C6 05 ? ? ? ? ? E9 ? ? ? ? 0F B6 0D"); // mov shouldRenderInReadfile, 1
+        static auto mem = gameLoadFinishedPat.Search();
+        static auto ptr = *mem.Get<bool**>(2);
         if (ptr == nullptr) return false;
         return *ptr;
     }
