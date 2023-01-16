@@ -56,9 +56,17 @@ T resolve(std::string filename, std::function<T (const std::string&)> fn) {
     return result;
 }
 
+inline static std::mutex fileResolveMutex{};
+
 HOOK_FN(inline void*, resolve_file, ARGS(const char* lpFileName, size_t* outBuf, char isCritical)) {
     return resolve<void*>(std::string(lpFileName), [&](auto& filename) {
-        return resolve_file_orig(filename.c_str(), outBuf, isCritical);
+        try {
+            std::lock_guard lock(fileResolveMutex);
+            return resolve_file_orig(filename.c_str(), outBuf, isCritical);
+        } catch(std::exception& e) {
+            Log::Error << "Исключение во время чтения файла " << e.what() << Log::Endl;
+            MessageBoxA(nullptr, "Произошло исключение во время чтения файла", "SuperMod", MB_OK);
+        }
     });
 }
 
