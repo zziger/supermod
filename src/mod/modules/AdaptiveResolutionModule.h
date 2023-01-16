@@ -39,4 +39,6 @@ public:
     void OnUnload(bool manual) override;
 
     void RenderModuleUI() override;
+
+    static void ResetWindowSize();
 };
