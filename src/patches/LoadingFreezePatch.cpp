@@ -4,14 +4,17 @@
 #include "Utils.h"
 #include "events/EventManager.h"
 #include "memory/HookManager.h"
+#include "sdk/Game.h"
 
 inline int (__thiscall *update_load_orig)(void* this_, int a2);
 inline int __fastcall update_load(void* this_, void*, int a2) {
-    tagMSG msg {};
+    if (sdk::Game::IsGameInLoadingTick()) {
+        tagMSG msg {};
     
-    if ( PeekMessageA(&msg, nullptr, 0, 0, 1u) ) {
-        TranslateMessage(&msg);
-        DispatchMessageA(&msg);
+        if ( PeekMessageA(&msg, nullptr, 0, 0, 1u) ) {
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+        }
     }
     
     return update_load_orig(this_, a2);
