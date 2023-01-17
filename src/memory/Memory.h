@@ -10,6 +10,8 @@
 #include <Psapi.h>
 #include <cstdint>
 #include <thirdparty/MinHook.h>
+#include <Log.h>
+
 
 #include "MemoryCacheStorage.h"
 
@@ -101,17 +103,44 @@ public:
 
 			size = j;
 		}
+		explicit Pattern(const char* idaPattern, int size) :sig{ 0 }, mask{ 0 }, size(0)
+		{
+			std::size_t j = 0;
+			for (std::size_t i = 0; i < size; ++i, ++j)
+			{
+				const char c = idaPattern[i];
+
+				if (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' || c >= '0' && c <= '9')
+				{
+					sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
+					mask[j] = 'x';
+					i += 2;
+				}
+				else if (c == '?')
+				{
+					sig[j] = '\x00';
+					mask[j] = '?';
+					++i;
+				}
+				else
+				{
+					--j;
+				}
+			}
+
+			this->size = j;
+		}
 
 		Memory Search(const bool useCaching = true, const uintptr_t base = 0) const
 		{
 			uint32_t sigHash;
-			
 			if (useCaching && GetCacheStorage())
 			{
 				const std::string patString = ToString();
 				sigHash = GetCacheStorage()->Hash(patString);
-				if (const uintptr_t cachedAddress = GetCacheStorage()->Get(sigHash))
+				if (const uintptr_t cachedAddress = GetCacheStorage()->Get(sigHash)) {
 					return Memory(cachedAddress);
+				}
 			}
 
 			byte* res = Find(base == 0 ? (byte*)Base() : (byte*)base, (int)GetSize(), sig, mask);
