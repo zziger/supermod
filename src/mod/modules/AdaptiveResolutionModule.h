@@ -30,6 +30,7 @@ public:
         custom
     };
 
+    static inline vector2i lastResolution{ 10, 10 };
     static vector2i GetTargetResolution();
     
     static constexpr int required_styles = WS_MAXIMIZEBOX | WS_SIZEBOX;

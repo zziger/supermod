@@ -22,6 +22,9 @@ vector2i AdaptiveResolutionModule::GetTargetResolution() {
             res = { cfgBlock["width"].as<int>(800), cfgBlock["width"].as<int>(600) };
     }
 
+    if (res.x == 0 || res.y == 0) res = lastResolution;
+    else lastResolution = res;
+
     return res;
 }
 
