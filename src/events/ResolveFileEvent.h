@@ -65,7 +65,7 @@ HOOK_FN(inline void*, resolve_file, ARGS(const char* lpFileName, size_t* outBuf,
             return resolve_file_orig(filename.c_str(), outBuf, isCritical);
         } catch(std::exception& e) {
             Log::Error << "Исключение во время чтения файла " << e.what() << Log::Endl;
-            MessageBoxA(nullptr, "Произошло исключение во время чтения файла", "SuperMod", MB_OK);
+            MessageBoxW(nullptr, L"Произошло исключение во время чтения файла", L"SuperMod", MB_OK);
         }
     });
 }
