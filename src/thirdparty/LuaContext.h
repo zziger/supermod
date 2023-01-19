@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <sstream>
 #include <tuple>
+#include <iostream>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
@@ -51,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <lua.hpp>
 #include <filesystem>
 
+#include "luaExtensions.h"
 #include "tloptional.h"
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -108,7 +110,6 @@ public:
     }
 
     void appendPath(const std::string& path) {
-        
         lua_getglobal(mState, "package");
         lua_getfield(mState, -1, "path"); 
         std::string cur_path = lua_tostring(mState, -1); 
@@ -117,6 +118,18 @@ public:
         lua_pop(mState, 1); 
         lua_pushstring(mState, cur_path.c_str()); 
         lua_setfield(mState, -2, "path"); 
+        lua_pop(mState, 1); 
+    }
+
+    void appendCpath(const std::string& path) {
+        lua_getglobal(mState, "package");
+        lua_getfield(mState, -1, "cpath"); 
+        std::string cur_path = lua_tostring(mState, -1); 
+        cur_path.append(";"); 
+        cur_path.append(path);
+        lua_pop(mState, 1); 
+        lua_pushstring(mState, cur_path.c_str()); 
+        lua_setfield(mState, -2, "cpath"); 
         lua_pop(mState, 1); 
     }
 
@@ -383,6 +396,59 @@ public:
     {
         auto toCall = load(thread.state, code);
         return call<TType>(thread.state, std::move(toCall));
+    }
+    
+    
+    // template<typename TType>
+    // auto executeCode(const char* code)
+    //     -> TType
+    // {
+    //     auto toCall = load(mState, code);
+    //     return call<TType>(mState, std::move(toCall));
+    // }
+    static void dumpstack (lua_State *L) {
+        int top=lua_gettop(L);
+        for (int i=1; i <= top; i++) {
+            printf("%d\t%s\t", i, luaL_typename(L,i));
+            switch (lua_type(L, i)) {
+                case LUA_TNUMBER:
+                    printf("%g\n",lua_tonumber(L,i));
+                break;
+                case LUA_TSTRING:
+                    printf("%s\n",lua_tostring(L,i));
+                break;
+                case LUA_TBOOLEAN:
+                    printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+                break;
+                case LUA_TNIL:
+                    printf("%s\n", "nil");
+                break;
+                default:
+                    printf("%p\n",lua_topointer(L,i));
+                break;
+            }
+        }
+    }
+    
+    void executeModule (const char *modname, const char* code, bool global = false) {
+        luaL_getsubtable(mState, LUA_REGISTRYINDEX, "_LOADED");
+        lua_getfield(mState, -1, modname);
+        if (lua_type(mState, -1) == LUA_TNIL) {
+            lua_pop(mState, 1);
+            auto toCall = load(mState, code);
+            callWithoutPop(mState, std::move(toCall), 1);
+            lua_pushvalue(mState, -1);
+            lua_setfield(mState, -3, modname);
+        }
+        if (global) {
+            lua_pushvalue(mState, -1);
+            lua_setglobal(mState, modname);
+        }
+        lua_replace(mState, -2);
+    }
+
+    void executeModule(const char* modname, std::string&& code, bool global = false) {
+        executeModule(modname, code.c_str(), global);
     }
     
     /**
@@ -762,7 +828,10 @@ public:
         
         return writeFunction<DetectedFunctionType>(std::forward<TData>(data)...);
     }
-    
+
+    lua_State* getState() {
+        return mState;
+    }
 
 private:
     // the state is the most important variable in the class since it is our interface with Lua
@@ -1422,6 +1491,16 @@ private:
         return readTopAndPop<TReturnType>(state, std::move(outArguments));
     }
     
+    template<typename... TParameters>
+    static void callWithoutPop(lua_State* state, PushedObject toCall, int outArguments, TParameters&&... input)
+    {
+        // we push the parameters on the stack
+        auto inArguments = Pusher<std::tuple<TParameters&&...>>::push(state, std::forward_as_tuple(std::forward<TParameters>(input)...));
+
+        auto obj = callRaw(state, std::move(toCall) + std::move(inArguments), outArguments);
+        obj.release();
+    }
+    
     static int gettraceback(lua_State* L) {
         lua_getglobal(L, "debug"); // stack: error, "debug"
         lua_getfield(L, -1, "traceback"); // stack: error, "debug", debug.traceback
@@ -1470,7 +1549,7 @@ private:
                 throw std::bad_alloc{};
 
             } else if (pcallReturnValue == LUA_ERRRUN) {
-                if (lua_isstring(state, 1)) {
+                if (lua_isstring(state, -1)) {
                     // the error is a string
                     const auto str = readTopAndPop<std::string>(state, std::move(errorCode));
                     throw ExecutionErrorException{str+traceBack};

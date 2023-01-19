@@ -1,0 +1,5 @@
+#include "luaassets.h"
+
+LUA_IMGUI_CDECL RCDATA "env/library/imguicdecl.lua"
+LUA_IMGUI_WRAPPER RCDATA "env/library/imgui.lua"
+LUA_MEMORY RCDATA "env/library/memory.lua"

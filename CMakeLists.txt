@@ -69,7 +69,8 @@ set(DEFS
     -DVERSION="${VERSION}"
 )
 
-file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp" "include/*.h" "src/proxy/dinput8.def")
+file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp" "src/*.rc" "include/*.h" "src/proxy/dinput8.def")
+file(GLOB_RECURSE PROJECT_LUA_ENV "src/scripting/env/*.lua")
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
 set(IMGUI_DX8_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui-dx8)
 set(IMGUI_CAPI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui-capi)
@@ -90,7 +91,8 @@ if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_link_options(/safeseh:NO)
 endif()
 
-add_library(${TARGET_NAME} SHARED "${PROJECT_SOURCE_FILES}" "${IMGUI_FILES}")
+add_library(${TARGET_NAME} SHARED "${PROJECT_SOURCE_FILES}" "${IMGUI_FILES}" "${PROJECT_LUA_ENV}")
+set_source_files_properties(src/scripting/luaassets.rc PROPERTIES OBJECT_DEPENDS "${PROJECT_LUA_ENV}")
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "dinput8")
 # add_executable(${TARGET_NAME} "${PROJECT_SOURCE_FILES}")
 target_compile_definitions(${TARGET_NAME} PRIVATE ${DEFS} )

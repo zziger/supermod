@@ -8,6 +8,7 @@
 #include <thirdparty/directx/d3d8.h>
 #include <format>
 #include <functional>
+#include <optional>
 
 #define MAX_INPUT_LENGTH 255
 
@@ -80,6 +81,16 @@ namespace utils
             MessageBox(nullptr, str_to_wstr(std::format("Произошла неизвестная ошибка {}", where)).c_str(), L"SuperMod", MB_OK);
             exit(1);
         }
+    }
+
+    inline std::optional<std::string> read_resource(const int resource) {
+        const auto res = FindResource((HMODULE) &__ImageBase, MAKEINTRESOURCE(resource), RT_RCDATA);
+        if (!res) return std::nullopt;
+        const auto resHandle = LoadResource((HMODULE) &__ImageBase, res);
+        if (!resHandle) return std::nullopt;
+        std::string result((char*)LockResource(resHandle), SizeofResource((HMODULE) &__ImageBase, res));
+        FreeResource(resHandle);
+        return result;
     }
 }
 
