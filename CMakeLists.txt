@@ -92,7 +92,7 @@ if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
 endif()
 
 add_library(${TARGET_NAME} SHARED "${PROJECT_SOURCE_FILES}" "${IMGUI_FILES}" "${PROJECT_LUA_ENV}")
-set_source_files_properties(src/scripting/luaassets.rc PROPERTIES OBJECT_DEPENDS "${PROJECT_LUA_ENV}")
+set_source_files_properties(src/scripting/luaassets.h PROPERTIES OBJECT_DEPENDS "${PROJECT_LUA_ENV}")
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "dinput8")
 # add_executable(${TARGET_NAME} "${PROJECT_SOURCE_FILES}")
 target_compile_definitions(${TARGET_NAME} PRIVATE ${DEFS} )

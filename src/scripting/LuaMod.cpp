@@ -13,8 +13,11 @@ void LuaMod::OnLoad() {
     lua = new LuaContext(true);
 
     lua->appendPath((info.basePath / "?.lua").generic_string());
+    lua->appendPath((info.basePath / "?.dll").generic_string());
     lua->appendCpath((info.basePath / "?.dll").generic_string());
-    lua->writeVariable("MODULENAME", utils::get_module_name()); // useful for FFI
+    lua->appendCpath((info.basePath / "loadall.dll").generic_string());
+    lua->writeVariable("CURRENT_DLL_PATH", utils::get_module_name()); // useful for FFI
+    lua->writeVariable("MOD_PATH", info.basePath.generic_string() + "/");
     lua->writeFunction("logDebug", [](std::string str) {
         Log::Debug << str << Log::Endl;
     });

@@ -1,7 +1,9 @@
 ﻿---@meta
 
 ---@package
-MODULENAME = ""
+CURRENT_DLL_PATH = ""
+
+MOD_PATH = ""
 
 ---@param pat string
 ---@return number

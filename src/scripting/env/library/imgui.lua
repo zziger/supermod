@@ -19,7 +19,7 @@ ffi.cdef(cdecl)
 
 
 --load dll
-local lib = ffi.load(MODULENAME)
+local lib = ffi.load(CURRENT_DLL_PATH)
 
 -----------ImStr definition
 local ImStrv

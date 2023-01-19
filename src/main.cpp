@@ -20,6 +20,7 @@
 #include "events/EventManager.h"
 #include "events/ResolveFileEvent.h"
 #include "events/GameLoadedEvent.h"
+#include "events/StartExecutionEvent.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 #include "modloader/mods/files/ModFileResolver.h"
@@ -34,6 +35,12 @@ void init_memory() {
         Log::Error << "Не удалось найти паттерн " << pattern << Log::Endl;
     });
     Memory::InitCacheStorage(new MemoryCacheStorage());
+}
+
+void postInit() {
+    ModManager::LoadMods();
+    ModFileResolver::Init();
+    EventManager::Emit(ReadyEvent());
 }
 
 void init() {
@@ -52,9 +59,12 @@ void init() {
     sdk::Game::Init();
 
     ModManager::Init();
-    ModManager::LoadMods();
-    ModFileResolver::Init();
-    EventManager::Emit(ReadyEvent());
+    hook_start_execution();
+
+    EventManager::On<StartExecutionEvent>([] {
+        Log::Info << "Пост-инициализация" << Log::Endl;
+        postInit();
+    });
     
     EventManager::On<GameLoadedEvent>([] {
         Log::Info << "Игра загружена!" << Log::Endl;
