@@ -20,9 +20,6 @@ void LuaMod::OnLoad() {
     lua->appendCpath((info.basePath / "loadall.dll").generic_string());
     lua->writeVariable("CURRENT_DLL_PATH", utils::get_module_name()); // useful for FFI
     lua->writeVariable("MOD_PATH", info.basePath.generic_string() + "/");
-    lua->writeFunction("logDebug", [](std::string str) {
-        Log::Debug << str << Log::Endl;
-    });
  
     lastMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     
@@ -36,6 +33,7 @@ void LuaMod::OnLoad() {
         return Memory::Pattern(pat.c_str(), pat.size()).Search().Get<int32_t>();
     });
 
+    Log::AddToLua(*lua);
     lua->executeModule("imguicdecl", *utils::read_resource(LUA_MODULE_IMGUI_CDECL));
     lua->executeModule("imgui", *utils::read_resource(LUA_MODULE_IMGUI));
     lua->executeModule("memory", *utils::read_resource(LUA_MODULE_MEMORY));

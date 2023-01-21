@@ -56,6 +56,7 @@ void UI::InitImGui() {
 
 void UI::Render() {
     if (!initialized) return;
+    
     ImGuiIO& io = ImGui::GetIO();
 
     if (menuOpen) io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
@@ -67,17 +68,28 @@ void UI::Render() {
     ImGui_ImplDX8_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-        
-    RenderWatermark();
-    RenderMenu();
+    
+    try {
+        RenderWatermark();
+        RenderMenu();
 
-    for (auto mod : ModManager::GetMods()) {
-        if (!mod->IsLoaded()) continue;
-        mod->Render();
+        for (auto mod : ModManager::GetMods()) {
+            if (!mod->IsLoaded()) continue;
+            mod->Render();
+        }
+
+        EventManager::Emit(UiRenderEvent());
+    } catch(std::exception& e) {
+        Log::Error << "Произошла ошибка в отрисовке кадра: " << e.what() << Log::Endl;
     }
 
-    EventManager::Emit(UiRenderEvent());
-        
+    ImGui::ErrorCheckEndFrameRecover([](void*, const char* format, ...) {
+        va_list va;
+        va_start(va, format);
+        char buffer[1024];
+        vsprintf_s(buffer, 1024, format, va);
+        Log::Warn << "Ошибка стека ImGui:\n\t" << buffer << Log::Endl;
+    }, nullptr);
     ImGui::EndFrame();
 
     const auto d3dDevice = *sdk::DirectX::d3dDevice;
@@ -113,7 +125,7 @@ static int __fastcall AssetPool__freeAssetsFromD3d(void* this_, void*) {
 
 void UI::Init() {
     EventManager::On<WindowEvent>(OnWindowEvent);
-    EventManager::On<TickEvent>([]() {
+    EventManager::On<TickEvent>([] {
         InitImGui();
         Render();
     });

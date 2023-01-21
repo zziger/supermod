@@ -1,4 +1,6 @@
-﻿#include "modloader/mods/Mod.h"
+﻿#include <imgui_internal.h>
+
+#include "modloader/mods/Mod.h"
 #include "modloader/mods/ModManager.h"
 #include "sdk/Game.h"
 #include "ui/ImGuiWidgets.h"
@@ -137,7 +139,14 @@ namespace ui
             ImGui::Selectable("Выберите мод из\nсписка слева", false, ImGuiSelectableFlags_Disabled, ImGui::GetContentRegionAvail());
             ImGui::PopStyleVar();
         }
-    
+
+        ImGui::ErrorCheckEndWindowRecover([](void*, const char* format, ...) {
+            va_list va;
+            va_start(va, format);
+            char buffer[1024];
+            vsprintf_s(buffer, 1024, format, va);
+            Log::Warn << "Ошибка стека ImGui при отрисовке информации о моде:\n\t" << buffer << Log::Endl;
+        }, nullptr);
         ImGui::EndChild();
     }
 }

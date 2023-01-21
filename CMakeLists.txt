@@ -75,11 +75,13 @@ set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
 set(IMGUI_DX8_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui-dx8)
 set(IMGUI_CAPI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui-capi)
 set(IMGUI_FILES
+    ${IMGUI_DIR}/imconfig.h
     ${IMGUI_DIR}/imgui_demo.cpp
     ${IMGUI_DIR}/imgui_draw.cpp
     ${IMGUI_DIR}/imgui_tables.cpp
     ${IMGUI_DIR}/imgui_widgets.cpp
     ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui.h
     ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
     ${IMGUI_DX8_DIR}/imgui_impl_dx8.cpp
     ${IMGUI_CAPI_DIR}/cimgui.h

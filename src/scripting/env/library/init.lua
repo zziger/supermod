@@ -24,6 +24,23 @@ function findPattern(pat) end
 ---@return number
 function currentTimestamp() end
 
+log = {}
+
+---@param msg string Текст лога
+function log:info(msg) end
+
+---@param msg string Текст лога
+function log:debug(msg) end
+
+---@param msg string Текст лога
+function log:warn(msg) end
+
+---@param msg string Текст лога
+function log:error(msg) end
+
+---@param msg string Текст лога
+function log:game(msg) end
+
 --- Вызывается модом каждый кадр игры. Можно использовать ImGui API
 function render() end
 

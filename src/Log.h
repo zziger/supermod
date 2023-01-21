@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <windows.h>
 
+#include "thirdparty/LuaContext.h"
+
 class Log
 {
     enum Type
@@ -45,10 +47,6 @@ public:
         BLACK = 0,
         GRAY = FOREGROUND_INTENSITY,
     };
-    
-    Log(const Log&) = delete;
-    Log(Log&&) = delete;
-    Log& operator=(const Log&) = delete;
 
     template<class T>
     Log& Put(const T& val)
@@ -83,6 +81,7 @@ public:
         type = _type;
         return *this;
     }
+    
     static constexpr struct Log_Info
     {
         template<class T>
@@ -156,5 +155,24 @@ public:
     {
         static Log instance;
         return instance;
+    }
+
+    static void AddToLua(LuaContext& ctx) {
+        ctx.registerFunction<void (Log::*)(std::string)>("info", [](Log&, const std::string msg) {
+            Info << msg << Endl;
+        });
+        ctx.registerFunction<void (Log::*)(std::string)>("error", [](Log&, const std::string msg) {
+            Error << msg << Endl;
+        });
+        ctx.registerFunction<void (Log::*)(std::string)>("warn", [](Log&, const std::string msg) {
+            Warn << msg << Endl;
+        });
+        ctx.registerFunction<void (Log::*)(std::string)>("debug", [](Log&, const std::string msg) {
+            Debug << msg << Endl;
+        });
+        ctx.registerFunction<void (Log::*)(std::string)>("game", [](Log&, const std::string msg) {
+            Game << msg << Endl;
+        });
+        ctx.writeVariable("log", Log{});
     }
 };
