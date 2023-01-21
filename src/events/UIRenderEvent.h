@@ -1,4 +1,4 @@
 ﻿#pragma once
 #include "EventManager.h"
 
-struct UiRenderEvent final : IEvent<"uiRender"> {};
+struct UiRenderEvent final : IEvent<"uiRender", UiRenderEvent> {};

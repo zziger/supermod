@@ -21,6 +21,7 @@ void Mod::OnUnload() {}
 Mod::Mod(ModInfo info): modules(info), info(std::move(info)) {}
 
 void Mod::RenderUI() {}
+void Mod::Render() {}
 
 static const char* config_key = "disabledMods";
 

@@ -51,7 +51,7 @@ void ModFileResolver::Init() {
         if (path) evt.SetResolvedPath(*path);
     });
     EventManager::On<AfterTickEvent>([]() {
-        if (ignoreTick) return;
+        if (sdk::Game::currentTickIsInner) return;
 
         try {
             std::lock_guard lock(_reloadMutex);
@@ -102,22 +102,14 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
 
     if (extension == "") return;
 
-    ignoreTick = false;
-
     try {
-        ignoreTick = true;
-        
         if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
         else if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
         else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
-
-        ignoreTick = false;
     } catch (std::exception& e) {
         Log::Error << "Ошибка при загрузке файла " << filepath << ": " << e.what() << Log::Endl;
-        ignoreTick = false;
     } catch (...) {
         Log::Error << "Неизвестная ошибка при загрузке файла " << filepath << Log::Endl;
-        ignoreTick = false;
     }
 }
 

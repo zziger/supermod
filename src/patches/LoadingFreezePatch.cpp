@@ -6,6 +6,8 @@
 #include "memory/HookManager.h"
 #include "sdk/Game.h"
 
+inline bool is_current_render_tick_inner = false;
+
 inline int (__thiscall *update_load_orig)(void* this_, int a2);
 inline int __fastcall update_load(void* this_, void*, int a2) {
     if (sdk::Game::IsGameInLoadingTick()) {
@@ -16,8 +18,11 @@ inline int __fastcall update_load(void* this_, void*, int a2) {
             DispatchMessageA(&msg);
         }
     }
-    
-    return update_load_orig(this_, a2);
+
+    sdk::Game::currentTickIsInner = true;
+    const auto res = update_load_orig(this_, a2);
+    sdk::Game::currentTickIsInner = false;
+    return res; 
 }
 
 inline EventManager::Ready $loading_freeze_patch([] {

@@ -11,9 +11,12 @@
 #include <unordered_set>
 
 #include "Log.h"
+#include "thirdparty/LuaContext.h"
 
 struct IAnyEvent {
     virtual ~IAnyEvent() = default;
+    
+    virtual void RegisterType(LuaContext* ctx) {}
 };
 
 template<size_t N>
@@ -25,13 +28,17 @@ struct EventId {
     char value[N];
 };
 
-template <EventId EventId>
+template <EventId EventId, class EventType>
 struct IEvent : IAnyEvent {
     static constexpr auto eventId = EventId.value;
+
+    void RegisterType(LuaContext* ctx) override {
+        ctx->ensureTypeRegistration<EventType>(); // ensure type registration check won't return false even tho no members are registered
+    }
 };
 
-template <EventId EventId>
-struct ICancellableEvent : IEvent<EventId> {
+template <EventId EventId, class EventType>
+struct ICancellableEvent : IEvent<EventId, EventType> {
     virtual void Cancel() {
         _cancelled = true;
     }
@@ -39,11 +46,21 @@ struct ICancellableEvent : IEvent<EventId> {
     bool IsCancelled() const {
         return _cancelled;
     }
+
+    virtual void RegisterCancellableType(LuaContext* ctx) {
+        
+    }
+
+    void RegisterType(LuaContext* ctx) override sealed {
+        ctx->registerFunction<void (EventType::*)()>("cancel", [](ICancellableEvent& evt) { evt.Cancel(); });
+        ctx->registerFunction<bool (EventType::*)()>("isCancelled", [](ICancellableEvent& evt) { return evt.IsCancelled(); });
+        RegisterCancellableType(ctx);
+    }
 private:
     bool _cancelled = false;
 };
 
-struct ReadyEvent : IEvent<"ready"> {};
+struct ReadyEvent : IEvent<"ready", ReadyEvent> {};
 
 typedef std::pair<const uint32_t, const std::function<void(IAnyEvent&)>> TEventPair;
 typedef std::multimap<const std::string, TEventPair> TEventMap;
@@ -126,8 +143,9 @@ public:
         }
         return id;
     }
-    
-    // todo thread safety in emit
+
+    static std::vector<std::shared_ptr<LuaContext>> GetLuaContexts();
+
     template <std::derived_from<IAnyEvent> Event>
     static void Emit(Event& event) {
         const std::string typeId = Event::eventId;
@@ -142,6 +160,8 @@ public:
         }
 
         for (auto fn : fns) fn.second(event);
+
+        // for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
     }
 
     template <std::derived_from<IAnyEvent> Event>
@@ -158,6 +178,8 @@ public:
         }
 
         for (auto fn : fns) fn.second(event);
+
+        // for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
     }
 
     struct Ready {

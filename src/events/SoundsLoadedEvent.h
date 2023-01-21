@@ -7,8 +7,7 @@
 #include "memory/Memory.h"
 #include "sdk/Game.h"
 
-struct SoundsLoadedEvent final : IEvent<"soundsLoaded"> {
-};
+struct SoundsLoadedEvent final : IEvent<"soundsLoaded", SoundsLoadedEvent> {};
 
 HOOK_FN(inline int, load_sounds, ARGS()) {
     const auto res = load_sounds_orig();

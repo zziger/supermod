@@ -10,7 +10,6 @@ class ModFileResolver {
     inline static std::mutex _reloadMutex {};
 
     static inline bool listenerEnabled = false;
-    static inline bool ignoreTick = false; // used to prevent unnecessary recursion in tick event when reloading assets
     static void FileListenerThread();
 
     static std::string GetPoolFileName(const std::string& filename);

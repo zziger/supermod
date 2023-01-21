@@ -9,6 +9,7 @@
 #include "Config.h"
 #include "Utils.h"
 #include "events/UIRenderEvent.h"
+#include "modloader/mods/ModManager.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 
@@ -69,6 +70,11 @@ void UI::Render() {
         
     RenderWatermark();
     RenderMenu();
+
+    for (auto mod : ModManager::GetMods()) {
+        if (!mod->IsLoaded()) continue;
+        mod->Render();
+    }
 
     EventManager::Emit(UiRenderEvent());
         

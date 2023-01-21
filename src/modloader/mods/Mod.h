@@ -36,8 +36,11 @@ public:
     void UnloadModule();
     bool IsLoaded() const;
     bool ShouldBeLoaded() const;
+
+    virtual void EnsureEventType(const std::type_info* type, IAnyEvent& event) {}
     
     virtual void RenderUI();
+    virtual void Render();
 };
 
 typedef std::shared_ptr<Mod> (*create_mod_fn)(ModInfo& info);

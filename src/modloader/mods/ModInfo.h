@@ -4,6 +4,8 @@
 
 #include <thirdparty/directx/d3d8.h>
 
+#include "thirdparty/LuaContext.h"
+
 
 struct ModInfo {
     std::string id;
@@ -26,4 +28,23 @@ struct ModInfo {
     explicit ModInfo(std::filesystem::path modPath, HMODULE module);
     
     explicit ModInfo(std::string id, std::string title, std::string author, std::string version);
+
+    std::string ToString() const {
+        return std::format("Mod<{}>", id);
+    }
+    
+    void RegisterLuaType(LuaContext* ctx) {
+        if (ctx->isTypeRegistered<ModInfo>()) return;
+        ctx->registerConstMember("id", &ModInfo::id);
+        ctx->registerConstMember("title", &ModInfo::title);
+        ctx->registerConstMember("author", &ModInfo::author);
+        ctx->registerConstMember("version", &ModInfo::version);
+        ctx->registerConstMember("basePath", &ModInfo::basePath);
+        ctx->registerConstMember("luaScript", &ModInfo::luaScript);
+        ctx->registerConstMember("gameVersions", &ModInfo::gameVersions);
+        ctx->registerConstMember("compatible", &ModInfo::compatible);
+        ctx->registerConstMember("internal", &ModInfo::internal);
+        ctx->registerToStringFunction(&ModInfo::ToString);
+        // todo icon
+    }
 };

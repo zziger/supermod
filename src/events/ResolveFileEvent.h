@@ -7,7 +7,7 @@
 #include "memory/Memory.h"
 #include "sdk/Game.h"
 
-struct ResolveFileEvent final : IEvent<"resolveFile"> {
+struct ResolveFileEvent final : IEvent<"resolveFile", ResolveFileEvent> {
     const std::filesystem::path absolutePath;
 
     explicit ResolveFileEvent(std::filesystem::path path) : absolutePath(std::move(path)) {
@@ -21,8 +21,19 @@ struct ResolveFileEvent final : IEvent<"resolveFile"> {
         _resolvedPath = std::nullopt;
     }
 
-    std::optional<std::filesystem::path>& GetResolvedPath() {
+    const std::optional<std::filesystem::path>& GetResolvedPath() const {
         return _resolvedPath;
+    }
+
+    void RegisterType(LuaContext* ctx) override sealed {
+        ctx->registerConstMember("absolutePath", &ResolveFileEvent::absolutePath);
+        ctx->registerFunction<tl::optional<std::filesystem::path> (ResolveFileEvent::*)()>("getResolvedPath", [](ResolveFileEvent& evt) -> tl::optional<std::filesystem::path> {
+            auto path = evt.GetResolvedPath();
+            if (!path) return tl::nullopt;
+            return tl::optional<std::filesystem::path>(*path);
+        });
+        ctx->registerFunction("setResolvedPath", &ResolveFileEvent::SetResolvedPath);
+        ctx->registerFunction("clearResolvedPath", &ResolveFileEvent::ClearResolvedPath);
     }
 
 private: 

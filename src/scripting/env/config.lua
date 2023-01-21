@@ -1,7 +1,7 @@
-﻿name = "SuperMod 1.0.0-alpha14"
+﻿name = "SuperMod 1.0.0-alpha17"
 
-files   = {
-    '*.lua'
+words = {
+    'supermod'
 }
 
 configs = {

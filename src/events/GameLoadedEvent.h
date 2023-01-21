@@ -5,7 +5,7 @@
 #include "memory/Memory.h"
 #include "sdk/Game.h"
 
-struct GameLoadedEvent final : IEvent<"gameLoaded"> {};
+struct GameLoadedEvent final : IEvent<"gameLoaded", GameLoadedEvent> {};
 
 inline bool sentGameLoaded = false;
 

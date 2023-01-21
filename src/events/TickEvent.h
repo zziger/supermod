@@ -4,8 +4,8 @@
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 
-struct BeforeTickEvent final : IEvent<"beforeTick"> {};
-struct AfterTickEvent final : IEvent<"afterTick"> {};
+struct BeforeTickEvent final : IEvent<"beforeTick", BeforeTickEvent> {};
+struct AfterTickEvent final : IEvent<"afterTick", AfterTickEvent> {};
 
 typedef BeforeTickEvent TickEvent; 
 

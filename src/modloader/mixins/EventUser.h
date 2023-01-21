@@ -18,6 +18,16 @@ protected:
         return _events += eventId;
     }
 
+    uint32_t OnEvent(const std::string& eventName, const std::function<void(IAnyEvent&)>& fn) {
+        const uint32_t eventId = EventManager::On(eventName, fn);
+        return _events += eventId;
+    }
+
+    uint32_t OnEvent(const std::string& eventName, const std::function<void()>& fn) {
+        const uint32_t eventId = EventManager::On(eventName, fn);
+        return _events += eventId;
+    }
+
     uint32_t OffEvent(uint32_t eventId);
 
 public:

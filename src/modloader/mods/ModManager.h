@@ -3,6 +3,8 @@
 #include <list>
 #include "modloader/mods/Mod.h"
 
+class LuaMod;
+
 class ModManager {
     inline static const std::filesystem::path manifest_file_name = "manifest.yml";
     inline static const std::filesystem::path icon_file_name = "icon.png";
@@ -10,6 +12,7 @@ class ModManager {
     
     inline static std::filesystem::path _mods_folder;
     inline static std::list<std::shared_ptr<Mod>> _mods {};
+    inline static std::list<std::shared_ptr<LuaMod>> _luaMods {};
     inline static std::recursive_mutex _modMutex {};
     
     inline static std::shared_ptr<Mod> _internalMod {};
@@ -31,4 +34,5 @@ public:
     static void DeleteMod(std::shared_ptr<Mod> mod);
 
     static std::list<std::shared_ptr<Mod>> GetMods();
+    static std::list<std::shared_ptr<LuaMod>> GetLuaMods();
 };

@@ -46,13 +46,16 @@ void ModManager::LoadMod(const std::string_view modName) {
 
     auto info = ModInfo(modBase, module);
     info.ReadIcon();
-    
+
     const auto mod = createMod ? createMod(info) : info.luaScript == "" ? std::make_shared<Mod>(info) : std::make_shared<LuaMod>(info);
 
     if (mod->ShouldBeLoaded()) mod->Load(false);
         
     _mods.push_back(mod);
         
+    if (!createMod && info.luaScript != "") {
+        _luaMods.push_back(static_pointer_cast<LuaMod>(mod));
+    }
 }
 
 void ModManager::LoadMods() {
@@ -98,6 +101,10 @@ void ModManager::ReloadIcons() {
 void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     std::lock_guard lock(_modMutex);
 
+    if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {
+        _luaMods.remove(luaMod);
+    }
+    
     _mods.remove(mod);
     mod->Unload(false);
     mod->UnloadModule();
@@ -108,4 +115,10 @@ std::list<std::shared_ptr<Mod>> ModManager::GetMods() {
     std::lock_guard lock(_modMutex);
 
     return _mods;
+}
+
+std::list<std::shared_ptr<LuaMod>> ModManager::GetLuaMods() {
+    std::lock_guard lock(_modMutex);
+
+    return _luaMods;
 }

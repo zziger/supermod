@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <functional>
 #include <limits>
 #include <list>
+#include <unordered_Set>
 #include <map>
 #include <memory>
 #include <random>
@@ -83,6 +84,9 @@ class LuaContext {
     template<typename TFunctionObject, typename TFirstParamType> struct Binder;
     template<typename T> struct IsOptional;
     enum Globals_t { Globals }; // tag for "global variables"
+
+    static inline std::unordered_map<lua_State*, std::unordered_set<const std::type_info*>> _registeredTypes{};
+    
 public:
     /**
      * @param openDefaultLibs True if luaL_openlibs should be called
@@ -107,6 +111,8 @@ public:
             luaL_openlibs(mState);
 
          writeGlobalEq();
+
+        _registeredTypes[mState] = {};
     }
 
     void appendPath(const std::string& path) {
@@ -189,6 +195,7 @@ public:
     ~LuaContext() noexcept
     {
         assert(mState);
+        if (_registeredTypes.contains(mState)) _registeredTypes.erase(mState);
         lua_close(mState);
     }
     
@@ -268,9 +275,9 @@ public:
      * Executes lua code from the stream
      * @param code      A stream that Lua will read its code from
      */
-    void executeCode(std::istream& code)
+    void executeCode(std::istream& code, const char* name = "file")
     {
-        auto toCall = load(mState, code);
+        auto toCall = load(mState, code, name);
         call<std::tuple<>>(mState, std::move(toCall));
     }
 
@@ -280,10 +287,10 @@ public:
      * @tparam TType    The type that the executing code should return
      */
     template<typename TType>
-    auto executeCode(std::istream& code)
+    auto executeCode(std::istream& code, const char* name = "file")
         -> TType
     {
-        auto toCall = load(mState, code);
+        auto toCall = load(mState, code, name);
         return call<TType>(mState, std::move(toCall));
     }
 
@@ -291,9 +298,9 @@ public:
      * Executes lua code given as parameter
      * @param code      A string containing code that will be executed by Lua
      */
-    void executeCode(const std::string& code)
+    void executeCode(const std::string& code, const char* name = "eval")
     {
-        executeCode(code.c_str());
+        executeCode(code.c_str(), name);
     }
     
     /*
@@ -302,19 +309,19 @@ public:
      * @tparam TType    The type that the executing code should return
      */
     template<typename TType>
-    auto executeCode(const std::string& code)
+    auto executeCode(const std::string& code, const char* name = "eval")
         -> TType
     {
-        return executeCode<TType>(code.c_str());
+        return executeCode<TType>(code.c_str(), name);
     }
 
     /**
      * Executes Lua code
      * @param code      A string containing code that will be executed by Lua
      */
-    void executeCode(const char* code)
+    void executeCode(const char* code, const char* name = "eval")
     {
-        auto toCall = load(mState, code);
+        auto toCall = load(mState, code, name);
         call<std::tuple<>>(mState, std::move(toCall));
     }
 
@@ -324,10 +331,10 @@ public:
      * @tparam TType    The type that the executing code should return
      */
     template<typename TType>
-    auto executeCode(const char* code)
+    auto executeCode(const char* code, const char* name = "eval")
         -> TType
     {
-        auto toCall = load(mState, code);
+        auto toCall = load(mState, code, name);
         return call<TType>(mState, std::move(toCall));
     }
 
@@ -335,9 +342,9 @@ public:
      * Executes lua code from the stream
      * @param code      A stream that Lua will read its code from
      */
-    void executeCode(const ThreadID& thread, std::istream& code)
+    void executeCode(const ThreadID& thread, std::istream& code, const char* name = "file")
     {
-        auto toCall = load(thread.state, code);
+        auto toCall = load(thread.state, code, name);
         call<std::tuple<>>(thread.state, std::move(toCall));
     }
 
@@ -347,10 +354,10 @@ public:
      * @tparam TType    The type that the executing code should return
      */
     template<typename TType>
-    auto executeCode(const ThreadID& thread, std::istream& code)
+    auto executeCode(const ThreadID& thread, std::istream& code, const char* name = "file")
         -> TType
     {
-        auto toCall = load(thread.state, code);
+        auto toCall = load(thread.state, code, name);
         return call<TType>(thread.state, std::move(toCall));
     }
 
@@ -358,9 +365,9 @@ public:
      * Executes lua code given as parameter
      * @param code      A string containing code that will be executed by Lua
      */
-    void executeCode(const ThreadID& thread, const std::string& code)
+    void executeCode(const ThreadID& thread, const std::string& code, const char* name = "eval")
     {
-        executeCode(thread, code.c_str());
+        executeCode(thread, code.c_str(), name);
     }
     
     /*
@@ -369,19 +376,19 @@ public:
      * @tparam TType    The type that the executing code should return
      */
     template<typename TType>
-    auto executeCode(const ThreadID& thread, const std::string& code)
+    auto executeCode(const ThreadID& thread, const std::string& code, const char* name = "eval")
         -> TType
     {
-        return executeCode<TType>(thread, code.c_str());
+        return executeCode<TType>(thread, code.c_str(), name);
     }
 
     /**
      * Executes Lua code
      * @param code      A string containing code that will be executed by Lua
      */
-    void executeCode(const ThreadID& thread, const char* code)
+    void executeCode(const ThreadID& thread, const char* code, const char* name = "eval")
     {
-        auto toCall = load(thread.state, code);
+        auto toCall = load(thread.state, code, name);
         call<std::tuple<>>(thread.state, std::move(toCall));
     }
 
@@ -391,10 +398,10 @@ public:
      * @tparam TType    The type that the executing code should return
      */
     template<typename TType>
-    auto executeCode(const ThreadID& thread, const char* code)
+    auto executeCode(const ThreadID& thread, const char* code, const char* name = "eval")
         -> TType
     {
-        auto toCall = load(thread.state, code);
+        auto toCall = load(thread.state, code, name);
         return call<TType>(thread.state, std::move(toCall));
     }
     
@@ -430,25 +437,21 @@ public:
         }
     }
     
-    void executeModule (const char *modname, const char* code, bool global = false) {
+    void executeModule (const char *modname, const char* code, const char* name = nullptr) {
         luaL_getsubtable(mState, LUA_REGISTRYINDEX, "_LOADED");
         lua_getfield(mState, -1, modname);
         if (lua_type(mState, -1) == LUA_TNIL) {
             lua_pop(mState, 1);
-            auto toCall = load(mState, code);
+            auto toCall = load(mState, code, name ? name : std::format("модуль {}", modname).c_str());
             callWithoutPop(mState, std::move(toCall), 1);
             lua_pushvalue(mState, -1);
             lua_setfield(mState, -3, modname);
+            lua_pop(mState, 2);
         }
-        if (global) {
-            lua_pushvalue(mState, -1);
-            lua_setglobal(mState, modname);
-        }
-        lua_replace(mState, -2);
     }
 
-    void executeModule(const char* modname, std::string&& code, bool global = false) {
-        executeModule(modname, code.c_str(), global);
+    void executeModule(const char* modname, std::string&& code, const char* name = nullptr) {
+        executeModule(modname, code.c_str(), name);
     }
     
     /**
@@ -578,6 +581,19 @@ public:
         // implementation simply calls the custom member with getter and setter
         const auto getter = [=](const TObject& obj) -> TVarType { return obj.*member; };
         const auto setter = [=](TObject& obj, const TVarType& value) { obj.*member = value; };
+        registerMember<TVarType (TObject::*)>(name, getter, setter);
+    }
+    
+    /**
+     * Registers a constant member variable
+     * This is the version "registerConstMember(name, &Foo::member)"
+     */
+    template<typename TObject, typename TVarType>
+    void registerConstMember(const std::string& name, TVarType TObject::*member)
+    {
+        // implementation simply calls the custom member with getter and setter
+        const auto getter = [=](const TObject& obj) -> TVarType { return obj.*member; };
+        const auto setter = [=](TObject& obj, const TVarType& value) {};
         registerMember<TVarType (TObject::*)>(name, getter, setter);
     }
 
@@ -844,6 +860,8 @@ private:
     /**************************************************/
     /*                 PUSH OBJECT                    */
     /**************************************************/
+
+public:
     struct PushedObject {
         PushedObject(lua_State* state_, int num_ = 1) : state(state_), num(num_) {}
         ~PushedObject() { assert(lua_gettop(state) >= num); if (num >= 1) lua_pop(state, num); }
@@ -867,6 +885,48 @@ private:
         lua_State* state;
         int num = 0;
     };
+    
+    bool isTypeRegistered(const std::type_info* type) {
+        if (!_registeredTypes.contains(mState)) return false;
+        return _registeredTypes[mState].contains(type);
+    }
+
+    template<class T>
+    bool isTypeRegistered() {
+        return isTypeRegistered(&typeid(T));
+    }
+
+    template<class T>
+    void ensureTypeRegistration() {
+        checkTypeRegistration(mState, &typeid(T));
+    }
+    
+    std::unordered_set<std::string> _enabledEvents {};
+
+    void RegisterEventMethods() {
+        this->writeFunction("__enableEvent", [this](const std::string& name) -> void {
+            this->_enabledEvents.emplace(name);
+        });
+        this->writeFunction("__disableEvent", [this](const std::string& name) -> void {
+            this->_enabledEvents.erase(name);
+        });
+    }
+
+    void HideEventMethods() {
+        this->writeVariable("__enableEvent", nullptr);
+        this->writeVariable("__disableEvent", nullptr);
+    }
+
+    template<class T>
+    void EmitEvent(const std::string& eventName, T& event) {
+        // if (!_enabledEvents.contains(eventName)) return;
+        // if (!isTypeRegistered<T>()) event.RegisterType(this);
+        auto fn = this->readVariable<std::function<void(T*, const std::string&)>>("__handleEvent");
+        fn(&event, eventName);
+    }
+private:
+    
+    
     
 
     /**************************************************/
@@ -1169,6 +1229,9 @@ private:
         }
         lua_pop(state, 1);
 
+        if (!_registeredTypes.contains(state)) _registeredTypes[state] = {};
+        _registeredTypes[state].emplace(type);
+
         lua_pushlightuserdata(state, const_cast<std::type_info*>(type));
         lua_newtable(state);
 
@@ -1406,7 +1469,7 @@ private:
     /**************************************************/
     // this function loads data from the stream and pushes a function at the top of the stack
     // throws in case of syntax error
-    static PushedObject load(lua_State* state, std::istream& code) {
+    static PushedObject load(lua_State* state, std::istream& code, const char* name = "executed code") {
         // since the lua_load function requires a static function, we use this structure
         // the Reader structure is at the same time an object storing an istream and a buffer,
         //   and a static function provider
@@ -1430,7 +1493,7 @@ private:
 
         // we create an instance of Reader, and we call lua_load
         Reader reader{code};
-        const auto loadReturnValue = lua_load(state, &Reader::read, &reader, "chunk"
+        const auto loadReturnValue = lua_load(state, &Reader::read, &reader, name
 #           if LUA_VERSION_NUM >= 502
                 , nullptr
 #           endif
@@ -1453,8 +1516,8 @@ private:
     
     // this function loads data and pushes a function at the top of the stack
     // throws in case of syntax error
-    static PushedObject load(lua_State* state, const char* code) {
-        auto loadReturnValue = luaL_loadstring(state, code);
+    static PushedObject load(lua_State* state, const char* code, const char* name = "executed code") {
+        auto loadReturnValue =  luaL_loadbuffer(state, code, strlen(code), name);
 
         // now we have to check return value
         if (loadReturnValue != 0) {
@@ -1483,7 +1546,6 @@ private:
         // we push the parameters on the stack
         auto inArguments = Pusher<std::tuple<TParameters&&...>>::push(state, std::forward_as_tuple(std::forward<TParameters>(input)...));
 
-        // 
         const int outArgumentsCount = std::tuple_size<RealReturnType>::value;
         auto outArguments = callRaw(state, std::move(toCall) + std::move(inArguments), outArgumentsCount);
 

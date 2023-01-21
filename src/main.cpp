@@ -43,6 +43,7 @@ void postInit() {
     EventManager::Emit(ReadyEvent());
 }
 
+
 void init() {
     auto cwd = std::filesystem::current_path();
     Config::Init(); 
