@@ -21,6 +21,9 @@ void UI::LoadFonts(const ImGuiIO& io) {
     fonts = new UIFonts(io);
 }
 
+static std::string imguiIniFilename;
+static std::string imguiLogFilename;
+
 void UI::InitImGui() {
     if (initialized) return;
         
@@ -30,17 +33,11 @@ void UI::InitImGui() {
         
     ImGuiIO& io = ImGui::GetIO();
 
-    const auto iniFilename = (sdk::Game::GetRootPath() / "imgui.ini").string();
-    const auto iniCFilename = new char[iniFilename.size() + 1];
-    iniFilename.copy(iniCFilename, iniFilename.size());
-    iniCFilename[iniFilename.size()] = '\0';
-    io.IniFilename = iniCFilename;
+    imguiIniFilename = (sdk::Game::GetRootPath() / "imgui.ini").string();
+    io.IniFilename = imguiIniFilename.c_str();
     
-    const auto logFilename = (sdk::Game::GetRootPath() / "imguilog.txt").string();
-    const auto logCFilename = new char[logFilename.size() + 1];
-    logFilename.copy(iniCFilename, logFilename.size());
-    logCFilename[logFilename.size()] = '\0';
-    io.LogFilename = logCFilename;
+    imguiLogFilename = (sdk::Game::GetRootPath() / "imguilog.txt").string();
+    io.LogFilename = imguiLogFilename.c_str();
         
     LoadFonts(io);
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
@@ -48,8 +45,8 @@ void UI::InitImGui() {
     ImGui_ImplWin32_Init(*sdk::Game::window);
     ImGui_ImplDX8_Init(*sdk::DirectX::d3dDevice);
     
-    io.IniFilename = iniCFilename;
-    io.LogFilename = logCFilename;
+    io.IniFilename = imguiIniFilename.c_str();
+    io.LogFilename = imguiLogFilename.c_str();
         
     initialized = true;
 }
@@ -58,6 +55,8 @@ void UI::Render() {
     if (!initialized) return;
     
     ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = imguiIniFilename.c_str();
+    io.LogFilename = imguiLogFilename.c_str();
 
     if (menuOpen) io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
     else io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
