@@ -207,6 +207,18 @@ function Memory.toU16(str)
     return imgui.FromUTF(str)
 end
 
+---Конвертирует UTF8 строку (char*) в массив UTF-16 байтов (полезно для ffi.new с wchar_t)
+---@param str string | ffi.cdata*
+---@return number[]
+function Memory.toU16Array(str)
+    local u16 = imgui.FromUTF(str)
+    local arr = {}
+    for i = 0, str:len(), 1 do
+        table.insert(arr, u16[i])
+    end
+    return arr
+end
+
 ---Конвертирует UTF16 строку (wchar_t*) в UTF8 строку (char*)
 ---@param wstr ffi.cdata*
 ---@return ffi.cdata*
