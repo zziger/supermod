@@ -19,7 +19,7 @@ void LuaMod::OnEnable() {
     lua->appendCpath((info.basePath / "?.dll").generic_string());
     lua->appendCpath((info.basePath / "loadall.dll").generic_string());
     lua->writeVariable("CURRENT_DLL_PATH", utils::get_module_name()); // useful for FFI
-    lua->writeVariable("MOD_PATH", info.basePath.generic_string() + "/");
+    lua->writeVariable("MOD_PATH", info.basePath.string() + "\\");
  
     lastMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     
