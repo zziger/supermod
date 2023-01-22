@@ -1,7 +1,6 @@
 local ffi = require "ffi"
 local imgui = require "imgui"
 
-
 ---@class Memory
 ---@field addr number
 local Memory = {}
@@ -49,6 +48,12 @@ function Memory:getFunction(functionType)
     return ffi.cast(functionType, self.addr) --[[@as function]]
 end
 
+---Возвращает поинтер в виде указанного типа
+---@param type ffi.ct* Тип данных в виде C-декларации
+function Memory:getAs(type)
+    return ffi.cast(type, self.addr)
+end
+
 ---Вызывает функцию по текущему адресу
 ---@param functionType ffi.ct* Тип функции в виде C-декларации
 ---@param ... any Аргументы функции
@@ -58,6 +63,12 @@ function Memory:call(functionType, ...)
 end
 
 --#region Функции чтения
+
+---Читает данные по адресу используя указанный тип
+---@param type ffi.ct* Тип данных в виде C-декларации
+function Memory:readAs(type)
+    return ffi.cast(ffi.typeof("$*", ffi.typeof(type)), self.addr)[0]
+end
 
 ---Читает адрес (int32) по текущему адресу, и возвращает обьект Memory с новым адресом
 ---@return Memory
@@ -119,14 +130,6 @@ end
 ---@return boolean
 function Memory:readSBool()
     return self:readInt8() ~= 0
-end
-
-function Memory:getPtrAs(type)
-    return ffi.cast(type, self.addr)
-end
-
-function Memory:getAs(type)
-    return ffi.cast(ffi.typeof("$*", ffi.typeof(type)), self.addr)[0]
 end
 
 
@@ -194,39 +197,6 @@ function Memory:writeString(string)
 end
 
 --#endregion
--- function Memory:log() 
---     print(self.location)
--- end
-
--- local mem = Memory.new("sus")
--- mem
--- Memory.__index = Memory;
-
--- local Memory_mt = {}
--- Memory_mt.__call = function(class_tbl, location)
---     local obj = {}
---     setmetatable(obj, Memory)
---     return obj
--- end
-
--- setmetatable(Memory, Memory_mt)
---#region Функции
-
--- ---Получает нативную функцию в виде lua-функции
--- ---@param functionType ffi.ct* Тип функции
--- ---@param location memoryLocation Паттерн или адрес в памяти
--- function memory.getFunction(functionType, location)
---     return ffi.cast(functionType, resolveLocation(location))
--- end
-
--- ---Вызывает нативную функцию
--- ---@param functionType ffi.ct* Тип функции
--- ---@param location string | number Паттерн или адрес в памяти
--- function memory.callFunction(functionType, location, ...)
---     memory.getFunction(functionType, location)(unpack(arg))
--- end
-
--- --#endregion
 
 --#region Конвертация данных
 
@@ -244,23 +214,13 @@ function Memory.toU8(wstr)
     return imgui.ToUTF(wstr)
 end
 
--- ---Конвертирует строку (char*) в луа формат
--- ---@param cstr ffi.cdata*
--- ---@return string
--- function memory.toStr(cstr)
---     return ffi.string(cstr)
--- end
-
--- --#endregion
-
---#region
-
--- ---@param location memoryLocation Паттерн или адрес в памяти
--- ---@param offset number? Оффсет
--- ---@return number
--- function memory.readInt(location, offset)
---     return ffi.cast("__int32*", resolveLocation(location) + (offset or 0))[0]
--- end
+---Конвертирует строку (char*) в луа формат
+---@param cstr ffi.cdata*
+---@return string
+function Memory.toStr(cstr)
+    return ffi.string(cstr)
+end
 
 --#endregion
-return Memory   
+
+return Memory
