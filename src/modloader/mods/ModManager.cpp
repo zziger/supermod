@@ -16,7 +16,7 @@ void ModManager::Init() {
     _mods_folder = std::filesystem::current_path() / "mods";
         
     const auto ptr = std::make_shared<InternalMod>();
-    ptr->Load(false);
+    ptr->Enable(false);
     _mods.push_back(ptr);
 }
 
@@ -49,7 +49,7 @@ void ModManager::LoadMod(const std::string_view modName) {
 
     const auto mod = createMod ? createMod(info) : info.luaScript == "" ? std::make_shared<Mod>(info) : std::make_shared<LuaMod>(info);
 
-    if (mod->ShouldBeLoaded()) mod->Load(false);
+    if (mod->ShouldBeEnabled()) mod->Enable(false);
         
     _mods.push_back(mod);
         
@@ -106,7 +106,7 @@ void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     }
     
     _mods.remove(mod);
-    mod->Unload(false);
+    mod->Disable(false);
     mod->UnloadModule();
     remove_all(mod->info.basePath);
 }

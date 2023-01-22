@@ -73,7 +73,7 @@ void UI::Render() {
         RenderMenu();
 
         for (auto mod : ModManager::GetMods()) {
-            if (!mod->IsLoaded()) continue;
+            if (!mod->IsEnabled()) continue;
             mod->Render();
         }
 

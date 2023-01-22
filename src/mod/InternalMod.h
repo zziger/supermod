@@ -10,7 +10,7 @@ class InternalMod final : public Mod {
 public:
     explicit InternalMod() : Mod(ModInfo { "$internal", "SuperMod", "zziger", VERSION }) {}
 
-    void OnLoad() override {
+    void OnEnable() override {
         AddModules<AdaptiveResolutionModule, LevelBackRenderFixModule, FpsLimitModule, RenderUnfocusedModule, ForwardGameLogsModule>();
     }
 };

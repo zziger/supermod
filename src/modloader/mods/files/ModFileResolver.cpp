@@ -15,7 +15,7 @@
 std::optional<std::filesystem::path> ModFileResolver::ResolveFile(const std::filesystem::path& path) {
     auto mods = ModManager::GetMods();
     for (auto el = mods.rbegin(); el != mods.rend(); ++el) {
-        if (!(*el)->IsLoaded()) continue;
+        if (!(*el)->IsEnabled()) continue;
         const auto resolvedPath = ResolveModFile(*el, path);
         if (!resolvedPath) continue;
 
@@ -33,7 +33,7 @@ std::filesystem::path ModFileResolver::ResolveFileOrOriginal(const std::filesyst
 }
 
 std::optional<std::filesystem::path> ModFileResolver::ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
-    if (!mod || mod->info.internal || !mod->IsLoaded()) return std::nullopt;
+    if (!mod || mod->info.internal || !mod->IsEnabled()) return std::nullopt;
     
     const auto filePath = relative(path, sdk::Game::GetDataPath());
 

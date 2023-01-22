@@ -11,7 +11,7 @@ template <class ModuleType>
 concept simple_module = std::derived_from<ModuleType, Module> && std::constructible_from<ModuleType> && requires { std::make_shared<ModuleType>(); };
 
 class Mod : public HookUser, public EventUser {
-    bool _loaded = false;
+    bool _enabled = false;
     
 protected:
     std::shared_ptr<Module> AddModule(std::shared_ptr<Module> module);
@@ -22,8 +22,8 @@ protected:
         (AddModule(std::make_shared<Modules>()), ...);
     }
     
-    virtual void OnLoad();
-    virtual void OnUnload();
+    virtual void OnEnable();
+    virtual void OnDisable();
 
 public:
     explicit Mod(ModInfo info);
@@ -31,11 +31,11 @@ public:
     ModuleContainer modules;
     ModInfo info;
     
-    void Load(bool manual);
-    void Unload(bool manual);
+    void Enable(bool manual);
+    void Disable(bool manual);
     void UnloadModule();
-    bool IsLoaded() const;
-    bool ShouldBeLoaded() const;
+    bool IsEnabled() const;
+    bool ShouldBeEnabled() const;
 
     virtual void EnsureEventType(const std::type_info* type, IAnyEvent& event) {}
     

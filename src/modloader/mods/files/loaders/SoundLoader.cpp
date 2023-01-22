@@ -75,7 +75,7 @@ void ModFileResolver::LoadAdditionalMusic() {
         defaultMusic.emplace(entry.path().filename().generic_string());
 
     for (const auto& loadedMod : ModManager::GetMods()) {
-        if (loadedMod->info.internal || !loadedMod->IsLoaded()) continue;
+        if (loadedMod->info.internal || !loadedMod->IsEnabled()) continue;
         if (!exists(loadedMod->info.basePath / "data" / "audio" / "music")) continue;
         
         for (const auto& entry : std::filesystem::directory_iterator(loadedMod->info.basePath / "data" / "audio" / "music")) {

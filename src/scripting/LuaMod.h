@@ -10,9 +10,9 @@ public:
 
     std::shared_ptr<LuaContext> lua;
 
-    void OnLoad() override;
+    void OnEnable() override;
 
-    void OnUnload() override;
+    void OnDisable() override;
 
     void RenderUI() override;
 

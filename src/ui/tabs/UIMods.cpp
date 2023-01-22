@@ -18,7 +18,7 @@ namespace ui
             if (!loadedMod) continue;
             auto info = loadedMod->info;
             if (widgets::ModSelectable(info.id.c_str(), info.title.c_str(), info.author.c_str(),
-                info.version.c_str(), info.icon, activeMod && (*activeMod)->info.id == info.id, !loadedMod->IsLoaded()))
+                info.version.c_str(), info.icon, activeMod && (*activeMod)->info.id == info.id, !loadedMod->IsEnabled()))
                     activeMod = loadedMod;
         }
     
@@ -46,7 +46,7 @@ namespace ui
                 ImGui::Text("Состояние:");
         
                 ImGui::SameLine();
-                if (mod->IsLoaded()) ImGui::TextColored(0x77EE77FF_color, "Включен");
+                if (mod->IsEnabled()) ImGui::TextColored(0x77EE77FF_color, "Включен");
                 else ImGui::TextColored(0xEE7777FF_color, "Выключен");
 
                 if (!mod->info.compatible) {
@@ -69,9 +69,9 @@ namespace ui
                     }
                 }
 
-                if (ImGui::Button(mod->IsLoaded() ? "Выключить" : "Включить")) {
-                    if (mod->IsLoaded()) mod->Unload(true);
-                    else mod->Load(true);
+                if (ImGui::Button(mod->IsEnabled() ? "Выключить" : "Включить")) {
+                    if (mod->IsEnabled()) mod->Disable(true);
+                    else mod->Enable(true);
                 }
 
                 ImGui::SameLine();

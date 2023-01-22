@@ -6,7 +6,7 @@
 #include "events/WindowEvent.h"
 #include "sdk/Game.h"
 
-void LuaMod::OnLoad() {
+void LuaMod::OnEnable() {
     if (info.luaScript == "") throw Error("LuaMod был заинициализирован, но скрипт не был найден");
 
     const auto fullPath = info.basePath / info.luaScript;
@@ -51,9 +51,9 @@ void LuaMod::OnLoad() {
 
 struct LuaUnloadEvent : IEvent<"_unload", LuaUnloadEvent> {};
 
-void LuaMod::OnUnload() {
+void LuaMod::OnDisable() {
     if (!lua) return;
-    const auto event = LuaUnloadEvent{};
+    auto event = LuaUnloadEvent{};
     lua->EmitEvent("_unload", event);
     lua = nullptr;
 }

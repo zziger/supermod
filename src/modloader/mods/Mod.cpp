@@ -14,9 +14,9 @@ std::shared_ptr<Module> Mod::RemoveModule(std::shared_ptr<Module> module) {
     return module;
 }
 
-void Mod::OnLoad() {}
+void Mod::OnEnable() {}
 
-void Mod::OnUnload() {}
+void Mod::OnDisable() {}
 
 Mod::Mod(ModInfo info): modules(info), info(std::move(info)) {}
 
@@ -25,12 +25,12 @@ void Mod::Render() {}
 
 static const char* config_key = "disabledMods";
 
-void Mod::Load(bool manual) {
-    if (_loaded) return;
+void Mod::Enable(bool manual) {
+    if (_enabled) return;
     try {
-        OnLoad();
+        OnEnable();
         modules.LoadNeeded();
-        _loaded = true;
+        _enabled = true;
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         EventManager::Emit(ModLoadEvent(info));
         Log::Info << "Мод " << info.title << " загружен" << Log::Endl;
@@ -50,9 +50,9 @@ void Mod::Load(bool manual) {
     }
 }
 
-void Mod::Unload(bool manual) {
-    if (!_loaded) return;
-    _loaded = false;
+void Mod::Disable(bool manual) {
+    if (!_enabled) return;
+    _enabled = false;
     try {
         if (manual) {
             const Config cfg;
@@ -61,7 +61,7 @@ void Mod::Unload(bool manual) {
         }
         UnloadEvents();
         UnloadHooks();
-        OnUnload();
+        OnDisable();
         modules.Unload();
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         EventManager::Emit(ModUnloadEvent(info));
@@ -79,11 +79,11 @@ void Mod::UnloadModule() {
 }
 
 
-bool Mod::IsLoaded() const {
-    return _loaded;
+bool Mod::IsEnabled() const {
+    return _enabled;
 }
 
-bool Mod::ShouldBeLoaded() const {
+bool Mod::ShouldBeEnabled() const {
     const auto& node = Config::Get()[config_key];
     if (node.IsSequence()) {
         for (auto mod : node) {

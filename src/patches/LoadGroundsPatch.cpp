@@ -19,7 +19,7 @@ HOOK_FN(inline void*, load_ground_textures, ARGS()) {
     auto grounds = 5;
     
     for (auto& mod : ModManager::GetMods()) {
-        if (mod->info.internal || !mod->IsLoaded()) continue;
+        if (mod->info.internal || !mod->IsEnabled()) continue;
         const auto levelobjs = mod->info.basePath / "data" / "levelobjs";
         auto i = 5;
         while (exists(levelobjs / std::format("ground{}.tga", i + 1)) || exists(levelobjs / std::format("_a_ground{}.jpg", i + 1)))
