@@ -45,7 +45,6 @@ void ModInfo::ReadManifest() {
             gameVersions.push_back(gameVersion);
             if (gameVersion == currentGameVersion) {
                 compatible = true;
-                break;
             }
         } 
     }
