@@ -919,8 +919,8 @@ public:
 
     template<class T>
     void EmitEvent(const std::string& eventName, T& event) {
-        // if (!_enabledEvents.contains(eventName)) return;
-        // if (!isTypeRegistered<T>()) event.RegisterType(this);
+        if (!_enabledEvents.contains(eventName)) return;
+        if (!isTypeRegistered<T>()) event.RegisterType(this);
         auto fn = this->readVariable<std::function<void(T*, const std::string&)>>("__handleEvent");
         fn(&event, eventName);
     }

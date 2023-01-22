@@ -161,7 +161,7 @@ public:
 
         for (auto fn : fns) fn.second(event);
 
-        // for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
+        for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
     }
 
     template <std::derived_from<IAnyEvent> Event>
@@ -179,7 +179,7 @@ public:
 
         for (auto fn : fns) fn.second(event);
 
-        // for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
+        for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
     }
 
     struct Ready {
