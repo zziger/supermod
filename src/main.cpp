@@ -51,7 +51,10 @@ HOOK_FN(int, load_game, ARGS()) {
         sdk::Game::bootMenuActive = true;
     }
 
-    if (sdk::Game::bootMenuActive) Log::Info << "Boot меню активно" << Log::Endl;
+    if (sdk::Game::bootMenuActive) {
+        Log::Info << "Boot меню активно" << Log::Endl;
+        EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+    }
     
     while (sdk::Game::bootMenuActive) {
         sdk::Game::currentTickIsInner = true;
@@ -67,11 +70,13 @@ HOOK_FN(int, load_game, ARGS()) {
             DispatchMessageA(&msg);
         }
 
-        auto delta = GetTickCount64() - start;
+        const auto delta = GetTickCount64() - start;
         constexpr int needed = 10; 
         
         if (delta < needed) Sleep(needed - delta);
     }
+    
+    EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
     return load_game_orig();
 }
 

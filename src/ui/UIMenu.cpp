@@ -35,15 +35,6 @@ void Link(const char* title, const char* icon, const char* url) {
 void UI::RenderMenu() {
     RenderWindows();
     
-    if (ImGui::IsKeyPressed(ImGuiKey_E)) {
-        // auto hi = *(HINSTANCE*) 0xA3C8F4;
-        // *(int*)0xA6B1CC = 30 * 60000;
-        // *(int*)0xA3C8FC = 0;
-        // auto dialog = CreateDialogParamA(hi, (LPCSTR)139, nullptr, (DLGPROC)0x437F80, 0);
-        // ShowWindow(dialog, 1);
-        sdk::Game::StartEditor();
-    }
-    
     if (!menuOpen) return;
     
     const auto mods = ModManager::GetMods();

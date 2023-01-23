@@ -43,13 +43,16 @@ namespace ui
         if (ImGui::Begin("startupOptions", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
             ImGui::TextColored(0xFFCC00FF_color, "Опции запуска:");
             ImGui::Spacing();
+            if (ImGui::Button("Выход")) exit(0);
+            ImGui::SameLine();
             if (ImGui::Button("Игра")) sdk::Game::bootMenuActive = false;
             ImGui::SameLine();
             if (ImGui::Button("Редактор")) {
                 sdk::Game::StartEditor();
                 sdk::Game::bootMenuActive = false;
             }
-        
+
+            
             ImGui::Spacing();
             ImGui::Spacing();
 
