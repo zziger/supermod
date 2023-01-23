@@ -25,20 +25,24 @@ public:
         if (enabled) return;
         enabled = true;
         AllocConsole();
-        freopen_s(&stdinFile, "CONIN$", "r", stdin);
-        freopen_s(&stdoutFile, "CONOUT$", "w", stdout);
+        if (stdinFile == nullptr) freopen_s(&stdinFile, "CONIN$", "r", stdin);
+        if (stdoutFile == nullptr) freopen_s(&stdoutFile, "CONOUT$", "w", stdout);
         SetConsoleTitle(L"SuperCow mod console");
         SetConsoleOutputCP( CP_UTF8);
         SetConsoleCP( CP_UTF8);
+        auto wnd = GetConsoleWindow();
+        if (wnd != nullptr) {
+            ShowWindow(wnd, SW_RESTORE);
+        }
     }
 
     static void Disable() {
         if (!enabled) return;
         enabled = false;
-        if (stdinFile != nullptr) fclose(stdinFile);
-        if (stdoutFile != nullptr) fclose(stdoutFile);
-        FreeConsole();
         auto wnd = GetConsoleWindow();
-        if (wnd != nullptr) CloseWindow(wnd);
+        if (wnd != nullptr) {
+            ShowWindow(wnd, SW_HIDE);
+        }
+        
     }
 };
