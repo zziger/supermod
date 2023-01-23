@@ -1,4 +1,4 @@
-# Мод на игру "Супер Корова" (Nevosoft)
+# SuperMod - Мод на игру "Супер Корова" (Nevosoft)
 
 | [**Download / Скачать**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll) | [**Discord сервер**](https://discord.gg/VerZycPqhS) |
 |-------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
@@ -40,7 +40,7 @@
 - Windows SDK
 - CMake 3.15 или новее
 
-Для сборки нужно выполнить `build.bat` в корне проекта.<br>
+Для сборки нужно выполнить [`build.bat`](build.bat) в корне проекта.<br>
 Итоговая DLL будет находиться по пути `BUILD\Release\dinput8.dll`
 
 ## Лицензия
