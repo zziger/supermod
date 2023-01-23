@@ -37,6 +37,7 @@ namespace sdk
         static auto mem4 = editorDisableInstruction.Search();
         const auto ptr = *mem4.Get<byte**>(2); 
         *ptr = 1;
+        ShowWindow(*window, SW_SHOWMAXIMIZED);
     }
 
     bool Game::IsGameLoaded() {
