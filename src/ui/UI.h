@@ -27,12 +27,13 @@ namespace ui
         static void RenderToolsTab();
         
         static void RenderMenu();
+        
+        static void RenderBoot();
+        static void RenderDisableModPopup(bool restart = false);
 
         static void OnWindowEvent(WindowEvent& evt);
 
         static void InitImGui();
-    
-        static void Render();
 
         static void RenderWindows();
 
@@ -50,5 +51,7 @@ namespace ui
         static inline UIFonts* fonts = nullptr;
 
         static void Init();
+    
+        static void Render();
     };
 }

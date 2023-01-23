@@ -6,8 +6,6 @@
 #include "memory/HookManager.h"
 #include "sdk/Game.h"
 
-inline bool is_current_render_tick_inner = false;
-
 inline int (__thiscall *update_load_orig)(void* this_, int a2);
 inline int __fastcall update_load(void* this_, void*, int a2) {
     if (sdk::Game::IsGameInLoadingTick()) {

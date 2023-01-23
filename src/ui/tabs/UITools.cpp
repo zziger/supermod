@@ -13,6 +13,13 @@ namespace ui
         if (ImGui::Button("Перезапустить игру")) {
             ImGui::OpenPopup("Перезапуск игры");
         }
+
+        RenderDisableModPopup(true);
+        widgets::styles::PushButtonDanger();
+        if (ImGui::Button("Выключить SuperMod")) {
+            ImGui::OpenPopup("Выключение SuperMod");
+        }
+        widgets::styles::PopButtonDanger();
     
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));

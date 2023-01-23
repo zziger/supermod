@@ -43,10 +43,40 @@ void postInit() {
     EventManager::Emit(ReadyEvent());
 }
 
+HOOK_FN(int, load_game, ARGS()) {
+    Log::Info << "Инициализация загрузки игры" << Log::Endl;
+    tagMSG msg {};
+
+    if (GetAsyncKeyState(VK_SHIFT) & 0x01) {
+        sdk::Game::bootMenuActive = true;
+    }
+
+    if (sdk::Game::bootMenuActive) Log::Info << "Boot меню активно" << Log::Endl;
+    
+    while (sdk::Game::bootMenuActive) {
+        sdk::Game::currentTickIsInner = true;
+        auto start = GetTickCount64();
+        (*sdk::DirectX::d3dDevice)->Clear(0, nullptr, D3DCLEAR_TARGET, 0xFF121212, 0, 0);
+        EventManager::Emit(BeforeTickEvent{});
+        (*sdk::DirectX::d3dDevice)->Present(nullptr, nullptr, nullptr, nullptr);
+        EventManager::Emit(AfterTickEvent{});
+        sdk::Game::currentTickIsInner = false;
+        
+        if ( PeekMessageA(&msg, nullptr, 0, 0, 1u) ) {
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+        }
+
+        auto delta = GetTickCount64() - start;
+        constexpr int needed = 10; 
+        
+        if (delta < needed) Sleep(needed - delta);
+    }
+    return load_game_orig();
+}
 
 void init() {
     auto cwd = std::filesystem::current_path();
-    Config::Init(); 
     Console::Initialize();
     Log::Info << "Загрузка SuperMod " << VERSION << " by zziger..." << Log::Endl;
 
@@ -61,6 +91,8 @@ void init() {
 
     ModManager::Init();
     hook_start_execution();
+
+    HookManager::RegisterHook("55 8B EC 83 EC ? A1 ? ? ? ? 89 45 ? 89 4D ? 68", HOOK_REF(load_game));
 
     EventManager::On<StartExecutionEvent>([] {
         Log::Info << "Пост-инициализация" << Log::Endl;
@@ -93,8 +125,18 @@ void init() {
     });
 }
 
-BOOL APIENTRY main(HMODULE, const DWORD ulReasonForCall, LPVOID) {
+BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID) {
     if (ulReasonForCall == DLL_PROCESS_ATTACH) {
+        const bool shiftPressed = GetAsyncKeyState(VK_SHIFT) & 0x01;
+        
+        Config::Init();
+        if (Config::Get()["disabled"].as<bool>(false)) {
+            if (!shiftPressed) return TRUE;
+            Config::Get()["disabled"] = false;
+            Config::Save();
+        }
+        if (shiftPressed) sdk::Game::bootMenuActive = true;
+        
         utils::handle_error(init_memory, "инициализации памяти");
         utils::handle_error(init_crash_handler, "инициализации обработчика ошибок");
         utils::handle_error(init, "инициализации мода");

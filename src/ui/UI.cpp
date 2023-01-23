@@ -7,6 +7,7 @@
 #include <imgui/backends/imgui_impl_win32.h>
 #include <imgui-dx8/imgui_impl_dx8.h>
 #include "Config.h"
+#include "ImGuiWidgets.h"
 #include "Utils.h"
 #include "events/UIRenderEvent.h"
 #include "modloader/mods/ModManager.h"
@@ -67,6 +68,8 @@ void UI::Render() {
     ImGui_ImplDX8_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+
+    RenderBoot();
     
     try {
         RenderWatermark();
@@ -81,7 +84,6 @@ void UI::Render() {
     } catch(std::exception& e) {
         Log::Error << "Произошла ошибка в отрисовке кадра: " << e.what() << Log::Endl;
     }
-
     ImGui::ErrorCheckEndFrameRecover([](void*, const char* format, ...) {
         va_list va;
         va_start(va, format);
