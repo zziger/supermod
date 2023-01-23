@@ -19,11 +19,11 @@ void ForwardGameLogsModule::OnLoad(bool manual) {
 }
 
 void ForwardGameLogsModule::RenderModuleUI() {
-    if (ImGui::TreeNode("Настройки")) {
-        if (ImGui::Checkbox("Перенаправить в лог мода", &writeToLog)) {
-            const Config cfg;
-            cfg.data[id]["writeToLog"] = writeToLog;
-        }
-        ImGui::TreePop();
+    if (!IsLoaded()) return;
+    ImGui::TreePush("logs");
+    if (ImGui::Checkbox("Перенаправить в лог мода", &writeToLog)) {
+        const Config cfg;
+        cfg.data[id]["writeToLog"] = writeToLog;
     }
+    ImGui::TreePop();
 }

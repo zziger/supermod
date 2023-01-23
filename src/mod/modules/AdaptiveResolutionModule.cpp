@@ -84,7 +84,7 @@ void AdaptiveResolutionModule::ResetWindowSize() {
 
 
 void AdaptiveResolutionModule::RenderModuleUI() {
-    if (ImGui::TreeNode("Настройки")) {
+    if (ImGui::TreeNode("Параметры разрешения")) {
         ImGui::Text("Разрешение");
         auto cfgBlock = Config::Get()[id];
 

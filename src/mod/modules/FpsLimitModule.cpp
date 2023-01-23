@@ -25,14 +25,14 @@ void FpsLimitModule::OnLoad(bool manual) {
 }
 
 void FpsLimitModule::RenderModuleUI() {
-    if (ImGui::TreeNode("Настройки")) {
-        if (ImGui::SliderInt("Лимит FPS", &fpsLimit, 15, 200)) {
-            const Config cfg;
-            cfg.data[id]["limit"] = fpsLimit;
-            UpdateFrameTimeLimit();
-        }
-        ImGui::TreePop();
+    if (!IsLoaded()) return;
+    ImGui::TreePush("fps");
+    if (ImGui::SliderInt("Лимит FPS", &fpsLimit, 15, 200)) {
+        const Config cfg;
+        cfg.data[id]["limit"] = fpsLimit;
+        UpdateFrameTimeLimit();
     }
+    ImGui::TreePop();
 }
 void FpsLimitModule::UpdateFrameTimeLimit() {
     frameTimeLimit = milliseconds((int) std::floor(1000.0 / 120));
