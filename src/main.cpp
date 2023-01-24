@@ -97,7 +97,8 @@ void init() {
     ModManager::Init();
     hook_start_execution();
 
-    HookManager::RegisterHook("55 8B EC 83 EC ? A1 ? ? ? ? 89 45 ? 89 4D ? 68", HOOK_REF(load_game));
+    static constexpr Memory::Pattern pat("E8 ? ? ? ? C6 05 ? ? ? ? ? 0F B6 05 ? ? ? ? 85 C0 74 ? 6A");
+    HookManager::RegisterHook(Memory(pat.Search().GoToNearCall().Get<void*>()), HOOK_REF(load_game));
 
     EventManager::On<StartExecutionEvent>([] {
         Log::Info << "Пост-инициализация" << Log::Endl;
