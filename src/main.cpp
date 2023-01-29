@@ -38,7 +38,7 @@ void init_memory() {
 }
 
 void postInit() {
-    ModManager::LoadMods();
+    ModManager::InitMods();
     ModFileResolver::Init();
     EventManager::Emit(ReadyEvent());
 }
@@ -56,7 +56,7 @@ HOOK_FN(int, load_game, ARGS()) {
         EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     }
     
-    while (sdk::Game::bootMenuActive) {
+    while (sdk::Game::bootMenuActive || !ModManager::GetModsToInstall().empty()) {
         sdk::Game::currentTickIsInner = true;
         auto start = GetTickCount64();
         (*sdk::DirectX::d3dDevice)->Clear(0, nullptr, D3DCLEAR_TARGET, 0xFF121212, 0, 0);
@@ -77,6 +77,7 @@ HOOK_FN(int, load_game, ARGS()) {
     }
     
     EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
+    sdk::Game::booted = true;
     return load_game_orig();
 }
 
@@ -122,9 +123,17 @@ void init() {
                       
             for (int j=0; j<nCntFiles; j++ ) {
                 char szBuf[MAX_PATH];
-                ::DragQueryFileA( drop, j, szBuf, sizeof(szBuf) );
-                Log::Debug << szBuf << Log::Endl;
+                DragQueryFileA( drop, j, szBuf, sizeof(szBuf) );
+                try {
+                    ModManager::RequestModInstall(ModInfo(szBuf));
+                } catch(std::exception& e) {
+                    Log::Error << "Ошибка установки мода: " << e.what() << Log::Endl;
+                } catch(...) {
+                    Log::Error << "Неизвестная ошибка установки мода" << Log::Endl;
+                }
             }
+
+            if (nCntFiles > 0) ShowWindow(*sdk::Game::window, SW_RESTORE);
 
             DragFinish(drop);
         }

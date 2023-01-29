@@ -22,6 +22,7 @@ namespace sdk
         static bool IsGameFullscreen();
         static inline bool currentTickIsInner = false;
         static inline bool bootMenuActive = false;
+        static inline bool booted = false;
 
         static std::filesystem::path GetRootPath();
         static std::filesystem::path GetDataPath();

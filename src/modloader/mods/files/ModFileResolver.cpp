@@ -114,6 +114,8 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
 }
 
 void ModFileResolver::ReloadModFiles(std::filesystem::path dataFolder) {
+
+    Log::Debug << "Reload mod files?" << Log::Endl;
     if (!exists(dataFolder)) return;
     std::lock_guard lock(_reloadMutex);
     

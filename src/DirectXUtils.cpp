@@ -13,6 +13,7 @@
 #include "Log.h"
 #include "Utils.h"
 #include "thirdparty/nanojpeg.h"
+#include <Shlwapi.h>
 
 namespace dx_utils
 {
@@ -84,8 +85,40 @@ namespace dx_utils
         return texture;
     }
 
+    Gdiplus::Bitmap* load_image_no_lock(const WCHAR* fileName) {
+        using namespace Gdiplus;
+        Bitmap src( fileName );
+        if ( src.GetLastStatus() != Ok ) {
+            return 0;
+        }
+        Bitmap *dst = new Bitmap(src.GetWidth(), src.GetHeight(), PixelFormat32bppARGB);
+
+        BitmapData srcData;
+        BitmapData dstData;
+        Rect rc(0, 0, src.GetWidth(), src.GetHeight());
+
+        if (src.LockBits(& rc, ImageLockModeRead, PixelFormat32bppARGB, & srcData) == Ok)
+        {
+            if ( dst->LockBits(& rc, ImageLockModeWrite, PixelFormat32bppARGB, & dstData) == Ok ) {
+                uint8_t * srcBits = (uint8_t *) srcData.Scan0;
+                uint8_t * dstBits = (uint8_t *) dstData.Scan0;
+                unsigned int stride;
+                if (srcData.Stride > 0) { 
+                    stride = srcData.Stride;
+                } else {
+                    stride = - srcData.Stride;
+                }
+                memcpy(dstBits, srcBits, src.GetHeight() * stride);
+
+                dst->UnlockBits(&dstData);
+            }
+            src.UnlockBits(&srcData);
+        }
+        return dst;
+    }
+
     bool get_image_dimensions(const std::string& filename, int& x, int& y) {
-        const auto img = Gdiplus::Image::FromFile((const wchar_t*) convert.from_bytes(filename).c_str());
+        const auto img = load_image_no_lock((const wchar_t*) convert.from_bytes(filename).c_str());
         if (!img) return false;
         x = (int) img->GetWidth();
         y = (int) img->GetHeight();

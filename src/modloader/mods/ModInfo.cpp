@@ -62,7 +62,7 @@ bool ModInfo::ReadIcon() {
 ModInfo::ModInfo(): id("invalid"), title("Invalid"), author("unknown"), version("invalid") {}
 
 
-ModInfo::ModInfo(std::filesystem::path modPath, HMODULE module): basePath(std::move(modPath)), dll(module) {
+ModInfo::ModInfo(std::filesystem::path modPath): basePath(std::move(modPath)) {
     ReadManifest();
 }
 

@@ -111,6 +111,7 @@ namespace ui::widgets
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xB33636FF_color);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, 0xCC2929FF_color);
         }
+        
         void PopButtonDanger() {
             ImGui::PopStyleColor(3);
         }

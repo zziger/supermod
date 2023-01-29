@@ -25,7 +25,7 @@ struct ModInfo {
     
     ModInfo();
     
-    explicit ModInfo(std::filesystem::path modPath, HMODULE module);
+    explicit ModInfo(std::filesystem::path modPath);
     
     explicit ModInfo(std::string id, std::string title, std::string author, std::string version);
 

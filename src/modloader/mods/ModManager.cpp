@@ -12,9 +12,26 @@ std::shared_ptr<Mod> ModManager::GetInternalMod() {
     return _internalMod;
 }
 
+void ModManager::CleanupConfig() {
+    const Config cfg;
+    if (!cfg.data["disabledMods"]) return;
+    if (!cfg.data["installedMods"]) {
+        cfg.data.remove("disabledMods");
+        return;
+    }
+
+    auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();
+    auto disabled = cfg.data["disabledMods"].as<std::vector<std::string>>();
+    auto remove = std::ranges::remove_if(disabled, [&](const std::string& str) {
+        return std::ranges::find(installed, str) == installed.end();
+    });
+    disabled.erase(remove.begin(), remove.end());
+    cfg.data["disabledMods"] = disabled;
+}
+
 void ModManager::Init() {
     _mods_folder = std::filesystem::current_path() / "mods";
-        
+
     const auto ptr = std::make_shared<InternalMod>();
     ptr->Enable(false);
     _mods.push_back(ptr);
@@ -24,61 +41,100 @@ std::filesystem::path ModManager::GetModsRoot() {
     return _mods_folder;
 }
 
-void ModManager::LoadMod(const std::string_view modName) {
-    std::lock_guard lock(_modMutex);
-        
-    const std::filesystem::path modBase = _mods_folder / modName;
-    if (!exists(modBase / manifest_file_name)) {
-        throw Error("Не удалось найти папку " + (modBase / manifest_file_name).generic_string());
-    }
-
+void ModManager::LoadMod(ModInfo info, bool manual) {
+    const auto modBase = info.basePath;
     create_mod_fn createMod = nullptr;
-    HMODULE module = nullptr;
-        
+
     if (exists(modBase / dll_file_name)) {
-        module = LoadLibraryExA((modBase / dll_file_name).string().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+        const auto module = LoadLibraryExA((modBase / dll_file_name).string().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
         if (module == nullptr) {
             throw Error("Не удалось загрузить файл " + (modBase / dll_file_name).string());
         }
 
         createMod = (create_mod_fn) (void*) GetProcAddress(module, "create_mod");
+        info.dll = module;
     }
-
-    auto info = ModInfo(modBase, module);
     info.ReadIcon();
 
-    const auto mod = createMod ? createMod(info) : info.luaScript == "" ? std::make_shared<Mod>(info) : std::make_shared<LuaMod>(info);
+    const auto mod = createMod
+                         ? createMod(info)
+                         : info.luaScript == ""
+                         ? std::make_shared<Mod>(info)
+                         : std::make_shared<LuaMod>(info);
 
-    if (mod->ShouldBeEnabled()) mod->Enable(false);
-        
+    if (mod->ShouldBeEnabled()) mod->Enable(manual);
+
     _mods.push_back(mod);
-        
+
     if (!createMod && info.luaScript != "") {
         _luaMods.push_back(static_pointer_cast<LuaMod>(mod));
     }
 }
 
-void ModManager::LoadMods() {
+void ModManager::LoadMod(const std::string_view modName, bool manual) {
     std::lock_guard lock(_modMutex);
 
+    const std::filesystem::path modBase = _mods_folder / modName;
+    if (!exists(modBase / manifest_file_name)) {
+        throw Error("Не удалось найти папку " + (modBase / manifest_file_name).generic_string());
+    }
+
+    LoadMod(ModInfo(modBase), manual);
+}
+
+void ModManager::InitMods() {
     try {
-        if (!exists(_mods_folder)) return;
-        const auto it = std::filesystem::directory_iterator(_mods_folder);
-        for (auto& file : it) {
+        std::lock_guard lock(_modMutex);
+
+        const Config cfg;
+        const auto installed = cfg.data["installedMods"].as<std::vector<std::string>>(std::vector<std::string>{});
+
+        std::map<std::string, ModInfo> existing{};
+        const auto firstIt = std::filesystem::directory_iterator(_mods_folder);
+        for (auto& file : firstIt) {
             if (!file.is_directory()) continue;
+            if (!exists(file.path() / "manifest.yml")) continue;
             const auto modName = file.path().filename().generic_string();
+
             try {
-                LoadMod(modName);
-            } catch(std::exception& e) {
+                auto info = ModInfo(file);
+                existing.emplace(info.id, info);
+            } catch (std::exception& e) {
                 Log::Error << "Ошибка загрузки мода " << modName << ":" << Log::Endl;
                 Log::Error << e.what() << Log::Endl;
-            } catch(...) {
+            } catch (...) {
                 Log::Error << "Неизвестная ошибка загрузки мода " << modName << Log::Endl;
             }
         }
+
+        std::set<std::string> installedExisting{};
+        std::vector<std::string> installedExistingVec{};
+        for (auto mod : installed) {
+            if (!existing.contains(mod)) continue;
+            installedExisting.emplace(mod);
+            installedExistingVec.push_back(mod);
+
+            try {
+                LoadMod(existing[mod], false);
+            } catch (std::exception& e) {
+                Log::Error << "Ошибка загрузки мода " << mod << ":" << Log::Endl;
+                Log::Error << e.what() << Log::Endl;
+            } catch (...) {
+                Log::Error << "Неизвестная ошибка загрузки мода " << mod << Log::Endl;
+            }
+        }
+
+        for (auto modPair : existing) {
+            if (installedExisting.contains(modPair.first)) continue;
+            _modsToInstall.push_back(modPair.second);
+        }
+
+        cfg.data["installedMods"] = installedExistingVec;
+        CleanupConfig();
     } catch (std::exception& e) {
-        Log::Error << "Ошибка загрузки модов: " << e.what() << Log::Endl;
-    } catch(...) {
+        Log::Error << "Ошибка загрузки модов:" << Log::Endl;
+        Log::Error << e.what() << Log::Endl;
+    } catch (...) {
         Log::Error << "Неизвестная ошибка загрузки модов" << Log::Endl;
     }
 }
@@ -90,7 +146,7 @@ void ModManager::ReloadIcons() {
     for (const auto loadedMod : _mods) {
         try {
             loadedMod->info.ReadIcon();
-        } catch(std::exception&  e) {
+        } catch (std::exception& e) {
             Log::Warn << "Ошибка загрузки иконки мода " << loadedMod->info.id << ":" << Log::Endl;
             Log::Warn << e.what() << Log::Endl;
         }
@@ -104,11 +160,57 @@ void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {
         _luaMods.remove(luaMod);
     }
-    
+
     _mods.remove(mod);
-    mod->Disable(false);
+    mod->Disable(true);
     mod->UnloadModule();
     remove_all(mod->info.basePath);
+
+    const Config cfg;
+    auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();
+    auto remove = std::ranges::remove(installed, mod->info.id);
+    installed.erase(remove.begin(), remove.end());
+    cfg.data["installedMods"] = installed;
+    CleanupConfig();
+}
+
+std::list<ModInfo>& ModManager::GetModsToInstall() {
+    std::lock_guard lock(_modMutex);
+
+    return _modsToInstall;
+}
+
+void ModManager::RequestModInstall(ModInfo mod) {
+    std::lock_guard lock(_modMutex);
+
+    _modsToInstall.push_back(mod);
+}
+
+void ModManager::InstallMod(ModInfo mod, bool state) {
+    auto removeIter = std::ranges::remove_if(_modsToInstall, [&mod](const ModInfo& m) {
+        return m.id == mod.id;
+    });
+    _modsToInstall.erase(removeIter.begin(), removeIter.end());
+    
+    const Config cfg;
+    
+    if (mod.basePath.parent_path() == sdk::Game::GetModsPath()) {
+        Log::Debug << mod.id << " in mods " << state << Log::Endl;
+        if (!state) cfg.data["disabledMods"].push_back(mod.id);
+        cfg.data["installedMods"].push_back(mod.id);
+        LoadMod(mod, true);
+    } else {
+        Log::Debug << mod.id << " external " << state << Log::Endl;
+        if (!state) return;
+        const auto modsPath = sdk::Game::GetModsPath();
+        auto folderName = mod.id;
+        auto i = 1;
+        while (exists(modsPath / folderName)) folderName = mod.id + std::to_string(i++);
+        create_directory(modsPath / folderName);
+        copy(mod.basePath, modsPath / folderName, std::filesystem::copy_options::recursive);
+        cfg.data["installedMods"].push_back(mod.id);
+        LoadMod(mod.id, true);
+    }
 }
 
 std::list<std::shared_ptr<Mod>> ModManager::GetMods() {
