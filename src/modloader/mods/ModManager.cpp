@@ -84,6 +84,7 @@ void ModManager::LoadMod(const std::string_view modName, bool manual) {
 }
 
 void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
+    if (sdk::Game::currentTickIsInner) return;
     std::lock_guard lock(_modMutex);
     std::vector<std::shared_ptr<Mod>> modsToReload {};
 
@@ -187,6 +188,7 @@ void ModManager::ReloadIcons() {
 }
 
 void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
+    if (sdk::Game::currentTickIsInner) return;
     std::lock_guard lock(_modMutex);
 
     if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {

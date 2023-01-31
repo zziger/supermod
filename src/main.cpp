@@ -15,6 +15,7 @@
 #include "Config.h"
 #include "Console.h"
 #include "CrashHandler.h"
+#include "DirectXUtils.h"
 #include "ui/UI.h"
 #include "Log.h"
 #include "events/EventManager.h"
@@ -45,7 +46,6 @@ void postInit() {
 
 HOOK_FN(int, load_game, ARGS()) {
     Log::Info << "Инициализация загрузки игры" << Log::Endl;
-    tagMSG msg {};
 
     if (GetAsyncKeyState(VK_SHIFT) & 0x01) {
         sdk::Game::bootMenuActive = true;
@@ -57,19 +57,8 @@ HOOK_FN(int, load_game, ARGS()) {
     }
     
     while (sdk::Game::bootMenuActive || !ModManager::GetModsToInstall().empty()) {
-        sdk::Game::currentTickIsInner = true;
         auto start = GetTickCount64();
-        (*sdk::DirectX::d3dDevice)->Clear(0, nullptr, D3DCLEAR_TARGET, 0xFF121212, 0, 0);
-        EventManager::Emit(BeforeTickEvent{});
-        (*sdk::DirectX::d3dDevice)->Present(nullptr, nullptr, nullptr, nullptr);
-        EventManager::Emit(AfterTickEvent{});
-        sdk::Game::currentTickIsInner = false;
-        
-        if ( PeekMessageA(&msg, nullptr, 0, 0, 1u) ) {
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
-        }
-
+        dx_utils::force_render_tick();
         const auto delta = GetTickCount64() - start;
         constexpr int needed = 10; 
         

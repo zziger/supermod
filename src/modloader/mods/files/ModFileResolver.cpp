@@ -50,15 +50,27 @@ void ModFileResolver::Init() {
         auto path = ResolveFile(evt.absolutePath);
         if (path) evt.SetResolvedPath(*path);
     });
+
     EventManager::On<AfterTickEvent>([]() {
         if (sdk::Game::currentTickIsInner) return;
-
         try {
+            auto size = filesToReload.size();
+            if (!size) return;
             std::lock_guard lock(_reloadMutex);
+            if (size > 10) assetReloadTotal = size;
+            assetReloadCurrent = 0;
+            auto start = GetTickCount64(); 
             for (auto toReload : filesToReload) {
-                auto path = sdk::Game::GetRootPath() / toReload;
+                const auto path = sdk::Game::GetRootPath() / toReload;
                 LoadFile(path);
+                const auto time = GetTickCount64();
+                if (time - start > 16) {
+                    dx_utils::force_render_tick();
+                    start = time;
+                }
+                assetReloadCurrent++; 
             }
+            assetReloadTotal = 0;
             filesToReload.clear();
         } catch(std::exception& e) {
             Log::Debug << "Ошибка хотсвапа файлов: " << e.what() << Log::Endl;

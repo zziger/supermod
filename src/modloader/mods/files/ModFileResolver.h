@@ -21,6 +21,9 @@ class ModFileResolver {
     static void LoadAdditionalMusic();
 
 public:
+    static inline int assetReloadTotal = 0;
+    static inline int assetReloadCurrent = 0;
+    
     [[nodiscard]] static std::optional<std::filesystem::path> ResolveFile(const std::filesystem::path& path);
     [[nodiscard]] static std::filesystem::path ResolveFileOrOriginal(const std::filesystem::path& path);
 

@@ -11,6 +11,7 @@
 #include "Utils.h"
 #include "events/UIRenderEvent.h"
 #include "modloader/mods/ModManager.h"
+#include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 
@@ -51,6 +52,17 @@ void UI::InitImGui() {
         
     initialized = true;
 }
+void RenderAssetReload() {
+    ImGui::OpenPopup("assetReload");
+    if (ImGui::BeginPopupModal("assetReload", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+    {
+        ImGui::Text("Перезагрузка ассетов...");
+        ImGui::ProgressBar(ModFileResolver::assetReloadCurrent / (float) ModFileResolver::assetReloadTotal, ImVec2(-FLT_MIN, 0),
+            std::format("{}/{}", ModFileResolver::assetReloadCurrent + 1, ModFileResolver::assetReloadTotal).c_str());
+        ImGui::EndPopup();
+    }
+}
+    
 
 void UI::Render() {
     if (!initialized) return;
@@ -68,22 +80,27 @@ void UI::Render() {
     ImGui_ImplDX8_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
-    RenderBoot();
     
     try {
-        RenderWatermark();
-        RenderMenu();
 
-        for (auto mod : ModManager::GetMods()) {
-            if (!mod->IsEnabled()) continue;
-            mod->Render();
+        if (sdk::Game::currentTickIsInner && ModFileResolver::assetReloadTotal) {
+            RenderAssetReload();
+        } else {
+            RenderBoot();
+            RenderWatermark();
+            RenderMenu();
+
+            for (auto mod : ModManager::GetMods()) {
+                if (!mod->IsEnabled()) continue;
+                mod->Render();
+            }
+
+            EventManager::Emit(UiRenderEvent());
         }
-
-        EventManager::Emit(UiRenderEvent());
     } catch(std::exception& e) {
         Log::Error << "Произошла ошибка в отрисовке кадра: " << e.what() << Log::Endl;
     }
+    
     ImGui::ErrorCheckEndFrameRecover([](void*, const char* format, ...) {
         va_list va;
         va_start(va, format);

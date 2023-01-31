@@ -33,6 +33,7 @@ public:
     
     void Enable(bool manual);
     void Disable(bool manual);
+    void Reload();
     void UnloadModule();
     bool IsEnabled() const;
     bool ShouldBeEnabled() const;

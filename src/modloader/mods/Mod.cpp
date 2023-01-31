@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "events/ModEvent.h"
 #include "modloader/mods/files/ModFileResolver.h"
+#include "sdk/Game.h"
 
 std::shared_ptr<Module> Mod::AddModule(std::shared_ptr<Module> module) {
     modules += module;
@@ -26,6 +27,7 @@ void Mod::Render() {}
 static const char* config_key = "disabledMods";
 
 void Mod::Enable(bool manual) {
+    if (sdk::Game::currentTickIsInner) return;
     if (_enabled) return;
     try {
         OnEnable();
@@ -51,6 +53,7 @@ void Mod::Enable(bool manual) {
 }
 
 void Mod::Disable(bool manual) {
+    if (sdk::Game::currentTickIsInner) return;
     if (!_enabled) return;
     _enabled = false;
     try {
@@ -72,6 +75,24 @@ void Mod::Disable(bool manual) {
     }
 }
 
+void Mod::Reload() {
+    if (sdk::Game::currentTickIsInner || !_enabled || info.internal) return;
+    try {
+        UnloadEvents();
+        UnloadHooks();
+        OnDisable();
+        modules.Unload();
+        EventManager::Emit(ModUnloadEvent(info));
+        OnEnable();
+        modules.LoadNeeded();
+        ModFileResolver::ReloadModFiles(info.basePath / "data");
+        EventManager::Emit(ModLoadEvent(info));
+        Log::Info << "Мод " << info.title << " перезагружен" << Log::Endl;
+    } catch(std::exception& e) {
+        Log::Error << "Ошибка перезагрузки мода " << info.id << ":" << Log::Endl;
+        Log::Error << e.what() << Log::Endl;
+    }
+}
 void Mod::UnloadModule() {
     if (!info.dll) return;
     if (!FreeLibrary(info.dll)) MessageBoxA(nullptr, "Не удалось выгрузить модуль", "SuperMod", MB_OK);

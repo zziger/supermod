@@ -1,5 +1,6 @@
 ﻿#include <imgui_internal.h>
 
+#include "events/TickEvent.h"
 #include "modloader/mods/Mod.h"
 #include "modloader/mods/ModManager.h"
 #include "sdk/Game.h"
@@ -109,7 +110,10 @@ namespace ui
                         } 
                         ImGui::TreePop();   
                     }
-                }   
+                }
+
+                ImGui::Spacing();
+                ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
 
                 if (ImGui::Button(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить" : ICON_MD_POWER_SETTINGS_NEW " Включить")) {
                     if (mod->IsEnabled()) mod->Disable(true);
@@ -119,8 +123,7 @@ namespace ui
                 if (mod->IsEnabled()) {
                     ImGui::SameLine();
                     if (ImGui::Button(ICON_MD_REFRESH)) {
-                        mod->Disable(true);
-                        mod->Enable(true);
+                        mod->Reload();
                     }
                     if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
                     {
@@ -132,15 +135,16 @@ namespace ui
                     }
                 }
 
-                if (ImGui::Button(ICON_MD_FOLDER_OPEN " Открыть папку")) {
-                    ShellExecuteA(nullptr, "explore", mod->info.basePath.string().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-                }
-                ImGui::SameLine();
                 widgets::styles::PushButtonDanger();
                 if (ImGui::Button(ICON_MD_DELETE " Удалить")) {
                     ImGui::OpenPopup("Удаление мода");
                 };
                 widgets::styles::PopButtonDanger();
+                ImGui::EndDisabled();
+                ImGui::SameLine();
+                if (ImGui::Button(ICON_MD_FOLDER_OPEN " Открыть папку")) {
+                    ShellExecuteA(nullptr, "explore", mod->info.basePath.string().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+                }
 
                 if (ImGui::BeginPopupModal("Удаление мода", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
                 {
