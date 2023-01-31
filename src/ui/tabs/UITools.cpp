@@ -10,13 +10,18 @@ namespace ui
 {
     
     void UI::RenderToolsTab() {
-        if (ImGui::Button("Перезапустить игру")) {
+
+        if (ImGui::Button(ICON_MD_FILTER " Просмотр текстур")) {
+            _textureViewerOpen = true;
+        }
+        
+        if (ImGui::Button(ICON_MD_REFRESH " Перезапустить игру")) {
             ImGui::OpenPopup("Перезапуск игры");
         }
 
         RenderDisableModPopup(true);
         widgets::styles::PushButtonDanger();
-        if (ImGui::Button("Выключить SuperMod")) {
+        if (ImGui::Button(ICON_MD_DISABLED_BY_DEFAULT " Выключить SuperMod")) {
             ImGui::OpenPopup("Выключение SuperMod");
         }
         widgets::styles::PopButtonDanger();
@@ -38,10 +43,6 @@ namespace ui
             }
     
             ImGui::EndPopup();
-        }
-
-        if (ImGui::Button("Просмотр текстур")) {
-            _textureViewerOpen = true;
         }
     }
 

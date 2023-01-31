@@ -88,15 +88,12 @@ namespace ui
             if (info.author != "") ImGui::Text("Автор: %s", info.author.c_str());
         
             if (!mod->info.internal) {
-                ImGui::Text("Состояние:");
-        
-                ImGui::SameLine();
-                if (mod->IsEnabled()) ImGui::TextColored(0x77EE77FF_color, "Включен");
-                else ImGui::TextColored(0xEE7777FF_color, "Выключен");
+                if (mod->IsEnabled()) ImGui::TextColored(0x77EE77FF_color, ICON_MD_CHECK_CIRCLE " Включен");
+                else ImGui::TextColored(0xEE7777FF_color, ICON_MD_RADIO_BUTTON_UNCHECKED " Выключен");
 
                 if (!mod->info.compatible) {
                     ImGui::PushStyleColor(ImGuiCol_Text, 0xFFA000FF_color);
-                    ImGui::TextWrapped("Мод не совместим с текущей версией игры!");
+                    ImGui::TextWrapped(ICON_MD_WARNING " Мод не совместим с текущей версией игры!");
                     ImGui::PopStyleColor();
                 }
 
@@ -112,20 +109,35 @@ namespace ui
                         } 
                         ImGui::TreePop();   
                     }
-                }
+                }   
 
-                if (ImGui::Button(mod->IsEnabled() ? "Выключить" : "Включить")) {
+                if (ImGui::Button(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить" : ICON_MD_POWER_SETTINGS_NEW " Включить")) {
                     if (mod->IsEnabled()) mod->Disable(true);
                     else mod->Enable(true);
                 }
 
-                ImGui::SameLine();
-                if (ImGui::Button("Открыть папку")) {
-                    ShellExecuteA(nullptr, "explore", mod->info.basePath.string().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+                if (mod->IsEnabled()) {
+                    ImGui::SameLine();
+                    if (ImGui::Button(ICON_MD_REFRESH)) {
+                        mod->Disable(true);
+                        mod->Enable(true);
+                    }
+                    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+                    {
+                        ImGui::BeginTooltip();
+                        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+                        ImGui::TextUnformatted("Перезагрузить");
+                        ImGui::PopTextWrapPos();
+                        ImGui::EndTooltip();
+                    }
                 }
 
+                if (ImGui::Button(ICON_MD_FOLDER_OPEN " Открыть папку")) {
+                    ShellExecuteA(nullptr, "explore", mod->info.basePath.string().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+                }
+                ImGui::SameLine();
                 widgets::styles::PushButtonDanger();
-                if (ImGui::Button("Удалить")) {
+                if (ImGui::Button(ICON_MD_DELETE " Удалить")) {
                     ImGui::OpenPopup("Удаление мода");
                 };
                 widgets::styles::PopButtonDanger();
