@@ -57,16 +57,17 @@ void ModFileResolver::Init() {
             auto size = filesToReload.size();
             if (!size) return;
             std::lock_guard lock(_reloadMutex);
-            if (size > 10) assetReloadTotal = size;
+            assetReloadTotal = size;
             assetReloadCurrent = 0;
-            auto start = GetTickCount64(); 
+            const auto start = GetTickCount64(); 
+            auto lastFrame = start; 
             for (auto toReload : filesToReload) {
                 const auto path = sdk::Game::GetRootPath() / toReload;
                 LoadFile(path);
                 const auto time = GetTickCount64();
-                if (time - start > 16) {
+                if (time - start > 500 && time - lastFrame > 14) {
                     dx_utils::force_render_tick();
-                    start = time;
+                    lastFrame = time;
                 }
                 assetReloadCurrent++; 
             }
