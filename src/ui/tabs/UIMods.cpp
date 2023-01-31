@@ -132,19 +132,17 @@ namespace ui
                     else mod->Enable(true);
                 }
 
-                if (mod->IsEnabled()) {
-                    ImGui::SameLine();
-                    if (ImGui::Button(ICON_MD_REFRESH)) {
-                        mod->Reload();
-                    }
-                    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                    {
-                        ImGui::BeginTooltip();
-                        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-                        ImGui::TextUnformatted("Перезагрузить");
-                        ImGui::PopTextWrapPos();
-                        ImGui::EndTooltip();
-                    }
+                ImGui::SameLine();
+                if (ImGui::Button(ICON_MD_REFRESH)) {
+                    mod->Reload();
+                }
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+                    ImGui::TextUnformatted("Перезагрузить");
+                    ImGui::PopTextWrapPos();
+                    ImGui::EndTooltip();
                 }
 
                 widgets::styles::PushButtonDanger();

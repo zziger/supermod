@@ -49,6 +49,7 @@ void Mod::Enable(bool manual) {
             }
             cfg.data[config_key] = newList;
         }
+        loadingError = std::nullopt;
     } catch(std::exception& e) {
         Log::Error << "Ошибка загрузки мода " << info.id << ":" << Log::Endl;
         Log::Error << e.what() << Log::Endl;
@@ -72,6 +73,7 @@ void Mod::Disable(bool manual) {
         modules.Unload();
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         EventManager::Emit(ModUnloadEvent(info));
+        loadingError = std::nullopt;
         Log::Info << "Мод " << info.title << " выгружен" << Log::Endl;
     } catch(std::exception& e) {
         Log::Error << "Ошибка выгрузки мода " << info.id << ":" << Log::Endl;
@@ -81,17 +83,21 @@ void Mod::Disable(bool manual) {
 }
 
 void Mod::Reload() {
-    if (sdk::Game::currentTickIsInner || !_enabled || info.internal) return;
+    if (sdk::Game::currentTickIsInner || info.internal) return;
     try {
-        UnloadEvents();
-        UnloadHooks();
-        OnDisable();
-        modules.Unload();
-        EventManager::Emit(ModUnloadEvent(info));
-        OnEnable();
-        modules.LoadNeeded();
-        ModFileResolver::ReloadModFiles(info.basePath / "data");
-        EventManager::Emit(ModLoadEvent(info));
+        info = ModInfo{info.basePath};
+        if (_enabled) {
+            UnloadEvents();
+            UnloadHooks();
+            OnDisable();
+            modules.Unload();
+            EventManager::Emit(ModUnloadEvent(info));
+            OnEnable();
+            modules.LoadNeeded();
+            ModFileResolver::ReloadModFiles(info.basePath / "data");
+            EventManager::Emit(ModLoadEvent(info));
+        }
+        loadingError = std::nullopt;
         Log::Info << "Мод " << info.title << " перезагружен" << Log::Endl;
     } catch(std::exception& e) {
         Log::Error << "Ошибка перезагрузки мода " << info.id << ":" << Log::Endl;
