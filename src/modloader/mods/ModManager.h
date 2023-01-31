@@ -30,6 +30,8 @@ public:
 
     static void LoadMod(ModInfo info, bool manual);
     static void LoadMod(std::string_view modName, bool manual);
+    
+    static void ReorderMods(std::vector<std::shared_ptr<Mod>>);
 
     static void InitMods();
 

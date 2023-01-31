@@ -35,6 +35,7 @@ void ModManager::Init() {
     const auto ptr = std::make_shared<InternalMod>();
     ptr->Enable(false);
     _mods.push_back(ptr);
+    _internalMod = ptr;
 }
 
 std::filesystem::path ModManager::GetModsRoot() {
@@ -80,6 +81,37 @@ void ModManager::LoadMod(const std::string_view modName, bool manual) {
     }
 
     LoadMod(ModInfo(modBase), manual);
+}
+
+void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
+    std::lock_guard lock(_modMutex);
+    std::vector<std::shared_ptr<Mod>> modsToReload {};
+
+    auto i = 0;
+    for (const auto& mod : GetMods()) {
+        if (mod->info.internal) continue;
+        if (mod->info.id != newOrder[i]->info.id) modsToReload.push_back(newOrder[i]);
+        i++;
+    }
+
+    _mods.clear();
+    _mods.push_back(_internalMod);
+    std::vector<std::string> ids {};
+    
+    for (auto mod : newOrder) {
+        if (mod->info.internal) continue;
+        _mods.push_back(mod);
+        ids.push_back(mod->info.id);
+    }
+
+    for (const auto mod : modsToReload) {
+        if (mod->info.internal || !mod->IsEnabled()) continue;
+        ModFileResolver::ReloadModFiles(mod->info.basePath / "data");
+    }
+
+    const Config cfg;
+    cfg.data["installedMods"] = ids;
+    CleanupConfig();
 }
 
 void ModManager::InitMods() {

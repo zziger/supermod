@@ -114,8 +114,6 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
 }
 
 void ModFileResolver::ReloadModFiles(std::filesystem::path dataFolder) {
-
-    Log::Debug << "Reload mod files?" << Log::Endl;
     if (!exists(dataFolder)) return;
     std::lock_guard lock(_reloadMutex);
     
@@ -123,7 +121,6 @@ void ModFileResolver::ReloadModFiles(std::filesystem::path dataFolder) {
     for (auto& file : it) {
         if (file.is_directory()) continue;
         auto relPath = relative(file.path(), dataFolder / "..");
-        Log::Debug << relPath << Log::Endl;
         filesToReload.emplace(relPath.generic_string());
     }
 }

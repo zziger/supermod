@@ -29,7 +29,8 @@ namespace ui::widgets
         return value;
     }
 
-    bool ModSelectable(const char* id, const char* title, const char* author, const char* ver, LPDIRECT3DTEXTURE8 icon, bool selected, bool disabled) {
+    bool ModSelectable(const char* id, const char* title, const char* author, const char* ver,
+            LPDIRECT3DTEXTURE8 icon, bool selected, bool disabled, bool* hovered, bool* active) {
         ImGui::PushID(id);
         const auto style = ImGui::GetStyle();
         ImGuiContext* g = ImGui::GetCurrentContext();
@@ -45,6 +46,8 @@ namespace ui::widgets
             
         ImVec2 startCursorPos = ImGui::GetCursorScreenPos();
         const auto val = ImGui::Selectable("", selected, 0, { 0, elementHeight });
+        if (active) *active = ImGui::IsItemActive();
+        if (hovered) *hovered = ImGui::IsItemHovered();
         ImGui::Spacing();
         ImVec2 endCursorPos = ImGui::GetCursorScreenPos();
 
