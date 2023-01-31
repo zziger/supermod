@@ -30,6 +30,8 @@ public:
 
     ModuleContainer modules;
     ModInfo info;
+    const bool incompatibleSdk = false;
+    std::optional<std::string> loadingError = std::nullopt;
     
     void Enable(bool manual);
     void Disable(bool manual);

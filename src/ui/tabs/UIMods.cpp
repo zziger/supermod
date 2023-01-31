@@ -94,7 +94,7 @@ namespace ui
 
                 if (!mod->info.compatible) {
                     ImGui::PushStyleColor(ImGuiCol_Text, 0xFFA000FF_color);
-                    ImGui::TextWrapped(ICON_MD_WARNING " Мод не совместим с текущей версией игры!");
+                    ImGui::TextWrapped(ICON_MD_WARNING " Текущая версия игры не поддерживается");
                     ImGui::PopStyleColor();
                 }
 
@@ -112,8 +112,20 @@ namespace ui
                     }
                 }
 
+                if (mod->incompatibleSdk) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, 0xEE7777FF_color);
+                    ImGui::TextWrapped(std::format(ICON_MD_ERROR " Нужен SuperMod {} или новее", mod->info.sdkVersion.to_string()).c_str());
+                    ImGui::PopStyleColor();
+                }
+                
+                if (mod->loadingError) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, 0xEE7777FF_color);
+                    ImGui::TextWrapped((ICON_MD_ERROR " " + *mod->loadingError).c_str());
+                    ImGui::PopStyleColor();
+                }
+
                 ImGui::Spacing();
-                ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
+                ImGui::BeginDisabled(mod->incompatibleSdk || sdk::Game::currentTickIsInner);
 
                 if (ImGui::Button(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить" : ICON_MD_POWER_SETTINGS_NEW " Включить")) {
                     if (mod->IsEnabled()) mod->Disable(true);

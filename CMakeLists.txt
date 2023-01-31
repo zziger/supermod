@@ -51,7 +51,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_GENERATOR_PLATFORM Win32)
 
 if (NOT VERSION)
-    set(VERSION manual_build)
+    set(VERSION 0.0.0)
 endif()
 
 message(STATUS "Building version " ${VERSION})

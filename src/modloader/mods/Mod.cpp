@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "events/ModEvent.h"
+#include "exceptions/Error.h"
 #include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/Game.h"
 
@@ -19,7 +20,8 @@ void Mod::OnEnable() {}
 
 void Mod::OnDisable() {}
 
-Mod::Mod(ModInfo info): modules(info), info(std::move(info)) {}
+Mod::Mod(ModInfo info): modules(info), incompatibleSdk(info.sdkVersion > sdk::Game::GetSdkVersion()), info(std::move(info)) {
+}
 
 void Mod::RenderUI() {}
 void Mod::Render() {}
@@ -30,6 +32,7 @@ void Mod::Enable(bool manual) {
     if (sdk::Game::currentTickIsInner) return;
     if (_enabled) return;
     try {
+        if (incompatibleSdk) throw Error("Неподдерживаемая версия SuperMod");
         OnEnable();
         modules.LoadNeeded();
         _enabled = true;
@@ -49,6 +52,7 @@ void Mod::Enable(bool manual) {
     } catch(std::exception& e) {
         Log::Error << "Ошибка загрузки мода " << info.id << ":" << Log::Endl;
         Log::Error << e.what() << Log::Endl;
+        loadingError = std::format("Ошибка загрузки: {}", e.what());
     }
 }
 
@@ -72,6 +76,7 @@ void Mod::Disable(bool manual) {
     } catch(std::exception& e) {
         Log::Error << "Ошибка выгрузки мода " << info.id << ":" << Log::Endl;
         Log::Error << e.what() << Log::Endl;
+        loadingError = std::format("Ошибка выгрузки: {}", e.what());
     }
 }
 
@@ -91,6 +96,7 @@ void Mod::Reload() {
     } catch(std::exception& e) {
         Log::Error << "Ошибка перезагрузки мода " << info.id << ":" << Log::Endl;
         Log::Error << e.what() << Log::Endl;
+        loadingError = std::format("Ошибка перезагрузки: {}", e.what());
     }
 }
 void Mod::UnloadModule() {
@@ -105,6 +111,8 @@ bool Mod::IsEnabled() const {
 }
 
 bool Mod::ShouldBeEnabled() const {
+    if (incompatibleSdk) return false;
+    
     const auto& node = Config::Get()[config_key];
     if (node.IsSequence()) {
         for (auto mod : node) {

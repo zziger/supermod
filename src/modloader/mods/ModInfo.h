@@ -5,6 +5,7 @@
 #include <thirdparty/directx/d3d8.h>
 
 #include "thirdparty/LuaContext.h"
+#include "thirdparty/semver.hpp"
 
 
 struct ModInfo {
@@ -12,6 +13,7 @@ struct ModInfo {
     std::string title;
     std::string author;
     std::string version;
+    semver::version sdkVersion;
     std::filesystem::path basePath;
     std::string luaScript;
     std::vector<uint64_t> gameVersions {}; // empty if no version restrictions

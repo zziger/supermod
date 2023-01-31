@@ -8,6 +8,7 @@
 #include "exceptions/Error.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
+#include "thirdparty/semver.hpp"
 
 void ModInfo::ReadManifest() {
     const auto filePath = basePath / "manifest.yml";
@@ -30,6 +31,7 @@ void ModInfo::ReadManifest() {
     author = node["author"].as<std::string>("");
     version = node["version"].as<std::string>("");
     luaScript = node["lua-script"].as<std::string>("");
+    sdkVersion = semver::version {node["sdk-version"].as<std::string>(VERSION)};
 
     const auto currentGameVersion = sdk::Game::GetGameVersion();
     const auto versions = node["game-versions"].as<std::vector<std::string>>(std::vector<std::string>{});

@@ -85,7 +85,7 @@ namespace sdk
     std::filesystem::path Game::GetModsPath() {
         return GetRootPath() / "mods";
     }
-    
+
     uint64_t Game::GetGameVersion() {
         const auto dosHeader = (IMAGE_DOS_HEADER*) GetModuleHandleA(nullptr);
         const auto ntHeaders = (IMAGE_NT_HEADERS*) ((byte*)dosHeader + dosHeader->e_lfanew);

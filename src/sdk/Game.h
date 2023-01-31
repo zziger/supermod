@@ -3,6 +3,7 @@
 #include <optional>
 
 #include "thirdparty/LuaContext.h"
+#include "thirdparty/semver.hpp"
 #include "thirdparty/directx/d3d8.h"
 
 namespace sdk
@@ -28,6 +29,9 @@ namespace sdk
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 
+        static constexpr semver::version GetSdkVersion() {
+            return semver::version { VERSION };
+        }
         static uint64_t GetGameVersion();
 
         static std::string SerializeGameVersion(uint64_t version);
