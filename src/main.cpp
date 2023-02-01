@@ -144,6 +144,13 @@ void init() {
 }
 
 BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID) {
+    try {
+        auto _ = std::filesystem::current_path().string();
+    } catch(...) {
+        MessageBoxW(nullptr, L"Путь к игре не может содержать буквы русского алфавита", L"SuperMod", MB_OK);
+        exit(0);
+    }
+    
     if (ulReasonForCall == DLL_PROCESS_ATTACH) {
         const bool shiftPressed = GetAsyncKeyState(VK_SHIFT) & 0x01;
         
