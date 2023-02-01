@@ -8,6 +8,8 @@
 - Скачать последнюю версию мода [**тут**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll).
 - Поместить скачанный файл `dinput8.dll` в папку с игрой. Название файла менять нельзя.
 
+> ⚠️ **В пути к игре не должно быть букв русского алвафита.**
+
 ![screenshot](.github/screenshot.png)
 
 ## Функционал
