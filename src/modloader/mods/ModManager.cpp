@@ -7,6 +7,7 @@
 #include "scripting/LuaMod.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
+#include "thirdparty/zip_file.h"
 
 std::shared_ptr<Mod> ModManager::GetInternalMod() {
     return _internalMod;
@@ -271,7 +272,13 @@ void ModManager::InstallMod(ModInfo mod, bool state) {
             auto i = 1;
             while (exists(modsPath / folderName)) folderName = mod.id + std::to_string(i++);
             create_directory(modsPath / folderName);
-            copy(mod.basePath, modsPath / folderName, std::filesystem::copy_options::recursive);
+            if (!mod.zipFile) {
+                copy(mod.basePath, modsPath / folderName, std::filesystem::copy_options::recursive);
+            } else {
+                miniz_cpp::zip_file zip {mod.zipFile->string()};
+                zip.extractall((modsPath / folderName).string());
+            }
+            
             cfg.data["installedMods"].push_back(mod.id);
             LoadMod(mod.id, true);
         }

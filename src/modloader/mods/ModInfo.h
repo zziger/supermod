@@ -3,6 +3,7 @@
 #include <string>
 
 #include <thirdparty/directx/d3d8.h>
+#include <yaml-cpp/node/node.h>
 
 #include "thirdparty/LuaContext.h"
 #include "thirdparty/semver.hpp"
@@ -16,17 +17,20 @@ struct ModInfo {
     semver::version sdkVersion;
     std::filesystem::path basePath;
     std::string luaScript;
+    std::optional<std::filesystem::path> zipFile; // used only for zipmod installation
     std::vector<uint64_t> gameVersions {}; // empty if no version restrictions
     bool compatible = true;
     LPDIRECT3DTEXTURE8 icon = nullptr; // nullptr if no icon
     HMODULE dll = nullptr;
     bool internal = false;
 
+    void ReadManifest(YAML::Node node);
     void ReadManifest();
     bool ReadIcon();
     
     ModInfo();
     
+    explicit ModInfo(const std::string& manifestContent);
     explicit ModInfo(std::filesystem::path modPath);
     
     explicit ModInfo(std::string id, std::string title, std::string author, std::string version);

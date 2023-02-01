@@ -27,6 +27,7 @@
 #include "modloader/mods/files/ModFileResolver.h"
 #include "modloader/mods/ModManager.h"
 #include "sdk/Game.h"
+#include "thirdparty/zip_file.h"
 
 void init_memory() {
     const auto base = (uintptr_t) GetModuleHandle(nullptr);
@@ -113,8 +114,21 @@ void init() {
             for (int j=0; j<nCntFiles; j++ ) {
                 char szBuf[MAX_PATH];
                 DragQueryFileA( drop, j, szBuf, sizeof(szBuf) );
+                std::optional<std::filesystem::path> temp;
                 try {
-                    ModManager::RequestModInstall(ModInfo(szBuf));
+                    auto path = std::filesystem::path(szBuf);
+                    if (path.extension() == ".zip") {
+                        miniz_cpp::zip_file zip {path.string()};
+                        auto info = ModInfo(zip.read("manifest.yml"));
+                        info.zipFile = path;
+                        ModManager::RequestModInstall(info);
+                        // temp = std::filesystem::temp_directory_path() / std::tmpnam(nullptr);
+                        // create_directories(*temp);
+                        // zip.extractall(temp->string());
+                        // path = *temp;
+                    } else {
+                        ModManager::RequestModInstall(ModInfo(path));
+                    }
                 } catch(std::exception& e) {
                     Log::Error << "Ошибка установки мода: " << e.what() << Log::Endl;
                 } catch(...) {
