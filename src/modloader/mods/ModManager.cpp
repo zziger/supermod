@@ -63,6 +63,11 @@ void ModManager::LoadMod(ModInfo info, bool manual) {
                          ? std::make_shared<Mod>(info)
                          : std::make_shared<LuaMod>(info);
 
+    const auto id = mod->info.id;
+    if (std::ranges::find_if(_mods, [id](std::shared_ptr<Mod>& mod) { return mod->info.id == id; }) != _mods.end()) {
+        throw Error(std::format("Мод с ID {} уже существует", id));
+    }
+
     if (mod->ShouldBeEnabled()) mod->Enable(manual);
 
     _mods.push_back(mod);
@@ -81,6 +86,19 @@ void ModManager::LoadMod(const std::string_view modName, bool manual) {
     }
 
     LoadMod(ModInfo(modBase), manual);
+}
+
+void ModManager::UnloadMod(std::shared_ptr<Mod> mod) {
+    if (mod->IsEnabled()) mod->Disable(false);
+    if (mod->info.dll) FreeLibrary(mod->info.dll);
+    const auto id = mod->info.id; 
+    auto erase = std::ranges::remove_if(_mods, [id](std::shared_ptr<Mod>& iterMod) {
+        return iterMod->info.id == id;
+    });
+    _mods.erase(erase.begin(), erase.end());
+    if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {
+        _luaMods.remove(luaMod);
+    }
 }
 
 void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
@@ -115,7 +133,16 @@ void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
     CleanupConfig();
 }
 
-void ModManager::InitMods() {
+void ModManager::ReloadMods() {
+    const auto mods = _mods;
+    for (const auto& mod : mods) {
+        if (mod->info.internal) continue;
+        UnloadMod(mod);
+    }
+    InitMods(true);
+}
+
+void ModManager::InitMods(bool manual) {
     try {
         std::lock_guard lock(_modMutex);
 
@@ -148,7 +175,7 @@ void ModManager::InitMods() {
             installedExistingVec.push_back(mod);
 
             try {
-                LoadMod(existing[mod], false);
+                LoadMod(existing[mod], manual);
             } catch (std::exception& e) {
                 Log::Error << "Ошибка загрузки мода " << mod << ":" << Log::Endl;
                 Log::Error << e.what() << Log::Endl;
@@ -191,13 +218,7 @@ void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     if (sdk::Game::currentTickIsInner) return;
     std::lock_guard lock(_modMutex);
 
-    if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {
-        _luaMods.remove(luaMod);
-    }
-
-    _mods.remove(mod);
-    mod->Disable(true);
-    mod->UnloadModule();
+    UnloadMod(mod);
     remove_all(mod->info.basePath);
 
     const Config cfg;

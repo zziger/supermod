@@ -56,12 +56,31 @@ namespace ui
                     for (auto mod : ModManager::GetMods()) if (!mod->info.internal) reorderMods.push_back(mod);
                     
                     reorder = true;
+                    activeMod = std::nullopt;
                 }
+
+                ImGui::SameLine();
+                ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
+                if (ImGui::Button(ICON_MD_REFRESH)) {
+                    ModManager::ReloadMods();
+                    activeMod = std::nullopt;
+                }
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+                    ImGui::TextUnformatted("Перезагрузить все моды");
+                    ImGui::PopTextWrapPos();
+                    ImGui::EndTooltip();
+                }
+                ImGui::EndDisabled();
             } else {
+                ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
                 if (ImGui::Button(ICON_MD_SAVE " Сохранить")) {
                     ModManager::ReorderMods(reorderMods);
                     reorder = false;
                 }
+                ImGui::EndDisabled();
                 ImGui::SameLine();
                 if (ImGui::Button(ICON_MD_CANCEL " Отмена")) reorder = false;
                 ImGui::SameLine();

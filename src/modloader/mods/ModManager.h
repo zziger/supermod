@@ -30,10 +30,14 @@ public:
 
     static void LoadMod(ModInfo info, bool manual);
     static void LoadMod(std::string_view modName, bool manual);
+
+    static void UnloadMod(std::shared_ptr<Mod> mod);
     
     static void ReorderMods(std::vector<std::shared_ptr<Mod>>);
 
-    static void InitMods();
+    static void ReloadMods();
+
+    static void InitMods(bool manual = false);
 
     static void ReloadIcons();
 
