@@ -122,7 +122,7 @@ void init() {
                 }
             }
 
-            if (nCntFiles > 0) ShowWindow(*sdk::Game::window, SW_RESTORE);
+            if (nCntFiles > 0) SetForegroundWindow(*sdk::Game::window);
 
             DragFinish(drop);
         }

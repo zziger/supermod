@@ -238,33 +238,46 @@ std::list<ModInfo>& ModManager::GetModsToInstall() {
 void ModManager::RequestModInstall(ModInfo mod) {
     std::lock_guard lock(_modMutex);
 
+    installError = std::nullopt;
     _modsToInstall.push_back(mod);
 }
 
 void ModManager::InstallMod(ModInfo mod, bool state) {
-    auto removeIter = std::ranges::remove_if(_modsToInstall, [&mod](const ModInfo& m) {
-        return m.id == mod.id;
-    });
-    _modsToInstall.erase(removeIter.begin(), removeIter.end());
+    installError = std::nullopt;
+    try {
+        const auto inModsFolder = mod.basePath.parent_path() == sdk::Game::GetModsPath();
+
+        if ((inModsFolder || state) && std::ranges::find_if(_mods, [&mod](const std::shared_ptr<Mod>& m) {
+            return m->info.id == mod.id;
+        }) != _mods.end()) {
+            throw Error("Мод с ID " + mod.id + " уже существует");
+        }
+        
+        auto removeIter = std::ranges::remove_if(_modsToInstall, [&mod](const ModInfo& m) {
+            return m.id == mod.id;
+        });
+        _modsToInstall.erase(removeIter.begin(), removeIter.end());
     
-    const Config cfg;
+        const Config cfg;
     
-    if (mod.basePath.parent_path() == sdk::Game::GetModsPath()) {
-        Log::Debug << mod.id << " in mods " << state << Log::Endl;
-        if (!state) cfg.data["disabledMods"].push_back(mod.id);
-        cfg.data["installedMods"].push_back(mod.id);
-        LoadMod(mod, true);
-    } else {
-        Log::Debug << mod.id << " external " << state << Log::Endl;
-        if (!state) return;
-        const auto modsPath = sdk::Game::GetModsPath();
-        auto folderName = mod.id;
-        auto i = 1;
-        while (exists(modsPath / folderName)) folderName = mod.id + std::to_string(i++);
-        create_directory(modsPath / folderName);
-        copy(mod.basePath, modsPath / folderName, std::filesystem::copy_options::recursive);
-        cfg.data["installedMods"].push_back(mod.id);
-        LoadMod(mod.id, true);
+        if (inModsFolder) {
+            if (!state) cfg.data["disabledMods"].push_back(mod.id);
+            cfg.data["installedMods"].push_back(mod.id);
+            LoadMod(mod, true);
+        } else {
+            if (!state) return;
+            const auto modsPath = sdk::Game::GetModsPath();
+            auto folderName = mod.id;
+            auto i = 1;
+            while (exists(modsPath / folderName)) folderName = mod.id + std::to_string(i++);
+            create_directory(modsPath / folderName);
+            copy(mod.basePath, modsPath / folderName, std::filesystem::copy_options::recursive);
+            cfg.data["installedMods"].push_back(mod.id);
+            LoadMod(mod.id, true);
+        }
+    } catch(std::exception& e) {
+        Log::Error << "Ошибка установки мода " << mod.id << ": " << e.what() << Log::Endl;
+        installError = e.what();
     }
 }
 

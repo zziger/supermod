@@ -24,6 +24,7 @@ class ModManager {
 
 public:
 
+    inline static std::optional<std::string> installError = std::nullopt;
     static void Init();
 
     static std::filesystem::path GetModsRoot();

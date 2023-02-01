@@ -38,10 +38,13 @@ namespace ui
     }
 
     void renderModInstall(ModInfo info) {
-        auto title = std::format("Установка мода {}", info.id).c_str(); 
+        auto title = std::format("Установка мода {}", info.id).c_str();
         ImGui::OpenPopup(title);
-        if (ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        if (ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize))
         {
+            
             if (info.icon) {
                 ImGui::Image(info.icon, { 50, 50 });
                 ImGui::SameLine();
@@ -61,6 +64,12 @@ namespace ui
             if (hasDll) ImGui::Text(ICON_MD_WARNING " В моде присутствует DLL файл.");
             if (info.luaScript != "" || hasDll) ImGui::Text("Это позволяет моду выполнять код на вашем компьтере.\nУстанавливайте только если доверяете автору.");
             ImGui::PopStyleColor();
+            
+            if (ModManager::installError) {
+                ImGui::PushStyleColor(ImGuiCol_Text, 0xEE7777FF_color);
+                ImGui::Text((ICON_MD_ERROR " " + *ModManager::installError).c_str());
+                ImGui::PopStyleColor();
+            }
             
             ImGui::Spacing();
 
