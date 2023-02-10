@@ -52,8 +52,6 @@ void UI::RenderWatermark() {
     if (ImGui::Begin("watermark", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize
                      | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
         ImGui::TextColored(0xFFCC00FF_color, "SuperMod");
-        ImGui::SameLine();
-        ImGui::Text("%d", ModManager::GetModsToInstall().size());
     }
     ImGui::End();
     ImGui::PopStyleVar();
