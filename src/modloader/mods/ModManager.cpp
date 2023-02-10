@@ -90,7 +90,7 @@ void ModManager::LoadMod(const std::string_view modName, bool manual) {
 }
 
 void ModManager::UnloadMod(std::shared_ptr<Mod> mod) {
-    if (mod->IsEnabled()) mod->Disable(false);
+    if (mod->IsEnabled()) mod->Disable(true);
     if (mod->info.dll) FreeLibrary(mod->info.dll);
     const auto id = mod->info.id; 
     auto erase = std::ranges::remove_if(_mods, [id](std::shared_ptr<Mod>& iterMod) {
