@@ -1,6 +1,7 @@
 ﻿#include "UI.h"
 #include "Utils.h"
 #include "modloader/mods/ModManager.h"
+#include "sdk/Game.h"
 
 using namespace ui;
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 struct vector3 {
     float x;
@@ -14,6 +15,22 @@ struct vector2 {
 struct vector2i {
     int x;
     int y;
+};
+
+struct vector4
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct rect
+{
+    float left;
+    float top;
+    float right;
+    float bottom;
 };
 
 struct rgba {

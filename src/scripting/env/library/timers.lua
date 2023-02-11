@@ -53,7 +53,7 @@ function __tick()
 
             local status, result = pcall(v.fn)
             if not status then
-                log:error("Ошибка в обработчике таймера: " .. result)
+                log.error("Ошибка в обработчике таймера: " .. result)
             end
 
             if v.once then

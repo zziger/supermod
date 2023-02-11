@@ -9,7 +9,6 @@
 #include <windows.h>
 
 #include "thirdparty/LuaContext.h"
-
 class Log
 {
     enum Type
@@ -136,11 +135,11 @@ public:
         TimeDateString << std::put_time(&newTimeHandle, "[%H:%M:%S] ");
         log << GRAY << TimeDateString.str();
         switch (log.type) {
-            case INFO: log << LIGHT_CYAN << "[INFO]  " << WHITE; break;
-            case DEBUG: log << LIGHT_PURPLE << "[DEBUG] " << WHITE; break;
-            case WARN: log << LIGHT_YELLOW << "[WARN]  "; break;
-            case ERR: log << LIGHT_RED << "[ERROR] "; break;
-            case GAME: log << CYAN << "[GAME]  " << GRAY; break;
+        case INFO: log << LIGHT_CYAN << "[INFO]  " << WHITE; break;
+        case DEBUG: log << LIGHT_PURPLE << "[DEBUG] " << WHITE; break;
+        case WARN: log << LIGHT_YELLOW << "[WARN]  "; break;
+        case ERR: log << LIGHT_RED << "[ERROR] "; break;
+        case GAME: log << CYAN << "[GAME]  " << GRAY; break;
         }
         return log;
     }
@@ -158,21 +157,22 @@ public:
     }
 
     static void AddToLua(LuaContext& ctx) {
-        ctx.registerFunction<void (Log::*)(std::string)>("info", [](Log&, const std::string msg) {
+        ctx.writeVariable("log", std::map<int, int>{});
+        
+        ctx.writeVariable("log", "info", std::function([](const std::string msg) {
             Info << msg << Endl;
-        });
-        ctx.registerFunction<void (Log::*)(std::string)>("error", [](Log&, const std::string msg) {
+        }));
+        ctx.writeVariable("log", "error", std::function([](const std::string msg) {
             Error << msg << Endl;
-        });
-        ctx.registerFunction<void (Log::*)(std::string)>("warn", [](Log&, const std::string msg) {
+        }));
+        ctx.writeVariable("log", "warn", std::function([](const std::string msg) {
             Warn << msg << Endl;
-        });
-        ctx.registerFunction<void (Log::*)(std::string)>("debug", [](Log&, const std::string msg) {
+        }));
+        ctx.writeVariable("log", "debug", std::function([](const std::string msg) {
             Debug << msg << Endl;
-        });
-        ctx.registerFunction<void (Log::*)(std::string)>("game", [](Log&, const std::string msg) {
+        }));
+        ctx.writeVariable("log", "game", std::function([](const std::string msg) {
             Game << msg << Endl;
-        });
-        ctx.writeVariable("log", Log{});
+        }));
     }
 };

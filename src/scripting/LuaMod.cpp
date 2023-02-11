@@ -34,6 +34,11 @@ void LuaMod::OnEnable() {
     });
 
     Log::AddToLua(*lua);
+    sdk::Game::AddDataToLua(*lua);
+    sdk::Game::AddToLua(*lua);
+    
+    lua->executeCode(*utils::read_resource(LUA_BASE_MODULE), "internal");
+    
     lua->executeModule("imguicdecl", *utils::read_resource(LUA_MODULE_IMGUI_CDECL));
     lua->executeModule("imgui", *utils::read_resource(LUA_MODULE_IMGUI));
     lua->executeModule("memory", *utils::read_resource(LUA_MODULE_MEMORY));
@@ -43,7 +48,6 @@ void LuaMod::OnEnable() {
     lua->executeModule("events", *utils::read_resource(LUA_MODULE_EVENTS));
     lua->HideEventMethods();
     
-    sdk::Game::AddToLua(*lua);
     
     auto stream = std::ifstream{ fullPath };
     lua->executeCode(stream, fullPath.filename().generic_string().c_str());

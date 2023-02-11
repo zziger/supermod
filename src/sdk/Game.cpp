@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include "Data.h"
 #include "DirectX.h"
 #include "Log.h"
 #include "Utils.h"
@@ -103,15 +104,89 @@ namespace sdk
         in >> parse("%d.%m.%Y %T", timestamp);
         return timestamp.time_since_epoch().count();
     }
+    
+    rect Game::World::GetCamWorldRect()
+    {
+        static constexpr Memory::Pattern pat("B9 ? ? ? ? E8 ? ? ? ? D9 5D");
+        static auto mem = pat.Search();
+        static auto ptr = *mem.Get<rect**>(1);
+        return *ptr;
+    }
+    
+    float Game::World::GetCamZoom()
+    {
+        static constexpr Memory::Pattern pat("D8 0D ? ? ? ? D8 0D ? ? ? ? D8 35");
+        static auto mem = pat.Search();
+        static auto ptr = *mem.Get<float**>(2);
+        return *ptr;
+    }
+
+    vector2 Game::World::ScreenToWorld(vector2 coords)
+    {
+        const auto zoom = GetCamZoom();
+        const auto cam = GetCamWorldRect();
+        return {
+            cam.left + coords.x / 32 * zoom,
+            cam.top - coords.y / 32 * zoom
+        };
+    }
+
+    std::tuple<vector2, bool> Game::World::WorldToScreen(vector2 coords)
+    {
+        const auto zoom = GetCamZoom();
+        const auto cam = GetCamWorldRect();
+
+        bool onScreen = coords.x >= cam.left && coords.x <= cam.right && coords.y >= cam.bottom && coords.y <= cam.top;
+        
+        auto pos = vector2{
+            (coords.x - cam.left) / zoom * 32,
+            (cam.top - coords.y) / zoom * 32,
+        };
+
+        return { pos, onScreen };
+    }
+    
+    void Game::AddDataToLua(LuaContext& context)
+    {
+        context.writeFunction("vector2", std::function([](float x, float y) {
+            return vector2{x, y};
+        }));
+        
+        context.registerMember("x", &vector2::x);
+        context.registerMember("y", &vector2::y);
+
+        context.writeFunction("vector3", [](float x, float y, float z) {
+            return vector3{x, y, z};
+        });
+        context.registerMember("x", &vector3::x);
+        context.registerMember("y", &vector3::y);
+        context.registerMember("z", &vector3::z);
+        
+        context.writeFunction("rect", [](float left, float top, float right, float bottom) {
+            return rect{left, top, right, bottom};
+        });
+        context.registerMember("left", &rect::left);
+        context.registerMember("top", &rect::top);
+        context.registerMember("right", &rect::right);
+        context.registerMember("bottom", &rect::bottom);
+    }
 
     void Game::AddToLua(LuaContext& context) {
-        context.writeVariable("Game", Game{});
-        context.registerStaticFunction<Game>("restart", Restart);
-        context.registerStaticFunction<Game>("isGameLoaded", IsGameLoaded);
-        context.registerStaticFunction<Game>("getDataPath", GetDataPath);
-        context.registerStaticFunction<Game>("getModsPath", GetModsPath);
-        context.registerStaticFunction<Game>("getGameVersion", GetGameVersion);
-        context.registerStaticFunction<Game>("serializeGameVersion", SerializeGameVersion);
-        context.registerStaticFunction<Game>("parseGameVersion", ParseGameVersion);
+        context.writeVariable("game", std::map<int, int>{});
+        context.writeVariable("game", "restart", Restart);
+        context.writeVariable("game", "isGameLoaded", IsGameLoaded);
+        context.writeVariable("game", "getDataPath", GetDataPath);
+        context.writeVariable("game", "getModsPath", GetModsPath);
+        context.writeVariable("game", "getGameVersion", GetGameVersion);
+        context.writeVariable("game", "serializeGameVersion", SerializeGameVersion);
+        context.writeVariable("game", "parseGameVersion", IsGameLoaded);
+        context.writeVariable("game", "parseGameVersion", IsGameLoaded);
+        
+        context.writeVariable("game", "world", std::map<int, int>{});
+        context.writeVariable("game", "world", "genCamWorldRect", World::GetCamWorldRect);
+        context.writeVariable("game", "world", "getCamZoom", World::GetCamZoom);
+        context.writeVariable("game", "world", "screenToWorld", World::ScreenToWorld);
+        context.writeVariable("game", "world", "worldToScreen", World::WorldToScreen);
+       
     }
 }

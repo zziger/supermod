@@ -2,6 +2,7 @@
 #include <fstream>
 #include <optional>
 
+#include "Data.h"
 #include "thirdparty/LuaContext.h"
 #include "thirdparty/semver.hpp"
 #include "thirdparty/directx/d3d8.h"
@@ -37,6 +38,16 @@ namespace sdk
         static std::string SerializeGameVersion(uint64_t version);
         static uint64_t ParseGameVersion(const std::string& version);
 
+        struct World
+        {
+            static rect GetCamWorldRect();
+            static float GetCamZoom();
+            static vector2 ScreenToWorld(vector2 coords);
+            // boolean determines if the coords are on screen currently or no
+            static std::tuple<vector2, bool> WorldToScreen(vector2 coords);
+        };
+
+        static void AddDataToLua(LuaContext& context);
         static void AddToLua(LuaContext& context);
     private:
         inline static std::optional<std::filesystem::path> _rootPath;

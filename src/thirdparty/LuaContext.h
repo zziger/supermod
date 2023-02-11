@@ -55,6 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "luaExtensions.h"
 #include "tloptional.h"
+#include "Data.h"
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #   include "misc/exception.hpp"
