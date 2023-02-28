@@ -78,6 +78,7 @@ ModInfo::ModInfo(std::filesystem::path modPath): basePath(std::move(modPath)) {
 
 ModInfo::ModInfo(std::string id, std::string title, std::string author, std::string version)
     : id(std::move(id)), title(std::move(title)), author(std::move(author)), version(std::move(version)),
-    basePath(""), internal(true) {
+      sdkVersion(VERSION), basePath(""), internal(true)
+{
         
 }
