@@ -71,6 +71,7 @@ void Mod::Disable(bool manual) {
         UnloadHooks();
         OnDisable();
         modules.Unload();
+        info.ReleaseIcon();
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         EventManager::Emit(ModUnloadEvent(info));
         loadingError = std::nullopt;
@@ -91,6 +92,7 @@ void Mod::Reload() {
             UnloadHooks();
             OnDisable();
             modules.Unload();
+            info.ReleaseIcon();
             EventManager::Emit(ModUnloadEvent(info));
             OnEnable();
             modules.LoadNeeded();

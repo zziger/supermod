@@ -18,8 +18,6 @@ class ModManager {
     
     inline static std::shared_ptr<Mod> _internalMod {};
 
-    static std::shared_ptr<Mod> GetInternalMod();
-
     static void CleanupConfig();
 
 public:
@@ -40,8 +38,6 @@ public:
 
     static void InitMods(bool manual = false);
 
-    static void ReloadIcons();
-
     static void DeleteMod(std::shared_ptr<Mod> mod);
 
     static std::list<ModInfo>& GetModsToInstall();
@@ -52,4 +48,5 @@ public:
 
     static std::list<std::shared_ptr<Mod>> GetMods();
     static std::list<std::shared_ptr<LuaMod>> GetLuaMods();
+    static std::shared_ptr<Mod> GetInternalMod();
 };

@@ -56,7 +56,7 @@ void ModManager::LoadMod(ModInfo info, bool manual) {
         createMod = (create_mod_fn) (void*) GetProcAddress(module, "create_mod");
         info.dll = module;
     }
-    info.ReadIcon();
+    info.EnsureIcon();
 
     const auto mod = createMod
                          ? createMod(info)
@@ -200,27 +200,13 @@ void ModManager::InitMods(bool manual) {
     }
 }
 
-void ModManager::ReloadIcons() {
-    if (!*sdk::DirectX::d3dDevice) return;
-    std::lock_guard lock(_modMutex);
-
-    for (const auto loadedMod : _mods) {
-        try {
-            loadedMod->info.ReadIcon();
-        } catch (std::exception& e) {
-            Log::Warn << "Ошибка загрузки иконки мода " << loadedMod->info.id << ":" << Log::Endl;
-            Log::Warn << e.what() << Log::Endl;
-        }
-    }
-
-}
-
 void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     if (sdk::Game::currentTickIsInner) return;
     std::lock_guard lock(_modMutex);
 
     UnloadMod(mod);
     remove_all(mod->info.basePath);
+    mod->info.ReleaseIcon();
 
     const Config cfg;
     auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();

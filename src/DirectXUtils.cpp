@@ -28,9 +28,23 @@ namespace dx_utils
 
         const auto readRes = lodepng::decode(buf, width, height, filename);
         if (readRes != 0) throw Error("Не удалось прочитать файл " + std::string(filename));
+        
+        return load_argb_pixel_data(device, width, height, buf.data());
+    }
+    
+    LPDIRECT3DTEXTURE8 load_png_data(IDirect3DDevice8* device, const byte* data, int32_t size) {
+        std::vector<uint8_t> buf;
+        uint32_t width, height;
 
+        const auto readRes = lodepng::decode(buf, width, height, data, size);
+        if (readRes != 0) throw Error("Не удалось прочитать PNG");
+
+        return load_argb_pixel_data(device, width, height, buf.data());
+    }
+    
+    LPDIRECT3DTEXTURE8 load_argb_pixel_data(IDirect3DDevice8* device, uint32_t width, uint32_t height, const byte* buf) {
         LPDIRECT3DTEXTURE8 texture = nullptr;
-        const auto res = device->CreateTexture(width, height, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
+        const auto res = device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture);
 
         if (res < 0) throw Error(std::format("Не удалось создать текстуру. Ошибка: {}", res));
         if (texture == nullptr) throw Error("Не удалось создать текстуру");
@@ -38,14 +52,17 @@ namespace dx_utils
 
         if (FAILED(texture->LockRect(0, &bits, nullptr, 0))) throw Error("Не удалось создать текстуру. Ошибка: Не удалось заблокировать текстуру для записи");
 
-        for (uint32_t i = 0; i < width * height; i++) {
-            const auto out = (uint8_t*) bits.pBits;
-            out[i * 4 + 3] = buf[i * 4 + 3];
-            out[i * 4 + 2] = buf[i * 4 + 0];
-            out[i * 4 + 1] = buf[i * 4 + 1];
-            out[i * 4 + 0] = buf[i * 4 + 2];
+        for (uint32_t y = 0; y < height; y++)
+        {
+            const auto out = ((unsigned char *) bits.pBits + bits.Pitch * y);
+            for (uint32_t x = 0; x < width; x++) {
+                out[x * 4 + 3] = buf[width * 4 * y + x * 4 + 3];
+                out[x * 4 + 2] = buf[width * 4 * y + x * 4 + 0];
+                out[x * 4 + 1] = buf[width * 4 * y + x * 4 + 1];
+                out[x * 4 + 0] = buf[width * 4 * y + x * 4 + 2];
+            } 
         }
-
+        
         if (FAILED(texture->UnlockRect(0))) throw Error("Не удалось создать текстуру. Ошибка: Не удалось разблокировать текстуру после записи");
 
         return texture;

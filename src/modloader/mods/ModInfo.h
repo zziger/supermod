@@ -20,13 +20,22 @@ struct ModInfo {
     std::optional<std::filesystem::path> zipFile; // used only for zipmod installation
     std::vector<uint64_t> gameVersions {}; // empty if no version restrictions
     bool compatible = true;
-    LPDIRECT3DTEXTURE8 icon = nullptr; // nullptr if no icon
+
+    bool hasIcon = false;
+    std::vector<byte> iconData {};
+    uint32_t iconWidth = 0;
+    uint32_t iconHeight = 0;
+    LPDIRECT3DTEXTURE8 icon = nullptr;
+    
     HMODULE dll = nullptr;
     bool internal = false;
 
     void ReadManifest(YAML::Node node);
     void ReadManifest();
-    bool ReadIcon();
+    void ReadIcon();
+    
+    void EnsureIcon();
+    void ReleaseIcon();
     
     ModInfo();
     

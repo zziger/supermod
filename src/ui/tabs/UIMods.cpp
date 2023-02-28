@@ -23,7 +23,8 @@ namespace ui
             if (!reorder) {
                 for (const auto& loadedMod : ModManager::GetMods()) {
                     if (!loadedMod) continue;
-                    auto info = loadedMod->info;
+                    auto& info = loadedMod->info;
+                    info.EnsureIcon();
                     if (widgets::ModSelectable(info.id.c_str(), info.title.c_str(), info.author.c_str(),
                         info.version.c_str(), info.icon, activeMod && (*activeMod)->info.id == info.id, !loadedMod->IsEnabled()))
                             activeMod = loadedMod;
@@ -32,7 +33,8 @@ namespace ui
                 const auto count = reorderMods.size();
                 for (auto i = 0; i < count; i++) {
                     const auto loadedMod = reorderMods[i];
-                    auto info = loadedMod->info;
+                    auto& info = loadedMod->info;
+                    info.EnsureIcon();
                     bool hovered, active;
                     widgets::ModSelectable(info.id.c_str(), info.title.c_str(), info.author.c_str(),
                         info.version.c_str(), info.icon, false, !loadedMod->IsEnabled(), &hovered, &active);
@@ -94,7 +96,7 @@ namespace ui
 
         if (activeMod && !reorder) {
             auto mod = *activeMod;
-            auto info = mod->info;
+            auto& info = mod->info;
             if (info.icon) {
                 ImGui::Image(info.icon, { 50, 50 });
                 ImGui::SameLine();

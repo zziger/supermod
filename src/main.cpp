@@ -93,13 +93,12 @@ void init() {
 
     EventManager::On<StartExecutionEvent>([] {
         Log::Info << "Пост-инициализация" << Log::Endl;
-        postInit();
+        utils::handle_error(postInit, "пост-инициализации");
     });
     
     EventManager::On<GameLoadedEvent>([] {
         Log::Info << "Игра загружена!" << Log::Endl;
         
-        ModManager::ReloadIcons();
         DragAcceptFiles(*sdk::Game::window, true);
     });
 

@@ -5,10 +5,13 @@
 
 #include "DirectXUtils.h"
 #include "Log.h"
+#include "Utils.h"
+#include "assets/assets.h"
 #include "exceptions/Error.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 #include "thirdparty/semver.hpp"
+#include "thirdparty/lodepng/lodepng.h"
 
 void ModInfo::ReadManifest() {
     const auto filePath = basePath / "manifest.yml";
@@ -18,6 +21,17 @@ void ModInfo::ReadManifest() {
 
     auto node = YAML::LoadFile(strPath);
     ModInfo::ReadManifest(node);
+}
+
+void ModInfo::ReadIcon()
+{
+    ReleaseIcon();
+    const auto path = basePath / "icon.png";
+    if (!exists(path)) return;
+    
+    const auto readRes = lodepng::decode(iconData, iconWidth, iconHeight, path.string());
+    if (readRes != 0) throw Error("Не удалось прочитать PNG");
+    hasIcon = true;
 }
 
 
@@ -60,25 +74,36 @@ void ModInfo::ReadManifest(YAML::Node node) {
     if (!compatible) Log::Warn << "Мод " << title << " не совместим с текущей версией игры" << Log::Endl;
 }
 
-bool ModInfo::ReadIcon() {
-    if (!*sdk::DirectX::d3dDevice) return false;
-    if (!exists(basePath / "icon.png")) return false;
-    icon = dx_utils::load_png(*sdk::DirectX::d3dDevice, (basePath / "icon.png").string().c_str());
-    return true;
+void ModInfo::EnsureIcon() {
+    if (!this->hasIcon || !*sdk::DirectX::d3dDevice) return;
+    if (icon != nullptr) return;
+    icon = dx_utils::load_argb_pixel_data(*sdk::DirectX::d3dDevice, iconWidth, iconHeight, iconData.data());
 }
+
+void ModInfo::ReleaseIcon()
+{
+    if (icon == nullptr) return;
+    icon->Release();
+    icon = nullptr;
+}
+
 ModInfo::ModInfo(): id("invalid"), title("Invalid"), author("unknown"), version("invalid") {}
 
 ModInfo::ModInfo(const std::string& manifestContent) {
     ReadManifest(YAML::Load(manifestContent));
+    ReadIcon();
 }
 
 ModInfo::ModInfo(std::filesystem::path modPath): basePath(std::move(modPath)) {
     ReadManifest();
+    ReadIcon();
 }
 
 ModInfo::ModInfo(std::string id, std::string title, std::string author, std::string version)
     : id(std::move(id)), title(std::move(title)), author(std::move(author)), version(std::move(version)),
       sdkVersion(VERSION), basePath(""), internal(true)
 {
-        
+    const auto buf = *utils::read_resource(RES_LOGO);
+    const auto readRes = lodepng::decode(iconData, iconWidth, iconHeight, reinterpret_cast<const unsigned char*>(buf.data()), buf.size());
+    if (readRes == 0) hasIcon = true;
 }

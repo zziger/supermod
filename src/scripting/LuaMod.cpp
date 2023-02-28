@@ -1,6 +1,6 @@
 ﻿#include "LuaMod.h"
 
-#include "luaassets.h"
+#include "assets/assets.h"
 #include "Utils.h"
 #include "events/TickEvent.h"
 #include "events/WindowEvent.h"
