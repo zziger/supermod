@@ -685,9 +685,9 @@ M.LogType= {
 ---@enum Mod
 M.Mod= {
     None = 0,
-    Shortcut = 4096,
+    Shortcut = 2048,
     Shift = 8192,
-    Mask_ = 61440,
+    Mask_ = 63488,
     Super = 32768,
     Ctrl = 4096,
     Alt = 16384,
@@ -847,12 +847,11 @@ M.ScrollFlags= {
 M.SelectableFlags= {
     None = 0,
     DontClosePopups = 1,
-    DrawHoveredWhenHeld = 33554432,
     Disabled = 8,
-    NoPadWithHalfSpacing = 134217728,
-    SetNavIdOnHover = 67108864,
+    SetNavIdOnHover = 33554432,
+    NoPadWithHalfSpacing = 67108864,
     SelectOnClick = 4194304,
-    NoSetKeyOwner = 268435456,
+    NoSetKeyOwner = 134217728,
     AllowItemOverlap = 16,
     SpanAvailWidth = 16777216,
     SpanAllColumns = 2,
@@ -891,13 +890,16 @@ M.SortDirection= {
 --------------------------StyleVar----------------------------
 ---@enum StyleVar
 M.StyleVar= {
+    SeparatorTextBorderSize = 25,
     WindowRounding = 3,
     FrameRounding = 12,
     ItemSpacing = 14,
     DisabledAlpha = 1,
     Alpha = 0,
     IndentSpacing = 16,
-    COUNT = 25,
+    COUNT = 28,
+    SeparatorTextPadding = 27,
+    SeparatorTextAlign = 26,
     PopupBorderSize = 10,
     SelectableTextAlign = 24,
     WindowTitleAlign = 6,
@@ -2388,11 +2390,11 @@ function ImGuiIO:AddMousePosEvent(x,y)
     return lib.ImGuiIO_AddMousePosEvent(self,x,y)
 end
 ---@param self ffi.ct* ImGuiIO*
----@param wh_x number
----@param wh_y number
+---@param wheel_x number
+---@param wheel_y number
 ---@return nil
-function ImGuiIO:AddMouseWheelEvent(wh_x,wh_y)
-    return lib.ImGuiIO_AddMouseWheelEvent(self,wh_x,wh_y)
+function ImGuiIO:AddMouseWheelEvent(wheel_x,wheel_y)
+    return lib.ImGuiIO_AddMouseWheelEvent(self,wheel_x,wheel_y)
 end
 ---@param self ffi.ct* ImGuiIO*
 ---@return nil
@@ -2533,8 +2535,8 @@ end
 function ImGuiInputTextState:HasSelection()
     return lib.ImGuiInputTextState_HasSelection(self)
 end
-function ImGuiInputTextState.__new(ctype)
-    local ptr = lib.ImGuiInputTextState_ImGuiInputTextState()
+function ImGuiInputTextState.__new(ctype,ctx)
+    local ptr = lib.ImGuiInputTextState_ImGuiInputTextState(ctx)
     return ffi.gc(ptr,lib.ImGuiInputTextState_destroy)
 end
 ---@param self ffi.ct* ImGuiInputTextState*
@@ -2689,15 +2691,6 @@ function ImGuiMenuColumns:Update(spacing,window_reappearing)
     return lib.ImGuiMenuColumns_Update(self,spacing,window_reappearing)
 end
 M.ImGuiMenuColumns = ffi.metatype("ImGuiMenuColumns",ImGuiMenuColumns)
---------------------------ImGuiMetricsConfig----------------------------
----@class ImGuiMetricsConfig
-local ImGuiMetricsConfig= {}
-ImGuiMetricsConfig.__index = ImGuiMetricsConfig
-function ImGuiMetricsConfig.__new(ctype)
-    local ptr = lib.ImGuiMetricsConfig_ImGuiMetricsConfig()
-    return ffi.gc(ptr,lib.ImGuiMetricsConfig_destroy)
-end
-M.ImGuiMetricsConfig = ffi.metatype("ImGuiMetricsConfig",ImGuiMetricsConfig)
 --------------------------ImGuiNavItemData----------------------------
 ---@class ImGuiNavItemData
 local ImGuiNavItemData= {}
@@ -3058,18 +3051,6 @@ M.ImGuiStyleMod = ffi.metatype("ImGuiStyleMod",ImGuiStyleMod)
 ---@class ImGuiTabBar
 local ImGuiTabBar= {}
 ImGuiTabBar.__index = ImGuiTabBar
----@param self ffi.ct* ImGuiTabBar*
----@param tab ffi.ct* const ImGuiTabItem*
----@return string
-function ImGuiTabBar:GetTabName(tab)
-    return ffi.string(lib.ImGuiTabBar_GetTabName(self,tab))
-end
----@param self ffi.ct* ImGuiTabBar*
----@param tab ffi.ct* const ImGuiTabItem*
----@return number
-function ImGuiTabBar:GetTabOrder(tab)
-    return lib.ImGuiTabBar_GetTabOrder(self,tab)
-end
 function ImGuiTabBar.__new(ctype)
     local ptr = lib.ImGuiTabBar_ImGuiTabBar()
     return ffi.gc(ptr,lib.ImGuiTabBar_destroy)
@@ -4202,6 +4183,11 @@ end
 function M.ClearIniSettings()
     return lib.igClearIniSettings()
 end
+---@param name string
+---@return nil
+function M.ClearWindowSettings(name)
+    return lib.igClearWindowSettings(name)
+end
 ---@param id number
 ---@param pos ImVec2
 ---@return boolean
@@ -4396,6 +4382,11 @@ function M.Combo(a1,a2,a3,a4,a5,a6) -- generic version
     if ffi.istype('bool(*)(void* data,int idx,const char** out_text)',a3) then return M.Combo_FnBoolPtr(a1,a2,a3,a4,a5,a6) end
     print(a1,a2,a3,a4,a5,a6)
     error'M.Combo could not find overloaded'
+end
+---@param key_chord number
+---@return number
+function M.ConvertShortcutMod(key_chord)
+    return lib.igConvertShortcutMod(key_chord)
 end
 ---@param key Key
 ---@return Key
@@ -4596,6 +4587,11 @@ end
 ---@return nil
 function M.DebugNodeWindowsListByBeginStackParent(windows,windows_size,parent_in_begin_stack)
     return lib.igDebugNodeWindowsListByBeginStackParent(windows,windows_size,parent_in_begin_stack)
+end
+---@param draw_list ffi.ct* ImDrawList*
+---@return nil
+function M.DebugRenderKeyboardPreview(draw_list)
+    return lib.igDebugRenderKeyboardPreview(draw_list)
 end
 ---@param draw_list ffi.ct* ImDrawList*
 ---@param viewport ffi.ct* ImGuiViewportP*
@@ -4965,11 +4961,6 @@ end
 function M.FindOrCreateColumns(window,id)
     return lib.igFindOrCreateColumns(window,id)
 end
----@param name string
----@return ffi.ct* ImGuiWindowSettings*
-function M.FindOrCreateWindowSettings(name)
-    return lib.igFindOrCreateWindowSettings(name)
-end
 ---@param text string
 ---@param text_end string?
 ---@return string
@@ -4999,8 +4990,13 @@ function M.FindWindowDisplayIndex(window)
 end
 ---@param id number
 ---@return ffi.ct* ImGuiWindowSettings*
-function M.FindWindowSettings(id)
-    return lib.igFindWindowSettings(id)
+function M.FindWindowSettingsByID(id)
+    return lib.igFindWindowSettingsByID(id)
+end
+---@param window ffi.ct* ImGuiWindow*
+---@return ffi.ct* ImGuiWindowSettings*
+function M.FindWindowSettingsByWindow(window)
+    return lib.igFindWindowSettingsByWindow(window)
 end
 ---@param under_this_window ffi.ct* ImGuiWindow*
 ---@param ignore_window ffi.ct* ImGuiWindow*
@@ -5145,6 +5141,10 @@ end
 function M.GetCurrentFocusScope()
     return lib.igGetCurrentFocusScope()
 end
+---@return ffi.ct* ImGuiTabBar*
+function M.GetCurrentTabBar()
+    return lib.igGetCurrentTabBar()
+end
 ---@return ffi.ct* ImGuiTable*
 function M.GetCurrentTable()
     return lib.igGetCurrentTable()
@@ -5281,8 +5281,20 @@ end
 ---@param str_id_end string
 ---@param seed number
 ---@return number
-function M.GetIDWithSeed(str_id_begin,str_id_end,seed)
-    return lib.igGetIDWithSeed(str_id_begin,str_id_end,seed)
+function M.GetIDWithSeed_Str(str_id_begin,str_id_end,seed)
+    return lib.igGetIDWithSeed_Str(str_id_begin,str_id_end,seed)
+end
+---@param n number
+---@param seed number
+---@return number
+function M.GetIDWithSeed_Int(n,seed)
+    return lib.igGetIDWithSeed_Int(n,seed)
+end
+function M.GetIDWithSeed(a1,a2,a3) -- generic version
+    if (ffi.istype('const char*',a1) or ffi.istype('char[]',a1) or type(a1)=='string') then return M.GetIDWithSeed_Str(a1,a2,a3) end
+    if (ffi.istype('int',a1) or type(a1)=='number') then return M.GetIDWithSeed_Int(a1,a2) end
+    print(a1,a2,a3)
+    error'M.GetIDWithSeed could not find overloaded'
 end
 ---@return ffi.ct* ImGuiIO*
 function M.GetIO()
@@ -5340,6 +5352,16 @@ end
 function M.GetKeyIndex(key)
     return lib.igGetKeyIndex(key)
 end
+---@param key_left Key
+---@param key_right Key
+---@param key_up Key
+---@param key_down Key
+---@return nil
+function M.GetKeyMagnitude2d(key_left,key_right,key_up,key_down)
+    local nonUDT_out = ffi.new("ImVec2")
+    lib.igGetKeyMagnitude2d(nonUDT_out,key_left,key_right,key_up,key_down)
+    return nonUDT_out
+end
 ---@param key Key
 ---@return string
 function M.GetKeyName(key)
@@ -5361,16 +5383,6 @@ end
 ---@return number
 function M.GetKeyPressedAmount(key,repeat_delay,rate)
     return lib.igGetKeyPressedAmount(key,repeat_delay,rate)
-end
----@param key_left Key
----@param key_right Key
----@param key_up Key
----@param key_down Key
----@return nil
-function M.GetKeyVector2d(key_left,key_right,key_up,key_down)
-    local nonUDT_out = ffi.new("ImVec2")
-    lib.igGetKeyVector2d(nonUDT_out,key_left,key_right,key_up,key_down)
-    return nonUDT_out
 end
 ---@return ffi.ct* ImGuiViewport*
 function M.GetMainViewport()
@@ -5629,10 +5641,21 @@ function M.ImBezierQuadraticCalc(p1,p2,p3,t)
     return nonUDT_out
 end
 ---@param arr ffi.ct* ImU32*
+---@param bitcount number
+---@return nil
+function M.ImBitArrayClearAllBits(arr,bitcount)
+    return lib.igImBitArrayClearAllBits(arr,bitcount)
+end
+---@param arr ffi.ct* ImU32*
 ---@param n number
 ---@return nil
 function M.ImBitArrayClearBit(arr,n)
     return lib.igImBitArrayClearBit(arr,n)
+end
+---@param bitcount number
+---@return number
+function M.ImBitArrayGetStorageSizeInBytes(bitcount)
+    return lib.igImBitArrayGetStorageSizeInBytes(bitcount)
 end
 ---@param arr ffi.ct* ImU32*
 ---@param n number
@@ -5677,6 +5700,13 @@ end
 ---@return number
 function M.ImDot(a,b)
     return lib.igImDot(a,b)
+end
+---@param avg number
+---@param sample number
+---@param n number
+---@return number
+function M.ImExponentialMovingAverage(avg,sample,n)
+    return lib.igImExponentialMovingAverage(avg,sample,n)
 end
 ---@param file ffi.ct* ImFileHandle
 ---@return boolean
@@ -6332,9 +6362,11 @@ end
 ---@param uv1 ImVec2
 ---@param bg_col ffi.ct* const ImVec4
 ---@param tint_col ffi.ct* const ImVec4
+---@param flags number?
 ---@return boolean
-function M.ImageButtonEx(id,texture_id,size,uv0,uv1,bg_col,tint_col)
-    return lib.igImageButtonEx(id,texture_id,size,uv0,uv1,bg_col,tint_col)
+function M.ImageButtonEx(id,texture_id,size,uv0,uv1,bg_col,tint_col,flags)
+    flags = flags or 0
+    return lib.igImageButtonEx(id,texture_id,size,uv0,uv1,bg_col,tint_col,flags)
 end
 ---@param indent_w number?
 ---@return nil
@@ -7230,10 +7262,10 @@ end
 ---@param overlay_text string
 ---@param scale_min number
 ---@param scale_max number
----@param frame_size ImVec2
+---@param size_arg ImVec2
 ---@return number
-function M.PlotEx(plot_type,label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,frame_size)
-    return lib.igPlotEx(plot_type,label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,frame_size)
+function M.PlotEx(plot_type,label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,size_arg)
+    return lib.igPlotEx(plot_type,label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,size_arg)
 end
 ---@param label string
 ---@param values ffi.ct* const float*
@@ -7817,6 +7849,19 @@ end
 ---@return nil
 function M.SeparatorEx(flags)
     return lib.igSeparatorEx(flags)
+end
+---@param label string
+---@return nil
+function M.SeparatorText(label)
+    return lib.igSeparatorText(label)
+end
+---@param id number
+---@param label string
+---@param label_end string
+---@param extra_width number
+---@return nil
+function M.SeparatorTextEx(id,label,label_end,extra_width)
+    return lib.igSeparatorTextEx(id,label,label_end,extra_width)
 end
 ---@param id number
 ---@param window ffi.ct* ImGuiWindow*
@@ -8548,11 +8593,13 @@ end
 ---@param min_size2 number
 ---@param hover_extend number?
 ---@param hover_visibility_delay number?
+---@param bg_col number?
 ---@return boolean
-function M.SplitterBehavior(bb,id,axis,size1,size2,min_size1,min_size2,hover_extend,hover_visibility_delay)
+function M.SplitterBehavior(bb,id,axis,size1,size2,min_size1,min_size2,hover_extend,hover_visibility_delay,bg_col)
+    bg_col = bg_col or 0
     hover_extend = hover_extend or 0.0
     hover_visibility_delay = hover_visibility_delay or 0.0
-    return lib.igSplitterBehavior(bb,id,axis,size1,size2,min_size1,min_size2,hover_extend,hover_visibility_delay)
+    return lib.igSplitterBehavior(bb,id,axis,size1,size2,min_size1,min_size2,hover_extend,hover_visibility_delay,bg_col)
 end
 ---@param window ffi.ct* ImGuiWindow*
 ---@return nil
@@ -8590,19 +8637,48 @@ function M.TabBarFindTabByID(tab_bar,tab_id)
     return lib.igTabBarFindTabByID(tab_bar,tab_id)
 end
 ---@param tab_bar ffi.ct* ImGuiTabBar*
+---@param order number
+---@return ffi.ct* ImGuiTabItem*
+function M.TabBarFindTabByOrder(tab_bar,order)
+    return lib.igTabBarFindTabByOrder(tab_bar,order)
+end
+---@param tab_bar ffi.ct* ImGuiTabBar*
+---@return ffi.ct* ImGuiTabItem*
+function M.TabBarGetCurrentTab(tab_bar)
+    return lib.igTabBarGetCurrentTab(tab_bar)
+end
+---@param tab_bar ffi.ct* ImGuiTabBar*
+---@param tab ffi.ct* ImGuiTabItem*
+---@return string
+function M.TabBarGetTabName(tab_bar,tab)
+    return ffi.string(lib.igTabBarGetTabName(tab_bar,tab))
+end
+---@param tab_bar ffi.ct* ImGuiTabBar*
+---@param tab ffi.ct* ImGuiTabItem*
+---@return number
+function M.TabBarGetTabOrder(tab_bar,tab)
+    return lib.igTabBarGetTabOrder(tab_bar,tab)
+end
+---@param tab_bar ffi.ct* ImGuiTabBar*
 ---@return boolean
 function M.TabBarProcessReorder(tab_bar)
     return lib.igTabBarProcessReorder(tab_bar)
 end
 ---@param tab_bar ffi.ct* ImGuiTabBar*
----@param tab ffi.ct* const ImGuiTabItem*
+---@param tab ffi.ct* ImGuiTabItem*
+---@return nil
+function M.TabBarQueueFocus(tab_bar,tab)
+    return lib.igTabBarQueueFocus(tab_bar,tab)
+end
+---@param tab_bar ffi.ct* ImGuiTabBar*
+---@param tab ffi.ct* ImGuiTabItem*
 ---@param offset number
 ---@return nil
 function M.TabBarQueueReorder(tab_bar,tab,offset)
     return lib.igTabBarQueueReorder(tab_bar,tab,offset)
 end
 ---@param tab_bar ffi.ct* ImGuiTabBar*
----@param tab ffi.ct* const ImGuiTabItem*
+---@param tab ffi.ct* ImGuiTabItem*
 ---@param mouse_pos ImVec2
 ---@return nil
 function M.TabBarQueueReorderFromMousePos(tab_bar,tab,mouse_pos)
@@ -8632,18 +8708,32 @@ end
 ---@param label string
 ---@param has_close_button_or_unsaved_marker boolean
 ---@return nil
-function M.TabItemCalcSize(label,has_close_button_or_unsaved_marker)
+function M.TabItemCalcSize_Str(label,has_close_button_or_unsaved_marker)
     local nonUDT_out = ffi.new("ImVec2")
-    lib.igTabItemCalcSize(nonUDT_out,label,has_close_button_or_unsaved_marker)
+    lib.igTabItemCalcSize_Str(nonUDT_out,label,has_close_button_or_unsaved_marker)
     return nonUDT_out
+end
+---@param window ffi.ct* ImGuiWindow*
+---@return nil
+function M.TabItemCalcSize_WindowPtr(window)
+    local nonUDT_out = ffi.new("ImVec2")
+    lib.igTabItemCalcSize_WindowPtr(nonUDT_out,window)
+    return nonUDT_out
+end
+function M.TabItemCalcSize(a2,a3) -- generic version
+    if (ffi.istype('const char*',a2) or ffi.istype('char[]',a2) or type(a2)=='string') then return M.TabItemCalcSize_Str(a2,a3) end
+    if (ffi.istype('ImGuiWindow*',a2) or ffi.istype('ImGuiWindow',a2) or ffi.istype('ImGuiWindow[]',a2)) then return M.TabItemCalcSize_WindowPtr(a2) end
+    print(a2,a3)
+    error'M.TabItemCalcSize could not find overloaded'
 end
 ---@param tab_bar ffi.ct* ImGuiTabBar*
 ---@param label string
 ---@param p_open ffi.ct* bool*
 ---@param flags number
+---@param docked_window ffi.ct* ImGuiWindow*
 ---@return boolean
-function M.TabItemEx(tab_bar,label,p_open,flags)
-    return lib.igTabItemEx(tab_bar,label,p_open,flags)
+function M.TabItemEx(tab_bar,label,p_open,flags,docked_window)
+    return lib.igTabItemEx(tab_bar,label,p_open,flags,docked_window)
 end
 ---@param draw_list ffi.ct* ImDrawList*
 ---@param bb ImRect
@@ -8787,7 +8877,7 @@ end
 function M.TableGetColumnNextSortDirection(column)
     return lib.igTableGetColumnNextSortDirection(column)
 end
----@param table ffi.ct* const ImGuiTable*
+---@param table ffi.ct* ImGuiTable*
 ---@param column_n number
 ---@param instance_no number?
 ---@return number
@@ -8814,6 +8904,12 @@ end
 ---@return ffi.ct* ImGuiTableInstanceData*
 function M.TableGetInstanceData(table,instance_no)
     return lib.igTableGetInstanceData(table,instance_no)
+end
+---@param table ffi.ct* ImGuiTable*
+---@param instance_no number
+---@return number
+function M.TableGetInstanceID(table,instance_no)
+    return lib.igTableGetInstanceID(table,instance_no)
 end
 ---@param table ffi.ct* const ImGuiTable*
 ---@param column_n number

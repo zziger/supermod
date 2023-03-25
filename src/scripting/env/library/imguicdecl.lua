@@ -602,8 +602,8 @@ ImGuiMod_Ctrl=1 << 12,
 ImGuiMod_Shift=1 << 13,
 ImGuiMod_Alt=1 << 14,
 ImGuiMod_Super=1 << 15,
-ImGuiMod_Mask_=0xF000,
-ImGuiMod_Shortcut=ImGuiMod_Ctrl,
+ImGuiMod_Shortcut=1 << 11,
+ImGuiMod_Mask_=0xF800,
 ImGuiKey_NamedKey_BEGIN=512,
 ImGuiKey_NamedKey_END=ImGuiKey_COUNT,
 ImGuiKey_NamedKey_COUNT=ImGuiKey_NamedKey_END - ImGuiKey_NamedKey_BEGIN,
@@ -715,6 +715,9 @@ typedef enum {
     ImGuiStyleVar_TabRounding,
     ImGuiStyleVar_ButtonTextAlign,
     ImGuiStyleVar_SelectableTextAlign,
+    ImGuiStyleVar_SeparatorTextBorderSize,
+    ImGuiStyleVar_SeparatorTextAlign,
+    ImGuiStyleVar_SeparatorTextPadding,
     ImGuiStyleVar_COUNT
 }ImGuiStyleVar_;
 typedef enum {
@@ -824,6 +827,9 @@ struct ImGuiStyle
     ImGuiDir ColorButtonPosition;
     ImVec2 ButtonTextAlign;
     ImVec2 SelectableTextAlign;
+    float SeparatorTextBorderSize;
+    ImVec2 SeparatorTextAlign;
+    ImVec2 SeparatorTextPadding;
     ImVec2 DisplayWindowPadding;
     ImVec2 DisplaySafeAreaPadding;
     float MouseCursorScale;
@@ -1182,6 +1188,7 @@ struct ImFontAtlas
     int TexDesiredWidth;
     int TexGlyphPadding;
    _Bool         Locked;
+    void* UserData;
    _Bool         TexReady;
    _Bool         TexPixelsUseColors;
     unsigned char* TexPixelsAlpha8;
@@ -1214,7 +1221,9 @@ struct ImFont
     short ConfigDataCount;
     ImWchar FallbackChar;
     ImWchar EllipsisChar;
-    ImWchar DotChar;
+    short EllipsisCharCount;
+    float EllipsisWidth;
+    float EllipsisCharStep;
    _Bool         DirtyLookupTables;
     float Scale;
     float Ascent, Descent;
@@ -1349,6 +1358,7 @@ struct ImRect
     ImVec2 Min;
     ImVec2 Max;
 };
+typedef ImU32* ImBitArrayPtr;
 struct ImBitVector
 {
     ImVector_ImU32 Storage;
@@ -1446,10 +1456,9 @@ typedef enum {
     ImGuiSelectableFlags_SelectOnClick = 1 << 22,
     ImGuiSelectableFlags_SelectOnRelease = 1 << 23,
     ImGuiSelectableFlags_SpanAvailWidth = 1 << 24,
-    ImGuiSelectableFlags_DrawHoveredWhenHeld = 1 << 25,
-    ImGuiSelectableFlags_SetNavIdOnHover = 1 << 26,
-    ImGuiSelectableFlags_NoPadWithHalfSpacing = 1 << 27,
-    ImGuiSelectableFlags_NoSetKeyOwner = 1 << 28,
+    ImGuiSelectableFlags_SetNavIdOnHover = 1 << 25,
+    ImGuiSelectableFlags_NoPadWithHalfSpacing = 1 << 26,
+    ImGuiSelectableFlags_NoSetKeyOwner = 1 << 27,
 }ImGuiSelectableFlagsPrivate_;
 typedef enum {
     ImGuiTreeNodeFlags_ClipLabelForTrailingButton = 1 << 20,
@@ -1557,6 +1566,7 @@ struct ImGuiMenuColumns
 };
 struct ImGuiInputTextState
 {
+    ImGuiContext* Ctx;
     ImGuiID ID;
     int CurLenW, CurLenA;
     ImVector_ImWchar TextW;
@@ -1909,6 +1919,7 @@ struct ImGuiWindowSettings
     ImVec2ih Size;
    _Bool         Collapsed;
    _Bool         WantApply;
+   _Bool         WantDelete;
 };
 struct ImGuiSettingsHandler
 {
@@ -1957,6 +1968,7 @@ struct ImGuiMetricsConfig
    _Bool         ShowTablesRects;
    _Bool         ShowDrawCmdMesh;
    _Bool         ShowDrawCmdBoundingBoxes;
+   _Bool         ShowAtlasTintedWithTextColor;
     int ShowWindowsRectsType;
     int ShowTablesRectsType;
 };
@@ -2048,7 +2060,10 @@ struct ImGuiContext
     ImGuiWindow* MovingWindow;
     ImGuiWindow* WheelingWindow;
     ImVec2 WheelingWindowRefMousePos;
+    int WheelingWindowStartFrame;
     float WheelingWindowReleaseTimer;
+    ImVec2 WheelingWindowWheelRemainder;
+    ImVec2 WheelingAxisAvg;
     ImGuiID DebugHookIdInfo;
     ImGuiID HoveredId;
     ImGuiID HoveredIdPreviousFrame;
@@ -2188,9 +2203,11 @@ struct ImGuiContext
     ImFont InputTextPasswordFont;
     ImGuiID TempInputId;
     ImGuiColorEditFlags ColorEditOptions;
-    float ColorEditLastHue;
-    float ColorEditLastSat;
-    ImU32 ColorEditLastColor;
+    ImGuiID ColorEditCurrentID;
+    ImGuiID ColorEditSavedID;
+    float ColorEditSavedHue;
+    float ColorEditSavedSat;
+    ImU32 ColorEditSavedColor;
     ImVec4 ColorPickerRef;
     ImGuiComboPreviewData ComboPreviewData;
     float SliderGrabClickOffset;
@@ -2300,6 +2317,9 @@ struct ImGuiWindow
     ImVec2 WindowPadding;
     float WindowRounding;
     float WindowBorderSize;
+    float DecoOuterSizeX1, DecoOuterSizeY1;
+    float DecoOuterSizeX2, DecoOuterSizeY2;
+    float DecoInnerSizeX1, DecoInnerSizeY1;
     int NameBufLen;
     ImGuiID MoveId;
     ImGuiID ChildId;
@@ -2435,8 +2455,8 @@ struct ImGuiTabBar
     ImVec2 BackupCursorPos;
     ImGuiTextBuffer TabsNames;
 };
-typedef ImS8 ImGuiTableColumnIdx;
-typedef ImU8 ImGuiTableDrawChannelIdx;
+typedef ImS16 ImGuiTableColumnIdx;
+typedef ImU16 ImGuiTableDrawChannelIdx;
 struct ImGuiTableColumn
 {
     ImGuiTableColumnFlags Flags;
@@ -2489,8 +2509,10 @@ struct ImGuiTableCellData
 };
 struct ImGuiTableInstanceData
 {
+    ImGuiID TableInstanceID;
     float LastOuterHeight;
     float LastFirstRowHeight;
+    float LastFrozenHeight;
 };
 typedef struct ImSpan_ImGuiTableColumn {ImGuiTableColumn* Data;ImGuiTableColumn* DataEnd;} ImSpan_ImGuiTableColumn;
 typedef struct ImSpan_ImGuiTableColumnIdx {ImGuiTableColumnIdx* Data;ImGuiTableColumnIdx* DataEnd;} ImSpan_ImGuiTableColumnIdx;
@@ -2506,10 +2528,9 @@ struct ImGuiTable
     ImSpan_ImGuiTableColumn Columns;
     ImSpan_ImGuiTableColumnIdx DisplayOrderToIndex;
     ImSpan_ImGuiTableCellData RowCellData;
-    ImU64 EnabledMaskByDisplayOrder;
-    ImU64 EnabledMaskByIndex;
-    ImU64 VisibleMaskByIndex;
-    ImU64 RequestOutputMaskByIndex;
+    ImBitArrayPtr EnabledMaskByDisplayOrder;
+    ImBitArrayPtr EnabledMaskByIndex;
+    ImBitArrayPtr VisibleMaskByIndex;
     ImGuiTableFlags SettingsLoadedFlags;
     int SettingsOffset;
     int LastFrameActive;
@@ -2601,6 +2622,8 @@ struct ImGuiTable
    _Bool         IsResetDisplayOrderRequest;
    _Bool         IsUnfrozenRows;
    _Bool         IsDefaultSizingPolicy;
+   _Bool         HasScrollbarYCurr;
+   _Bool         HasScrollbarYPrev;
    _Bool         MemoryCompacted;
    _Bool         HostSkipItems;
 };
@@ -2787,6 +2810,7 @@ extern __attribute__((__visibility__("default"))) void igLabelText(const char* l
 extern __attribute__((__visibility__("default"))) void igLabelTextV(const char* label,const char* fmt,va_list args);
 extern __attribute__((__visibility__("default"))) void igBulletText(const char* fmt,...);
 extern __attribute__((__visibility__("default"))) void igBulletTextV(const char* fmt,va_list args);
+extern __attribute__((__visibility__("default"))) void igSeparatorText(const char* label);
 extern __attribute__((__visibility__("default")))           _Bool                igButton(const char* label,const ImVec2 size);
 extern __attribute__((__visibility__("default")))           _Bool                igSmallButton(const char* label);
 extern __attribute__((__visibility__("default")))           _Bool                igInvisibleButton(const char* str_id,const ImVec2 size,ImGuiButtonFlags flags);
@@ -2968,6 +2992,7 @@ extern __attribute__((__visibility__("default")))           _Bool               
 extern __attribute__((__visibility__("default")))           _Bool                igIsAnyItemHovered(void);
 extern __attribute__((__visibility__("default")))           _Bool                igIsAnyItemActive(void);
 extern __attribute__((__visibility__("default")))           _Bool                igIsAnyItemFocused(void);
+extern __attribute__((__visibility__("default"))) ImGuiID igGetItemID(void);
 extern __attribute__((__visibility__("default"))) void igGetItemRectMin(ImVec2 *pOut);
 extern __attribute__((__visibility__("default"))) void igGetItemRectMax(ImVec2 *pOut);
 extern __attribute__((__visibility__("default"))) void igGetItemRectSize(ImVec2 *pOut);
@@ -3031,7 +3056,7 @@ extern __attribute__((__visibility__("default"))) void ImGuiIO_AddKeyEvent(ImGui
 extern __attribute__((__visibility__("default"))) void ImGuiIO_AddKeyAnalogEvent(ImGuiIO* self,ImGuiKey key,                                                                    _Bool                                                                          down,float v);
 extern __attribute__((__visibility__("default"))) void ImGuiIO_AddMousePosEvent(ImGuiIO* self,float x,float y);
 extern __attribute__((__visibility__("default"))) void ImGuiIO_AddMouseButtonEvent(ImGuiIO* self,int button,                                                                    _Bool                                                                          down);
-extern __attribute__((__visibility__("default"))) void ImGuiIO_AddMouseWheelEvent(ImGuiIO* self,float wh_x,float wh_y);
+extern __attribute__((__visibility__("default"))) void ImGuiIO_AddMouseWheelEvent(ImGuiIO* self,float wheel_x,float wheel_y);
 extern __attribute__((__visibility__("default"))) void ImGuiIO_AddFocusEvent(ImGuiIO* self,                                                   _Bool                                                         focused);
 extern __attribute__((__visibility__("default"))) void ImGuiIO_AddInputCharacter(ImGuiIO* self,unsigned int c);
 extern __attribute__((__visibility__("default"))) void ImGuiIO_AddInputCharacterUTF16(ImGuiIO* self,ImWchar16 c);
@@ -3266,8 +3291,8 @@ extern __attribute__((__visibility__("default"))) void ImGuiViewport_GetWorkCent
 extern __attribute__((__visibility__("default"))) ImGuiPlatformImeData* ImGuiPlatformImeData_ImGuiPlatformImeData(void);
 extern __attribute__((__visibility__("default"))) void ImGuiPlatformImeData_destroy(ImGuiPlatformImeData* self);
 extern __attribute__((__visibility__("default"))) ImGuiKey igGetKeyIndex(ImGuiKey key);
-extern __attribute__((__visibility__("default"))) ImGuiID igImHashData(const void* data,size_t data_size,ImU32 seed);
-extern __attribute__((__visibility__("default"))) ImGuiID igImHashStr(const char* data,size_t data_size,ImU32 seed);
+extern __attribute__((__visibility__("default"))) ImGuiID igImHashData(const void* data,size_t data_size,ImGuiID seed);
+extern __attribute__((__visibility__("default"))) ImGuiID igImHashStr(const char* data,size_t data_size,ImGuiID seed);
 extern __attribute__((__visibility__("default"))) void igImQsort(void* base,size_t count,size_t size_of_element,int(*compare_func)(void const*,void const*));
 extern __attribute__((__visibility__("default"))) ImU32 igImAlphaBlendColors(ImU32 col_a,ImU32 col_b);
 extern __attribute__((__visibility__("default")))           _Bool                igImIsPowerOfTwo_Int(int v);
@@ -3342,6 +3367,7 @@ extern __attribute__((__visibility__("default"))) void igImRotate(ImVec2 *pOut,c
 extern __attribute__((__visibility__("default"))) float igImLinearSweep(float current,float target,float speed);
 extern __attribute__((__visibility__("default"))) void igImMul(ImVec2 *pOut,const ImVec2 lhs,const ImVec2 rhs);
 extern __attribute__((__visibility__("default")))           _Bool                igImIsFloatAboveGuaranteedIntegerPrecision(float f);
+extern __attribute__((__visibility__("default"))) float igImExponentialMovingAverage(float avg,float sample,int n);
 extern __attribute__((__visibility__("default"))) void igImBezierCubicCalc(ImVec2 *pOut,const ImVec2 p1,const ImVec2 p2,const ImVec2 p3,const ImVec2 p4,float t);
 extern __attribute__((__visibility__("default"))) void igImBezierCubicClosestPoint(ImVec2 *pOut,const ImVec2 p1,const ImVec2 p2,const ImVec2 p3,const ImVec2 p4,const ImVec2 p,int num_segments);
 extern __attribute__((__visibility__("default"))) void igImBezierCubicClosestPointCasteljau(ImVec2 *pOut,const ImVec2 p1,const ImVec2 p2,const ImVec2 p3,const ImVec2 p4,const ImVec2 p,float tess_tol);
@@ -3388,6 +3414,8 @@ extern __attribute__((__visibility__("default"))) void ImRect_ClipWithFull(ImRec
 extern __attribute__((__visibility__("default"))) void ImRect_Floor(ImRect* self);
 extern __attribute__((__visibility__("default")))           _Bool                ImRect_IsInverted(ImRect* self);
 extern __attribute__((__visibility__("default"))) void ImRect_ToVec4(ImVec4 *pOut,ImRect* self);
+extern __attribute__((__visibility__("default"))) size_t igImBitArrayGetStorageSizeInBytes(int bitcount);
+extern __attribute__((__visibility__("default"))) void igImBitArrayClearAllBits(ImU32* arr,int bitcount);
 extern __attribute__((__visibility__("default")))           _Bool                igImBitArrayTestBit(const ImU32* arr,int n);
 extern __attribute__((__visibility__("default"))) void igImBitArrayClearBit(ImU32* arr,int n);
 extern __attribute__((__visibility__("default"))) void igImBitArraySetBit(ImU32* arr,int n);
@@ -3420,7 +3448,7 @@ extern __attribute__((__visibility__("default"))) void ImGuiMenuColumns_destroy(
 extern __attribute__((__visibility__("default"))) void ImGuiMenuColumns_Update(ImGuiMenuColumns* self,float spacing,                                                                            _Bool                                                                                  window_reappearing);
 extern __attribute__((__visibility__("default"))) float ImGuiMenuColumns_DeclColumns(ImGuiMenuColumns* self,float w_icon,float w_label,float w_shortcut,float w_mark);
 extern __attribute__((__visibility__("default"))) void ImGuiMenuColumns_CalcNextTotalWidth(ImGuiMenuColumns* self,                                                                          _Bool                                                                                update_offsets);
-extern __attribute__((__visibility__("default"))) ImGuiInputTextState* ImGuiInputTextState_ImGuiInputTextState(void);
+extern __attribute__((__visibility__("default"))) ImGuiInputTextState* ImGuiInputTextState_ImGuiInputTextState(ImGuiContext* ctx);
 extern __attribute__((__visibility__("default"))) void ImGuiInputTextState_destroy(ImGuiInputTextState* self);
 extern __attribute__((__visibility__("default"))) void ImGuiInputTextState_ClearText(ImGuiInputTextState* self);
 extern __attribute__((__visibility__("default"))) void ImGuiInputTextState_ClearFreeMemory(ImGuiInputTextState* self);
@@ -3486,8 +3514,6 @@ extern __attribute__((__visibility__("default"))) void ImGuiWindowSettings_destr
 extern __attribute__((__visibility__("default"))) char* ImGuiWindowSettings_GetName(ImGuiWindowSettings* self);
 extern __attribute__((__visibility__("default"))) ImGuiSettingsHandler* ImGuiSettingsHandler_ImGuiSettingsHandler(void);
 extern __attribute__((__visibility__("default"))) void ImGuiSettingsHandler_destroy(ImGuiSettingsHandler* self);
-extern __attribute__((__visibility__("default"))) ImGuiMetricsConfig* ImGuiMetricsConfig_ImGuiMetricsConfig(void);
-extern __attribute__((__visibility__("default"))) void ImGuiMetricsConfig_destroy(ImGuiMetricsConfig* self);
 extern __attribute__((__visibility__("default"))) ImGuiStackLevelInfo* ImGuiStackLevelInfo_ImGuiStackLevelInfo(void);
 extern __attribute__((__visibility__("default"))) void ImGuiStackLevelInfo_destroy(ImGuiStackLevelInfo* self);
 extern __attribute__((__visibility__("default"))) ImGuiStackTool* ImGuiStackTool_ImGuiStackTool(void);
@@ -3512,8 +3538,6 @@ extern __attribute__((__visibility__("default"))) ImGuiTabItem* ImGuiTabItem_ImG
 extern __attribute__((__visibility__("default"))) void ImGuiTabItem_destroy(ImGuiTabItem* self);
 extern __attribute__((__visibility__("default"))) ImGuiTabBar* ImGuiTabBar_ImGuiTabBar(void);
 extern __attribute__((__visibility__("default"))) void ImGuiTabBar_destroy(ImGuiTabBar* self);
-extern __attribute__((__visibility__("default"))) int ImGuiTabBar_GetTabOrder(ImGuiTabBar* self,const ImGuiTabItem* tab);
-extern __attribute__((__visibility__("default"))) const char* ImGuiTabBar_GetTabName(ImGuiTabBar* self,const ImGuiTabItem* tab);
 extern __attribute__((__visibility__("default"))) ImGuiTableColumn* ImGuiTableColumn_ImGuiTableColumn(void);
 extern __attribute__((__visibility__("default"))) void ImGuiTableColumn_destroy(ImGuiTableColumn* self);
 extern __attribute__((__visibility__("default"))) ImGuiTableInstanceData* ImGuiTableInstanceData_ImGuiTableInstanceData(void);
@@ -3570,12 +3594,13 @@ extern __attribute__((__visibility__("default"))) void igSetWindowViewport(ImGui
 extern __attribute__((__visibility__("default"))) void igMarkIniSettingsDirty_Nil(void);
 extern __attribute__((__visibility__("default"))) void igMarkIniSettingsDirty_WindowPtr(ImGuiWindow* window);
 extern __attribute__((__visibility__("default"))) void igClearIniSettings(void);
-extern __attribute__((__visibility__("default"))) ImGuiWindowSettings* igCreateNewWindowSettings(const char* name);
-extern __attribute__((__visibility__("default"))) ImGuiWindowSettings* igFindWindowSettings(ImGuiID id);
-extern __attribute__((__visibility__("default"))) ImGuiWindowSettings* igFindOrCreateWindowSettings(const char* name);
 extern __attribute__((__visibility__("default"))) void igAddSettingsHandler(const ImGuiSettingsHandler* handler);
 extern __attribute__((__visibility__("default"))) void igRemoveSettingsHandler(const char* type_name);
 extern __attribute__((__visibility__("default"))) ImGuiSettingsHandler* igFindSettingsHandler(const char* type_name);
+extern __attribute__((__visibility__("default"))) ImGuiWindowSettings* igCreateNewWindowSettings(const char* name);
+extern __attribute__((__visibility__("default"))) ImGuiWindowSettings* igFindWindowSettingsByID(ImGuiID id);
+extern __attribute__((__visibility__("default"))) ImGuiWindowSettings* igFindWindowSettingsByWindow(ImGuiWindow* window);
+extern __attribute__((__visibility__("default"))) void igClearWindowSettings(const char* name);
 extern __attribute__((__visibility__("default"))) void igLocalizeRegisterEntries(const ImGuiLocEntry* entries,int count);
 extern __attribute__((__visibility__("default"))) const char* igLocalizeGetMsg(ImGuiLocKey key);
 extern __attribute__((__visibility__("default"))) void igSetScrollX_WindowPtr(ImGuiWindow* window,float scroll_x);
@@ -3586,7 +3611,6 @@ extern __attribute__((__visibility__("default"))) void igScrollToItem(ImGuiScrol
 extern __attribute__((__visibility__("default"))) void igScrollToRect(ImGuiWindow* window,const ImRect rect,ImGuiScrollFlags flags);
 extern __attribute__((__visibility__("default"))) void igScrollToRectEx(ImVec2 *pOut,ImGuiWindow* window,const ImRect rect,ImGuiScrollFlags flags);
 extern __attribute__((__visibility__("default"))) void igScrollToBringRectIntoView(ImGuiWindow* window,const ImRect rect);
-extern __attribute__((__visibility__("default"))) ImGuiID igGetItemID(void);
 extern __attribute__((__visibility__("default"))) ImGuiItemStatusFlags igGetItemStatusFlags(void);
 extern __attribute__((__visibility__("default"))) ImGuiItemFlags igGetItemFlags(void);
 extern __attribute__((__visibility__("default"))) ImGuiID igGetActiveID(void);
@@ -3599,7 +3623,8 @@ extern __attribute__((__visibility__("default"))) void igSetHoveredID(ImGuiID id
 extern __attribute__((__visibility__("default"))) void igKeepAliveID(ImGuiID id);
 extern __attribute__((__visibility__("default"))) void igMarkItemEdited(ImGuiID id);
 extern __attribute__((__visibility__("default"))) void igPushOverrideID(ImGuiID id);
-extern __attribute__((__visibility__("default"))) ImGuiID igGetIDWithSeed(const char* str_id_begin,const char* str_id_end,ImGuiID seed);
+extern __attribute__((__visibility__("default"))) ImGuiID igGetIDWithSeed_Str(const char* str_id_begin,const char* str_id_end,ImGuiID seed);
+extern __attribute__((__visibility__("default"))) ImGuiID igGetIDWithSeed_Int(int n,ImGuiID seed);
 extern __attribute__((__visibility__("default"))) void igItemSize_Vec2(const ImVec2 size,float text_baseline_y);
 extern __attribute__((__visibility__("default"))) void igItemSize_Rect(const ImRect bb,float text_baseline_y);
 extern __attribute__((__visibility__("default")))           _Bool                igItemAdd(const ImRect bb,ImGuiID id,const ImRect* nav_bb,ImGuiItemFlags extra_flags);
@@ -3656,12 +3681,13 @@ extern __attribute__((__visibility__("default")))           _Bool               
 extern __attribute__((__visibility__("default")))           _Bool                igIsGamepadKey(ImGuiKey key);
 extern __attribute__((__visibility__("default")))           _Bool                igIsMouseKey(ImGuiKey key);
 extern __attribute__((__visibility__("default")))           _Bool                igIsAliasKey(ImGuiKey key);
+extern __attribute__((__visibility__("default"))) ImGuiKeyChord igConvertShortcutMod(ImGuiKeyChord key_chord);
 extern __attribute__((__visibility__("default"))) ImGuiKey igConvertSingleModFlagToKey(ImGuiKey key);
 extern __attribute__((__visibility__("default"))) ImGuiKeyData* igGetKeyData(ImGuiKey key);
 extern __attribute__((__visibility__("default"))) void igGetKeyChordName(ImGuiKeyChord key_chord,char* out_buf,int out_buf_size);
 extern __attribute__((__visibility__("default"))) ImGuiKey igMouseButtonToKey(ImGuiMouseButton button);
 extern __attribute__((__visibility__("default")))           _Bool                igIsMouseDragPastThreshold(ImGuiMouseButton button,float lock_threshold);
-extern __attribute__((__visibility__("default"))) void igGetKeyVector2d(ImVec2 *pOut,ImGuiKey key_left,ImGuiKey key_right,ImGuiKey key_up,ImGuiKey key_down);
+extern __attribute__((__visibility__("default"))) void igGetKeyMagnitude2d(ImVec2 *pOut,ImGuiKey key_left,ImGuiKey key_right,ImGuiKey key_up,ImGuiKey key_down);
 extern __attribute__((__visibility__("default"))) float igGetNavTweakPressedAmount(ImGuiAxis axis);
 extern __attribute__((__visibility__("default"))) int igCalcTypematicRepeatAmount(float t0,float t1,float repeat_delay,float repeat_rate);
 extern __attribute__((__visibility__("default"))) void igGetTypematicRepeatRate(ImGuiInputFlags flags,float* repeat_delay,float* repeat_rate);
@@ -3721,6 +3747,7 @@ extern __attribute__((__visibility__("default"))) void igTableDrawContextMenu(Im
 extern __attribute__((__visibility__("default")))           _Bool                igTableBeginContextMenuPopup(ImGuiTable* table);
 extern __attribute__((__visibility__("default"))) void igTableMergeDrawChannels(ImGuiTable* table);
 extern __attribute__((__visibility__("default"))) ImGuiTableInstanceData* igTableGetInstanceData(ImGuiTable* table,int instance_no);
+extern __attribute__((__visibility__("default"))) ImGuiID igTableGetInstanceID(ImGuiTable* table,int instance_no);
 extern __attribute__((__visibility__("default"))) void igTableSortSpecsSanitize(ImGuiTable* table);
 extern __attribute__((__visibility__("default"))) void igTableSortSpecsBuild(ImGuiTable* table);
 extern __attribute__((__visibility__("default"))) ImGuiSortDirection igTableGetColumnNextSortDirection(ImGuiTableColumn* column);
@@ -3732,7 +3759,7 @@ extern __attribute__((__visibility__("default"))) void igTableBeginCell(ImGuiTab
 extern __attribute__((__visibility__("default"))) void igTableEndCell(ImGuiTable* table);
 extern __attribute__((__visibility__("default"))) void igTableGetCellBgRect(ImRect *pOut,const ImGuiTable* table,int column_n);
 extern __attribute__((__visibility__("default"))) const char* igTableGetColumnName_TablePtr(const ImGuiTable* table,int column_n);
-extern __attribute__((__visibility__("default"))) ImGuiID igTableGetColumnResizeID(const ImGuiTable* table,int column_n,int instance_no);
+extern __attribute__((__visibility__("default"))) ImGuiID igTableGetColumnResizeID(ImGuiTable* table,int column_n,int instance_no);
 extern __attribute__((__visibility__("default"))) float igTableGetMaxColumnWidth(const ImGuiTable* table,int column_n);
 extern __attribute__((__visibility__("default"))) void igTableSetColumnWidthAutoSingle(ImGuiTable* table,int column_n);
 extern __attribute__((__visibility__("default"))) void igTableSetColumnWidthAutoAll(ImGuiTable* table);
@@ -3747,15 +3774,22 @@ extern __attribute__((__visibility__("default"))) ImGuiTableSettings* igTableGet
 extern __attribute__((__visibility__("default"))) void igTableSettingsAddSettingsHandler(void);
 extern __attribute__((__visibility__("default"))) ImGuiTableSettings* igTableSettingsCreate(ImGuiID id,int columns_count);
 extern __attribute__((__visibility__("default"))) ImGuiTableSettings* igTableSettingsFindByID(ImGuiID id);
+extern __attribute__((__visibility__("default"))) ImGuiTabBar* igGetCurrentTabBar(void);
 extern __attribute__((__visibility__("default")))           _Bool                igBeginTabBarEx(ImGuiTabBar* tab_bar,const ImRect bb,ImGuiTabBarFlags flags);
 extern __attribute__((__visibility__("default"))) ImGuiTabItem* igTabBarFindTabByID(ImGuiTabBar* tab_bar,ImGuiID tab_id);
+extern __attribute__((__visibility__("default"))) ImGuiTabItem* igTabBarFindTabByOrder(ImGuiTabBar* tab_bar,int order);
+extern __attribute__((__visibility__("default"))) ImGuiTabItem* igTabBarGetCurrentTab(ImGuiTabBar* tab_bar);
+extern __attribute__((__visibility__("default"))) int igTabBarGetTabOrder(ImGuiTabBar* tab_bar,ImGuiTabItem* tab);
+extern __attribute__((__visibility__("default"))) const char* igTabBarGetTabName(ImGuiTabBar* tab_bar,ImGuiTabItem* tab);
 extern __attribute__((__visibility__("default"))) void igTabBarRemoveTab(ImGuiTabBar* tab_bar,ImGuiID tab_id);
 extern __attribute__((__visibility__("default"))) void igTabBarCloseTab(ImGuiTabBar* tab_bar,ImGuiTabItem* tab);
-extern __attribute__((__visibility__("default"))) void igTabBarQueueReorder(ImGuiTabBar* tab_bar,const ImGuiTabItem* tab,int offset);
-extern __attribute__((__visibility__("default"))) void igTabBarQueueReorderFromMousePos(ImGuiTabBar* tab_bar,const ImGuiTabItem* tab,ImVec2 mouse_pos);
+extern __attribute__((__visibility__("default"))) void igTabBarQueueFocus(ImGuiTabBar* tab_bar,ImGuiTabItem* tab);
+extern __attribute__((__visibility__("default"))) void igTabBarQueueReorder(ImGuiTabBar* tab_bar,ImGuiTabItem* tab,int offset);
+extern __attribute__((__visibility__("default"))) void igTabBarQueueReorderFromMousePos(ImGuiTabBar* tab_bar,ImGuiTabItem* tab,ImVec2 mouse_pos);
 extern __attribute__((__visibility__("default")))           _Bool                igTabBarProcessReorder(ImGuiTabBar* tab_bar);
-extern __attribute__((__visibility__("default")))           _Bool                igTabItemEx(ImGuiTabBar* tab_bar,const char* label,                                                                  _Bool                                                                      * p_open,ImGuiTabItemFlags flags);
-extern __attribute__((__visibility__("default"))) void igTabItemCalcSize(ImVec2 *pOut,const char* label,                                                                _Bool                                                                      has_close_button_or_unsaved_marker);
+extern __attribute__((__visibility__("default")))           _Bool                igTabItemEx(ImGuiTabBar* tab_bar,const char* label,                                                                  _Bool                                                                      * p_open,ImGuiTabItemFlags flags,ImGuiWindow* docked_window);
+extern __attribute__((__visibility__("default"))) void igTabItemCalcSize_Str(ImVec2 *pOut,const char* label,                                                                    _Bool                                                                          has_close_button_or_unsaved_marker);
+extern __attribute__((__visibility__("default"))) void igTabItemCalcSize_WindowPtr(ImVec2 *pOut,ImGuiWindow* window);
 extern __attribute__((__visibility__("default"))) void igTabItemBackground(ImDrawList* draw_list,const ImRect bb,ImGuiTabItemFlags flags,ImU32 col);
 extern __attribute__((__visibility__("default"))) void igTabItemLabelAndCloseButton(ImDrawList* draw_list,const ImRect bb,ImGuiTabItemFlags flags,ImVec2 frame_padding,const char* label,ImGuiID tab_id,ImGuiID close_button_id,                                                                                                                                                                                        _Bool                                                                                                                                                                                              is_contents_visible,                                                                                                                                                                                                                 _Bool                                                                                                                                                                                                                     * out_just_closed,                                                                                                                                                                                                                                       _Bool                                                                                                                                                                                                                                           * out_text_clipped);
 extern __attribute__((__visibility__("default"))) void igRenderText(ImVec2 pos,const char* text,const char* text_end,                                                                             _Bool                                                                                   hide_text_after_hash);
@@ -3777,23 +3811,24 @@ extern __attribute__((__visibility__("default"))) void igRenderRectFilledRangeH(
 extern __attribute__((__visibility__("default"))) void igRenderRectFilledWithHole(ImDrawList* draw_list,const ImRect outer,const ImRect inner,ImU32 col,float rounding);
 extern __attribute__((__visibility__("default"))) void igTextEx(const char* text,const char* text_end,ImGuiTextFlags flags);
 extern __attribute__((__visibility__("default")))           _Bool                igButtonEx(const char* label,const ImVec2 size_arg,ImGuiButtonFlags flags);
+extern __attribute__((__visibility__("default")))           _Bool                igArrowButtonEx(const char* str_id,ImGuiDir dir,ImVec2 size_arg,ImGuiButtonFlags flags);
+extern __attribute__((__visibility__("default")))           _Bool                igImageButtonEx(ImGuiID id,ImTextureID texture_id,const ImVec2 size,const ImVec2 uv0,const ImVec2 uv1,const ImVec4 bg_col,const ImVec4 tint_col,ImGuiButtonFlags flags);
+extern __attribute__((__visibility__("default"))) void igSeparatorEx(ImGuiSeparatorFlags flags);
+extern __attribute__((__visibility__("default"))) void igSeparatorTextEx(ImGuiID id,const char* label,const char* label_end,float extra_width);
+extern __attribute__((__visibility__("default")))           _Bool                igCheckboxFlags_S64Ptr(const char* label,ImS64* flags,ImS64 flags_value);
+extern __attribute__((__visibility__("default")))           _Bool                igCheckboxFlags_U64Ptr(const char* label,ImU64* flags,ImU64 flags_value);
 extern __attribute__((__visibility__("default")))           _Bool                igCloseButton(ImGuiID id,const ImVec2 pos);
 extern __attribute__((__visibility__("default")))           _Bool                igCollapseButton(ImGuiID id,const ImVec2 pos);
-extern __attribute__((__visibility__("default")))           _Bool                igArrowButtonEx(const char* str_id,ImGuiDir dir,ImVec2 size_arg,ImGuiButtonFlags flags);
 extern __attribute__((__visibility__("default"))) void igScrollbar(ImGuiAxis axis);
 extern __attribute__((__visibility__("default")))           _Bool                igScrollbarEx(const ImRect bb,ImGuiID id,ImGuiAxis axis,ImS64* p_scroll_v,ImS64 avail_v,ImS64 contents_v,ImDrawFlags flags);
-extern __attribute__((__visibility__("default")))           _Bool                igImageButtonEx(ImGuiID id,ImTextureID texture_id,const ImVec2 size,const ImVec2 uv0,const ImVec2 uv1,const ImVec4 bg_col,const ImVec4 tint_col);
 extern __attribute__((__visibility__("default"))) void igGetWindowScrollbarRect(ImRect *pOut,ImGuiWindow* window,ImGuiAxis axis);
 extern __attribute__((__visibility__("default"))) ImGuiID igGetWindowScrollbarID(ImGuiWindow* window,ImGuiAxis axis);
 extern __attribute__((__visibility__("default"))) ImGuiID igGetWindowResizeCornerID(ImGuiWindow* window,int n);
 extern __attribute__((__visibility__("default"))) ImGuiID igGetWindowResizeBorderID(ImGuiWindow* window,ImGuiDir dir);
-extern __attribute__((__visibility__("default"))) void igSeparatorEx(ImGuiSeparatorFlags flags);
-extern __attribute__((__visibility__("default")))           _Bool                igCheckboxFlags_S64Ptr(const char* label,ImS64* flags,ImS64 flags_value);
-extern __attribute__((__visibility__("default")))           _Bool                igCheckboxFlags_U64Ptr(const char* label,ImU64* flags,ImU64 flags_value);
 extern __attribute__((__visibility__("default")))           _Bool                igButtonBehavior(const ImRect bb,ImGuiID id,                                                           _Bool                                                               * out_hovered,                                                                             _Bool                                                                                 * out_held,ImGuiButtonFlags flags);
 extern __attribute__((__visibility__("default")))           _Bool                igDragBehavior(ImGuiID id,ImGuiDataType data_type,void* p_v,float v_speed,const void* p_min,const void* p_max,const char* format,ImGuiSliderFlags flags);
 extern __attribute__((__visibility__("default")))           _Bool                igSliderBehavior(const ImRect bb,ImGuiID id,ImGuiDataType data_type,void* p_v,const void* p_min,const void* p_max,const char* format,ImGuiSliderFlags flags,ImRect* out_grab_bb);
-extern __attribute__((__visibility__("default")))           _Bool                igSplitterBehavior(const ImRect bb,ImGuiID id,ImGuiAxis axis,float* size1,float* size2,float min_size1,float min_size2,float hover_extend,float hover_visibility_delay);
+extern __attribute__((__visibility__("default")))           _Bool                igSplitterBehavior(const ImRect bb,ImGuiID id,ImGuiAxis axis,float* size1,float* size2,float min_size1,float min_size2,float hover_extend,float hover_visibility_delay,ImU32 bg_col);
 extern __attribute__((__visibility__("default")))           _Bool                igTreeNodeBehavior(ImGuiID id,ImGuiTreeNodeFlags flags,const char* label,const char* label_end);
 extern __attribute__((__visibility__("default"))) void igTreePushOverrideID(ImGuiID id);
 extern __attribute__((__visibility__("default"))) void igTreeNodeSetOpen(ImGuiID id,                                            _Bool                                                  open);
@@ -3812,7 +3847,7 @@ extern __attribute__((__visibility__("default"))) ImGuiInputTextState* igGetInpu
 extern __attribute__((__visibility__("default"))) void igColorTooltip(const char* text,const float* col,ImGuiColorEditFlags flags);
 extern __attribute__((__visibility__("default"))) void igColorEditOptionsPopup(const float* col,ImGuiColorEditFlags flags);
 extern __attribute__((__visibility__("default"))) void igColorPickerOptionsPopup(const float* ref_col,ImGuiColorEditFlags flags);
-extern __attribute__((__visibility__("default"))) int igPlotEx(ImGuiPlotType plot_type,const char* label,float(*values_getter)(void* data,int idx),void* data,int values_count,int values_offset,const char* overlay_text,float scale_min,float scale_max,ImVec2 frame_size);
+extern __attribute__((__visibility__("default"))) int igPlotEx(ImGuiPlotType plot_type,const char* label,float(*values_getter)(void* data,int idx),void* data,int values_count,int values_offset,const char* overlay_text,float scale_min,float scale_max,const ImVec2 size_arg);
 extern __attribute__((__visibility__("default"))) void igShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list,int vert_start_idx,int vert_end_idx,ImVec2 gradient_p0,ImVec2 gradient_p1,ImU32 col0,ImU32 col1);
 extern __attribute__((__visibility__("default"))) void igShadeVertsLinearUV(ImDrawList* draw_list,int vert_start_idx,int vert_end_idx,const ImVec2 a,const ImVec2 b,const ImVec2 uv_a,const ImVec2 uv_b,                                                                                                                                                                _Bool                                                                                                                                                                      clamp);
 extern __attribute__((__visibility__("default"))) void igGcCompactTransientMiscBuffers(void);
@@ -3845,6 +3880,7 @@ extern __attribute__((__visibility__("default"))) void igDebugNodeWindowSettings
 extern __attribute__((__visibility__("default"))) void igDebugNodeWindowsList(ImVector_ImGuiWindowPtr* windows,const char* label);
 extern __attribute__((__visibility__("default"))) void igDebugNodeWindowsListByBeginStackParent(ImGuiWindow** windows,int windows_size,ImGuiWindow* parent_in_begin_stack);
 extern __attribute__((__visibility__("default"))) void igDebugNodeViewport(ImGuiViewportP* viewport);
+extern __attribute__((__visibility__("default"))) void igDebugRenderKeyboardPreview(ImDrawList* draw_list);
 extern __attribute__((__visibility__("default"))) void igDebugRenderViewportThumbnail(ImDrawList* draw_list,ImGuiViewportP* viewport,const ImRect bb);
 extern __attribute__((__visibility__("default")))           _Bool                igIsKeyPressedMap(ImGuiKey key,                                              _Bool                                                    repeat);
 extern __attribute__((__visibility__("default"))) const ImFontBuilderIO* igImFontAtlasGetBuilderForStbTruetype(void);

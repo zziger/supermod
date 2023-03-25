@@ -27,6 +27,7 @@ target("dinput8")
     add_files("./src/**.rc")
     add_headerfiles("./src/**.h")
     add_headerfiles("xmake.lua", {install = false})
+    add_headerfiles("src/scripting/env/**", {install = false})
     add_includedirs("src")
     add_includedirs("src/thirdparty")
     add_linkdirs("deps")
@@ -51,4 +52,4 @@ target("dinput8")
         set_symbols("debug")
     else
         add_defines("NDEBUG")
-    end 
+    end
