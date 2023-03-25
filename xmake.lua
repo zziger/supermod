@@ -1,3 +1,4 @@
+set_project("supercow-mod")
 add_repositories("local-repo deps")
 add_requires("semver 0.3.0")
 add_requires("tl_optional 1.1.0")
@@ -12,7 +13,7 @@ option("mod-version")
     set_showmenu(true)
     add_defines("VERSION=\"$(mod-version)\"")
 
-target("supercow-mod")
+target("dinput8")
     set_kind("shared")
     set_languages("c++20")
     set_basename("dinput8")
@@ -25,6 +26,7 @@ target("supercow-mod")
     add_files("./src/**.def")
     add_files("./src/**.rc")
     add_headerfiles("./src/**.h")
+    add_headerfiles("xmake.lua", {install = false})
     add_includedirs("src")
     add_includedirs("src/thirdparty")
     add_linkdirs("deps")
@@ -44,3 +46,9 @@ target("supercow-mod")
 
     add_defines("_SILENCE_CXX20_CODECVT_FACETS_DEPRECATION_WARNING", "_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")
     add_defines("_UNICODE", "UNICODE", "NOMINMAX")
+    
+    if is_mode("debug") then
+        set_symbols("debug")
+    else
+        add_defines("NDEBUG")
+    end 
