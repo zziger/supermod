@@ -1,2 +1,2 @@
-cmake -BBUILD . -A Win32 -DVERSION="%1"
-cmake --build BUILD --config RelWithDebInfo
+xmake f -m release -a x86 --mod-version="%1"
+xmake

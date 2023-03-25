@@ -1,7 +1,7 @@
 #pragma once
 #include "UIFonts.h"
 #include "events/WindowEvent.h"
-#include "imgui/imgui.h"
+#include <imgui.h>
 
 namespace ui
 {

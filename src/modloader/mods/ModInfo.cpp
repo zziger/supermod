@@ -10,8 +10,8 @@
 #include "exceptions/Error.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
-#include "thirdparty/semver.hpp"
-#include "thirdparty/lodepng/lodepng.h"
+#include <semver.hpp>
+#include <lodepng.h>
 
 void ModInfo::ReadManifest() {
     const auto filePath = basePath / "manifest.yml";

@@ -128,3 +128,7 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/rider,c++,cmake
 
 /BUILD/
+
+.xmake
+vsxmake2022/*
+!vsxmake2022/.idea

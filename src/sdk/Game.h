@@ -4,7 +4,7 @@
 
 #include "Data.h"
 #include "thirdparty/LuaContext.h"
-#include "thirdparty/semver.hpp"
+#include <semver.hpp>
 #include "thirdparty/directx/d3d8.h"
 
 namespace sdk

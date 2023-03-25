@@ -7,7 +7,7 @@
 #include "scripting/LuaMod.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
-#include "thirdparty/zip_file.h"
+#include <thirdparty/zip_file.h>
 
 std::shared_ptr<Mod> ModManager::GetInternalMod() {
     return _internalMod;

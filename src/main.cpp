@@ -27,7 +27,7 @@
 #include "modloader/mods/files/ModFileResolver.h"
 #include "modloader/mods/ModManager.h"
 #include "sdk/Game.h"
-#include "thirdparty/zip_file.h"
+#include <thirdparty/zip_file.h>
 
 void init_memory() {
     const auto base = (uintptr_t) GetModuleHandle(nullptr);
@@ -79,18 +79,18 @@ void init() {
 
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR           gdiplusToken;
-
+    
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
     
     MH_Initialize();
     sdk::Game::Init();
-
+    
     ModManager::Init();
     hook_start_execution();
-
+    
     static constexpr Memory::Pattern pat("E8 ? ? ? ? C6 05 ? ? ? ? ? 0F B6 05 ? ? ? ? 85 C0 74 ? 6A");
     HookManager::RegisterHook(Memory(pat.Search().GoToNearCall().Get<void*>()), HOOK_REF(load_game));
-
+    
     EventManager::On<StartExecutionEvent>([] {
         Log::Info << "Пост-инициализация" << Log::Endl;
         utils::handle_error(postInit, "пост-инициализации");
@@ -101,7 +101,7 @@ void init() {
         
         DragAcceptFiles(*sdk::Game::window, true);
     });
-
+    
     
     EventManager::On<WindowEvent>([](auto ev) {
         if (ev.msg == WM_DROPFILES) {
@@ -134,9 +134,9 @@ void init() {
                     Log::Error << "Неизвестная ошибка установки мода" << Log::Endl;
                 }
             }
-
+    
             if (nCntFiles > 0) SetForegroundWindow(*sdk::Game::window);
-
+    
             DragFinish(drop);
         }
     });

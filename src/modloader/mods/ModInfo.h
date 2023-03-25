@@ -6,7 +6,7 @@
 #include <yaml-cpp/node/node.h>
 
 #include "thirdparty/LuaContext.h"
-#include "thirdparty/semver.hpp"
+#include <semver.hpp>
 
 
 struct ModInfo {

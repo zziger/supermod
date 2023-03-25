@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <Psapi.h>
 #include <cstdint>
-#include <thirdparty/MinHook.h>
+#include <MinHook.h>
 #include <Log.h>
 
 

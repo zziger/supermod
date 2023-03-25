@@ -2,7 +2,7 @@
 
 #include "UI.h"
 #include "events/WindowEvent.h"
-#include <imgui/imgui_internal.h>
+#include <imgui_internal.h>
 
 #include "thirdparty/IconsMaterialDesign.h"
 

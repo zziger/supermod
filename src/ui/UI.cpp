@@ -3,8 +3,8 @@
 #include "events/GameLoadedEvent.h"
 #include "events/TickEvent.h"
 #include "events/WindowEvent.h"
-#include <imgui/imgui_internal.h>
-#include <imgui/backends/imgui_impl_win32.h>
+#include <imgui_internal.h>
+#include <backends/imgui_impl_win32.h>
 #include <imgui-dx8/imgui_impl_dx8.h>
 #include "Config.h"
 #include "ImGuiWidgets.h"
