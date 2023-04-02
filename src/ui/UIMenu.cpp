@@ -50,7 +50,7 @@ void UI::RenderMenu() {
     const auto menuSize = elementSize * (elements + 0.5f);
     const auto headerSize = ImGui::GetFontSize();
     
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
     ImGui::SetNextWindowSize(ImVec2(700, 300), ImGuiCond_Once);
     ImGui::SetNextWindowSizeConstraints(ImVec2(500, menuSize + headerSize), ImVec2(FLT_MAX, FLT_MAX));
     if (ImGui::Begin(std::format("SuperMod / {}###MainWindow", tabNames[currentTab]).c_str())) {
