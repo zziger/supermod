@@ -11,8 +11,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: lukka/get-cmake@latest
-      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
       - name: Build
         run: ./build.bat ${{github.ref_name}}
       - id: create_release
@@ -29,6 +31,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./BUILD/RelWithDebInfo/dinput8.dll
+          asset_path: ./build/windows/x86/release/dinput8.dll
           asset_name: dinput8.dll
           asset_content_type: application/octet-stream
