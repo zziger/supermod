@@ -47,9 +47,8 @@ target("dinput8")
 
     add_defines("_SILENCE_CXX20_CODECVT_FACETS_DEPRECATION_WARNING", "_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")
     add_defines("_UNICODE", "UNICODE", "NOMINMAX")
+    set_symbols("debug")
     
-    if is_mode("debug") then
-        set_symbols("debug")
-    else
+    if not is_mode("debug") then
         add_defines("NDEBUG")
     end

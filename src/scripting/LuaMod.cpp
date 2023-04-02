@@ -1,5 +1,6 @@
 ﻿#include "LuaMod.h"
 
+#include "Config.h"
 #include "assets/assets.h"
 #include "Utils.h"
 #include "events/TickEvent.h"
@@ -36,6 +37,7 @@ void LuaMod::OnEnable() {
     Log::AddToLua(*lua);
     sdk::Game::AddDataToLua(*lua);
     sdk::Game::AddToLua(*lua);
+    Config::AddToLua(*lua, info.id);
     
     lua->executeCode(*utils::read_resource(LUA_BASE_MODULE), "internal");
     
@@ -43,6 +45,7 @@ void LuaMod::OnEnable() {
     lua->executeModule("imgui", *utils::read_resource(LUA_MODULE_IMGUI));
     lua->executeModule("memory", *utils::read_resource(LUA_MODULE_MEMORY));
     lua->executeModule("timers", *utils::read_resource(LUA_MODULE_TIMERS));
+    lua->executeModule("config", *utils::read_resource(LUA_MODULE_CONFIG));
     
     lua->RegisterEventMethods();
     lua->executeModule("events", *utils::read_resource(LUA_MODULE_EVENTS));

@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <yaml-cpp/yaml.h>
 
+#include "LuaContext.h"
+
 class Config {
     inline static std::filesystem::path _cfgPath {};
     inline static YAML::Node _cfg { YAML::NodeType::Map };
@@ -27,4 +29,6 @@ public:
     ~Config() {
         Save();
     }
+
+    static void AddToLua(LuaContext& context, std::string modId);
 };

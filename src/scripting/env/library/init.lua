@@ -90,10 +90,9 @@ function game.world.getCamZoom() end
 function game.world.screenToWorld() end
 
 ---@param coords vector2
----@param clamp boolean
 ---@return boolean
 ---@return vector2
-function game.world.worldToScreen(coords, clamp) end
+function game.world.worldToScreen(coords) end
 --#endregion
 
 require('base')
