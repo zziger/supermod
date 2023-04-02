@@ -108,7 +108,6 @@ void init() {
             auto drop = (HDROP) (ev.wParam);
             
             uint32_t nCntFiles= DragQueryFileA( drop, -1, 0,0 );
-            Log::Debug << nCntFiles << Log::Endl;
                       
             for (int j=0; j<nCntFiles; j++ ) {
                 char szBuf[MAX_PATH];

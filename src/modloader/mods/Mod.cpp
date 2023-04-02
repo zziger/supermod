@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "events/ModEvent.h"
+#include "events/TickEvent.h"
 #include "exceptions/Error.h"
 #include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/Game.h"
@@ -71,7 +72,6 @@ void Mod::Disable(bool manual) {
         UnloadHooks();
         OnDisable();
         modules.Unload();
-        info.ReleaseIcon();
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         EventManager::Emit(ModUnloadEvent(info));
         loadingError = std::nullopt;

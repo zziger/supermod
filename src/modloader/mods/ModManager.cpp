@@ -206,8 +206,15 @@ void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
 
     UnloadMod(mod);
     remove_all(mod->info.basePath);
-    mod->info.ReleaseIcon();
 
+    auto icon = mod->info.icon;
+    mod->info.icon = nullptr;
+    if (icon)
+    {
+        EventManager::Once<AfterTickEvent>([=]() {
+            icon->Release();
+        });
+    }
     const Config cfg;
     auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();
     auto remove = std::ranges::remove(installed, mod->info.id);
