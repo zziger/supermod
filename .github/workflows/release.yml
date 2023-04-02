@@ -17,6 +17,13 @@ jobs:
           xmake-version: latest
       - name: Build
         run: ./build.bat ${{github.ref_name}}
+      - name: Prepare SDK
+        run: move src/scripting/env src/scripting/supermod-sdk
+      - uses: vimtor/action-zip@v1
+        name: Pack SDK
+        with:
+          files: src/scripting/supermod-sdk/
+          dest: supermod-sdk.zip
       - id: create_release
         uses: actions/create-release@v1
         env:
@@ -33,4 +40,12 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/windows/x86/release/dinput8.dll
           asset_name: dinput8.dll
+          asset_content_type: application/octet-stream
+      - uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./supermod-sdk.zip
+          asset_name: supermod-sdk.zip
           asset_content_type: application/octet-stream
