@@ -70,10 +70,7 @@ T resolve(std::string filename, std::function<T (const std::string&)> fn) {
 inline static std::mutex fileResolveMutex{};
 
 HOOK_FN(inline void*, resolve_file, ARGS(const char* lpFileName, size_t* outBuf, char isCritical)) {
-    Log::Info << "CWD: " << std::filesystem::current_path() << Log::Endl;
-    Log::Info << "Resolving: " << lpFileName << Log::Endl;
     return resolve<void*>(std::string(lpFileName), [&](auto& filename) {
-        Log::Info << "Resolved to " << filename << Log::Endl;
         try {
             std::lock_guard lock(fileResolveMutex);
             return resolve_file_orig(filename.c_str(), outBuf, isCritical);
