@@ -4,6 +4,8 @@
         "__handleEvent",
         "__enableEvent",
         "__disableEvent",
-        "__tick"
+        "__tick",
+        "__createHook",
+        "__removeHook"
     ]
 }

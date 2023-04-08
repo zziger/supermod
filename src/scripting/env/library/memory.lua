@@ -1,5 +1,6 @@
 local ffi = require "ffi"
 local imgui = require "imgui"
+local events = require "events"
 
 ---@class Memory
 ---@field addr number
@@ -232,6 +233,55 @@ end
 function Memory.toStr(cstr)
     return ffi.string(cstr)
 end
+
+--#endregion
+
+--#region Хуки
+
+local createHook = __createHook --[[@as fun(addr: number, cb: number, orig: number)]]
+local removeHook = __removeHook --[[@as fun(addr: string)]]
+local createdHooks = {}
+
+---@class Hook
+---@field destroyed boolean Был ли хук удалён
+---@field orig function Оригинальная функция
+---@field destroy fun() Деактивировать и удалить хук
+
+---Регистрирует хук-функцию на текущий адрес
+---@param type ffi.ct*
+---@param fn function
+---@returns Hook
+function Memory:hook(type, fn)
+    if self.addr == 0 then error("Адрес хука не может быть 0") end
+
+    local origBuf = ffi.new(ffi.typeof("$[1]", ffi.typeof(type)), {nil})
+    local callback = ffi.cast(type, fn)
+
+    __createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
+
+    local res = {}
+    res.destroyed = false
+    res.orig = origBuf[0];
+
+    function res.destroy()
+        if res.destroyed then return end
+        res.destroyed = true
+        __removeHook(self.addr)
+        ---@diagnostic disable-next-line: undefined-field
+        callback:free()
+    end
+
+    table.insert(createdHooks, res)
+
+    return res
+end
+
+events.on("_unload", function ()
+    for _, v in ipairs(createdHooks) do
+        v.destroy()
+    end
+    createdHooks = {}
+end)
 
 --#endregion
 
