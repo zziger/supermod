@@ -11,7 +11,7 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(
     PMINIDUMP_CALLBACK_INFORMATION CallbackParam
 );
 
-inline std::string dumps_path;
+inline std::wstring dumps_path;
 
 static LONG WINAPI handle_error(_EXCEPTION_POINTERS* apExceptionInfo) {
     const std::time_t ms = std::time(nullptr);
@@ -19,7 +19,7 @@ static LONG WINAPI handle_error(_EXCEPTION_POINTERS* apExceptionInfo) {
     const auto mhLib = LoadLibraryA("dbghelp.dll");
     const auto pDump = (MINIDUMPWRITEDUMP) GetProcAddress(mhLib, "MiniDumpWriteDump");
 
-    const auto hFile = CreateFileA(std::format("{}{:x}-{}.dmp", dumps_path, exceptionCode, ms).c_str(), GENERIC_WRITE, FILE_SHARE_WRITE,
+    const auto hFile = CreateFileW(std::format(L"{}{:x}-{}.dmp", dumps_path, exceptionCode, ms).c_str(), GENERIC_WRITE, FILE_SHARE_WRITE,
                                    nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 
@@ -59,7 +59,7 @@ static LONG WINAPI set_exception_filter(LPTOP_LEVEL_EXCEPTION_FILTER) {
 inline void init_crash_handler() {
     const auto folder = sdk::Game::GetRootPath() / "crashdumps";
     const auto filePrefix = std::format("{}-", sdk::Game::GetGameVersion());
-    dumps_path = (folder / filePrefix).generic_string();
+    dumps_path = (folder / filePrefix).wstring();
     if (!exists(folder)) create_directory(folder);
     
     static constexpr Memory::Pattern movOverrunHandler("A1 ? ? ? ? 33 C9 3B C1"); // mov eax, bufferOverrunHandler

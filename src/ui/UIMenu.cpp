@@ -27,7 +27,7 @@ void Tab(const char* icon, int index) {
 
 void Link(const char* title, const char* icon, const char* url) {
     if (widgets::MenuTabSelectable(title, icon, false)) {
-        ShellExecuteA(nullptr, "open", url, nullptr, nullptr , SW_SHOWNORMAL);
+        ShellExecuteW(nullptr, L"open", utils::str_to_wstr(url).c_str(), nullptr, nullptr , SW_SHOWNORMAL);
     }
 }
 

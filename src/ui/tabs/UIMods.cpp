@@ -174,7 +174,7 @@ namespace ui
                 ImGui::EndDisabled();
                 ImGui::SameLine();
                 if (ImGui::Button(ICON_MD_FOLDER_OPEN " Открыть папку")) {
-                    ShellExecuteA(nullptr, "explore", mod->info.basePath.string().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+                    ShellExecuteW(nullptr, L"explore", mod->info.basePath.wstring().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
                 }
 
                 if (ImGui::BeginPopupModal("Удаление мода", nullptr, ImGuiWindowFlags_AlwaysAutoResize))

@@ -109,7 +109,7 @@ void Mod::Reload() {
 }
 void Mod::UnloadModule() {
     if (!info.dll) return;
-    if (!FreeLibrary(info.dll)) MessageBoxA(nullptr, "Не удалось выгрузить модуль", "SuperMod", MB_OK);
+    if (!FreeLibrary(info.dll)) MessageBoxW(nullptr, L"Не удалось выгрузить модуль", L"SuperMod", MB_OK);
     info.dll = nullptr;
 }
 

@@ -21,15 +21,15 @@ namespace sdk
     }
     
     void Game::Restart() {
-        char buf[MAX_PATH];
-        GetModuleFileNameA(nullptr, buf, MAX_PATH);
+        wchar_t buf[MAX_PATH];
+        GetModuleFileNameW(nullptr, buf, MAX_PATH);
         std::filesystem::current_path(GetDataPath() / "..");
         
-        STARTUPINFOA si(0);
-        si.cb = sizeof(STARTUPINFOA);
+        STARTUPINFOW si(0);
+        si.cb = sizeof(STARTUPINFOW);
         PROCESS_INFORMATION	pi(nullptr);
         
-        CreateProcessA(nullptr, buf, nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi);
+        CreateProcessW(nullptr, buf, nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi);
         ExitProcess(0);
     }
     
@@ -66,11 +66,11 @@ namespace sdk
     std::filesystem::path Game::GetRootPath() {
         if (_rootPath) return *_rootPath;
 
-        const auto hModule = GetModuleHandleA(nullptr);
+        const auto hModule = GetModuleHandleW(nullptr);
         if (hModule != nullptr)
         {
-            char path[MAX_PATH];
-            GetModuleFileNameA(hModule, path, sizeof path);
+            wchar_t path[MAX_PATH];
+            GetModuleFileNameW(hModule, path, sizeof path);
             auto rootPath = std::filesystem::path(path).parent_path(); 
             _rootPath = rootPath;
             return rootPath;
@@ -88,7 +88,7 @@ namespace sdk
     }
 
     uint64_t Game::GetGameVersion() {
-        const auto dosHeader = (IMAGE_DOS_HEADER*) GetModuleHandleA(nullptr);
+        const auto dosHeader = (IMAGE_DOS_HEADER*) GetModuleHandleW(nullptr);
         const auto ntHeaders = (IMAGE_NT_HEADERS*) ((byte*)dosHeader + dosHeader->e_lfanew);
         return ntHeaders->FileHeader.TimeDateStamp;
     }

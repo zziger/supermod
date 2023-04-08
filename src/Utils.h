@@ -46,12 +46,6 @@ namespace utils
         return mem;
     }
 
-    inline std::string get_module_name() {
-        char dllPath[MAX_PATH] = {0};
-        GetModuleFileNameA((HINSTANCE)&__ImageBase, dllPath, _countof(dllPath));
-        return std::string(dllPath); 
-    }
-
     inline void copy_text(std::string text) {
         const size_t len = text.size() + 1;
         HGLOBAL hMem =  GlobalAlloc(GMEM_MOVEABLE, len);
@@ -69,6 +63,20 @@ namespace utils
         std::wstring wstrTo(size_needed, 0);
         MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
         return wstrTo;
+    }
+
+    inline std::string wstr_to_str(const std::wstring& wstr)
+    {
+        int count = WideCharToMultiByte(65001, 0, wstr.c_str(), wstr.length(), NULL, 0, NULL, NULL);
+        std::string str(count, 0);
+        WideCharToMultiByte(65001, 0, wstr.c_str(), -1, &str[0], count, NULL, NULL);
+        return str;
+    }
+
+    inline std::string get_module_name() {
+        wchar_t dllPath[MAX_PATH] = {0};
+        GetModuleFileNameW((HINSTANCE)&__ImageBase, dllPath, _countof(dllPath));
+        return wstr_to_str(dllPath); 
     }
 
     inline void handle_error(std::function<void()> fn, std::string where) {

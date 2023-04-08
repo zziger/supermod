@@ -48,7 +48,7 @@ void ModManager::LoadMod(ModInfo info, bool manual) {
     create_mod_fn createMod = nullptr;
 
     if (exists(modBase / dll_file_name)) {
-        const auto module = LoadLibraryExA((modBase / dll_file_name).string().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+        const auto module = LoadLibraryExW((modBase / dll_file_name).wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
         if (module == nullptr) {
             throw Error("Не удалось загрузить файл " + (modBase / dll_file_name).string());
         }

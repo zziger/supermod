@@ -107,11 +107,11 @@ void init() {
         if (ev.msg == WM_DROPFILES) {
             auto drop = (HDROP) (ev.wParam);
             
-            uint32_t nCntFiles= DragQueryFileA( drop, -1, 0,0 );
+            uint32_t nCntFiles= DragQueryFileW( drop, -1, 0,0 );
                       
             for (int j=0; j<nCntFiles; j++ ) {
-                char szBuf[MAX_PATH];
-                DragQueryFileA( drop, j, szBuf, sizeof(szBuf) );
+                wchar_t szBuf[MAX_PATH];
+                DragQueryFileW( drop, j, szBuf, sizeof(szBuf) );
                 std::optional<std::filesystem::path> temp;
                 try {
                     auto path = std::filesystem::path(szBuf);
@@ -142,6 +142,9 @@ void init() {
 }
 
 BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID) {
+    std::setlocale(LC_ALL, "en_US.utf-8");
+    std::locale::global(std::locale("en_US.utf-8"));
+    
     try {
         auto _ = std::filesystem::current_path().string();
     } catch(...) {

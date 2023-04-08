@@ -14,8 +14,8 @@ void ModFileResolver::FileListenerThread() {
         if (!exists(modsPath))
             create_directory(modsPath);
         
-        hDir = CreateFileA(
-            modsPath.generic_string().c_str(),
+        hDir = CreateFileW(
+            modsPath.wstring().c_str(),
             FILE_LIST_DIRECTORY,
             FILE_SHARE_WRITE | FILE_SHARE_READ,
             nullptr, 
