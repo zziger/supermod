@@ -79,6 +79,13 @@ namespace sdk
         return std::filesystem::path {};
     }
 
+    char* Game::GetRawDataPath()
+    {
+        static constexpr Memory::Pattern pat("68 ? ? ? ? FF 15 ? ? ? ? B9");
+        static auto mem = pat.Search();
+        return *mem.Get<char**>(1);
+    }
+
     std::filesystem::path Game::GetDataPath() {
         return GetRootPath() / "data";
     }

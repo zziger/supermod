@@ -98,7 +98,40 @@ inline void set_should_resolve_files(bool state) {
     should_resolve_files = state;
 }
 
+inline char (__thiscall *load_sprite_map_orig)(void* a1, const char* filename, int a3, int a4) = nullptr;
+inline char __fastcall load_sprite_map(void* this_, void*, const char* filename, int a3, int a4)
+{
+    const auto basePath = sdk::Game::GetDataPath() / "..";
+    const auto curPath = std::filesystem::current_path();
+    const auto path = sdk::Game::GetDataPath() / "sprites" / std::filesystem::path(filename).stem();
+    
+    ResolveFileEvent evt { path };
+    EventManager::Emit(evt);
+    
+    if (evt.GetResolvedPath())
+    {
+        const auto resolvedPath = *evt.GetResolvedPath();
+        const auto rawPtr = sdk::Game::GetRawDataPath();
+        const auto oldDataPath = std::string(rawPtr);
+        const auto newDataPath = resolvedPath.parent_path().parent_path().string() + "\\";
+        
+        newDataPath.copy(rawPtr, 255, 0);
+        rawPtr[newDataPath.size()] = '\0';
+        
+        set_should_resolve_files(false);
+        const auto res = load_sprite_map_orig(this_, filename, a3, a4);
+        set_should_resolve_files(true);
+        
+        oldDataPath.copy(rawPtr, 255, 0);
+        rawPtr[oldDataPath.size()] = '\0';
+        return res;
+    }
+
+    return load_sprite_map_orig(this_, filename, a3, a4);
+}
+
 inline EventManager::Ready $resolve_file_event_hook([] {
+    HookManager::RegisterHook("55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 89 45 ? 56 89 8D", HOOK_REF_FORCE(load_sprite_map));
     HookManager::RegisterHook("55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 89 45 EC 8B 45 08", HOOK_REF(resolve_file));
     HookManager::RegisterHook("55 8B EC 81 3D ? ? ? ? ? ? ? ? 7C ? E9 ? ? ? ? 8B 45", HOOK_REF(load_sound));
     HookManager::RegisterHook("55 8B EC 68 ? ? ? ? 8B 45 ? 50 E8", HOOK_REF(load_music));
