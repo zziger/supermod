@@ -81,6 +81,19 @@ HOOK_FN(inline void*, resolve_file, ARGS(const char* lpFileName, size_t* outBuf,
     });
 }
 
+HOOK_FN(inline void*, fopen_, ARGS(const char* lpFileName, const char* mode)) {
+    Log::Info << std::string(lpFileName) << Log::Endl;
+    return resolve<void*>(std::string(lpFileName), [&](auto& filename) {
+        try {
+            std::lock_guard lock(fileResolveMutex);
+            return fopen__orig(filename.c_str(), mode);
+        } catch(std::exception& e) {
+            Log::Error << "Исключение во время открытия файла " << e.what() << Log::Endl;
+            MessageBoxW(nullptr, L"Произошло исключение во время открытия файла", L"SuperMod", MB_OK);
+        }
+    });
+}
+
 HOOK_FN(inline void, load_sound, ARGS(const char* lpFileName)) {
     resolve<void*>(std::string(lpFileName), [](auto& filename) {
         load_sound_orig(filename.c_str());
@@ -135,4 +148,5 @@ inline EventManager::Ready $resolve_file_event_hook([] {
     HookManager::RegisterHook("55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 89 45 EC 8B 45 08", HOOK_REF(resolve_file));
     HookManager::RegisterHook("55 8B EC 81 3D ? ? ? ? ? ? ? ? 7C ? E9 ? ? ? ? 8B 45", HOOK_REF(load_sound));
     HookManager::RegisterHook("55 8B EC 68 ? ? ? ? 8B 45 ? 50 E8", HOOK_REF(load_music));
+    HookManager::RegisterHook("6A ? FF 74 24 ? FF 74 24 ? E8 ? ? ? ? 83 C4 ? C3 CC", HOOK_REF(fopen_));
 });
