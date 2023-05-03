@@ -77,6 +77,13 @@ function Memory:readOffset()
     return Memory.at(self:readInt32())
 end
 
+---Читает инструкцию вызова по относительному адресу (opcode E8), и возвращает обьект Memory с адресом вызываемой функции
+---@return Memory
+function Memory:readNearCall()
+    local addr = self.addr
+    return Memory.at(self:add(1):readInt32() + addr + 5)
+end
+
 ---Читает int64 по текущему адресу (8 байт)
 ---@return number
 function Memory:readInt64()
