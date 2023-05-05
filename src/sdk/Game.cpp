@@ -190,7 +190,7 @@ namespace sdk
         context.writeVariable("game", "parseGameVersion", IsGameLoaded);
         
         context.writeVariable("game", "world", std::map<int, int>{});
-        context.writeVariable("game", "world", "genCamWorldRect", World::GetCamWorldRect);
+        context.writeVariable("game", "world", "getCamWorldRect", World::GetCamWorldRect);
         context.writeVariable("game", "world", "getCamZoom", World::GetCamZoom);
         context.writeVariable("game", "world", "screenToWorld", World::ScreenToWorld);
         context.writeVariable("game", "world", "worldToScreen", World::WorldToScreen);
