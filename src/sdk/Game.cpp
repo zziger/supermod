@@ -42,7 +42,7 @@ namespace sdk
     }
 
     bool Game::IsGameLoaded() {
-        static constexpr Memory::Pattern gameLoadFinishedPat("C6 05 ? ? ? ? ? E8 ? ? ? ? 68"); // mov gameLoadFinished, 1
+        static constexpr Memory::Pattern gameLoadFinishedPat("C6 05 ? ? ? ? ? 83 3D ? ? ? ? ? 0F 84"); // mov     hasGameLoaded, 1
         static auto mem = gameLoadFinishedPat.Search();
         static auto ptr = *mem.Get<bool**>(2);
         if (ptr == nullptr) return false;
