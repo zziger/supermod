@@ -33,6 +33,9 @@ void LuaMod::OnEnable() {
     lua->writeFunction("findPattern", [](const std::string pat) {
         return Memory::Pattern(pat.c_str(), pat.size()).Search().Get<int32_t>();
     });
+    
+    info.RegisterLuaType(lua.get());
+    lua->writeVariable("currentMod", info);
 
     Log::AddToLua(*lua);
     sdk::Game::AddDataToLua(*lua);

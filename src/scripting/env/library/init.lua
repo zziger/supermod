@@ -16,6 +16,8 @@ MOD_PATH = ""
 ---@field compatible boolean
 ---@field internal boolean
 
+currentMod = {} --[[@as ModInfo]
+
 ---@param pat string
 ---@return number
 function findPattern(pat) end
