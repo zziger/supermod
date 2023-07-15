@@ -153,10 +153,12 @@ public:
         std::vector<TEventPair> fns;
         {
             std::lock_guard lock(_mutex);
-            if (!_enabledEvents.contains(typeId)) return;
-            const auto range = _eventMap.equal_range(typeId);
-            for (auto it = range.first; it != range.second; ++it)
-                fns.push_back(it->second);
+            if (_enabledEvents.contains(typeId))
+            {
+                const auto range = _eventMap.equal_range(typeId);
+                for (auto it = range.first; it != range.second; ++it)
+                    fns.push_back(it->second);
+            }
         }
 
         for (auto fn : fns) fn.second(event);
@@ -171,10 +173,12 @@ public:
         std::vector<TEventPair> fns;
         {
             std::lock_guard lock(_mutex);
-            if (!_enabledEvents.contains(typeId)) return;
-            const auto range = _eventMap.equal_range(typeId);
-            for (auto it = range.first; it != range.second; ++it)
-                fns.push_back(it->second);
+            if (_enabledEvents.contains(typeId))
+            {
+                const auto range = _eventMap.equal_range(typeId);
+                for (auto it = range.first; it != range.second; ++it)
+                    fns.push_back(it->second);
+            }
         }
 
         for (auto fn : fns) fn.second(event);

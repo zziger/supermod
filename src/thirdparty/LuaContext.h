@@ -103,6 +103,7 @@ public:
         lua_atpanic(mState, [](lua_State* state) -> int {
             const std::string str = lua_tostring(state, -1);
             lua_pop(state, 1);
+            std::cout << "LUA panic: " << str << std::endl;
             assert(false && "lua_atpanic triggered");
             exit(0);
         });

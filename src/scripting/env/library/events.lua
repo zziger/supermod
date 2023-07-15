@@ -30,6 +30,10 @@ local disableEvent = __disableEvent --[[@as fun(event: string)]]
 ---@field lParam number Параметр L (зависит от ивента)
 ---@field wParam number Параметр W (зависит от ивента)
 
+---@class ResolutionEvent : Event
+---@field x number Новая ширина рендера
+---@field y number Новая высота рендера
+---
 ---@alias eventHandler<T> fun(event: T) | fun()
 
 ---Подписывает функцию на ивент
@@ -45,6 +49,7 @@ local disableEvent = __disableEvent --[[@as fun(event: string)]]
 ---@overload fun(eventName: "modLoad", fn: eventHandler<ModEvent>)
 ---@overload fun(eventName: "modUnload", fn: eventHandler<ModEvent>)
 ---@overload fun(eventName: "windowEvent", fn: eventHandler<WindowEvent>)
+---@overload fun(eventName: "resolutionChange", fn: eventHandler<ResolutionEvent>)
 ---@overload fun(eventName: "_unload", fn: eventHandler<Event>)
 function events.on(eventName, fn)
     if type(eventName) ~= "string" then error("Аргумент eventName должен быть строкой") end

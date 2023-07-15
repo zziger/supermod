@@ -10,6 +10,7 @@
 #include "game/SoundHost.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
+#include "mod/modules/AdaptiveResolutionModule.h"
 
 namespace sdk
 {
@@ -112,6 +113,12 @@ namespace sdk
         return timestamp.time_since_epoch().count();
     }
     
+    vector2 Game::GetRenderSize()
+    {
+        auto res = AdaptiveResolutionModule::lastResolution;
+        return { (float) res.x, (float) res.y };
+    }
+
     rect Game::World::GetCamWorldRect()
     {
         static constexpr Memory::Pattern pat("B9 ? ? ? ? E8 ? ? ? ? D9 5D");
@@ -188,6 +195,7 @@ namespace sdk
         context.writeVariable("game", "serializeGameVersion", SerializeGameVersion);
         context.writeVariable("game", "parseGameVersion", IsGameLoaded);
         context.writeVariable("game", "parseGameVersion", IsGameLoaded);
+        context.writeVariable("game", "getRenderSize", GetRenderSize);
         
         context.writeVariable("game", "world", std::map<int, int>{});
         context.writeVariable("game", "world", "getCamWorldRect", World::GetCamWorldRect);

@@ -2,8 +2,15 @@ local ffi = require "ffi"
 local imgui = require "imgui"
 local events = require "events"
 
+ffi.cdef [[
+    bool __stdcall VirtualProtect(int32_t, size_t, int32_t, int32_t*);
+]]
+
+local protectionBuf = ffi.new("int32_t[1]")
+
 ---@class Memory
 ---@field addr number
+---@field unsafe boolean
 local Memory = {}
 Memory.__index = Memory
 
@@ -28,11 +35,41 @@ end
 
 ---Создает новый обьект Memory
 ---@param location string | number Паттерн или адрес в памяти
+---@param unsafe boolean? Отключить проверку доступа к памяти
 ---@return Memory
-function Memory.at(location)
+function Memory.at(location, unsafe)
     local instance = setmetatable({}, Memory)
     instance.addr = Memory.resolveLocation(location)
+    instance.unsafe = unsafe or false
     return instance
+end
+
+---@private
+---@param size number Размер защищённой памяти
+---@return number? Старый уровень доступа
+function Memory:protect(size)
+    if self.unsafe then
+        return nil
+    end
+    
+    local res = ffi.C.VirtualProtect(self.addr, size, 0x40, protectionBuf)
+    
+    if not res then
+        error("Не удалось получить доступ к " .. self.addr)
+    end
+    
+    return protectionBuf[0]
+end
+
+---@private
+---@param size number Размер защищённой памяти
+---@param rights number? Старый уровень доступа
+function Memory:unprotect(size, rights)
+    if self.unsafe or rights == nil then
+        return
+    end 
+    
+    ffi.C.VirtualProtect(self.addr, size, rights, protectionBuf)
 end
 
 ---Возвращает новый обьект Memory добавляя указанный оффсет к адресу
@@ -156,17 +193,31 @@ end
 
 --#region Функции записи
 
+---Записывает инструкцию вызова по относительному адресу (opcode E8)
+---@param value number
+function Memory:writeNearCall(value)
+    local rights = self:protect(5)
+    local addr = self.addr
+    ffi.cast("__int8*", self.addr)[0] = 0xE8
+    ffi.cast("__int32*", self.addr + 1)[0] = value - self.addr - 5
+    self:unprotect(5, rights)
+end
+
 ---Записывает int64 по текущему адресу (8 байт)
 ---@param value number
 function Memory:writeInt64(value)
+    local rights = self:protect(8)
     ffi.cast("__int64*", self.addr)[0] = value
+    self:unprotect(8, rights)
 end
 Memory.writeLong = Memory.writeInt64
 
 ---Записывает int32 по текущему адресу (4 байта)
 ---@param value number
 function Memory:writeInt32(value)
+    local rights = self:protect(4)
     ffi.cast("__int32*", self.addr)[0] = value
+    self:unprotect(4, rights)
 end
 Memory.writeInt = Memory.writeInt32
 Memory.writeDword = Memory.writeInt32
@@ -174,7 +225,9 @@ Memory.writeDword = Memory.writeInt32
 ---Записывает int16 по текущему адресу (2 байта)
 ---@param value number
 function Memory:writeInt16(value)
+    local rights = self:protect(2)
     ffi.cast("__int16*", self.addr)[0] = value
+    self:unprotect(2, rights)
 end
 Memory.writeShort = Memory.writeInt16
 Memory.writeWord = Memory.writeInt16
@@ -182,7 +235,9 @@ Memory.writeWord = Memory.writeInt16
 ---Записывает int8 по текущему адресу (1 байт)
 ---@param value number
 function Memory:writeInt8(value)
+    local rights = self:protect(1)
     ffi.cast("__int8*", self.addr)[0] = value
+    self:unprotect(1, rights)
 end
 Memory.writeByte = Memory.writeInt8
 Memory.writeChar = Memory.writeInt8
@@ -190,18 +245,35 @@ Memory.writeChar = Memory.writeInt8
 ---Записывает float по текущему адресу (4 байта)
 ---@param value number
 function Memory:writeFloat(value)
+    local rights = self:protect(4)
     ffi.cast("float*", self.addr)[0] = value
+    self:unprotect(4, rights)
 end
 Memory.writeSingle = Memory.writeFloat
 
 ---Записывает double по текущему адресу (4 байта)
 ---@param value number
 function Memory:writeDouble(value)
+    local rights = self:protect(8)
     ffi.cast("double*", self.addr)[0] = value
+    self:unprotect(8, rights)
+end
+---Записывает NOP по текущему адресу (opcode 0x90)
+---@param size number
+function Memory:writeNop(size)
+    local rights = self:protect(size)
+    for i = 0, size - 1 do
+        ffi.cast("__int8*", self.addr + i)[0] = 0x90
+    end
+    self:unprotect(size, rights)
 end
 
+
 function Memory:writeString(string)
+    local length = string:len() + 1
+    local rights = self:protect(length)
     ffi.copy(ffi.cast("char*", self.addr), string)
+    self:unprotect(length, rights)
 end
 
 --#endregion

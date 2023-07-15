@@ -1,5 +1,7 @@
 ﻿#include "AdaptiveResolutionModule.h"
 
+#include "events/ResolutionChangeEvent.h"
+
 vector2i AdaptiveResolutionModule::GetTargetResolution() {
     auto cfgBlock = Config::Get()["adaptiveResolution"];
     auto mode = cfgBlock["mode"].as<int>(window);
@@ -41,6 +43,8 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
     ptr[0] = x;
     ptr[1] = y;
         
+    EventManager::Emit(ResolutionChangeEvent(x, y));
+    Log::Debug << "Emit!" << Log::Endl;
     return value;
 }
 

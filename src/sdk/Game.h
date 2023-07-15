@@ -38,6 +38,7 @@ namespace sdk
 
         static std::string SerializeGameVersion(uint64_t version);
         static uint64_t ParseGameVersion(const std::string& version);
+        static vector2 GetRenderSize();
 
         struct World
         {
