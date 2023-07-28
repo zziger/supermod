@@ -11,6 +11,7 @@ local protectionBuf = ffi.new("int32_t[1]")
 ---@class Memory
 ---@field addr number
 ---@field unsafe boolean
+---@field backup table
 local Memory = {}
 Memory.__index = Memory
 
@@ -44,10 +45,73 @@ function Memory.at(location, unsafe)
     return instance
 end
 
+---Возвращает Memory привязанный к конкретному хранилищу бекапов
+---@return Memory
+function Memory.withBackup(backup)
+    if not backup["map"] then
+        backup["map"] = {}
+    end
+    if not backup["list"] then
+        backup["list"] = {}
+    end
+
+    local mem = setmetatable({}, Memory)
+    mem.__index = mem
+    function mem.at(location, unsafe)
+        local instance = setmetatable({}, mem)
+        instance.addr = Memory.resolveLocation(location)
+        instance.unsafe = unsafe or false
+        instance.backup = backup
+        return instance
+    end
+    return mem
+end
+
+---Восстанавливает оригинальные байты из бекапа
+---@param backup table
+function Memory.restoreBackups(backup)
+    if not backup["list"] then
+        return
+    end
+
+    backup = backup["list"]
+    for i = #backup, 1, -1 do
+        local entry = backup[i]
+        local res = ffi.C.VirtualProtect(entry[1], entry[3], 0x40, protectionBuf)
+        if res then
+            ffi.copy(ffi.cast("void*", entry[1]), entry[2], entry[3])
+        else
+            print("Не удалось получить доступ к " .. entry[1] .. " для восстановления состояния памяти")
+        end
+        ffi.C.VirtualProtect(entry[1], entry[3], protectionBuf[0], protectionBuf)
+    end
+
+    backup["list"] = {}
+    backup["map"] = {}
+end
+
+---@private
+---@param addr number Адрес
+---@param size number Кол-во памяти
+function Memory:writeBackup(addr, size)
+    if not self.backup["map"] or (self.backup["map"][addr] and self.backup["map"][addr] >= size) then
+        return
+    end
+
+    local buf = ffi.new("uint8_t[?]", size)
+    ffi.copy(buf, ffi.cast("void*", addr), size)
+    table.insert(self.backup["list"], { addr, buf, size })
+    self.backup["map"][addr] = size
+end
+
 ---@private
 ---@param size number Размер защищённой памяти
 ---@return number? Старый уровень доступа
 function Memory:protect(size)
+    if self.backup then
+        self:writeBackup(self.addr, size)
+    end
+    
     if self.unsafe then
         return nil
     end
@@ -76,7 +140,7 @@ end
 ---@param offset number Оффсет от прошлого адреса (в байтах)
 ---@return Memory
 function Memory:add(offset)
-    return Memory.at(self.addr + offset)
+    return self.at(self.addr + offset)
 end
 
 ---Возвращает функцию по текущему адресу
@@ -111,14 +175,14 @@ end
 ---Читает адрес (int32) по текущему адресу, и возвращает обьект Memory с новым адресом
 ---@return Memory
 function Memory:readOffset()
-    return Memory.at(self:readInt32())
+    return self.at(self:readInt32())
 end
 
 ---Читает инструкцию вызова по относительному адресу (opcode E8), и возвращает обьект Memory с адресом вызываемой функции
 ---@return Memory
 function Memory:readNearCall()
     local addr = self.addr
-    return Memory.at(self:add(1):readInt32() + addr + 5)
+    return self.at(self:add(1):readInt32() + addr + 5)
 end
 
 ---Читает int64 по текущему адресу (8 байт)
