@@ -269,7 +269,18 @@ void ModManager::InstallMod(ModInfo mod, bool state) {
                 copy(mod.basePath, modsPath / folderName, std::filesystem::copy_options::recursive);
             } else {
                 miniz_cpp::zip_file zip {mod.zipFile->string()};
-                zip.extractall((modsPath / folderName).string());
+                auto path = (modsPath / folderName).string();
+                for (auto& info : zip.infolist())
+                {
+                    if (!info.filename.starts_with(mod.zipRoot)) continue;
+                    auto filename = info.filename.substr(mod.zipRoot.size());
+                    auto file = miniz_cpp::detail::join_path({path, filename});
+                    auto target = std::filesystem::path(file).parent_path();
+                    if (!exists(target))
+                        create_directories(target);
+                    std::fstream stream(file, std::ios::binary | std::ios::out);
+                    stream << zip.open(info).rdbuf();
+                }
             }
             
             cfg.data["installedMods"].push_back(mod.id);

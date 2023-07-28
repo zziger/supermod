@@ -18,6 +18,7 @@ struct ModInfo {
     std::filesystem::path basePath;
     std::string luaScript;
     std::optional<std::filesystem::path> zipFile; // used only for zipmod installation
+    std::string zipRoot = ""; // used only for zipmod installation
     std::vector<uint64_t> gameVersions {}; // empty if no version restrictions
     bool compatible = true;
 

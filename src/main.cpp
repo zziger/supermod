@@ -117,13 +117,20 @@ void init() {
                     auto path = std::filesystem::path(szBuf);
                     if (path.extension() == ".zip") {
                         miniz_cpp::zip_file zip {path.string()};
-                        auto info = ModInfo(zip.read("manifest.yml"));
+                        auto list = zip.namelist();
+                        auto manifestRes = std::ranges::find_if(list, [](std::string str){ return str.ends_with("manifest.yml"); });
+                        if (manifestRes == list.end())
+                        {
+                            MessageBoxA(nullptr, "Неверный архив модв!", nullptr, MB_OK | MB_ICONERROR);
+                            continue;
+                        }
+
+                        auto root = (*manifestRes).substr(0, (*manifestRes).size() - 12); // manifest.yml = 12 chars
+                        Log::Debug << "Found mod in " << path << " at \"" << root << "\"" << Log::Endl;
+                        auto info = ModInfo(zip.read(root + "manifest.yml"));
                         info.zipFile = path;
+                        info.zipRoot = root;
                         ModManager::RequestModInstall(info);
-                        // temp = std::filesystem::temp_directory_path() / std::tmpnam(nullptr);
-                        // create_directories(*temp);
-                        // zip.extractall(temp->string());
-                        // path = *temp;
                     } else {
                         ModManager::RequestModInstall(ModInfo(path));
                     }
