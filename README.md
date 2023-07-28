@@ -1,14 +1,18 @@
-# SuperMod - Мод на игру "Супер Корова" (Nevosoft)
+# SuperMod - Модлоадер для игры "Супер Корова" (Nevosoft)
 
 | [**Download / Скачать**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll) | [**Discord сервер**](https://discord.gg/VerZycPqhS) |
 |-------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
 
 ## Установка
 
-- Скачать последнюю версию мода [**тут**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll).
+- Скачать последнюю версию модлоадер [**тут**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll).
 - Поместить скачанный файл `dinput8.dll` в папку с игрой. Название файла менять нельзя.
 
 ![screenshot](.github/screenshot.png)
+
+## Рекомендованные моды
+
+- [Widescreen fix](https://github.com/zziger/supercow-widescreen-fix) - адаптирует игру под 16:9 мониторы.
 
 ## Функционал
 
