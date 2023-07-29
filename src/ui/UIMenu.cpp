@@ -65,7 +65,7 @@ void UI::RenderMenu() {
         ImGui::EndChild();
         
         ImGui::PushFont(UI::fonts->fontFab2X);
-        Link("Discord сервер", ICON_FA_DISCORD, "https://discord.gg/VerZycPqhS");
+        Link("Discord сервер", ICON_FA_DISCORD, "https://discord.supercow.community");
         Link("GitHub репозиторий", ICON_FA_GITHUB, "https://github.com/zziger/supercow-mod");
         ImGui::PopFont();
         

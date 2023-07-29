@@ -1,7 +1,7 @@
 # SuperMod - Модлоадер для игры "Супер Корова" (Nevosoft)
 
-| [**Download / Скачать**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll) | [**Discord сервер**](https://discord.gg/VerZycPqhS) |
-|-------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
+| [**Download / Скачать**](https://github.com/zziger/supercow-mod/releases/latest/download/dinput8.dll) | [**Discord сервер**](https://discord.supercow.community) |
+|-------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
 
 ## Установка
 
