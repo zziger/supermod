@@ -81,12 +81,6 @@ void AdaptiveResolutionModule::OnUnload(const bool manual) {
     if (manual)sdk::DirectX::ResetDevice();
 }
 
-void AdaptiveResolutionModule::ResetWindowSize() {
-    SetWindowPos(*sdk::Game::window, nullptr, 0, 0, GetSystemMetrics(SM_CXBORDER) + 800,
-        GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) + 600, SWP_NOMOVE | SWP_NOZORDER);
-}
-
-
 void AdaptiveResolutionModule::RenderModuleUI() {
     if (ImGui::TreeNode("Параметры разрешения")) {
         ImGui::Text("Разрешение");
@@ -104,17 +98,6 @@ void AdaptiveResolutionModule::RenderModuleUI() {
         
         if (mode == custom) {
             if (ImGui::InputInt2("##resolution", res)) changed = true;
-        }
-
-        auto fullscreen = sdk::Game::IsGameFullscreen(); 
-        ImGui::BeginDisabled(fullscreen);
-        if (ImGui::Button("Вернуть окно в 800х600")) {
-            ResetWindowSize();
-        }
-        ImGui::EndDisabled();
-        if (fullscreen) {
-            ImGui::SameLine();
-            ui::widgets::HelpMarker("Это действие недоступно в полноэкранном режиме");
         }
         
         if (changed) {
