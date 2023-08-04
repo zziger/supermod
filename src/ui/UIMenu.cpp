@@ -53,6 +53,7 @@ void UI::RenderMenu() {
     // ImGui::ShowDemoWindow();
     ImGui::SetNextWindowSize(ImVec2(700, 300), ImGuiCond_Once);
     ImGui::SetNextWindowSizeConstraints(ImVec2(500, menuSize + headerSize), ImVec2(FLT_MAX, FLT_MAX));
+    ConstraintWindow("###MainWindow");
     if (ImGui::Begin(std::format("SuperMod / {}###MainWindow", tabNames[currentTab]).c_str())) {
         ImGui::BeginChild("menu", ImVec2(fontSize, 0));
         

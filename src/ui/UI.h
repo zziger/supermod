@@ -70,7 +70,8 @@ namespace ui
         static inline UIFonts* fonts = nullptr;
 
         static void Init();
-    
+
+        static void ConstraintWindow(const char * windowTitle);
         static void Render();
     };
 }

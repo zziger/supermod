@@ -62,7 +62,42 @@ void RenderAssetReload() {
         ImGui::EndPopup();
     }
 }
-    
+
+void UI::ConstraintWindow(const char* windowTitle)
+{
+    ImGuiWindow* existingWindow = ImGui::FindWindowByName(windowTitle);
+    if (existingWindow != nullptr)
+    {
+        bool needsClampToScreen = false;
+        ImVec2 targetPos = existingWindow->Pos;
+        if (existingWindow->Pos.x < 0.f)
+        {
+            needsClampToScreen = true;
+            targetPos.x = 0.f;
+        }
+        else if (100 + existingWindow->Pos.x > ImGui::GetMainViewport()->Size.x)
+        {
+            needsClampToScreen = true;
+            targetPos.x = ImGui::GetMainViewport()->Size.x - 100;
+        }
+        if (existingWindow->Pos.y < 0.f)
+        {
+            needsClampToScreen = true;
+            targetPos.y = 0.f;
+        }
+        else if (100 + existingWindow->Pos.y > ImGui::GetMainViewport()->Size.y)
+        {
+            needsClampToScreen = true;
+            targetPos.y = ImGui::GetMainViewport()->Size.y - 100;
+        }
+
+        if (needsClampToScreen) // Necessary to prevent window from constantly undocking itself if docked.
+        {
+            ImGui::SetNextWindowPos(targetPos, ImGuiCond_Always);
+        }
+    }
+
+}
 
 void UI::Render() {
     if (!initialized) return;

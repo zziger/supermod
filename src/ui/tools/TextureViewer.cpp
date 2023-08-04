@@ -8,6 +8,7 @@ namespace ui
     void UI::RenderTextureViewer() {
         static auto pool = game::AssetPool::GetInstance();
         const auto& io = ImGui::GetIO();
+        ConstraintWindow("Просмотр текстур");
         if (ImGui::Begin("Просмотр текстур", &_textureViewerOpen)) {
             static char str0[128] = "";
             ImGui::InputText("Поиск", str0, IM_ARRAYSIZE(str0));
