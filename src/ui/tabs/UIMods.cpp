@@ -179,7 +179,7 @@ namespace ui
 
                 if (ImGui::BeginPopupModal("Удаление мода", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
                 {
-                    ImGui::Text("Вы уверены, что хотите удалить мод %s?", mod->info.title);
+                    ImGui::Text("Вы уверены, что хотите удалить мод %s?", mod->info.title.c_str());
 
                     ImGui::Spacing();
                     widgets::styles::PushButtonDanger();
