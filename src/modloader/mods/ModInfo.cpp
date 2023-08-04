@@ -47,10 +47,12 @@ void ModInfo::ReadManifest(YAML::Node node) {
     }
     
     title = node["title"].as<std::string>(id);
+    description = std::regex_replace(node["description"].as<std::string>(""), std::regex("^\\s+|\\s+$"), "");
     author = node["author"].as<std::string>("");
     version = node["version"].as<std::string>("");
     luaScript = node["lua-script"].as<std::string>("");
     sdkVersion = semver::version {node["sdk-version"].as<std::string>(VERSION)};
+    socialLinks = node["socialLinks"].as<std::map<std::string, std::string>>(std::map<std::string, std::string>{});
 
     const auto currentGameVersion = sdk::Game::GetGameVersion();
     const auto versions = node["game-versions"].as<std::vector<std::string>>(std::vector<std::string>{});
@@ -99,10 +101,12 @@ ModInfo::ModInfo(std::filesystem::path modPath): basePath(std::move(modPath)) {
     ReadIcon();
 }
 
-ModInfo::ModInfo(std::string id, std::string title, std::string author, std::string version)
-    : id(std::move(id)), title(std::move(title)), author(std::move(author)), version(std::move(version)),
+ModInfo::ModInfo(std::string id, std::string title, std::string description, std::string author, std::string version)
+    : id(std::move(id)), title(std::move(title)), author(std::move(author)), version(std::move(version)), description(description),
       sdkVersion(VERSION), basePath(""), internal(true)
 {
+    socialLinks["discord"] = "https://discord.supercow.community";
+    socialLinks["github"] = "https://github.com/zziger/supercow-mod";
     const auto buf = *utils::read_resource(RES_LOGO);
     const auto readRes = lodepng::decode(iconData, iconWidth, iconHeight, reinterpret_cast<const unsigned char*>(buf.data()), buf.size());
     if (readRes == 0) hasIcon = true;

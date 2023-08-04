@@ -3,6 +3,8 @@
 #include "events/WindowEvent.h"
 #include <imgui.h>
 
+#include "IconsFontAwesome5Brands.h"
+
 namespace ui
 {
     enum WatermarkPosition : int {
@@ -40,6 +42,23 @@ namespace ui
         static inline bool _textureViewerOpen = false;
         static void RenderTextureViewer();
 
+        static inline std::map<std::string, std::string> linkIcons = {
+            { "discord", ICON_FA_DISCORD },
+            { "github", ICON_FA_GITHUB },
+            { "gitlab", ICON_FA_GITLAB },
+            { "bitbucket", ICON_FA_BITBUCKET },
+            { "youtube", ICON_FA_YOUTUBE },
+            { "reddit", ICON_FA_REDDIT },
+            { "patreon", ICON_FA_PATREON },
+            { "twitter", ICON_FA_TWITTER },
+            { "instagram", ICON_FA_INSTAGRAM },
+            { "vk", ICON_FA_VK },
+            { "odnoklassniki", ICON_FA_ODNOKLASSNIKI },
+            { "googlePay", ICON_FA_GOOGLE_PAY },
+            { "bingChilling", ICON_FA_ZHIHU },
+            { "wikipedia", ICON_FA_WIKIPEDIA_W },
+            { "steam", ICON_FA_STEAM },
+        };
     public:
         static inline bool initialized = false;
         static inline bool menuOpen = false;

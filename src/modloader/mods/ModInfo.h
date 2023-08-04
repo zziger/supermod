@@ -14,12 +14,14 @@ struct ModInfo {
     std::string title;
     std::string author;
     std::string version;
+    std::string description;
     semver::version sdkVersion;
     std::filesystem::path basePath;
     std::string luaScript;
     std::optional<std::filesystem::path> zipFile; // used only for zipmod installation
     std::string zipRoot = ""; // used only for zipmod installation
     std::vector<uint64_t> gameVersions {}; // empty if no version restrictions
+    std::map<std::string, std::string> socialLinks {}; // social icons
     bool compatible = true;
 
     bool hasIcon = false;
@@ -43,7 +45,7 @@ struct ModInfo {
     explicit ModInfo(const std::string& manifestContent);
     explicit ModInfo(std::filesystem::path modPath);
     
-    explicit ModInfo(std::string id, std::string title, std::string author, std::string version);
+    explicit ModInfo(std::string id, std::string title, std::string description, std::string author, std::string version);
 
     std::string ToString() const {
         return std::format("Mod<{}>", id);
@@ -53,6 +55,7 @@ struct ModInfo {
         if (ctx->isTypeRegistered<ModInfo>()) return;
         ctx->registerConstMember("id", &ModInfo::id);
         ctx->registerConstMember("title", &ModInfo::title);
+        ctx->registerConstMember("description", &ModInfo::description);
         ctx->registerConstMember("author", &ModInfo::author);
         ctx->registerConstMember("version", &ModInfo::version);
         ctx->registerConstMember("basePath", &ModInfo::basePath);

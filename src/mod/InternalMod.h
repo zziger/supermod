@@ -10,7 +10,7 @@
 
 class InternalMod final : public Mod {
 public:
-    explicit InternalMod() : Mod(ModInfo { "$internal", "SuperMod", "zziger", VERSION })
+    explicit InternalMod() : Mod(ModInfo { "$internal", "SuperMod", "Встроенные в модлоадер патчи игры", "zziger", VERSION })
     {
     }
 

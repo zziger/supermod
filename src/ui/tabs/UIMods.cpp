@@ -103,11 +103,11 @@ namespace ui
             }
         
             ImGui::BeginGroup();
-            ImGui::Text("%s", info.title.c_str());
-            if (info.version != "") ImGui::Text("%s", info.version.c_str());
+            ImGui::TextWrapped("%s", info.title.c_str());
+            if (info.version != "") ImGui::TextWrapped("%s", info.version.c_str());
             ImGui::EndGroup();
 
-            if (info.author != "") ImGui::Text("Автор: %s", info.author.c_str());
+            if (info.author != "") ImGui::TextWrapped("Автор: %s", info.author.c_str());
         
             if (!mod->info.internal) {
                 if (mod->IsEnabled()) ImGui::TextColored(0x77EE77FF_color, ICON_MD_CHECK_CIRCLE " Включен");
@@ -198,6 +198,30 @@ namespace ui
                     ImGui::EndPopup();
                 }
             }
+
+            ImGui::Spacing();
+            ImGui::TextWrapped("%s", info.description.c_str());
+            ImGui::PushFont(UI::fonts->fontFab2X);
+            ImGui::PushStyleColor(ImGuiCol_Button, 0x0_color);
+            float windowVisible = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x - 12;
+            ImGuiStyle& style = ImGui::GetStyle();
+            bool first = true;
+            for (auto socialLink : info.socialLinks)
+            {
+                auto icon = linkIcons.at(socialLink.first);
+                if (icon == "") continue;
+                float lastButton = ImGui::GetItemRectMax().x;
+                float nextButton = lastButton + style.ItemSpacing.x + 32;
+                if (nextButton < windowVisible && !first)
+                    ImGui::SameLine();
+                first = false;
+                if (ImGui::Button(icon.c_str(), ImVec2(38, 38)))
+                {
+                    ShellExecuteW(nullptr, L"open", utils::str_to_wstr(socialLink.second).c_str(), nullptr, nullptr , SW_SHOWNORMAL);
+                }
+            }
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
 
             if (mod->modules.items.size() != 0) {
                 ImGui::Separator();
