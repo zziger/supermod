@@ -360,14 +360,14 @@ public:
 
 #ifdef MH_ALL_HOOKS
 	template<class T>
-	bool Detour(T* fn, T** orig = nullptr) const
+	bool Detour(T* fn, T** orig = nullptr, int32_t id = 0) const
 	{
-		MH_CreateHook((void*)_address, (void*)fn, (void**)orig);
-		return MH_EnableHook((void*)_address) == MH_OK;
+		MH_CreateHookEx(id, (void*)_address, (void*)fn, (void**)orig);
+		return MH_EnableHookEx(id, (void*)_address) == MH_OK;
 	}
 
-	void DeactivateDetour() const {
-		MH_DisableHook((void*)_address);
+	void DeactivateDetour(int32_t id = 0) const {
+		MH_DisableHookEx(id, (void*)_address);
 	}
 #endif
 

@@ -2,14 +2,15 @@
 #include <mutex>
 #include <unordered_set>
 
+#include "memory/HookManager.h"
 #include "memory/Memory.h"
 
 struct HookContainer {
-    std::unordered_set<Memory> items {};
+    std::unordered_set<HookManager::RegisteredHook> items {};
 
-    Memory operator += (Memory mem);
+    HookManager::RegisteredHook operator += (HookManager::RegisteredHook mem);
     
-    Memory operator -= (Memory mem);
+    HookManager::RegisteredHook operator -= (HookManager::RegisteredHook mem);
 
     void Unload();
 

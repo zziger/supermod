@@ -2,8 +2,10 @@
 #include "memory/HookManager.h"
 
 
-Memory HookUser::UnregisterHook(const Memory mem) {
-    return _hooks -= HookManager::UnregisterHook(mem);
+HookManager::RegisteredHook HookUser::UnregisterHook(const HookManager::RegisteredHook mem) {
+    _hooks -= mem;
+    HookManager::UnregisterHook(mem);
+    return mem;
 }
 
 void HookUser::UnloadHooks() {

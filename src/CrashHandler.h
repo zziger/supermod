@@ -68,5 +68,5 @@ inline void init_crash_handler() {
     *ptr = buffer_overflow;
     SetUnhandledExceptionFilter(handle_error);
     static Memory exceptionFilterMem(SetUnhandledExceptionFilter);
-    exceptionFilterMem.Detour(HOOK_REF(set_exception_filter));
+    HookManager::RegisterHook(exceptionFilterMem, HOOK_REF(set_exception_filter));
 }

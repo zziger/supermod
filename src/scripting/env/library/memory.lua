@@ -399,17 +399,18 @@ function Memory:hook(type, fn)
 
     local origBuf = ffi.new(ffi.typeof("$[1]", ffi.typeof(type)), {nil})
     local callback = ffi.cast(type, fn)
-
-    __createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
-
+    
+    local id = __createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
+    
     local res = {}
     res.destroyed = false
     res.orig = origBuf[0];
+    res.id = id
 
     function res.destroy()
         if res.destroyed then return end
         res.destroyed = true
-        __removeHook(self.addr)
+        __removeHook(self.addr, res.id)
         ---@diagnostic disable-next-line: undefined-field
         callback:free()
     end

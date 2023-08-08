@@ -2,13 +2,13 @@
 
 #include "memory/HookManager.h"
 
-Memory HookContainer::operator+=(const Memory mem) {
+HookManager::RegisteredHook HookContainer::operator+=(const HookManager::RegisteredHook mem) {
     std::lock_guard lock(_mutex);
     items.emplace(mem);
     return mem;
 }
 
-Memory HookContainer::operator-=(const Memory mem) {
+HookManager::RegisteredHook HookContainer::operator-=(const HookManager::RegisteredHook mem) {
     std::lock_guard lock(_mutex);
     items.erase(mem);
     return mem;

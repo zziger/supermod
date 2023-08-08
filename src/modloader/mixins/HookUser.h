@@ -7,12 +7,12 @@ class HookUser {
     
 protected:
     template<class T, std::size_t Size>
-    Memory RegisterHook(const char (&pattern)[Size], T* fn, T** orig) {
-        const Memory mem = HookManager::RegisterHook(pattern, fn, orig);
+    HookManager::RegisteredHook RegisterHook(const char (&pattern)[Size], T* fn, T** orig) {
+        const HookManager::RegisteredHook mem = HookManager::RegisterHook(pattern, fn, orig);
         return _hooks += mem;
     }
 
-    Memory UnregisterHook(Memory mem);
+    HookManager::RegisteredHook UnregisterHook(HookManager::RegisteredHook mem);
 
 public:
     virtual ~HookUser() = default;

@@ -19,5 +19,5 @@ HOOK_FN(inline int, load_sounds, ARGS()) {
 inline EventManager::Ready $sounds_loaded_event_hook([] {
     static constexpr Memory::Pattern pat("E8 ? ? ? ? E8 ? ? ? ? B9 ? ? ? ? E8 ? ? ? ? B9 ? ? ? ? E8 ? ? ? ? B9");
     static auto mem = pat.Search().GoToNearCall();
-    mem.Detour(HOOK_REF(load_sounds));
+    HookManager::RegisterHook(mem, HOOK_REF(load_sounds));
 });
