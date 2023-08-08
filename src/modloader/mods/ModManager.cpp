@@ -105,18 +105,58 @@ void ModManager::UnloadMod(std::shared_ptr<Mod> mod) {
 void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
     if (sdk::Game::currentTickIsInner) return;
     std::lock_guard lock(_modMutex);
-    std::vector<std::shared_ptr<Mod>> modsToReload {};
 
-    auto i = 0;
-    for (const auto& mod : GetMods()) {
+    auto mods = GetMods();
+    
+    auto changedI = 0;
+    for (const auto& mod : mods) {
         if (mod->info.internal) continue;
-        if (mod->info.id != newOrder[i]->info.id) modsToReload.push_back(newOrder[i]);
+        if (mod->info.id != newOrder[changedI]->info.id) break;
+        changedI++;
+    }
+
+    std::vector<std::shared_ptr<Mod>> modsToEnable{};
+    
+    // storing all mods that have to be reloaded in the new order
+    auto i = 0;
+    for (const auto& mod : newOrder)
+    {   
+        if (i < changedI)
+        {
+            i++;
+            continue;
+        }
+
+        if (mod->IsEnabled())
+        {
+            modsToEnable.push_back(mod);
+        }
+    }
+
+    // disabling all mods in the old order
+    i = 0;
+    for (const auto& mod : mods)
+    {
+        if (i < changedI)
+        {
+            i++;
+            continue;
+        }
+
+        mod->Disable(false);
         i++;
     }
 
+    // loading all the required mods
+    for (const auto& mod : modsToEnable)
+    {
+        mod->Enable(false);
+    }
+    
+    std::vector<std::string> ids {};
+
     _mods.clear();
     _mods.push_back(_internalMod);
-    std::vector<std::string> ids {};
     
     for (auto mod : newOrder) {
         if (mod->info.internal) continue;
@@ -124,7 +164,7 @@ void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
         ids.push_back(mod->info.id);
     }
 
-    for (const auto mod : modsToReload) {
+    for (const auto mod : modsToEnable) {
         if (mod->info.internal || !mod->IsEnabled()) continue;
         ModFileResolver::ReloadModFiles(mod->info.basePath / "data");
     }
