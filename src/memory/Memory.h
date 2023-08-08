@@ -13,8 +13,6 @@
 #include <Log.h>
 
 
-#include "MemoryCacheStorage.h"
-
 #define MAX_SIG_SIZE 128
 
 class Memory {
@@ -30,6 +28,9 @@ public:
 			callback = cb;
 		return callback;
 	}
+
+	class Pattern;
+	static inline std::list<std::pair<Pattern, uintptr_t>> cache{};
 
 	class Pattern
 	{
@@ -75,10 +76,17 @@ public:
 		char mask[MAX_SIG_SIZE];
 		std::size_t size;
 
+		bool Includes(const Pattern& pat) const
+		{
+			if (this->size > pat.size) return false;
+			return Match((byte*)pat.sig, (byte*)this->sig, (byte*)this->mask);
+		}
+
 		template<std::size_t Size>
 		explicit constexpr Pattern(const char(&idaPattern)[Size]) :sig{ 0 }, mask{ 0 }, size(0)
 		{
 			std::size_t j = 0;
+			std::size_t q = 0;	
 			for (std::size_t i = 0; i < Size; ++i, ++j)
 			{
 				const char c = idaPattern[i];
@@ -88,12 +96,14 @@ public:
 					sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
 					mask[j] = 'x';
 					i += 2;
+					q = 0;
 				}
 				else if (c == '?')
 				{
 					sig[j] = '\x00';
 					mask[j] = '?';
 					++i;
+					++q;
 				}
 				else
 				{
@@ -101,11 +111,12 @@ public:
 				}
 			}
 
-			size = j;
+			size = j - q;
 		}
 		explicit Pattern(const char* idaPattern, int size) :sig{ 0 }, mask{ 0 }, size(0)
 		{
 			std::size_t j = 0;
+			std::size_t q = 0;	
 			for (std::size_t i = 0; i < size; ++i, ++j)
 			{
 				const char c = idaPattern[i];
@@ -115,12 +126,14 @@ public:
 					sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
 					mask[j] = 'x';
 					i += 2;
+					q = 0;
 				}
 				else if (c == '?')
 				{
 					sig[j] = '\x00';
 					mask[j] = '?';
 					++i;
+					++q;
 				}
 				else
 				{
@@ -128,18 +141,20 @@ public:
 				}
 			}
 
-			this->size = j;
+			this->size = j - q;
 		}
 
 		Memory Search(const bool useCaching = true, const uintptr_t base = 0) const
 		{
-			uint32_t sigHash;
-			if (useCaching && GetCacheStorage())
+			if (useCaching)
 			{
-				const std::string patString = ToString();
-				sigHash = GetCacheStorage()->Hash(patString);
-				if (const uintptr_t cachedAddress = GetCacheStorage()->Get(sigHash)) {
-					return Memory(cachedAddress);
+				for (auto& pair : cache)
+				{
+					if (pair.first.Includes(*this))
+					{
+						// Log::Debug << "Found " << this->ToString() << " from cached " << pair.first.ToString() << Log::Endl;
+						return Memory(pair.second);
+					}
 				}
 			}
 
@@ -153,11 +168,26 @@ public:
 				return Memory(UINTPTR_MAX, false);
 			}
 
-			if (useCaching && GetCacheStorage())
+			if (useCaching)
 			{
-				const std::string patString = ToString();
-				sigHash = GetCacheStorage()->Hash(patString);
-				GetCacheStorage()->Put(sigHash, (uintptr_t)res - Memory::Base());
+				auto addr = (uintptr_t)res - Memory::Base();
+				bool found = false;
+				
+				for (auto& pair : cache)
+				{
+					if (this->Includes(pair.first) && pair.second == addr)
+					{
+						// Log::Debug << "Found worse pattern! Replacing " << pair.first.ToString() << " with " << this->ToString() << Log::Endl;
+						found = true;
+						pair.first = *this;
+					}
+				}
+
+				if (!found)
+				{
+					// Log::Debug << "Did not found worse pattern! Adding " << this->ToString() << Log::Endl;
+					cache.push_back({ *this, addr });
+				}
 			}
 			return Memory(res);
 		}
@@ -183,19 +213,6 @@ public:
 		static MODULEINFO info { nullptr };
 		GetModuleInformation(GetCurrentProcess(), nullptr, &info, sizeof(MODULEINFO));
 		return info.SizeOfImage;
-	}
-
-	static IMemoryCacheStorage* InitCacheStorage(IMemoryCacheStorage* storage = nullptr)
-	{
-		static IMemoryCacheStorage* cStorage = nullptr;
-		if (storage != nullptr)
-			cStorage = storage;
-		return cStorage;
-	}
-
-	static IMemoryCacheStorage* GetCacheStorage()
-	{
-		return InitCacheStorage();
 	}
 
 	static uintptr_t& Base()

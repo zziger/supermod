@@ -18,9 +18,10 @@ MOD_PATH = ""
 
 currentMod = {} --[[@as ModInfo]]
 
+---@param cache boolean
 ---@param pat string
 ---@return number
-function findPattern(pat) end
+function findPattern(cache, pat) end
 
 ---Возвращает текущее время в миллисекундах
 ---@return number

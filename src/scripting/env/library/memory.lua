@@ -17,12 +17,13 @@ Memory.__index = Memory
 
 ---@private
 ---@param location string | number Паттерн или адрес в памяти
+---@param cache boolean Использовать кеширование
 ---@return number Адрес в памяти
-function Memory.resolveLocation(location)
+function Memory.resolveLocation(location, cache)
     local addr = 0
 
     if type(location) == "string" then
-        addr = findPattern(location)
+        addr = findPattern(cache, location)
     elseif type(location) == "number" then
         addr = location
     end
@@ -34,14 +35,32 @@ function Memory.resolveLocation(location)
     return addr
 end
 
+---@class MemoryParams
+---@field unsafe? boolean Отключить защиту памяти
+---@field cache? boolean Использовать кеширование паттернов (нужно если паттерн указывает больше чем на одно место в памяти)
+
 ---Создает новый обьект Memory
 ---@param location string | number Паттерн или адрес в памяти
----@param unsafe boolean? Отключить проверку доступа к памяти
+---@param params? MemoryParams Параметры
 ---@return Memory
-function Memory.at(location, unsafe)
+function Memory.at(location, params)
+    local unsafe = false
+    local cache = true
+
+    if type(params) == "boolean" then
+        unsafe = params --[[@as boolean]]
+    elseif type(params) == "table" then
+        if params.unsafe ~= nil then
+            unsafe = params.unsafe --[[@as boolean]]
+        end
+        if params.cache ~= nil then
+            cache = params.cache --[[@as boolean]]
+        end
+    end
+
     local instance = setmetatable({}, Memory)
-    instance.addr = Memory.resolveLocation(location)
-    instance.unsafe = unsafe or false
+    instance.addr = Memory.resolveLocation(location, cache)
+    instance.unsafe = unsafe
     return instance
 end
 
@@ -57,10 +76,11 @@ function Memory.withBackup(backup)
 
     local mem = setmetatable({}, Memory)
     mem.__index = mem
-    function mem.at(location, unsafe)
+    function mem.at(location, params)
+        local oldInstance = Memory.at(location, params)
         local instance = setmetatable({}, mem)
-        instance.addr = Memory.resolveLocation(location)
-        instance.unsafe = unsafe or false
+        instance.addr = oldInstance.addr
+        instance.unsafe = oldInstance.unsafe
         instance.backup = backup
         return instance
     end

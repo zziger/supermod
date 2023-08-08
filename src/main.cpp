@@ -36,7 +36,6 @@ void init_memory() {
     Memory::OnPatternNotFound([](const std::string& pattern) {
         Log::Error << "Не удалось найти паттерн " << pattern << Log::Endl;
     });
-    Memory::InitCacheStorage(new MemoryCacheStorage());
 }
 
 void postInit() {

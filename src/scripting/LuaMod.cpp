@@ -30,8 +30,8 @@ void LuaMod::OnEnable() {
     lua->writeFunction("currentTimestamp", []() {
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     });
-    lua->writeFunction("findPattern", [](const std::string pat) {
-        return Memory::Pattern(pat.c_str(), pat.size()).Search().Get<int32_t>();
+    lua->writeFunction("findPattern", [](const bool cache, const std::string pat) {
+        return Memory::Pattern(pat.c_str(), pat.size()).Search(cache).Get<int32_t>();
     });
     
     info.RegisterLuaType(lua.get());
