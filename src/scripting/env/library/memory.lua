@@ -410,16 +410,23 @@ local createdHooks = {}
 ---@field orig function Оригинальная функция
 ---@field destroy fun() Деактивировать и удалить хук
 
----Регистрирует хук-функцию на текущий адрес
----@param type ffi.ct*
----@param fn function
----@returns Hook
-function Memory:hook(type, fn)
-    if self.addr == 0 then error("Адрес хука не может быть 0") end
+---@class HookParams
+---@field jit boolean Включить JIT-компиляцию функции (ускоряет выполнение, но ломается если внутри оригинальной функции есть другие Lua хуки. Рекомендуется для частовыполняемых функций)
 
-    local origBuf = ffi.new(ffi.typeof("$[1]", ffi.typeof(type)), {nil})
-    local callback = ffi.cast(type, fn)
-    
+---Регистрирует хук-функцию на текущий адрес
+---@param fnType ffi.ct* С-тип хукаемой функции
+---@param fn function Функция хука
+---@param params? HookParams Параметры хука
+---@returns Hook
+function Memory:hook(fnType, fn, params)
+    if self.addr == 0 then error("Адрес хука не может быть 0") end
+    if type(params) ~= "table" or not params.jit then
+        jit.off(fn)
+    end
+
+    local origBuf = ffi.new(ffi.typeof("$[1]", ffi.typeof(fnType)), {nil})
+    local callback = ffi.cast(fnType, fn)
+
     local id = __createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
     
     local res = {}
