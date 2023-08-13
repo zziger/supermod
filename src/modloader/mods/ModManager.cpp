@@ -194,7 +194,7 @@ void ModManager::InitMods(bool manual) {
         const auto firstIt = std::filesystem::directory_iterator(_mods_folder);
         for (auto& file : firstIt) {
             if (!file.is_directory()) continue;
-            if (!exists(file.path() / "manifest.yml")) continue;
+            if (!exists(std::filesystem::path(file.path()) / std::string("manifest.yml"))) continue;
             const auto modName = file.path().filename().generic_string();
 
             try {

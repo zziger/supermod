@@ -67,7 +67,7 @@ typedef std::multimap<const std::string, TEventPair> TEventMap;
 
 class EventManager {
     static inline TEventMap _eventMap = {};
-    static inline std::unordered_set<std::string> _enabledEvents;
+    static inline std::unordered_set<std::string> _enabledEvents {};
     static inline std::atomic_uint32_t _lastId = 0;
     inline static std::recursive_mutex _mutex {};
 
@@ -138,9 +138,9 @@ public:
 
     static uint32_t Off(const uint32_t id) {
         std::lock_guard lock(_mutex);
-        for (auto iter = _eventMap.begin(); iter != _eventMap.end(); ++iter) {
-            if (iter->second.first == id) _eventMap.erase(iter);
-        }
+        std::erase_if(_eventMap, [&](const auto& item) {
+            return item.second.first == id;
+        });
         return id;
     }
 
@@ -161,16 +161,16 @@ public:
             }
         }
 
-        for (auto fn : fns) fn.second(event);
+        for (auto& fn : fns) fn.second(event);
 
-        for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
+        for (const auto& luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
     }
 
     template <std::derived_from<IAnyEvent> Event>
     static void Emit(Event&& event) {
         const std::string typeId = Event::eventId;
         
-        std::vector<TEventPair> fns;
+        std::vector<TEventPair> fns{};
         {
             std::lock_guard lock(_mutex);
             if (_enabledEvents.contains(typeId))
@@ -181,9 +181,9 @@ public:
             }
         }
 
-        for (auto fn : fns) fn.second(event);
+        for (auto& fn : fns) fn.second(event);
 
-        for (const auto luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
+        for (const auto& luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
     }
 
     struct Ready {
