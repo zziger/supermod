@@ -425,7 +425,18 @@ function Memory:hook(fnType, fn, params)
     end
 
     local origBuf = ffi.new(ffi.typeof("$[1]", ffi.typeof(fnType)), {nil})
-    local callback = ffi.cast(fnType, fn)
+    
+    function wrapper(...)
+        local status, result = pcall(fn, ...)
+        if status then
+            return result
+        else
+            log.error("Ошибка в обработчике хука: " .. result)
+            return 0
+        end
+    end
+    
+    local callback = ffi.cast(fnType, wrapper)
 
     local id = __createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
     

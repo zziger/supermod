@@ -54,6 +54,24 @@ void LuaMod::OnEnable() {
     lua->executeModule("memory", *utils::read_resource(LUA_MODULE_MEMORY));
     lua->executeModule("timers", *utils::read_resource(LUA_MODULE_TIMERS));
     lua->executeModule("config", *utils::read_resource(LUA_MODULE_CONFIG));
+
+    lua->writeVariable("safecall",  std::function([this](const std::function<void()> cb) {
+        if (!lua) return;
+        try
+        {
+            cb();
+        }
+        catch(const std::exception& e)
+        {
+            Log::Error << "SAFECALL resulted in a C++ exception: " << e.what() << Log::Endl;
+        }
+        catch(...)
+        {
+            Log::Error << "SAFECALL resulted in an unknown exception." << Log::Endl;
+            std::cout << "LUA stack:" << std::endl;
+            lua->dumpstack(lua->getState());
+        }
+    }));
     
     auto stream = std::ifstream{ fullPath };
     lua->executeCode(stream, fullPath.filename().generic_string().c_str());

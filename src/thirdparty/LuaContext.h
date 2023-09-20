@@ -56,6 +56,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "luaExtensions.h"
 #include <tl/optional.hpp>
 #include "Data.h"
+#include <sstream>
+#include <Windows.h>
+
+#include "Utils.h"
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #   include "misc/exception.hpp"
@@ -101,9 +105,10 @@ public:
 
         // setting the panic function
         lua_atpanic(mState, [](lua_State* state) -> int {
-            const std::string str = lua_tostring(state, -1);
+            std::cout << "Lua panic" << std::endl;
+            const std::string str = lua_type(state, -1) != LUA_TSTRING ? "no panic message" : lua_tostring(state, -1);
             lua_pop(state, 1);
-            std::cout << "LUA panic: " << str << std::endl;
+            MessageBoxW(nullptr, utils::str_to_wstr(str).c_str(), L"Lua panic", MB_OK | MB_ICONERROR);
             assert(false && "lua_atpanic triggered");
             exit(0);
         });
