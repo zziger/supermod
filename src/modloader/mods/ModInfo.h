@@ -8,6 +8,8 @@
 #include "thirdparty/LuaContext.h"
 #include <semver.hpp>
 
+#include "game/AssetPool.h"
+
 
 struct ModInfo {
     std::string id;
@@ -25,10 +27,7 @@ struct ModInfo {
     bool compatible = true;
 
     bool hasIcon = false;
-    std::vector<byte> iconData {};
-    uint32_t iconWidth = 0;
-    uint32_t iconHeight = 0;
-    LPDIRECT3DTEXTURE8 icon = nullptr;
+    game::Asset* icon = nullptr;
     
     HMODULE dll = nullptr;
     bool internal = false;

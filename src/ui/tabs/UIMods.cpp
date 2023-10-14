@@ -26,7 +26,7 @@ namespace ui
                     auto& info = loadedMod->info;
                     info.EnsureIcon();
                     if (widgets::ModSelectable(info.id.c_str(), info.title.c_str(), info.author.c_str(),
-                        info.version.c_str(), info.icon, activeMod && (*activeMod)->info.id == info.id, !loadedMod->IsEnabled()))
+                        info.version.c_str(), info.icon ? info.icon->texture : nullptr, activeMod && (*activeMod)->info.id == info.id, !loadedMod->IsEnabled()))
                             activeMod = loadedMod;
                 }
             } else {
@@ -37,7 +37,7 @@ namespace ui
                     info.EnsureIcon();
                     bool hovered, active;
                     widgets::ModSelectable(info.id.c_str(), info.title.c_str(), info.author.c_str(),
-                        info.version.c_str(), info.icon, false, !loadedMod->IsEnabled(), &hovered, &active);
+                        info.version.c_str(), info.icon ? info.icon->texture : nullptr, false, !loadedMod->IsEnabled(), &hovered, &active);
 
                     if (active && !hovered) {
                         const auto dragY = ImGui::GetMouseDragDelta(0).y;
@@ -98,7 +98,7 @@ namespace ui
             auto mod = *activeMod;
             auto& info = mod->info;
             if (info.icon) {
-                ImGui::Image(info.icon, { 50, 50 });
+                ImGui::Image(info.icon->texture, { 50, 50 });
                 ImGui::SameLine();
             }
         

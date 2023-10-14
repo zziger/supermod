@@ -251,9 +251,7 @@ void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     mod->info.icon = nullptr;
     if (icon)
     {
-        EventManager::Once<AfterTickEvent>([=]() {
-            icon->Release();
-        });
+        game::AssetPool::Instance()->FreeAsset(icon);
     }
     const Config cfg;
     auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();

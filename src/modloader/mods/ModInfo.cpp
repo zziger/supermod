@@ -11,7 +11,8 @@
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 #include <semver.hpp>
-#include <lodepng.h>
+
+#include "game/textures/PngLoader.h"
 
 void ModInfo::ReadManifest() {
     const auto filePath = basePath / "manifest.yml";
@@ -25,13 +26,7 @@ void ModInfo::ReadManifest() {
 
 void ModInfo::ReadIcon()
 {
-    ReleaseIcon();
-    const auto path = basePath / "icon.png";
-    if (!exists(path)) return;
-    
-    const auto readRes = lodepng::decode(iconData, iconWidth, iconHeight, path.string());
-    if (readRes != 0) throw Error("Не удалось прочитать PNG");
-    hasIcon = true;
+    hasIcon = exists(basePath / "icon.png");
 }
 
 
@@ -79,13 +74,27 @@ void ModInfo::ReadManifest(YAML::Node node) {
 void ModInfo::EnsureIcon() {
     if (!this->hasIcon || !*sdk::DirectX::d3dDevice) return;
     if (icon != nullptr) return;
-    icon = dx_utils::load_argb_pixel_data(*sdk::DirectX::d3dDevice, iconWidth, iconHeight, iconData.data());
+
+    if (internal)
+    {
+        const auto data = *utils::read_resource(RES_LOGO);
+        std::vector<byte> buf(data.begin(), data.end());
+        vector2ui size;
+        if (const auto texture = PngLoader::LoadPngBuf(buf, size, { 1, 1 }))
+        {
+            icon = game::AssetPool::Instance()->LoadAsset(texture, "$mod:$internal:icon", false, size);
+        }
+    }
+    else
+    {
+        icon = game::AssetPool::Instance()->LoadAsset(basePath / "icon.png", "$mod:" + id + ":icon", false, { 1, 1 });
+    }
 }
 
 void ModInfo::ReleaseIcon()
 {
     if (icon == nullptr) return;
-    icon->Release();
+    game::AssetPool::Instance()->FreeAsset(icon);
     icon = nullptr;
 }
 
@@ -107,7 +116,6 @@ ModInfo::ModInfo(std::string id, std::string title, std::string description, std
 {
     socialLinks["discord"] = "https://discord.supercow.community";
     socialLinks["github"] = "https://github.com/zziger/supercow-mod";
-    const auto buf = *utils::read_resource(RES_LOGO);
-    const auto readRes = lodepng::decode(iconData, iconWidth, iconHeight, reinterpret_cast<const unsigned char*>(buf.data()), buf.size());
-    if (readRes == 0) hasIcon = true;
+    hasIcon = true;
+    
 }

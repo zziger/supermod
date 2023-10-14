@@ -46,7 +46,7 @@ namespace ui
         {
             
             if (info.icon) {
-                ImGui::Image(info.icon, { 50, 50 });
+                ImGui::Image(info.icon->texture, { 50, 50 });
                 ImGui::SameLine();
             }
         
