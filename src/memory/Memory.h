@@ -273,15 +273,15 @@ public:
 		FarJump((void*)func._address);
 	}
 
-	void NearCall(uint64_t func)
+	void NearCall(void* func)
 	{
 		Put<uint8_t>(0xE8);
-		(*this + 1).Put(int32_t(func - _address - 5));
+		(*this + 1).Put(int32_t(reinterpret_cast<uintptr_t>(func) - _address - 5));
 	}
 
 	void NearCall(const Memory& func)
 	{
-		NearCall(func._address);
+		NearCall((void*) func._address);
 	}
 
 	void SetOffset(uint64_t value, int offset = 1)
@@ -385,6 +385,17 @@ public:
 
 	void DeactivateDetour(int32_t id = 0) const {
 		MH_DisableHookEx(id, (void*)_address);
+	}
+	
+	template<class T>
+	bool ExclusiveDetour(T* fn, T** orig = nullptr) const
+	{
+		MH_CreateHook((void*)_address, (void*)fn, (void**)orig);
+		return MH_EnableHook((void*)_address) == MH_OK;
+	}
+
+	void DeactivateExclusiveDetour() const {
+		MH_DisableHook((void*)_address);
 	}
 #endif
 

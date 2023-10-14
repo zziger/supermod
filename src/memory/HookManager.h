@@ -31,6 +31,19 @@ public:
         mem.Detour(fn, orig, id);
         return RegisteredHook(id, mem);
     }
+    
+    template <class T, std::size_t Size>
+    static RegisteredHook RegisterHookExclusive(const char(& pattern)[Size], T* fn, T** orig) {
+        static Memory::Pattern pat(pattern); // todo constexpr
+        static auto mem = pat.Search();
+        return RegisterHookExclusive(mem, fn, orig);
+    }
+    
+    template <class T>
+    static RegisteredHook RegisterHookExclusive(Memory mem, T* fn, T** orig) {
+        mem.ExclusiveDetour(fn, orig);
+        return RegisteredHook(-1, mem);
+    }
 
     static void UnregisterHook(RegisteredHook hook);
 

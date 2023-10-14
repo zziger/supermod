@@ -6,19 +6,24 @@
 
 namespace game
 {
+    struct AssetMeta
+    {
+        bool notFound = false;
+        std::filesystem::path origDir = "";
+        std::string origName = "";
+        vector2 canvasSizeMultiplier = { 1, 1 };
+        bool loadedManually = false;
+    };
+    
     struct Asset {
-        const char name[119]; // ingame has length of 128, 9 bytes went for my custom fields
-        char constTex; // my custom field for asset swap impl
-        int origWidth; // my custom field for asset swap impl
-        int origHeight; // my custom field for asset swap impl
-        int width;
-        int height;
+        const char name[124]; // originally name has length of 128, i take 4 bytes for custom meta ptr
+        AssetMeta* meta;
+        uint32_t width;
+        uint32_t height;
         IDirect3DTexture8* texture;
-        byte isTga;
+        byte hasAlpha;
         byte isPoolDefault;
         D3DFORMAT format;
-
-        void Anonymize() const;
 
         void ReplaceTexture(IDirect3DTexture8* tex);
     };
@@ -31,11 +36,26 @@ namespace game
         Asset* assets[1024];
         int assetCount;
 
-        static Memory GetReadConstJpgMem();
-        static Memory GetReadConstSurfaceMem();
+        static LPDIRECT3DTEXTURE8 LoadTexture(const std::filesystem::path & path, vector2ui & size, bool & alpha, vector2 canvasSizeMultiplier = { 1, 1 });
+        static LPDIRECT3DTEXTURE8 TryLoadTexture(const std::filesystem::path & dir, const std::string & key, bool alpha, vector2ui & size, vector2 canvasSizeMultiplier);
+        LPDIRECT3DTEXTURE8 TryLoadTextureFromMods(const std::filesystem::path & dir, const std::string & name, bool alpha, vector2ui & size, std::string & modName, vector2 canvasSizeMultiplier);
+
+        Asset* LoadGameAsset(const std::filesystem::path & path, bool loadFallback = true, vector2 canvasSizeMultiplier = { 1, 1 });
+        void ReloadGameAsset(const std::string & filename);
+        Asset* LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size);
+        Asset* LoadAsset(const std::filesystem::path & path, std::string key, bool loadFallback = true, vector2 canvasSizeMultiplier = { 1, 1 });
+        Asset* LoadUnknownAsset(const std::string & key);
+        Asset* GetSharedUnknownAsset();
+        
+        Asset* AllocateAsset(const std::string& key);
+        void FreeAsset(Asset * asset);
 
         [[nodiscard]] Asset* GetByName(const std::string& name) const;
 
-        static AssetPool* GetInstance();
+        static AssetPool* Instance();
+
+        static std::string TrimFileName(std::string name, bool& alpha);
+        static std::string CreateAssetKey(const std::string& name, bool& alpha);
+        static std::string CreateAssetKey(const std::string& name);
     };
 }

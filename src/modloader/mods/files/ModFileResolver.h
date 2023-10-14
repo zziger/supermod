@@ -26,6 +26,7 @@ public:
     
     [[nodiscard]] static std::optional<std::filesystem::path> ResolveFile(const std::filesystem::path& path);
     [[nodiscard]] static std::filesystem::path ResolveFileOrOriginal(const std::filesystem::path& path);
+    static std::filesystem::path GetModFilePath(const std::shared_ptr<Mod> & mod, const std::filesystem::path & path);
 
     [[nodiscard]] static std::optional<std::filesystem::path> ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path);
 

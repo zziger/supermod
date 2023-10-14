@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 
 struct vector3 {
     float x;
@@ -17,12 +18,25 @@ struct vector2i {
     int y;
 };
 
+struct vector2ui {
+    uint32_t x;
+    uint32_t y;
+};
+
 struct vector4
 {
     float x;
     float y;
     float z;
     float w;
+};
+
+struct matrix4x4
+{
+    vector4 row1;
+    vector4 row2;
+    vector4 row3;
+    vector4 row4;
 };
 
 struct rect

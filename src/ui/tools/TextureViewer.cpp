@@ -6,7 +6,7 @@
 namespace ui
 {
     void UI::RenderTextureViewer() {
-        static auto pool = game::AssetPool::GetInstance();
+        static auto pool = game::AssetPool::Instance();
         const auto& io = ImGui::GetIO();
         ConstraintWindow("Просмотр текстур");
         if (ImGui::Begin("Просмотр текстур", &_textureViewerOpen)) {

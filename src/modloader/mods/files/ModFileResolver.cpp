@@ -19,8 +19,6 @@ std::optional<std::filesystem::path> ModFileResolver::ResolveFile(const std::fil
         const auto resolvedPath = ResolveModFile(*el, path);
         if (!resolvedPath) continue;
 
-        auto rel = relative(*resolvedPath, sdk::Game::GetDataPath() / "..");
-        // Log::Debug << "Resolved file " << *resolvedPath << Log::Endl;
         return *resolvedPath;
     }
 
@@ -32,14 +30,17 @@ std::filesystem::path ModFileResolver::ResolveFileOrOriginal(const std::filesyst
     return resolvedPath ? *resolvedPath : path;
 }
 
+std::filesystem::path ModFileResolver::GetModFilePath(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
+    if (!mod || mod->info.internal || !mod->IsEnabled()) return {};
+    const auto filePath = relative(path, sdk::Game::GetDataPath());
+    return mod->info.basePath / "data" / filePath;
+}
+
 std::optional<std::filesystem::path> ModFileResolver::ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
     if (!mod || mod->info.internal || !mod->IsEnabled()) return std::nullopt;
-    
-    const auto filePath = relative(path, sdk::Game::GetDataPath());
 
-    const auto modFilePath = mod->info.basePath / "data" / filePath;
-        
-    if (exists(modFilePath)) return modFilePath;
+    const auto filePath = GetModFilePath(mod, path);
+    if (exists(filePath)) return filePath;
     return std::nullopt;
 }
 
@@ -116,9 +117,11 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
     if (extension == "") return;
 
     try {
-        if (extension == ".jpg" || extension == ".png" || extension == ".tga") LoadTexture(ResolveFileOrOriginal(filepath));
-        else if (extension == ".ogg") LoadSound(ResolveFileOrOriginal(filepath));
-        else Log::Warn << "Загрузка файлов " << extension << " не поддерживается" << Log::Endl;
+        if (extension == ".jpg" || extension == ".png" || extension == ".tga" || extension == ".jpeg")
+            game::AssetPool::Instance()->ReloadGameAsset(filepath.filename().string());
+        else if (extension == ".ogg")
+            LoadSound(ResolveFileOrOriginal(filepath));
+        else Log::Warn << "Динамическая загрузка файлов " << extension << " не поддерживается (нужен перезапуск игры)" << Log::Endl;
     } catch (std::exception& e) {
         Log::Error << "Ошибка при загрузке файла " << filepath << ": " << e.what() << Log::Endl;
     } catch (...) {
