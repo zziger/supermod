@@ -134,6 +134,16 @@ namespace game
         
         return asset;
     }
+    
+    Asset* AssetPool::LoadGameAssetFromData(const std::filesystem::path& path, bool loadFallback, vector2 canvasSizeMultiplier)
+    {
+        sdk::DirectX::EnsureDeviceReady();
+        const auto oldCwd = std::filesystem::current_path();
+        current_path(sdk::Game::GetDataPath());
+        const auto asset = LoadGameAsset(path, loadFallback, canvasSizeMultiplier);
+        current_path(oldCwd);
+        return asset;
+    }
 
     void AssetPool::ReloadGameAsset(const std::string& filename)
     {
