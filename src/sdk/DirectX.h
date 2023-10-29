@@ -12,5 +12,6 @@ namespace sdk
 
         static void Init();
         static void ResetDevice();
+        static void EnsureDeviceReady();
     };
 }

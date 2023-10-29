@@ -16,6 +16,7 @@ namespace game
 
     LPDIRECT3DTEXTURE8 AssetPool::LoadTexture(const std::filesystem::path& path, vector2ui& size, bool& alpha, vector2 canvasSizeMultiplier)
     {
+        sdk::DirectX::EnsureDeviceReady();
         alpha = false;
         auto ext = path.extension().string();
         std::ranges::transform(ext, ext.begin(), tolower);
@@ -44,6 +45,7 @@ namespace game
 
     LPDIRECT3DTEXTURE8 AssetPool::TryLoadTexture(const std::filesystem::path& dir, const std::string& key, bool alpha, vector2ui& size, vector2 canvasSizeMultiplier)
     {
+        sdk::DirectX::EnsureDeviceReady();
         if (dir.empty()) return nullptr;
         
         if (alpha)
@@ -62,6 +64,7 @@ namespace game
 
     LPDIRECT3DTEXTURE8 AssetPool::TryLoadTextureFromMods(const std::filesystem::path& dir, const std::string& name, bool alpha, vector2ui& size, std::string& modName, vector2 canvasSizeMultiplier)
     {
+        sdk::DirectX::EnsureDeviceReady();
         modName = "";
         IDirect3DTexture8* tex = nullptr;
         
@@ -85,6 +88,7 @@ namespace game
 
     Asset* AssetPool::LoadGameAsset(const std::filesystem::path& path, bool loadFallback, vector2 canvasSizeMultiplier)
     {
+        sdk::DirectX::EnsureDeviceReady();
         bool alpha;
         const auto key = CreateAssetKey(path.filename().string(), alpha);
         const auto previousAsset = GetByName(key);
@@ -168,6 +172,7 @@ namespace game
     }
     
     Asset* AssetPool::LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size) {
+        sdk::DirectX::EnsureDeviceReady();
         const auto previousAsset = GetByName(key);
         if (previousAsset && !(previousAsset->meta && previousAsset->meta->notFound))
         {
@@ -193,6 +198,7 @@ namespace game
 
     Asset* AssetPool::LoadAsset(const std::filesystem::path& path, std::string key, bool loadFallback, vector2 canvasSizeMultiplier)
     {
+        sdk::DirectX::EnsureDeviceReady();
         if (key.empty()) key = CreateAssetKey(path.filename().string());
         const auto previousAsset = GetByName(key);
         if (previousAsset && !(previousAsset->meta && previousAsset->meta->notFound)) return previousAsset;
@@ -227,6 +233,7 @@ namespace game
 
     Asset* AssetPool::LoadUnknownAsset(const std::string& key)
     {
+        sdk::DirectX::EnsureDeviceReady();
         const auto tex = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, { 256, 256 }, { 1, 1 });
         const auto asset = AllocateAsset(key);
         
@@ -244,6 +251,7 @@ namespace game
 
     Asset* AssetPool::GetSharedUnknownAsset()
     {
+        sdk::DirectX::EnsureDeviceReady();
         static Asset* asset = nullptr;
         if (asset) return asset;
 

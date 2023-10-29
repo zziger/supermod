@@ -2,6 +2,7 @@
 
 #include "events/EventManager.h"
 #include "events/TickEvent.h"
+#include "exceptions/Error.h"
 
 namespace sdk
 {
@@ -21,5 +22,11 @@ namespace sdk
             **wasReset.Get<byte**>(2) = 1;
             deviceResetRequested = false;
         });
+    }
+    
+    void DirectX::EnsureDeviceReady()
+    {
+        if (!d3dDevice || !*d3dDevice)
+            throw Error("Устройство DirectX ещё не готово к работе");
     }
 }
