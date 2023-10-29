@@ -50,6 +50,40 @@ namespace ui
                         ImGui::Image(asset->texture, ImVec2(regionSz * zoom, regionSz * zoom), uv0, uv1);
                         ImGui::EndTooltip();
                     }
+                    
+                    if (ImGui::TreeNode("Доп. информация"))
+                    {
+                        if (ImGui::BeginTable("info", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
+                        {
+                            ImGui::TableSetupColumn("Параметр");
+                            ImGui::TableSetupColumn("Значение");
+                            ImGui::TableHeadersRow();
+                            
+                            std::map<std::string, std::string> data {
+                                { "Прозрачная", asset->hasAlpha ? "да" : "нет" },
+                                { "Пул", asset->isPoolDefault ? "D3DPOOL_DEFAULT" : "D3DPOOL_MANAGED" },
+                                { "Формат", asset->format == D3DFMT_A8R8G8B8 ? "D3DFMT_A8R8G8B8" : std::to_string(asset->format) },
+                                { "Не найдена", asset->meta->notFound ? "да" : "нет" },
+                                { "Загружена вручную", asset->meta->loadedManually ? "да" : "нет" },
+                                { "Ориг название", asset->meta->origName },
+                                { "Ориг путь", asset->meta->origDir.string() },
+                                { "Модификатор размера", std::to_string(asset->meta->canvasSizeMultiplier.x) + " " + std::to_string(asset->meta->canvasSizeMultiplier.y) },
+                            };
+
+                            for (auto& row : data) {
+                                ImGui::TableNextRow();
+                                ImGui::TableNextColumn();
+                                ImGui::Text("%s", row.first.c_str());
+                                ImGui::TableNextColumn();
+                                ImGui::Text("%s", row.second.c_str());
+                            }
+                            
+                            ImGui::EndTable();
+                        }
+                        
+                        ImGui::TreePop();
+                    }
+                    
                     ImGui::TreePop();
                 }
             }
