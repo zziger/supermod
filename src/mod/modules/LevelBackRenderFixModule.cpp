@@ -4,7 +4,6 @@
 #include "Utils.h"
 
 HOOK_FN(char, prepare_levelback_stuff, ARGS()) {
-    prepare_levelback_stuff_orig();
     return 0;
 }
 
