@@ -67,6 +67,7 @@ HOOK_FN(int, load_game, ARGS()) {
     
     EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
     sdk::Game::booted = true;
+    EventManager::Emit(WindowReadyEvent{});
     return load_game_orig();
 }
 

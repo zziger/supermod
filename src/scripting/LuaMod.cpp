@@ -6,6 +6,7 @@
 #include "events/TickEvent.h"
 #include "events/WindowEvent.h"
 #include "sdk/Game.h"
+#include "sdk/Graphics.h"
 
 void LuaMod::OnEnable() {
     if (info.luaScript == "") throw Error("LuaMod был заинициализирован, но скрипт не был найден");
@@ -41,6 +42,7 @@ void LuaMod::OnEnable() {
     sdk::Game::AddDataToLua(*lua);
     sdk::Game::AddToLua(*lua);
     game::AssetPool::AddToLua(*lua);
+    sdk::Graphics::AddToLua(*lua);
     Config::AddToLua(*lua, info.id);
     HookManager::AddToLua(*lua);
     

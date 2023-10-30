@@ -1,4 +1,5 @@
 --time_t needed for implot_internal
+--ImTextureID is uint!!!
 local ffi = require"ffi"
 local IS_64_BIT = ffi.abi('64bit')
 local cdecl = ""
@@ -155,7 +156,7 @@ typedef int ImGuiTableRowFlags;
 typedef int ImGuiTreeNodeFlags;
 typedef int ImGuiViewportFlags;
 typedef int ImGuiWindowFlags;
-typedef void* ImTextureID;
+typedef unsigned int ImTextureID;
 typedef unsigned short ImDrawIdx;
 typedef unsigned int ImGuiID;
 typedef signed char ImS8;

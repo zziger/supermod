@@ -61,6 +61,7 @@ private:
 };
 
 struct ReadyEvent : IEvent<"ready", ReadyEvent> {};
+struct WindowReadyEvent : IEvent<"windowReady", ReadyEvent> {};
 
 typedef std::pair<const uint32_t, const std::function<void(IAnyEvent&)>> TEventPair;
 typedef std::multimap<const std::string, TEventPair> TEventMap;
