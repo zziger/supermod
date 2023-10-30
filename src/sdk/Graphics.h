@@ -9,9 +9,9 @@ namespace sdk
 	public:
 		static void SetRenderAsset(game::Asset* asset)
 		{
-			(*sdk::DirectX::d3dDevice)->SetTexture(0, !asset || !asset->texture
-				? game::AssetPool::Instance()->GetSharedUnknownAsset()->texture
-				: asset->texture);
+			static constexpr Memory::Pattern pat("55 8B EC 83 7D ? ? 74 ? 8B 45 ? 8B 88");
+			static auto fn = pat.Search().Get<int (__cdecl *)(game::Asset*)>();
+			fn(asset);
 		}
 
 		static void SetTextColor(rgba color)
@@ -38,7 +38,9 @@ namespace sdk
 		static void AddToLua(LuaContext& context)
 		{
 			context.writeModuleVariable("graphics", LuaContext::Table{});
-			context.writeModuleVariable("graphics", "setRenderAsset", SetRenderAsset);
+			context.writeModuleVariable("graphics", "setRenderAsset", std::function([](tl::optional<game::Asset*> asset) {
+				SetRenderAsset(asset ? *asset : nullptr);
+			}));
 			context.writeModuleVariable("graphics", "setTextColor", SetTextColor	);
 			context.writeModuleVariable("graphics", "renderText", RenderText);
 			context.writeModuleVariable("graphics", "render", std::function([](vector2 coords, vector2 size, tl::optional<rect> uv, tl::optional<rgba> color) {
