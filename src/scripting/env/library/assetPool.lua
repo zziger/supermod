@@ -25,7 +25,7 @@ function M.getAssets() end
 
 ---Возвращает ассет по имени
 ---@param name string
----@return Asset
+---@return Asset?
 function M.getAssetByName(name) end
 
 ---Возвращает неизвестный ассет (фиолетово-чёрная шашка)
@@ -36,12 +36,14 @@ function M.getUnknownAsset() end
 ---@param path string
 ---@param loadFallback boolean?
 ---@param canvasSizeMultiplier vector2?
+---@return Asset?
 function M.loadGameAsset(path, loadFallback, canvasSizeMultiplier) end
 
 ---Загружает ассет по правилам загрузки ассетов игры (пробует разные расширения файлов и т.д.) от папки data
 ---@param path string
 ---@param loadFallback boolean?
 ---@param canvasSizeMultiplier vector2?
+---@return Asset?
 function M.loadGameAssetFromData(path, loadFallback, canvasSizeMultiplier) end
 
 ---Загружает ассет по точному пути к файлу от текущей папки
@@ -49,6 +51,7 @@ function M.loadGameAssetFromData(path, loadFallback, canvasSizeMultiplier) end
 ---@param key string
 ---@param loadFallback boolean?
 ---@param canvasSizeMultiplier vector2?
+---@return Asset?
 function M.loadAsset(path, key, loadFallback, canvasSizeMultiplier) end
 
 return M
