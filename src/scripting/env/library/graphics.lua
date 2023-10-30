@@ -3,7 +3,7 @@
 M = {}
 
 ---Устанавливает текущую текстуру для рендера
----@param asset Asset
+---@param asset Asset?
 function M.setRenderAsset(asset) end
 
 ---Устанавливает цвет текста
