@@ -183,6 +183,14 @@ namespace sdk
         context.registerMember("top", &rect::top);
         context.registerMember("right", &rect::right);
         context.registerMember("bottom", &rect::bottom);
+        
+        context.writeFunction("rgba", [](uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+            return rgba{r, g, b, a};
+        });
+        context.registerMember("r", &rgba::r);
+        context.registerMember("g", &rgba::g);
+        context.registerMember("b", &rgba::b);
+        context.registerMember("a", &rgba::a);
     }
 
     void Game::AddToLua(LuaContext& context) {

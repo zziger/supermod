@@ -9,9 +9,47 @@
 
 namespace game
 {
+    void AssetMeta::RegisterType(LuaContext * ctx)
+    {
+        ctx->registerMember("notFound", &AssetMeta::notFound);
+        ctx->registerMember("origDir", &AssetMeta::origDir);
+        ctx->registerMember("origName", &AssetMeta::origName);
+        ctx->registerMember("canvasSizeMultiplier", &AssetMeta::canvasSizeMultiplier);
+        ctx->registerMember("loadedManually", &AssetMeta::loadedManually);
+        
+    }
+    
     void Asset::ReplaceTexture(IDirect3DTexture8* tex) {
         texture->Release();
         texture = tex;
+    }
+    
+    void Asset::RegisterType(LuaContext* ctx)
+    {
+        AssetMeta::RegisterType(ctx);
+        
+        ctx->registerMember<std::string (Asset::*)>("name",
+            [](const Asset& asset) {
+                return std::string(asset.name);
+            },
+            [](Asset& asset, const std::string& name) {
+                if (name.length() > 123) throw std::runtime_error("Asset name is too long");
+                std::ranges::copy(name, asset.name);
+                asset.name[name.length()] = '\0';
+            });
+        ctx->registerMember("meta", &Asset::meta);
+        ctx->registerMember("width", &Asset::width);
+        ctx->registerMember("height", &Asset::height);
+        ctx->registerMember<int (Asset::*)>("texture",
+            [](const Asset& asset) {
+                return reinterpret_cast<int>(asset.texture);
+            },
+            [](Asset& asset, const int& ptr) {
+                asset.texture = reinterpret_cast<IDirect3DTexture8*>(ptr);
+            });
+        ctx->registerCastedMember<bool>("hasAlpha", &Asset::hasAlpha);
+        ctx->registerCastedMember<bool>("isPoolDefault", &Asset::hasAlpha);
+        ctx->registerCastedMember<int>("format", &Asset::format);
     }
 
     LPDIRECT3DTEXTURE8 AssetPool::LoadTexture(const std::filesystem::path& path, vector2ui& size, bool& alpha, vector2 canvasSizeMultiplier)
@@ -322,5 +360,31 @@ namespace game
     {
         bool alpha;
         return CreateAssetKey(name, alpha);
+    }
+    
+    void AssetPool::AddToLua(LuaContext& ctx) {
+        Asset::RegisterType(&ctx);
+
+        ctx.writeModuleVariable("assetPool", LuaContext::Table{});
+        ctx.writeModuleVariable("assetPool", "getAssets", std::function([]() {
+            return std::vector<Asset*> {Instance()->assets, Instance()->assets + Instance()->assetCount};
+        }));
+        ctx.writeModuleVariable("assetPool", "getAssetByName", std::function([](const std::string& name) -> tl::optional<Asset*> {
+            auto asset = Instance()->GetByName(name);
+            if (!asset) return tl::nullopt;
+            return asset;
+        }));
+        ctx.writeModuleVariable("assetPool", "getUnknownAsset", std::function([]() {
+            return Instance()->GetSharedUnknownAsset();
+        }));
+        ctx.writeModuleVariable("assetPool", "loadGameAsset", std::function([](const std::string& path, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
+            return Instance()->LoadGameAsset(path, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
+        }));
+        ctx.writeModuleVariable("assetPool", "loadGameAssetFromData", std::function([](const std::string& path, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
+            return Instance()->LoadGameAssetFromData(path, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
+        }));
+        ctx.writeModuleVariable("assetPool", "loadAsset", std::function([](const std::string& path, const std::string& key, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
+            return Instance()->LoadAsset(path, key, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
+        }));
     }
 }

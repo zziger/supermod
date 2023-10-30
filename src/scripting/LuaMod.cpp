@@ -40,6 +40,7 @@ void LuaMod::OnEnable() {
     Log::AddToLua(*lua);
     sdk::Game::AddDataToLua(*lua);
     sdk::Game::AddToLua(*lua);
+    game::AssetPool::AddToLua(*lua);
     Config::AddToLua(*lua, info.id);
     HookManager::AddToLua(*lua);
     

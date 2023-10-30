@@ -40,6 +40,12 @@ function currentTimestamp() end
 ---@field right number
 ---@field bottom number
 
+---@class rgba
+---@field r number
+---@field g number
+---@field b number
+---@field a number
+
 ---@param x number
 ---@param y number
 ---@return vector2
@@ -57,6 +63,13 @@ function vector3(x, y, z) end
 ---@param bottom number
 ---@return rect
 function rect(left, top, right, bottom) end
+
+---@param r number
+---@param g number
+---@param b number
+---@param a number
+---@return rgba
+function rgba(r, g, b, a) end
 
 --#region Log
 log = {}

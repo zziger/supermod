@@ -93,6 +93,8 @@ class LuaContext {
     static inline std::unordered_map<lua_State*, std::unordered_set<const std::type_info*>> _registeredTypes{};
     
 public:
+    typedef std::map<std::string, std::string> Table;
+    
     /**
      * @param openDefaultLibs True if luaL_openlibs should be called
      */
@@ -592,6 +594,19 @@ public:
     }
     
     /**
+     * Registers a member variable
+     * This is the version "registerMember(name, &Foo::member)"
+     */
+    template<typename TTargetType, typename TObject, typename TVarType>
+    void registerCastedMember(const std::string& name, TVarType TObject::*member)
+    {
+        // implementation simply calls the custom member with getter and setter
+        const auto getter = [=](const TObject& obj) -> TTargetType { return static_cast<TTargetType>(obj.*member); };
+        const auto setter = [=](TObject& obj, const TTargetType& value) { obj.*member = static_cast<TVarType>(value); };
+        registerMember<TTargetType (TObject::*)>(name, getter, setter);
+    }
+    
+    /**
      * Registers a constant member variable
      * This is the version "registerConstMember(name, &Foo::member)"
      */
@@ -824,6 +839,22 @@ public:
         static_assert(!std::is_same<typename Tupleizer<RealDataType>::type,RealDataType>::value, "Error: you can't use LuaContext::writeVariable with a tuple");
         
         setTable<RealDataType>(mState, Globals, std::forward<TData>(data)...);
+    }
+    
+    template<typename... TData>
+    void writeRegistryVariable(TData&&... data) noexcept {
+        static_assert(sizeof...(TData) >= 2, "You must pass at least a variable name and a value to writeRegistryVariable");
+        typedef typename std::decay<typename std::tuple_element<sizeof...(TData) - 1,std::tuple<TData...>>::type>::type
+            RealDataType;
+        static_assert(!std::is_same<typename Tupleizer<RealDataType>::type,RealDataType>::value, "Error: you can't use LuaContext::writeRegistryVariable with a tuple");
+        
+        setTable<RealDataType>(mState, Registry, std::forward<TData>(data)...);
+    }
+
+    // First argument is a module name, then object path, and then value to set
+    template<typename... TData>
+    void writeModuleVariable(TData&&... data) noexcept {
+        writeRegistryVariable("_LOADED", std::forward<TData>(data)...);
     }
     
     /**

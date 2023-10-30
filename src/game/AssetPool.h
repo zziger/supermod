@@ -13,10 +13,12 @@ namespace game
         std::string origName = "";
         vector2 canvasSizeMultiplier = { 1, 1 };
         bool loadedManually = false;
+
+        static void RegisterType(LuaContext* ctx);
     };
     
     struct Asset {
-        const char name[124]; // originally name has length of 128, i take 4 bytes for custom meta ptr
+        char name[124]; // originally name has length of 128, i take 4 bytes for custom meta ptr
         AssetMeta* meta;
         uint32_t width;
         uint32_t height;
@@ -26,6 +28,8 @@ namespace game
         D3DFORMAT format;
 
         void ReplaceTexture(IDirect3DTexture8* tex);
+
+        static void RegisterType(LuaContext* ctx);
     };
     
     class AssetPool {
@@ -58,5 +62,6 @@ namespace game
         static std::string TrimFileName(std::string name, bool& alpha);
         static std::string CreateAssetKey(const std::string& name, bool& alpha);
         static std::string CreateAssetKey(const std::string& name);
+        static void AddToLua(LuaContext& ctx);
     };
 }
