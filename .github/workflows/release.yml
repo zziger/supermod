@@ -32,7 +32,7 @@ jobs:
         with:
           tag_name: ${{github.ref_name}}
           name: ${{github.ref_name}}
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, 'beta') }}
           generate_release_notes: true
           files: |
             ./build/windows/x86/release/dinput8.dll
