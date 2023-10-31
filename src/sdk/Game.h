@@ -43,7 +43,9 @@ namespace sdk
         struct World
         {
             static rect GetCamWorldRect();
+            static vector2 GetWorldProjectionSize();
             static float GetCamZoom();
+            static vector2 GetCamPos();
             static vector2 ScreenToWorld(vector2 coords);
             // boolean determines if the coords are on screen currently or no
             static std::tuple<vector2, bool> WorldToScreen(vector2 coords);

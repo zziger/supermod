@@ -23,4 +23,20 @@ function M.render(coords, size, uv, color) end
 ---@param text string
 function M.renderText(coords, size, text) end
 
+---Устанавливает проекцию рендера
+---@param size vector2
+---@param near number
+---@param far number
+function M.setRenderProjection(size, near, far) end
+
+---Сбрасывает проекцию рендера до 800x600
+function M.resetRenderProjection() end
+
+---Устанавливает трансформацию рендера
+---@param pos vector2
+function M.setRenderTransform(pos) end
+
+---Сбрасывает трансформацию рендера до 0, 0
+function M.resetRenderTransform() end
+
 return M

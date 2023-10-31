@@ -99,8 +99,14 @@ function game.isGameLoaded() end
 ---@return rect
 function game.world.getCamWorldRect() end
 
+---@return vector2
+function game.world.getWorldProjectionSize() end
+
 ---@return number
 function game.world.getCamZoom() end
+
+---@return vector2
+function game.world.getCamPos() end
 
 ---@return vector2
 function game.world.screenToWorld() end

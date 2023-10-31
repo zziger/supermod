@@ -126,12 +126,28 @@ namespace sdk
         static auto ptr = *mem.Get<rect**>(1);
         return *ptr;
     }
+
+    vector2 Game::World::GetWorldProjectionSize()
+    {
+        static constexpr Memory::Pattern pat("D9 1D ? ? ? ? D9 05 ? ? ? ? D8 0D ? ? ? ? D9 1D ? ? ? ? 8B 0D ? ? ? ? 89 0D ? ? ? ? 8B 15 ? ? ? ? 89 15 ? ? ? ? 5D");
+        static auto mem = pat.Search();
+        static auto ptr = *mem.Get<vector2**>(2);
+        return *ptr;
+    }
     
     float Game::World::GetCamZoom()
     {
         static constexpr Memory::Pattern pat("D8 0D ? ? ? ? D8 0D ? ? ? ? D8 35");
         static auto mem = pat.Search();
         static auto ptr = *mem.Get<float**>(2);
+        return *ptr;
+    }
+    
+    vector2 Game::World::GetCamPos()
+    {
+        static constexpr Memory::Pattern pat("89 0D ? ? ? ? 89 15 ? ? ? ? 68 ? ? ? ? B9");
+        static auto mem = pat.Search();
+        static auto ptr = *mem.Get<vector2**>(2);
         return *ptr;
     }
 
@@ -207,7 +223,9 @@ namespace sdk
         
         context.writeVariable("game", "world", std::map<int, int>{});
         context.writeVariable("game", "world", "getCamWorldRect", World::GetCamWorldRect);
+        context.writeVariable("game", "world", "getWorldProjectionSize", World::GetWorldProjectionSize);
         context.writeVariable("game", "world", "getCamZoom", World::GetCamZoom);
+        context.writeVariable("game", "world", "getCamPos", World::GetCamPos);
         context.writeVariable("game", "world", "screenToWorld", World::ScreenToWorld);
         context.writeVariable("game", "world", "worldToScreen", World::WorldToScreen);
        

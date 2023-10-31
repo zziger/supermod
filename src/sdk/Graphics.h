@@ -15,6 +15,12 @@ namespace sdk
 
 		static void RenderText(vector2 coords, float size, std::string text);
 
+		static void SetRenderProjection(vector2 size, float nearZ, float farZ);
+
+		static void ResetRenderProjection();
+		static void SetRenderTransform(vector3 pos);
+		static void ResetRenderTransform();
+
 		static void AddToLua(LuaContext& context);
 	};
 }
