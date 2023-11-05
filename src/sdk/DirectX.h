@@ -13,5 +13,11 @@ namespace sdk
         static void Init();
         static void ResetDevice();
         static void EnsureDeviceReady();
+
+        static void RemoveTexture(IDirect3DTexture8* texture);
+        
+    private:
+        static inline std::vector<IDirect3DTexture8*> removedTextures;
+        static void ReleaseRemovedTextures();
     };
 }

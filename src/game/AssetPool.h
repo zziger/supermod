@@ -40,9 +40,9 @@ namespace game
         Asset* assets[1024];
         int assetCount;
 
-        static LPDIRECT3DTEXTURE8 LoadTexture(const std::filesystem::path & path, vector2ui & size, bool & alpha, vector2 canvasSizeMultiplier = { 1, 1 });
-        static LPDIRECT3DTEXTURE8 TryLoadTexture(const std::filesystem::path & dir, const std::string & key, bool alpha, vector2ui & size, vector2 canvasSizeMultiplier);
-        LPDIRECT3DTEXTURE8 TryLoadTextureFromMods(const std::filesystem::path & dir, const std::string & name, bool alpha, vector2ui & size, std::string & modName, vector2 canvasSizeMultiplier);
+        [[nodiscard]] static LPDIRECT3DTEXTURE8 LoadTexture(const std::filesystem::path & path, vector2ui & size, bool & alpha, vector2 canvasSizeMultiplier = { 1, 1 });
+        [[nodiscard]] static LPDIRECT3DTEXTURE8 TryLoadTexture(const std::filesystem::path & dir, const std::string & key, bool alpha, vector2ui & size, vector2 canvasSizeMultiplier);
+        [[nodiscard]] LPDIRECT3DTEXTURE8 TryLoadTextureFromMods(const std::filesystem::path & dir, const std::string & name, bool alpha, vector2ui & size, std::string & modName, vector2 canvasSizeMultiplier);
 
         Asset* LoadGameAsset(const std::filesystem::path & path, bool loadFallback = true, vector2 canvasSizeMultiplier = { 1, 1 });
         Asset* LoadGameAssetFromData(const std::filesystem::path & path, bool loadFallback, vector2 canvasSizeMultiplier);
@@ -50,18 +50,24 @@ namespace game
         Asset* LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size);
         Asset* LoadAsset(const std::filesystem::path & path, std::string key, bool loadFallback = true, vector2 canvasSizeMultiplier = { 1, 1 });
         Asset* LoadUnknownAsset(const std::string & key);
-        Asset* GetSharedUnknownAsset();
+        [[nodiscard]] Asset* GetSharedUnknownAsset();
         
         Asset* AllocateAsset(const std::string& key);
+        void RemoveAsset(Asset * asset);
         void FreeAsset(Asset * asset);
+
+        static inline std::vector<IDirect3DTexture8*> removedTextures;
+        static inline std::vector<Asset*> removedAssets;
+        void FreeRemovedAssets();
 
         [[nodiscard]] Asset* GetByName(const std::string& name) const;
 
         static AssetPool* Instance();
+        static void Init();
 
-        static std::string TrimFileName(std::string name, bool& alpha);
-        static std::string CreateAssetKey(const std::string& name, bool& alpha);
-        static std::string CreateAssetKey(const std::string& name);
+        [[nodiscard]] static std::string TrimFileName(std::string name, bool& alpha);
+        [[nodiscard]] static std::string CreateAssetKey(const std::string& name, bool& alpha);
+        [[nodiscard]] static std::string CreateAssetKey(const std::string& name);
         static void AddToLua(LuaContext& ctx);
     };
 }

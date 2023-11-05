@@ -84,6 +84,7 @@ void init() {
     
     MH_Initialize();
     sdk::Game::Init();
+    game::AssetPool::Init();
     
     ModManager::Init();
     hook_start_execution();

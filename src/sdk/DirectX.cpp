@@ -9,6 +9,10 @@ namespace sdk
     void DirectX::Init() {
         constexpr Memory::Pattern pushD3dDevicePointer("68 ? ? ? ? 68 ? ? ? ? 6A ? 8B 4D 08");
         d3dDevice = *pushD3dDevicePointer.Search().Get<IDirect3DDevice8***>(1);
+
+        EventManager::On<AfterTickEvent>([] {
+            ReleaseRemovedTextures();
+        });
     }
 
     static inline bool deviceResetRequested = false;
@@ -28,5 +32,20 @@ namespace sdk
     {
         if (!d3dDevice || !*d3dDevice)
             throw Error("Устройство DirectX ещё не готово к работе");
+    }
+    
+    void DirectX::RemoveTexture(IDirect3DTexture8* texture) {
+        if (!texture) return;
+        if (std::ranges::find(removedTextures, texture) != removedTextures.end()) return;
+        removedTextures.push_back(texture);
+    }
+    
+    void DirectX::ReleaseRemovedTextures() {
+        if (removedTextures.empty()) return;
+        const auto scheduledTextures = removedTextures;
+        removedTextures = {};
+        for (const auto texture : scheduledTextures) {
+            texture->Release();
+        }
     }
 }

@@ -54,4 +54,8 @@ function M.loadGameAssetFromData(path, loadFallback, canvasSizeMultiplier) end
 ---@return Asset?
 function M.loadAsset(path, key, loadFallback, canvasSizeMultiplier) end
 
+---Удаляет ассет из пула и выгружает из памяти
+---@param asset Asset
+function M.removeAsset(asset) end
+
 return M

@@ -1,5 +1,6 @@
 ﻿#include "AssetPool.h"
 
+#include "events/TickEvent.h"
 #include "modloader/mods/ModManager.h"
 #include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/Game.h"
@@ -16,11 +17,10 @@ namespace game
         ctx->registerMember("origName", &AssetMeta::origName);
         ctx->registerMember("canvasSizeMultiplier", &AssetMeta::canvasSizeMultiplier);
         ctx->registerMember("loadedManually", &AssetMeta::loadedManually);
-        
     }
     
     void Asset::ReplaceTexture(IDirect3DTexture8* tex) {
-        texture->Release();
+        sdk::DirectX::RemoveTexture(texture);
         texture = tex;
     }
     
@@ -152,7 +152,7 @@ namespace game
         }
         
         const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
-        if (asset->texture) asset->texture->Release();
+        if (asset->texture) sdk::DirectX::RemoveTexture(asset->texture);
         delete asset->meta;
         
         asset->texture = tex;
@@ -211,7 +211,7 @@ namespace game
             Log::Error << "Не удалось перезагрузить текстуру " << filename << " (" + key + ")" << Log::Endl;
         }
 
-        asset->texture->Release();
+        sdk::DirectX::RemoveTexture(asset->texture);
         asset->texture = texture;
         asset->width = size.x;
         asset->height = size.y;
@@ -224,12 +224,12 @@ namespace game
         const auto previousAsset = GetByName(key);
         if (previousAsset && !(previousAsset->meta && previousAsset->meta->notFound))
         {
-            tex->Release();
+            sdk::DirectX::RemoveTexture(tex);
             return previousAsset;
         }
         
         const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
-        if (asset->texture) asset->texture->Release();
+        if (asset->texture) sdk::DirectX::RemoveTexture(asset->texture);
         delete asset->meta;
         
         asset->texture = tex;
@@ -262,7 +262,7 @@ namespace game
             Log::Error << "Texture " << path << " not found" << Log::Endl;
         
         const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
-        if (asset->texture) asset->texture->Release();
+        if (asset->texture) sdk::DirectX::RemoveTexture(asset->texture);
         delete asset->meta;
         
         asset->texture = tex;
@@ -315,11 +315,35 @@ namespace game
         return mem.Get<Asset* (__thiscall *)(void*, const char*)>()(static_cast<void*>(this), key.c_str());
     }
 
-    void AssetPool::FreeAsset(Asset * asset)
+    void AssetPool::RemoveAsset(Asset * asset)
     {
+        if (!asset) return;
+        
+        if (asset->meta) asset->meta->notFound = true;
+        const auto previousTexture = asset->texture;
+        asset->texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, { asset->width, asset->height }, asset->meta ? asset->meta->canvasSizeMultiplier : vector2 { 1, 1 });
+        sdk::DirectX::RemoveTexture(previousTexture);
+
+        if (asset->meta && asset->meta->loadedManually) {
+            if (std::ranges::find(removedAssets, asset) == removedAssets.end()) {
+                removedAssets.push_back(asset);
+            }
+        }
+    }
+
+    void AssetPool::FreeAsset(Asset* asset) {
         static constexpr Memory::Pattern pat("E8 ? ? ? ? C7 05 ? ? ? ? ? ? ? ? 68 ? ? ? ? FF 15");
         static auto mem = pat.Search().GoToNearCall();
         mem.Get<void (__thiscall *)(void*, void*)>()(static_cast<void*>(this), asset);
+    }
+
+    void AssetPool::FreeRemovedAssets() {
+        if (removedAssets.empty()) return;
+        const auto scheduledAssets = removedAssets;
+        removedAssets = {};
+        for (const auto asset : scheduledAssets) {
+            FreeAsset(asset);
+        }
     }
     
     Asset* AssetPool::GetByName(const std::string& name) const {
@@ -336,6 +360,13 @@ namespace game
         return *mem.Get<AssetPool**>(1);
     }
     
+    void AssetPool::Init() {
+        const auto instance = Instance();
+        EventManager::On<AfterTickEvent>([instance] {
+            instance->FreeRemovedAssets();
+        });
+    }
+
     std::string AssetPool::TrimFileName(std::string name, bool & alpha)
     {
         std::ranges::transform(name, name.begin(), tolower);
@@ -385,6 +416,9 @@ namespace game
         }));
         ctx.writeModuleVariable("assetPool", "loadAsset", std::function([](const std::string& path, const std::string& key, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
             return Instance()->LoadAsset(path, key, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
+        }));
+        ctx.writeModuleVariable("assetPool", "removeAsset", std::function([](Asset* asset) {
+            Instance()->RemoveAsset(asset);
         }));
     }
 }

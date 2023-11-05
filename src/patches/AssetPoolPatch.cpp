@@ -87,7 +87,7 @@ game::Asset* __fastcall load_texture_obj(game::AssetPool* this_, void*, char* na
     current_path(cwd);
     if (secondTex)
     {
-        this_->FreeAsset(secondTex);
+        this_->RemoveAsset(secondTex);
         return nullptr;
     }
 

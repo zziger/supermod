@@ -94,7 +94,7 @@ void ModInfo::EnsureIcon() {
 void ModInfo::ReleaseIcon()
 {
     if (icon == nullptr) return;
-    game::AssetPool::Instance()->FreeAsset(icon);
+    game::AssetPool::Instance()->RemoveAsset(icon);
     icon = nullptr;
 }
 

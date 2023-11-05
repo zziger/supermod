@@ -1,6 +1,7 @@
 ﻿#include "../ModFileResolver.h"
 #include "events/ResolveFileEvent.h"
 #include "game/AssetPool.h"
+#include "sdk/DirectX.h"
 
 
 void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
@@ -21,7 +22,7 @@ void ModFileResolver::LoadTexture(std::filesystem::path texturePath) {
         return;
     }
 
-    asset->texture->Release();
+    sdk::DirectX::RemoveTexture(asset->texture);
     asset->texture = texture;
     asset->width = size.x;
     asset->height = size.y;
