@@ -14,6 +14,7 @@
 #include "DirectXUtils.h"
 #include "events/ResolveFileEvent.h"
 #include "game/AssetPool.h"
+#include "sdk/Graphics.h"
 
 static float squarify_dimensions_algorithm(const int a1) {
     float v3 = 1;
@@ -94,6 +95,13 @@ game::Asset* __fastcall load_texture_obj(game::AssetPool* this_, void*, char* na
     return this_->LoadUnknownAsset(game::AssetPool::CreateAssetKey(name));
 }
 
+HOOK_FN_CONV(int, render_border, ARGS(int* a1), __cdecl) {
+    static game::Asset* white = nullptr;
+    if (!white) white = game::AssetPool::Instance()->GetByName("white");
+    sdk::Graphics::SetRenderAsset(white);
+    return render_border_orig(a1);
+}
+
 inline EventManager::Ready $asset_pool_patch([] {
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? 8B 45 ? 50 8B 4D ? E8 ? ? ? ? 89 45 ? 83 7D ? ? 74 ? 8B 45 ? E9 ? ? ? ? 6A ? 6A ? 8B 4D", HOOK_REF_FORCE(read_const_jpg));
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? 8B 45 ? 50 8B 4D ? E8 ? ? ? ? 89 45 ? 83 7D ? ? 74 ? 8B 45 ? E9 ? ? ? ? C7 45", HOOK_REF_FORCE(read_const_surface));
@@ -109,4 +117,10 @@ inline EventManager::Ready $asset_pool_patch([] {
     // patches editor triangle render texture problem
     static constexpr Memory::Pattern pat2("83 C4 ? 6A ? E8 ? ? ? ? 83 C4 ? 8D 4D ? E8 ? ? ? ? 8D 4D ? E8 ? ? ? ? 8D 4D");
     pat2.Search().Nop(10);
+
+    // patches editor border render texture problems
+    static constexpr Memory::Pattern pat3("55 8B EC 83 EC ? 6A ? E8 ? ? ? ? 83 C4 ? 8D 4D ? E8 ? ? ? ? 8D 4D");
+    static auto mem = pat3.Search();
+    (mem + 6).Nop(7);
+    HookManager::RegisterHook(mem, HOOK_REF(render_border));
 });
