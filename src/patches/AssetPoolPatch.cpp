@@ -105,4 +105,8 @@ inline EventManager::Ready $asset_pool_patch([] {
     
     static constexpr Memory::Pattern pat("E8 ? ? ? ? 8B 4D ? 89 41 ? 8B 55 ? 83 7A ? ? 0F 85 ? ? ? ? 68 ? ? ? ? E8");
     pat.Search().NearCall(static_cast<void*>(load_texture_obj));
+
+    // patches editor triangle render texture problem
+    static constexpr Memory::Pattern pat2("83 C4 ? 6A ? E8 ? ? ? ? 83 C4 ? 8D 4D ? E8 ? ? ? ? 8D 4D ? E8 ? ? ? ? 8D 4D");
+    pat2.Search().Nop(10);
 });
