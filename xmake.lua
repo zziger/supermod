@@ -22,7 +22,7 @@ target("dinput8")
     set_prefixname("")
     set_suffixname("")
     add_options("mod-version")
-    add_rules("plugin.vsxmake.autoupdate")
+    add_rules("plugin.compile_commands.autoupdate")
 
     add_files("./src/**.cpp")
     add_files("./src/**.def")
