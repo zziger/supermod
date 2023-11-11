@@ -131,4 +131,3 @@ fabric.properties
 
 .xmake
 vsxmake2022/*
-!vsxmake2022/.idea

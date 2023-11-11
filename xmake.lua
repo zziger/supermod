@@ -52,7 +52,21 @@ target("dinput8")
     add_defines("_SILENCE_CXX20_CODECVT_FACETS_DEPRECATION_WARNING", "_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")
     add_defines("_UNICODE", "UNICODE", "NOMINMAX")
     set_symbols("debug")
-    
+
+    on_install(function (target)
+        if not os.exists(target:installdir()) then
+            cprint("${red}Укажите папку с установленной Супер-Коровой в аргумент -o")
+            os.exit(1)
+            return
+        end
+
+        local basename = path.join(target:targetdir(), "dinput8.")
+        os.cp(basename .. "dll", target:installdir())
+        if os.exists(basename .. "pdb") then
+            os.cp(basename .. "pdb", target:installdir())
+        end
+    end)
+
     if not is_mode("debug") then
         add_defines("NDEBUG")
     end
