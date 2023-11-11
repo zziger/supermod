@@ -52,7 +52,7 @@
 - XMake 2.7.7 или новее
 
 Для сборки нужно выполнить [`build.bat`](build.bat) в корне проекта.<br>
-Собранная DLL будет находиться по пути `BUILD\Release\dinput8.dll`
+Собранная DLL будет находиться по пути `build/windows/x86/release`
 
 ## Лицензия
 
