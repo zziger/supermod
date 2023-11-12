@@ -173,12 +173,12 @@ void UI::OnWindowEvent(WindowEvent& evt) {
 static inline int (__thiscall *AssetPool__freeAssetsFromD3d_orig)(void* this_) = nullptr;
 static int __fastcall AssetPool__freeAssetsFromD3d(void* this_, void*) {
     ImGui_ImplDX8_InvalidateDeviceObjects();
-    for (auto mod : ModManager::GetMods())
-    {
-        mod->info.ReleaseIcon();
-    }
-    ModManager::GetInternalMod()->info.ReleaseIcon();
-    
+    // for (auto mod : ModManager::GetMods())
+    // {
+    //     mod->info.ReleaseIcon();
+    // }
+    // ModManager::GetInternalMod()->info.ReleaseIcon();
+
     return AssetPool__freeAssetsFromD3d_orig(this_);
 }
 
