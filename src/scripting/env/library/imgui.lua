@@ -19,7 +19,7 @@ ffi.cdef(cdecl)
 
 
 --load dll
-local lib = ffi.load(CURRENT_DLL_PATH)
+local lib = ffi.load("dinput8.dll")
 
 -----------ImStr definition
 local ImStrv
