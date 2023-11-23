@@ -26,7 +26,7 @@ DWORD __stdcall GetCurrentDirectoryAHook(DWORD nBufferLength, LPSTR lpBuffer)
 {
     try
     {
-        auto cwd = std::filesystem::current_path();
+        const auto cwd = std::filesystem::current_path();
         if (lpBuffer)
         {
             auto len = cwd.string().size();
@@ -40,7 +40,7 @@ DWORD __stdcall GetCurrentDirectoryAHook(DWORD nBufferLength, LPSTR lpBuffer)
         return cwd.string().size();
     } catch(...)
     {
-        return E_FAIL;
+        return 0;
     }
 }
 
