@@ -1,3 +1,9 @@
+/// By default game uses ANSI file system methods, and because of that
+/// game will not start if it's located in a folder with cyrillic name
+/// on a system that has non-cyrillic language set as default.
+/// This patch replaces WINAPI ANSI methods with C++ methods, that have
+/// UTF-8 encoding enabled.
+
 #include "Utils.h"
 #include "events/EventManager.h"
 #include "memory/HookManager.h"
