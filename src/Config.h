@@ -2,6 +2,7 @@
 #include <fstream>
 #include <filesystem>
 #include <yaml-cpp/yaml.h>
+#include <mutex>
 
 #include "LuaContext.h"
 
