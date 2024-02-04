@@ -21,5 +21,9 @@ jobs:
           path: |
             ~/AppData/Local/.xmake/packages
             ~/AppData/Local/.xmake/cache
+      - name: Setup project
+        run: xmake f -y -m release -a x86
+      - name: Build project
+        run: xmake build -y test
       - name: Test
-        run: ./test.bat
+        run: xmake run -y test --gtest_color=yes
