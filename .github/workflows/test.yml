@@ -17,7 +17,11 @@ jobs:
       - name: Get XMake dir
         id: xmake_dir
         run: |
-          xmake l -c 'print("root=$(globaldir)")' >> "$GITHUB_OUTPUT"
+          xmake l -c 'print("test=123")'
+          xmake l -c 'print("root=$(globaldir)")'
+          xmake l -c 'print("root=$(globaldir)")' >> $GITHUB_OUTPUT
+          ls ~
+          echo $LOCALAPPDATA
       - name: Cache XMake packages
         uses: actions/cache@v3
         with:
