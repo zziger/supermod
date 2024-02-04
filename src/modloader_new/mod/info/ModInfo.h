@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <map>
 #include <semver.hpp>
+#include <set>
 #include <exceptions/Error.h>
 #include <yaml-cpp/node/node.h>
 
@@ -24,6 +25,7 @@ namespace modloader {
         std::string author;
         std::string version;
         std::string description;
+        std::set<std::string> deps;
         std::map<std::string, std::string> socialLinks {};
 
         semver::version sdkVersion;

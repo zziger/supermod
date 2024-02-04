@@ -9,6 +9,6 @@ namespace modloader
         void Init(Mod& mod) override;
         bool IsActive(const Mod& mod) override { return true; }
         void Update(Mod& mod) override;
-        std::string GetLabel() override;
+        std::string GetLabel() override { return "Включен"; }
     };
 }

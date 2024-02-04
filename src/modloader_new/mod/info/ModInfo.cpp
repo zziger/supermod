@@ -20,6 +20,8 @@ void modloader::ModInfo::Parse(YAML::Node& node)
     author = node["author"].as<std::string>("");
     version = node["version"].as<std::string>("");
     description = std::regex_replace(node["description"].as<std::string>(""), std::regex("^\\s+|\\s+$"), "");
+    auto depsVector = node["deps"].as<std::vector<std::string>>(std::vector<std::string> {});
+    deps = { depsVector.begin(), depsVector.end() };
     socialLinks = node["socialLinks"].as<std::map<std::string, std::string>>(std::map<std::string, std::string>{});
 
     sdkVersion = semver::version {node["sdk-version"].as<std::string>(VERSION)};

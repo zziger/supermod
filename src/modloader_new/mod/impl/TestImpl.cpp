@@ -4,15 +4,15 @@
 
 void modloader::TestImpl::OnEnabled()
 {
-    Log::Info << "On enabled Impl" << Log::Endl;
+    Log::Info << "On enabled Impl " << info->id << Log::Endl;
 }
 
 void modloader::TestImpl::OnDisabled()
 {
-    Log::Info << "On disabled Impl" << Log::Endl;
+    Log::Info << "On disabled Impl" << info->id << Log::Endl;
 }
 
 void modloader::TestImpl::OnTick()
 {
-    Log::Info << "On tick" << Log::Endl;
+    Log::Info << "On tick" << info->id << Log::Endl;
 }
