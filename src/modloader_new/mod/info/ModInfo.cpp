@@ -4,7 +4,7 @@
 #include <regex>
 #include <sdk/Game.h>
 
-void modloader::ModInfo::Parse(const YAML::Node& node)
+void modloader::ModInfo::Parse(YAML::Node& node)
 {
     if (!node.IsMap()) throw ParseError("Неверный формат манифеста");
     if (!node["id"]) throw ParseError("Не удалось найти ID в манифесте");

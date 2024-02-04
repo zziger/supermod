@@ -3,7 +3,7 @@
 
 namespace modloader {
     struct ModInfoFilesystem final : ModInfo {
-        static constexpr std::string MANIFEST_FILENAME = "manifest.yml";
+        static constexpr std::string_view MANIFEST_FILENAME = "manifest.yml";
 
         std::filesystem::path basePath;
 

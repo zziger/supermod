@@ -9,8 +9,8 @@ void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
     const auto manifestPath = path / MANIFEST_FILENAME;
     if (!exists(manifestPath)) throw ModFileError("Манифест мода (manifest.yml) не найден по пути " + manifestPath.string());
 
-    // TODO can this throw?
-    const auto manifest = YAML::LoadFile(manifestPath.string());
+    // TODO handle when this throws
+    auto manifest = YAML::LoadFile(manifestPath.string());
     Parse(manifest);
 
     basePath = path;

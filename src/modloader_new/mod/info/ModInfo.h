@@ -37,7 +37,7 @@ namespace modloader {
          * \param node YAML node to parse from
          * \throws ParseError YAML parse error
          */
-        void Parse(const YAML::Node& node);
+        void Parse(YAML::Node& node);
         // TODO serialize
     };
 }

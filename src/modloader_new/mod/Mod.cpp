@@ -4,8 +4,9 @@
 
 #include "states/ModStateDisabled.h"
 
-modloader::Mod::Mod(std::unique_ptr<ModImpl>&& impl)
-    : impl(std::move(impl))
+modloader::Mod::Mod(std::unique_ptr<ModInfo>&& info, std::unique_ptr<ModImpl>&& impl)
+    : info(std::move(info))
+    , impl(std::move(impl))
     , state(std::make_unique<ModStateDisabled>())
 {
     assert(this->impl && "Tried to create mod with empty impl pointer");
