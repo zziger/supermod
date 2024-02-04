@@ -9,6 +9,7 @@ add_requires("imgui v1.89.3", { configs = { win32 = true, user_config = path.joi
 add_requires("luajit 2.1.0-beta3")
 add_requires("yaml-cpp 0.7.0")
 add_requires("tga 2022.05.05")
+add_requires("gtest v1.14.0")
 
 option("mod-version")
     set_default("0.0.0")
@@ -35,7 +36,7 @@ target("dinput8")
     add_linkdirs("deps")
     add_shflags("/DEF:src/proxy/dinput8.def")
     add_cxflags("/utf-8", { force = true })
-    
+
     add_packages("semver")
     add_packages("tl_optional")
     add_packages("minhook")
@@ -66,6 +67,36 @@ target("dinput8")
             os.cp(basename .. "pdb", target:installdir())
         end
     end)
+
+    if not is_mode("debug") then
+        add_defines("NDEBUG")
+    end
+
+
+target("test")
+    set_languages("c++20")
+
+    add_files("./test/**.cpp")
+    add_headerfiles("./test/**.h")
+    add_headerfiles("./src/**.h")
+    add_includedirs("src")
+    add_includedirs("src/thirdparty")
+    add_deps("dinput8")
+
+    add_packages("gtest")
+    add_packages("semver")
+    add_packages("tl_optional")
+    add_packages("minhook")
+    add_packages("lodepng")
+    add_packages("imgui")
+    add_packages("luajit")
+    add_packages("yaml-cpp")
+    add_packages("libjpeg-turbo")
+    add_packages("tga")
+
+    add_defines("_SILENCE_CXX20_CODECVT_FACETS_DEPRECATION_WARNING", "_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")
+    add_defines("_UNICODE", "UNICODE", "NOMINMAX")
+    set_symbols("debug")
 
     if not is_mode("debug") then
         add_defines("NDEBUG")
