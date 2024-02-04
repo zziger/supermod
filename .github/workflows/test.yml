@@ -14,20 +14,12 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-      - name: Get XMake dir
-        id: xmake_dir
-        run: |
-          xmake l -c 'print("test=123")'
-          xmake l -c 'print("root=$(globaldir)")'
-          xmake l -c 'print("root=$(globaldir)")' >> $GITHUB_OUTPUT
-          ls ~
-          echo $LOCALAPPDATA
       - name: Cache XMake packages
         uses: actions/cache@v3
         with:
           key: build-${{ hashFiles('xmake.lua') }}
           path: |
-            ${{ steps.xmake_dir.outputs.root }}/packages
-            ${{ steps.xmake_dir.outputs.root }}/cache
+            ~/AppData/Local/.xmake/packages
+            ~/AppData/Local/.xmake/cache
       - name: Test
         run: ./test.bat
