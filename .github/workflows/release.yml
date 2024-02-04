@@ -15,6 +15,13 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
+      - name: Cache XMake packages
+        uses: actions/cache@v3
+        with:
+          key: build-${{ hashFiles('xmake.lua') }}
+          path: |
+            ~/AppData/Local/.xmake/packages
+            ~/AppData/Local/.xmake/cache
       - name: Test
         run: ./test.bat
       - name: Build
