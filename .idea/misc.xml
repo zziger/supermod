@@ -14,4 +14,8 @@
   </component>
   <component name="CompDBWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="XMakeProjectSettings">
+    <option name="currentArchitecture" value="x86" />
+    <option name="workingDirectory" value="$PROJECT_DIR$" />
+  </component>
 </project>
