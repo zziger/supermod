@@ -22,8 +22,12 @@ jobs:
           path: |
             ~/AppData/Local/.xmake/packages
             ~/AppData/Local/.xmake/cache
+      - name: Build test project
+        run: xmake build -y test
       - name: Test
-        run: ./test.bat
+        env:
+          TERM: xterm
+        run: xmake run -y test --gtest_color=yes
       - name: Build
         run: ./build.bat ${{github.ref_name}}
       - name: Prepare SDK

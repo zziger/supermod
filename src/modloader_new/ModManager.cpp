@@ -23,7 +23,7 @@ void modloader::ModManager::ScanMods()
         modInfo->FromPath(file.path());
 
         auto mod = std::make_unique<Mod>(modInfo, std::make_unique<TestImpl>(modInfo));
-        mods.push_back(std::move(mod));
+        AddMod(std::move(mod));
     }
 }
 
@@ -59,3 +59,15 @@ modloader::Mod* modloader::ModManager::FindModByID(std::string id)
 
     return nullptr;
 }
+
+void modloader::ModManager::AddMod(std::unique_ptr<Mod>&& mod)
+{
+    mods.push_back(std::move(mod));
+}
+
+#ifdef UNIT_TESTS
+void modloader::ModManager::Reset()
+{
+    mods.clear();
+}
+#endif

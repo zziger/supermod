@@ -23,6 +23,7 @@ extern "C"
 	__declspec(naked) void __stdcall FakeGetdfDIJoystick() { _asm { jmp[dinput8.OrignalGetdfDIJoystick] } }
 }
 
+#ifndef UNIT_TESTS
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	char path[MAX_PATH];
 	switch (ul_reason_for_call)
@@ -55,3 +56,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	}
 	return main(hModule, ul_reason_for_call, lpReserved);
 }
+#endif

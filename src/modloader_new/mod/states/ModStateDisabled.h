@@ -8,6 +8,7 @@ namespace modloader
     public:
         void Init(Mod& mod) override;
         void Update(Mod& mod) override;
+        Type GetType() override { return Type::DISABLED; }
         std::string GetLabel() override { return "Выключен"; }
     };
 }

@@ -3,6 +3,7 @@
 #include <map>
 #include <semver.hpp>
 #include <set>
+#include <utility>
 #include <exceptions/Error.h>
 #include <yaml-cpp/node/node.h>
 
@@ -20,6 +21,9 @@ namespace modloader {
             using Error::Error;
         };
 
+        ModInfo() = default;
+        explicit ModInfo(std::string id) : id(std::move(id)) {}
+
         std::string id;
         std::string title;
         std::string author;
@@ -31,7 +35,7 @@ namespace modloader {
         semver::version sdkVersion;
         std::vector<uint64_t> gameVersions {};
 
-        ScriptType scriptType;
+        ScriptType scriptType = ScriptType::NONE;
         std::string scriptMain;
 
         /**

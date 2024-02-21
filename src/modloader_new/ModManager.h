@@ -4,6 +4,8 @@
 
 #include "mod/Mod.h"
 
+class ModloaderFixture;
+
 namespace modloader {
     class ModManager {
         inline static std::vector<std::unique_ptr<Mod>> mods {};
@@ -20,5 +22,14 @@ namespace modloader {
 
         static const std::vector<std::unique_ptr<Mod>>& GetMods() { return mods; }
         static Mod* FindModByID(std::string id);
+
+        static void AddMod(std::unique_ptr<Mod>&& mod);
+
+#ifdef UNIT_TESTS
+    private:
+        static void Reset();
+
+        friend class ModloaderFixture;
+#endif
     };
 }

@@ -10,6 +10,14 @@ namespace modloader
     public:
         virtual ~ModState() = default;
 
+        enum class Type
+        {
+            DISABLED,
+            ENABLED,
+            WAITING_DEPENDENCIES_LOAD,
+            WAITING_DEPENDANTS_UNLOAD,
+        };
+
         virtual bool IsActive(const Mod& mod)
         {
             return false;
@@ -18,6 +26,8 @@ namespace modloader
         virtual void Init(Mod& mod)
         {
         }
+
+        virtual Type GetType() = 0;
 
         virtual std::string GetLabel() = 0;
 
