@@ -1,6 +1,8 @@
 #include <Log.h>
 #include <gtest/gtest.h>
 #include <modloader_new/ModManager.h>
+#include <modloader_new/mod/states/ModStateWaitingDependantsUnload.h>
+#include <modloader_new/mod/states/ModStateWaitingDependenciesLoad.h>
 #include <sdk/Game.h>
 #include "mock/ModImplMock.h"
 
@@ -54,7 +56,7 @@ TEST_F(ModloaderFixture, ShouldLoadDependentlessMod)
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::ENABLED);
 }
 
-TEST_F(ModloaderFixture, ShouldUnoadDependentlessMod)
+TEST_F(ModloaderFixture, ShouldUnloadDependentlessMod)
 {
     const auto mod = AddMod("test");
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
@@ -66,6 +68,7 @@ TEST_F(ModloaderFixture, ShouldUnoadDependentlessMod)
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
 }
 
+#pragma region Load dependencies
 TEST_F(ModloaderFixture, ShouldLoadOrderedWaitingDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
@@ -171,7 +174,9 @@ TEST_F(ModloaderFixture, ShouldLoadUnorderedDependantMod)
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
 }
+#pragma endregion
 
+#pragma region Unload dependencies
 TEST_F(ModloaderFixture, ShouldUnloadOrderedDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
@@ -296,3 +301,67 @@ TEST_F(ModloaderFixture, ShouldUnloadUnorderedWaitingDependantMod)
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::DISABLED);
 }
+#pragma endregion
+
+#pragma region Active state
+TEST_F(ModloaderFixture, ShouldReturnNotActiveWhenDisabled)
+{
+    const auto mod = AddMod("test");
+    ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
+    ASSERT_EQ(mod->IsActive(), false);
+}
+
+TEST_F(ModloaderFixture, ShouldReturnNotActiveWhenWaitingDependencies)
+{
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    infoChild->deps.insert("test-parent");
+
+    const auto parent = AddMod(infoParent);
+    const auto child = AddMod(infoChild);
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::DISABLED);
+
+    child->Toggle(true);
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::WAITING_DEPENDENCIES_LOAD);
+    ASSERT_EQ(child->IsActive(), false);
+}
+
+TEST_F(ModloaderFixture, ShouldReturnActiveWhenWaitingDependants)
+{
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    infoChild->deps.insert("test-parent");
+
+    const auto parent = AddMod(infoParent);
+    const auto child = AddMod(infoChild);
+
+    child->Toggle(true);
+    parent->Toggle(true);
+    ModManager::Tick();
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
+
+    parent->Toggle(false);
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(parent->IsActive(), true);
+}
+
+TEST_F(ModloaderFixture, ShouldReturnActiveWhenEnabled)
+{
+    const auto mod = AddMod("test");
+    mod->Toggle(true);
+    mod->Tick();
+    ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::ENABLED);
+    ASSERT_EQ(mod->IsActive(), true);
+}
+#pragma endregion
+
