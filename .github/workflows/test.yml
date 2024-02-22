@@ -21,10 +21,12 @@ jobs:
           path: |
             ~/AppData/Local/.xmake/packages
             ~/AppData/Local/.xmake/cache
+      - name: Install Cygwin
+        uses: cygwin/cygwin-install-action@master
       - name: Setup project
         run: xmake f -y -m release -a x86
       - name: Build project
         run: xmake build -y test
       - name: Test
-        shell: cmd
+        shell: bash
         run: xmake run -y test
