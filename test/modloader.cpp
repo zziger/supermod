@@ -30,7 +30,7 @@ protected:
     {
         auto mod = std::make_shared<Mod>(info, std::make_unique<testing::NiceMock<ModImplMock>>());
         ModManager::AddMod(mod);
-        return ModManager::FindModByID(info->id);
+        return ModManager::FindModByID(info->GetID());
     }
 };
 
@@ -38,13 +38,13 @@ TEST_F(ModloaderFixture, ShouldAddMod)
 {
     AddMod("test");
     ASSERT_EQ(ModManager::GetMods().size(), 1);
-    ASSERT_EQ(ModManager::GetMods()[0]->GetInfo()->id, "test");
+    ASSERT_EQ(ModManager::GetMods()[0]->GetInfo()->GetID(), "test");
 }
 
 TEST_F(ModloaderFixture, ShouldFindModByID)
 {
     const auto mod = AddMod("test");
-    ASSERT_EQ(mod->GetInfo()->id, "test");
+    ASSERT_EQ(mod->GetInfo()->GetID(), "test");
 }
 
 TEST_F(ModloaderFixture, ShouldLoadDependentlessMod)

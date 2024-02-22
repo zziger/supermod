@@ -21,7 +21,7 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
 {
     assert(state && "Tried to set empty state pointer to mod");
 
-    Log::Info << "State update for mod " << GetInfo()->id << ": " << state->GetLabel() << Log::Endl;
+    Log::Info << "State update for mod " << GetInfo()->GetID() << ": " << state->GetLabel() << Log::Endl;
     this->state = std::move(state);
     this->state->Init(*this);
 }

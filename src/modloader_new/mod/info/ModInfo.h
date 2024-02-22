@@ -24,7 +24,7 @@ namespace modloader {
         ModInfo() = default;
         explicit ModInfo(std::string id) : id(std::move(id)) {}
 
-        std::string id;
+        std::string GetID() { return id; };
         std::string title;
         std::string author;
         std::string version;
@@ -45,5 +45,8 @@ namespace modloader {
          */
         void Parse(YAML::Node& node);
         // TODO serialize
+
+    private:
+        std::string id;
     };
 }

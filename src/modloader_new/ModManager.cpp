@@ -44,7 +44,7 @@ std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::st
 void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
 {
     mods.push_back(mod);
-    mods_map[mod->GetInfo()->id] = mod;
+    mods_map[mod->GetInfo()->GetID()] = mod;
 }
 
 #ifdef UNIT_TESTS

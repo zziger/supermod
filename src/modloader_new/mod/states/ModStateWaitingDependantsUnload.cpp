@@ -23,7 +23,7 @@ void modloader::ModStateWaitingDependantsUnload::Update(Mod& mod)
 
 bool modloader::ModStateWaitingDependantsUnload::Check(const Mod& mod)
 {
-    auto modID = mod.GetInfo()->id;
+    auto modID = mod.GetInfo()->GetID();
     return std::ranges::none_of(ModManager::GetMods(), [&modID](const std::shared_ptr<Mod>& iterMod) -> bool {
         return iterMod->IsActive() && iterMod->GetInfo()->deps.contains(modID);
     });
