@@ -132,3 +132,5 @@ fabric.properties
 .xmake
 vsxmake2022/*
 .cache
+
+!deps/*.dll
