@@ -114,7 +114,7 @@ target("test")
     set_symbols("debug")
 
     after_build(function(target)
-        os.cp('./deps/bass.dll', path.directory(target:targetfile()))
+        os.cp('$(projectdir)/deps/bass.dll', path.directory(target:targetfile()))
     end)
 
     if not is_mode("debug") then
