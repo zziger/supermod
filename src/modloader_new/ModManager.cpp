@@ -31,43 +31,26 @@ void modloader::ModManager::Tick()
 {
     for (const auto& mod : mods)
     {
-        Log::Info << "Emitting tick for " << mod->GetInfo()->id << Log::Endl;
         mod->Tick();
     }
 }
 
-void modloader::ModManager::LogStates()
+std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::string& id)
 {
-    Log::Info << "== STATES BEG ==" << Log::Endl;
-    for (const auto& mod : mods)
-    {
-        Log::Info << mod->GetInfo()->id << ": " << mod->IsEnabled() << " " << mod->IsActive() << " " << mod->GetState()->GetLabel() << Log::Endl;
-    }
-    Log::Info << "== STATES END ==" << Log::Endl;
+    if (!mods_map.contains(id)) return nullptr;
+    return mods_map[id];
 }
 
-modloader::Mod* modloader::ModManager::FindModByID(std::string id)
+void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
 {
-    // TODO optimize
-    for (const auto& mod : mods)
-    {
-        if (mod->GetInfo()->id == id)
-        {
-            return mod.get();
-        }
-    }
-
-    return nullptr;
-}
-
-void modloader::ModManager::AddMod(std::unique_ptr<Mod>&& mod)
-{
-    mods.push_back(std::move(mod));
+    mods.push_back(mod);
+    mods_map[mod->GetInfo()->id] = mod;
 }
 
 #ifdef UNIT_TESTS
 void modloader::ModManager::Reset()
 {
     mods.clear();
+    mods_map.clear();
 }
 #endif

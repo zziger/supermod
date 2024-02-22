@@ -8,7 +8,8 @@ class ModloaderFixture;
 
 namespace modloader {
     class ModManager {
-        inline static std::vector<std::unique_ptr<Mod>> mods {};
+        inline static std::vector<std::shared_ptr<Mod>> mods {};
+        inline static std::map<std::string, std::shared_ptr<Mod>> mods_map {};
         inline static bool dirty = false;
 
     public:
@@ -20,10 +21,10 @@ namespace modloader {
 
         static void LogStates();
 
-        static const std::vector<std::unique_ptr<Mod>>& GetMods() { return mods; }
-        static Mod* FindModByID(std::string id);
+        static const std::vector<std::shared_ptr<Mod>>& GetMods() { return mods; }
+        static std::shared_ptr<Mod> FindModByID(const std::string& id);
 
-        static void AddMod(std::unique_ptr<Mod>&& mod);
+        static void AddMod(const std::shared_ptr<Mod>& mod);
 
 #ifdef UNIT_TESTS
     private:

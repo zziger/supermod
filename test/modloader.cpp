@@ -21,15 +21,15 @@ protected:
         ModManager::Reset();
     }
 
-    static Mod* AddMod(const std::string& id)
+    static std::shared_ptr<Mod> AddMod(const std::string& id)
     {
         return AddMod(std::make_shared<ModInfo>(id));
     }
 
-    static Mod* AddMod(const std::shared_ptr<ModInfo>& info)
+    static std::shared_ptr<Mod> AddMod(const std::shared_ptr<ModInfo>& info)
     {
-        auto mod = std::make_unique<Mod>(info, std::make_unique<testing::NiceMock<ModImplMock>>());
-        ModManager::AddMod(std::move(mod));
+        auto mod = std::make_shared<Mod>(info, std::make_unique<testing::NiceMock<ModImplMock>>());
+        ModManager::AddMod(mod);
         return ModManager::FindModByID(info->id);
     }
 };
