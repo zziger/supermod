@@ -26,5 +26,6 @@ jobs:
       - name: Build project
         run: xmake build -y test
       - name: Test
-        shell: cmd
-        run: xmake run -y test
+        env:
+          TERM: xterm
+        run: xmake run -y test --gtest_color=yes
