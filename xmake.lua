@@ -113,6 +113,10 @@ target("test")
     add_defines("_UNICODE", "UNICODE", "NOMINMAX")
     set_symbols("debug")
 
+    after_build(function(target)
+        os.cp('./deps/bass.dll', path.directory(target:targetfile()))
+    end)
+
     if not is_mode("debug") then
         add_defines("NDEBUG")
     end
