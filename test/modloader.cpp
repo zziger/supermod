@@ -365,3 +365,91 @@ TEST_F(ModloaderFixture, ShouldReturnActiveWhenEnabled)
 }
 #pragma endregion
 
+TEST_F(ModloaderFixture, ShouldDeleteDisabledMod)
+{
+    const auto mod = AddMod("test");
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+    ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
+    mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+    ModManager::Tick();
+    ASSERT_EQ(ModManager::GetMods().size(), 0);
+}
+
+TEST_F(ModloaderFixture, ShouldNotDeleteEnabledMod)
+{
+    const auto mod = AddMod("test");
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+    ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
+    mod->Toggle(true);
+    ModManager::Tick();
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+    ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::ENABLED);
+    mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+    ModManager::Tick();
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+    mod->Toggle(false);
+    ModManager::Tick();
+    ASSERT_EQ(ModManager::GetMods().size(), 0);
+}
+
+TEST_F(ModloaderFixture, ShouldDeleteModWaitingDependencies)
+{
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    infoChild->deps.insert("test-parent");
+
+    const auto child = AddMod(infoChild);
+    const auto parent = AddMod(infoParent);
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::DISABLED);
+
+    child->Toggle(true);
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::WAITING_DEPENDENCIES_LOAD);
+    ASSERT_EQ(ModManager::GetMods().size(), 2);
+
+    child->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+    ModManager::Tick();
+
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+}
+
+TEST_F(ModloaderFixture, ShouldNotDeleteModWaitingDependendants)
+{
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    infoChild->deps.insert("test-parent");
+
+    const auto child = AddMod(infoChild);
+    const auto parent = AddMod(infoParent);
+
+    child->Toggle(true);
+    parent->Toggle(true);
+    ModManager::Tick();
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
+
+    parent->Toggle(false);
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
+
+    parent->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(ModManager::GetMods().size(), 2);
+
+    child->Toggle(false);
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
+    ASSERT_EQ(ModManager::GetMods().size(), 1);
+}

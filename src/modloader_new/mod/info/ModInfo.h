@@ -21,6 +21,7 @@ namespace modloader {
             using Error::Error;
         };
 
+        virtual ~ModInfo() = default;
         ModInfo() = default;
         explicit ModInfo(std::string id) : id(std::move(id)) {}
 
