@@ -22,8 +22,8 @@ void modloader::ModManager::ScanMods()
         auto modInfo = std::make_shared<ModInfoFilesystem>();
         modInfo->FromPath(file.path());
 
-        auto mod = std::make_unique<Mod>(modInfo, std::make_unique<TestImpl>(modInfo));
-        AddMod(std::move(mod));
+        auto mod = std::make_shared<Mod>(modInfo, std::make_unique<TestImpl>(modInfo));
+        AddMod(mod);
     }
 }
 
