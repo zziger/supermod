@@ -6,6 +6,8 @@
 
 void modloader::ModInfo::Parse(YAML::Node& node)
 {
+    assert(id.empty() && "Tried to parse ModInfo overriding existing data");
+
     if (!node.IsMap()) throw ParseError("Неверный формат манифеста");
     if (!node["id"]) throw ParseError("Не удалось найти ID в манифесте");
 
