@@ -45,14 +45,14 @@ void modloader::ModManager::Tick()
                 return !mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED);
             }).begin(),
             mods.end()
-            );
+        );
 
-        for (const auto& mod : mods)
+        for (const auto& mod : removalList)
         {
             mods_map.erase(mod->GetInfo()->GetID());
         }
 
-        for (const auto& mod : mods)
+        for (const auto& mod : removalList)
         {
             if (mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
             {
