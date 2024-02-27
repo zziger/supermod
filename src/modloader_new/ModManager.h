@@ -25,9 +25,11 @@ namespace modloader {
         static std::shared_ptr<Mod> FindModByID(const std::string& id);
 
         static void AddMod(const std::shared_ptr<Mod>& mod);
+        static void ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods);
+
+    private:
 
 #ifdef UNIT_TESTS
-    private:
         static void Reset();
 
         friend class ModloaderFixture;

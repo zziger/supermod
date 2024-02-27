@@ -77,6 +77,13 @@ void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
     mods_map[mod->GetInfo()->GetID()] = mod;
 }
 
+void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
+{
+    assert(newMods.size() == mods.size() && std::ranges::is_permutation(mods, newMods) && "Reordered mods list is different from mods list");
+
+    mods = newMods;
+}
+
 #ifdef UNIT_TESTS
 void modloader::ModManager::Reset()
 {
