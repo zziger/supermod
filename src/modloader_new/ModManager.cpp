@@ -1,5 +1,6 @@
 #include "ModManager.h"
 
+#include <Config.h>
 #include <Log.h>
 #include <sdk/Game.h>
 
@@ -8,11 +9,14 @@
 void modloader::ModManager::Init()
 {
     ScanMods();
+    SaveConfig();
 }
 
 void modloader::ModManager::ScanMods()
 {
     const auto modsPath = sdk::Game::GetRootPath() / MODS_DIRECTORY;
+
+    std::map<std::string, std::shared_ptr<Mod>> foundMods {};
 
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
     {
@@ -22,7 +26,21 @@ void modloader::ModManager::ScanMods()
         auto modInfo = std::make_shared<ModInfoFilesystem>();
         modInfo->FromPath(file.path());
 
-        auto mod = std::make_shared<Mod>(modInfo, std::make_unique<TestImpl>(modInfo));
+        auto info = std::make_unique<TestImpl>(modInfo);
+        const auto mod = std::make_shared<Mod>(modInfo, std::move(info));
+        foundMods[mod->GetID()] = mod;
+    }
+
+    const Config cfg;
+
+    for (const auto& pair : cfg.data["mods"])
+    {
+        const auto key = pair.first.as<std::string>();
+        const auto& node = pair.second;
+        if (!foundMods.contains(key)) continue;
+
+        auto mod = foundMods[key];
+        mod->Toggle(node["enabled"].as<bool>(false));
         AddMod(mod);
     }
 }
@@ -51,6 +69,8 @@ void modloader::ModManager::Tick()
         {
             mods_map.erase(mod->GetInfo()->GetID());
         }
+
+        SaveConfig();
 
         for (const auto& mod : removalList)
         {
@@ -82,6 +102,50 @@ void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>&
     assert(newMods.size() == mods.size() && std::ranges::is_permutation(mods, newMods) && "Reordered mods list is different from mods list");
 
     mods = newMods;
+
+    SaveConfig();
+}
+
+void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
+{
+    ValidateConfig();
+
+    const Config cfg;
+
+    const auto id = mod->GetID();
+
+    cfg.data["mods"][id]["enabled"] = mod->IsEnabled();
+}
+
+void modloader::ModManager::ValidateConfig()
+{
+    const Config cfg;
+
+    if (!cfg.data["mods"].IsMap())
+    {
+        if (cfg.data["mods"]) Log::Warn << "'mods' in modcfg.yml was not a map. Overriding with an empty map instead" << Log::Endl;
+        cfg.data["mods"] = YAML::Node(YAML::NodeType::Map);
+    }
+}
+
+void modloader::ModManager::SaveConfig()
+{
+    ValidateConfig();
+
+    const Config cfg;
+
+    auto oldTree = cfg.data["mods"];
+    auto tree = YAML::Node();
+
+    for (const auto& mod : mods)
+    {
+        const auto id = mod->GetID();
+
+        if (oldTree[id].IsMap()) tree[id] = oldTree[id];
+        tree[id]["enabled"] = mod->IsEnabled();
+    }
+
+    cfg.data["mods"] = tree;
 }
 
 #ifdef UNIT_TESTS
