@@ -1,5 +1,5 @@
 #pragma once
-#include <modloader/mods/ModInfo.h>
+#include <modloader_new/mod/info/ModInfo.h>
 #include <modloader_new/mod/ModImpl.h>
 
 
