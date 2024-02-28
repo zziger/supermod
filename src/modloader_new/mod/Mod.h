@@ -31,6 +31,7 @@ namespace modloader
         [[nodiscard]] std::shared_ptr<ModInfo> GetInfo() const { return info; }
         [[nodiscard]] const std::unique_ptr<ModState>& GetState() const { return state; }
         [[nodiscard]] const std::unique_ptr<ModImpl>& GetImpl() const { return impl; }
+        [[nodiscard]] std::string GetID() const { return info->GetID(); }
 
         void SetState(std::unique_ptr<ModState>&& state);
 
