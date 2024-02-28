@@ -14,6 +14,7 @@ namespace modloader {
 
     public:
         static constexpr std::string_view MODS_DIRECTORY = "mods";
+        static constexpr uint8_t MAX_STATE_UPDATE_TICKS = 16;
 
         static void Init();
         static void ScanMods();
@@ -26,6 +27,7 @@ namespace modloader {
         static void ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods);
 
         static void SaveConfig(const std::shared_ptr<Mod>& mod);
+        static void MarkDirty() { dirty = true; }
 
     private:
 

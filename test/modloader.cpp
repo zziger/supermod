@@ -52,7 +52,7 @@ TEST_F(ModloaderFixture, ShouldLoadDependentlessMod)
     const auto mod = AddMod("test");
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
     mod->Toggle(true);
-    mod->Tick();
+    ModManager::Tick();
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::ENABLED);
 }
 
@@ -61,10 +61,10 @@ TEST_F(ModloaderFixture, ShouldUnloadDependentlessMod)
     const auto mod = AddMod("test");
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
     mod->Toggle(true);
-    mod->Tick();
+    ModManager::Tick();
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::ENABLED);
     mod->Toggle(false);
-    mod->Tick();
+    ModManager::Tick();
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::DISABLED);
 }
 
@@ -138,11 +138,6 @@ TEST_F(ModloaderFixture, ShouldLoadUnorderedWaitingDependantMod)
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::WAITING_DEPENDENCIES_LOAD);
 
     parent->Toggle(true);
-    ModManager::Tick();
-
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
-    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::WAITING_DEPENDENCIES_LOAD);
-
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -231,11 +226,6 @@ TEST_F(ModloaderFixture, ShouldUnloadOrderedWaitingDependantMod)
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
 
     child->Toggle(false);
-    ModManager::Tick();
-
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
-    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::DISABLED);
-
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
@@ -359,7 +349,7 @@ TEST_F(ModloaderFixture, ShouldReturnActiveWhenEnabled)
 {
     const auto mod = AddMod("test");
     mod->Toggle(true);
-    mod->Tick();
+    ModManager::Tick();
     ASSERT_EQ(mod->GetState()->GetType(), ModState::Type::ENABLED);
     ASSERT_EQ(mod->IsActive(), true);
 }

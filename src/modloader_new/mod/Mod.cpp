@@ -3,6 +3,7 @@
 #include <cassert>
 #include <utility>
 #include <Log.h>
+#include <modloader_new/ModManager.h>
 
 #include "states/ModStateDisabled.h"
 
@@ -24,10 +25,15 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
     Log::Debug << "State update for mod " << GetInfo()->GetID() << ": " << state->GetLabel() << Log::Endl;
     this->state = std::move(state);
     this->state->Init(*this);
+    ModManager::MarkDirty();
 }
 
-void modloader::Mod::Tick()
+void modloader::Mod::Update()
 {
     state->Update(*this);
+}
+
+void modloader::Mod::Tick() const
+{
     if (IsActive()) impl->OnTick();
 }

@@ -49,6 +49,22 @@ void modloader::ModManager::Tick()
 {
     std::vector<std::shared_ptr<Mod>> removalList {};
 
+    uint8_t tickCounter = 0;
+    do
+    {
+        Log::Info << "Performing an update loop" << Log::Endl;
+        dirty = false;
+        for (const auto& mod : mods)
+        {
+            mod->Update();
+        }
+        tickCounter++;
+    } while(dirty && tickCounter < MAX_STATE_UPDATE_TICKS);
+
+    if (tickCounter >= MAX_STATE_UPDATE_TICKS)
+        Log::Warn << "Reached mod state update tick limit per script tick. Calculated "
+                  << static_cast<int>(tickCounter) << " update ticks in 1 script tick" << Log::Endl;
+
     for (const auto& mod : mods)
     {
         mod->Tick();

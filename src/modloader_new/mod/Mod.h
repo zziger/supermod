@@ -49,6 +49,7 @@ namespace modloader
         [[nodiscard]] bool IsEnabled() const { return HasFlag(Flag::ENABLED); }
         void Toggle(const bool value) { SetFlag(Flag::ENABLED, value); }
 
-        void Tick();
+        void Update();
+        void Tick() const;
     };
 }
