@@ -1,13 +1,16 @@
 #include "Config.h"
 
 #include <filesystem>
+#include <Log.h>
 
 void Config::Init() {
     _cfgPath = std::filesystem::current_path() / "modcfg.yml";
     if (exists(_cfgPath)) _cfg = YAML::LoadFile(_cfgPath.string());
+    _cfg.SetStyle(YAML::EmitterStyle::Block);
 }
 
 void Config::Save() {
+    _cfg.SetStyle(YAML::EmitterStyle::Block);
     std::ofstream fstream(_cfgPath);
     fstream << _cfg;
 }
