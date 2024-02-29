@@ -35,6 +35,8 @@ namespace ui
 
         static void OnWindowEvent(WindowEvent& evt);
 
+        static float GetScalingFactor();
+
         static void InitImGui();
 
         static void RenderWindows();

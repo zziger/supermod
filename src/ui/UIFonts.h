@@ -9,6 +9,6 @@ namespace ui
         ImFont* fontFab;
         ImFont* fontFab2X;
 
-        explicit UIFonts(const ImGuiIO& io);
+        explicit UIFonts(const ImGuiIO& io, float scalingFactor);
     };
 }

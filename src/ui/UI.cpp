@@ -4,6 +4,8 @@
 #include "events/TickEvent.h"
 #include "events/WindowEvent.h"
 #include <imgui_internal.h>
+#include <shtypes.h>
+#include <shellscalingapi.h>
 #include <backends/imgui_impl_win32.h>
 #include <imgui-dx8/imgui_impl_dx8.h>
 #include "Config.h"
@@ -20,7 +22,7 @@ using namespace ui;
 
 
 void UI::LoadFonts(const ImGuiIO& io) {
-    fonts = new UIFonts(io);
+    fonts = new UIFonts(io, GetScalingFactor());
 }
 
 static std::string imguiIniFilename;
@@ -32,6 +34,7 @@ void UI::InitImGui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
+    ImGui::GetStyle().ScaleAllSizes(GetScalingFactor());
         
     ImGuiIO& io = ImGui::GetIO();
 
@@ -168,6 +171,15 @@ void UI::OnWindowEvent(WindowEvent& evt) {
     if (io.WantCaptureKeyboard)
         if (evt.msg == WM_KEYDOWN || evt.msg == WM_KEYUP)
             return evt.Cancel();
+}
+
+float UI::GetScalingFactor()
+{
+    const auto monitor = MonitorFromWindow(*sdk::Game::window, MONITOR_DEFAULTTONEAREST);
+    DEVICE_SCALE_FACTOR factor;
+    const auto result = GetScaleFactorForMonitor(monitor, &factor);
+    if (FAILED(result) || factor == DEVICE_SCALE_FACTOR_INVALID) return 1.f;
+    return static_cast<float>(factor) / 100.f;
 }
 
 static inline int (__thiscall *AssetPool__freeAssetsFromD3d_orig)(void* this_) = nullptr;
