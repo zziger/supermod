@@ -2,14 +2,22 @@
 
 #include <Config.h>
 #include <Log.h>
+#include <mod/InternalMod.h>
 #include <sdk/Game.h>
 
 #include "mod/impl/TestImpl.h"
 
 void modloader::ModManager::Init()
 {
+    AddInternalMod(ModImplInternal::CreateMod());
+
     ScanMods();
     SaveConfig();
+
+    EventManager::On<BeforeTickEvent>([]
+    {
+       Tick();
+    });
 }
 
 void modloader::ModManager::ScanMods()
@@ -90,6 +98,8 @@ void modloader::ModManager::Tick()
 
         for (const auto& mod : removalList)
         {
+            mod->ClearFlag(Mod::Flag::EXISTS);
+
             if (mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
             {
                 const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
@@ -111,6 +121,7 @@ void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
 {
     mods.push_back(mod);
     mods_map[mod->GetInfo()->GetID()] = mod;
+    mod->SetFlag(Mod::Flag::EXISTS);
 }
 
 void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
@@ -124,6 +135,8 @@ void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>&
 
 void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 {
+    if (mod->HasFlag(Mod::Flag::INTERNAL)) return;
+
     ValidateConfig();
 
     const Config cfg;
@@ -131,6 +144,13 @@ void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
     const auto id = mod->GetID();
 
     cfg.data["mods"][id]["enabled"] = mod->IsEnabled();
+}
+
+void modloader::ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)
+{
+    internal_mods.push_back(mod);
+    mods_map[mod->GetInfo()->GetID()] = mod;
+    mod->SetFlag(Mod::Flag::EXISTS);
 }
 
 void modloader::ModManager::ValidateConfig()

@@ -32,11 +32,6 @@ void ModManager::CleanupConfig() {
 
 void ModManager::Init() {
     _mods_folder = std::filesystem::current_path() / "mods";
-
-    const auto ptr = std::make_shared<InternalMod>();
-    ptr->Enable(false);
-    _mods.push_back(ptr);
-    _internalMod = ptr;
 }
 
 std::filesystem::path ModManager::GetModsRoot() {

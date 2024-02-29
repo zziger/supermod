@@ -49,11 +49,22 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
 }
 
 
+void AdaptiveResolutionModule::Init()
+{
+    state = GetConfigNode(Config::Get())["enabled"].as<bool>(true);
+    if (state) OnLoad(true);
+}
+
+YAML::Node AdaptiveResolutionModule::GetConfigNode(YAML::Node node)
+{
+    return node["patches"]["resolution"];
+}
+
 void AdaptiveResolutionModule::OnLoad(const bool manual) {
-    RegisterHook("55 8B EC 51 C7 45 FC ? ? ? ? EB ? 8B 45 FC 83 C0 ? 89 45 FC 8B 4D FC 3B 0D ? ? ? ? 7D ? 8B 55 FC 8B 04 D5",
+    d3dParamsHook = HookManager::RegisterHook("55 8B EC 51 C7 45 FC ? ? ? ? EB ? 8B 45 FC 83 C0 ? 89 45 FC 8B 4D FC 3B 0D ? ? ? ? 7D ? 8B 55 FC 8B 04 D5",
                  HOOK_REF(setup_d3d_params));
         
-    OnEvent<WindowEvent>([](const WindowEvent& evt) {
+    windowEventHandler = EventManager::On<WindowEvent>([](const WindowEvent& evt) {
         if (evt.hWnd != *sdk::Game::window) return;
             
         if (evt.msg == WM_SIZE) sdk::DirectX::ResetDevice();
@@ -77,14 +88,28 @@ void AdaptiveResolutionModule::OnLoad(const bool manual) {
     }
 }
 
-void AdaptiveResolutionModule::OnUnload(const bool manual) {
-    if (manual)sdk::DirectX::ResetDevice();
+void AdaptiveResolutionModule::OnUnload() {
+    if (d3dParamsHook) HookManager::UnregisterHook(*d3dParamsHook);
+    if (windowEventHandler) EventManager::Off(*windowEventHandler);
+    sdk::DirectX::ResetDevice();
 }
 
-void AdaptiveResolutionModule::RenderModuleUI() {
+void AdaptiveResolutionModule::Render() {
+    if (ImGui::Checkbox("Адаптивное разрешение", &state))
+    {
+        const Config cfg;
+        auto cfgBlockEdit = GetConfigNode(cfg.data);
+        cfgBlockEdit["enabled"] = state;
+
+        if (state)
+            OnLoad(true);
+        else
+            OnUnload();
+    }
+
     if (ImGui::TreeNode("Параметры разрешения")) {
         ImGui::Text("Разрешение");
-        auto cfgBlock = Config::Get()[id];
+        auto cfgBlock = GetConfigNode(Config::Get());
 
         static bool changed = false;
         static int mode = cfgBlock["mode"].as<int>(0);
@@ -103,9 +128,11 @@ void AdaptiveResolutionModule::RenderModuleUI() {
         if (changed) {
             if (ImGui::Button("Сохранить")) {
                 const Config cfg;
-                cfg.data[id]["mode"] = mode;
-                cfg.data[id]["width"] = res[0];
-                cfg.data[id]["height"] = res[1];
+
+                auto cfgBlockEdit = GetConfigNode(cfg.data);
+                cfgBlockEdit["mode"] = mode;
+                cfgBlockEdit["width"] = res[0];
+                cfgBlockEdit["height"] = res[1];
                 sdk::DirectX::ResetDevice();
                 changed = false;
             }

@@ -13,16 +13,16 @@
 #include "thirdparty/IconsMaterialDesign.h"
 #include "ui/ImGuiWidgets.h"
 
-class AdaptiveResolutionModule final : public Module {
+class AdaptiveResolutionModule {
 public:
-    AdaptiveResolutionModule() :
-        Module(
-            "adaptiveResolution",
-            "Адаптивное разрешение",
-            "Позволяет игре рендериться в другом разрешении,\n"
-            "а так же разрешает менять размер окна.\n\n"
-            "До 1.0.0 модуль назывался WIDESCREEN_FIX", true) {
-    }
+    // AdaptiveResolutionModule() :
+    //     Module(
+    //         "adaptiveResolution",
+    //         "",
+    //         "Позволяет игре рендериться в другом разрешении,\n"
+    //         "а так же разрешает менять размер окна.\n\n"
+    //         "До 1.0.0 модуль назывался WIDESCREEN_FIX", true) {
+    // }
 
     enum resolution_mode {
         window,
@@ -34,10 +34,17 @@ public:
     static vector2i GetTargetResolution();
     
     static constexpr int required_styles = WS_MAXIMIZEBOX | WS_SIZEBOX;
-    
-    void OnLoad(bool manual) override;
 
-    void OnUnload(bool manual) override;
+    bool state = true;
 
-    void RenderModuleUI() override;
+    std::optional<HookManager::RegisteredHook> d3dParamsHook;
+    std::optional<uint32_t> windowEventHandler;
+
+    void Init();
+    void Render();
+
+private:
+    static YAML::Node GetConfigNode(YAML::Node node);
+    void OnLoad(bool manual);
+    void OnUnload();
 };

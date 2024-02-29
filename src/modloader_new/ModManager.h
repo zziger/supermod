@@ -8,6 +8,7 @@ class ModloaderFixture;
 
 namespace modloader {
     class ModManager {
+        inline static std::vector<std::shared_ptr<Mod>> internal_mods {};
         inline static std::vector<std::shared_ptr<Mod>> mods {};
         inline static std::map<std::string, std::shared_ptr<Mod>> mods_map {};
         inline static bool dirty = false;
@@ -21,6 +22,7 @@ namespace modloader {
         static void Tick();
 
         static const std::vector<std::shared_ptr<Mod>>& GetMods() { return mods; }
+        static const std::vector<std::shared_ptr<Mod>>& GetInternalMods() { return internal_mods; }
         static std::shared_ptr<Mod> FindModByID(const std::string& id);
 
         static void AddMod(const std::shared_ptr<Mod>& mod);
@@ -30,6 +32,7 @@ namespace modloader {
         static void MarkDirty() { dirty = true; }
 
     private:
+        static void AddInternalMod(const std::shared_ptr<Mod>& mod);
 
         static void ValidateConfig();
         static void SaveConfig();

@@ -13,7 +13,9 @@ namespace modloader
         {
             ENABLED = 0b1 << 0,
             REMOVAL_SCHEDULED = 0b1 << 1,
-            REMOVE_WITH_FILES = 0b1 << 2
+            REMOVE_WITH_FILES = 0b1 << 2,
+            INTERNAL = 0b1 << 3,
+            EXISTS = 0b1 << 4
         };
 
     private:
