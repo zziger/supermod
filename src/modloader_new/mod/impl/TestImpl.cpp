@@ -14,5 +14,5 @@ void modloader::TestImpl::OnDisabled()
 
 void modloader::TestImpl::OnTick()
 {
-    Log::Info << "On tick " << info->GetID() << Log::Endl;
+    // Log::Info << "On tick " << info->GetID() << Log::Endl;
 }

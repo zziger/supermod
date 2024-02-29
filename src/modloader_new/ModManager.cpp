@@ -60,7 +60,7 @@ void modloader::ModManager::Tick()
     uint8_t tickCounter = 0;
     do
     {
-        Log::Info << "Performing an update loop" << Log::Endl;
+        // Log::Info << "Performing an update loop" << Log::Endl;
         dirty = false;
         for (const auto& mod : mods)
         {
