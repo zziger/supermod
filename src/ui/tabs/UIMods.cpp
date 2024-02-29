@@ -203,7 +203,7 @@ namespace ui
             ImGui::TextWrapped("%s", info.description.c_str());
             ImGui::PushFont(UI::fonts->fontFab2X);
             ImGui::PushStyleColor(ImGuiCol_Button, 0x0_color);
-            float windowVisible = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x - 12;
+            float windowVisible = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x - ScaledPx(12);
             ImGuiStyle& style = ImGui::GetStyle();
             bool first = true;
             for (auto socialLink : info.socialLinks)
@@ -211,11 +211,11 @@ namespace ui
                 auto icon = linkIcons.at(socialLink.first);
                 if (icon == "") continue;
                 float lastButton = ImGui::GetItemRectMax().x;
-                float nextButton = lastButton + style.ItemSpacing.x + 32;
+                float nextButton = lastButton + style.ItemSpacing.x + ScaledPx(32);
                 if (nextButton < windowVisible && !first)
                     ImGui::SameLine();
                 first = false;
-                if (ImGui::Button(icon.c_str(), ImVec2(38, 38)))
+                if (ImGui::Button(icon.c_str(), ImVec2(ScaledPx(38), ScaledPx(38))))
                 {
                     ShellExecuteW(nullptr, L"open", utils::str_to_wstr(socialLink.second).c_str(), nullptr, nullptr , SW_SHOWNORMAL);
                 }

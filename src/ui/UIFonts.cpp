@@ -17,13 +17,13 @@ UIFonts::UIFonts(const ImGuiIO& io, const float scalingFactor) {
     ImFontConfig cfg;
     cfg.MergeMode = true;
     cfg.PixelSnapH = true;
-    cfg.GlyphOffset = { 0, 2 };
+    cfg.GlyphOffset = { 0, 2 * scalingFactor };
     
     fontDefault = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/Arial.ttf", 18 * scalingFactor, nullptr, io.Fonts->GetGlyphRangesCyrillic());
     io.Fonts->AddFontFromMemoryCompressedTTF(materialicons_regular_ttf_compressed_data, materialicons_regular_ttf_compressed_size, 16 * scalingFactor, &cfg, mdRanges);
     io.Fonts->Build();
 
-    cfg.GlyphOffset = { 0, 7 };
+    cfg.GlyphOffset = { 0, 7 * scalingFactor };
     fontDefault2X = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/Arial.ttf", 32 * scalingFactor, nullptr, io.Fonts->GetGlyphRangesCyrillic());
     io.Fonts->AddFontFromMemoryCompressedTTF(materialicons_regular_ttf_compressed_data, materialicons_regular_ttf_compressed_size, 32 * scalingFactor, &cfg, mdRanges);
     io.Fonts->Build();

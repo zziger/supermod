@@ -37,6 +37,8 @@ namespace ui
 
         static float GetScalingFactor();
 
+        static float ScaledPx(float px);
+
         static void InitImGui();
 
         static void RenderWindows();

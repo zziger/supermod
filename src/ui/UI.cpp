@@ -175,11 +175,22 @@ void UI::OnWindowEvent(WindowEvent& evt) {
 
 float UI::GetScalingFactor()
 {
+    static float value = 0;
+    if (value > 0) return value;
+
     const auto monitor = MonitorFromWindow(*sdk::Game::window, MONITOR_DEFAULTTONEAREST);
+
     DEVICE_SCALE_FACTOR factor;
     const auto result = GetScaleFactorForMonitor(monitor, &factor);
     if (FAILED(result) || factor == DEVICE_SCALE_FACTOR_INVALID) return 1.f;
-    return static_cast<float>(factor) / 100.f;
+
+    value = static_cast<float>(factor) / 100.f;
+    return value;
+}
+
+float UI::ScaledPx(float px)
+{
+    return px * GetScalingFactor();
 }
 
 static inline int (__thiscall *AssetPool__freeAssetsFromD3d_orig)(void* this_) = nullptr;
