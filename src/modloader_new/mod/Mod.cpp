@@ -26,6 +26,7 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
     this->state = std::move(state);
     this->state->Init(*this);
     ModManager::MarkDirty();
+    lastStateUpdate = std::chrono::steady_clock::now();
 }
 
 void modloader::Mod::Update()

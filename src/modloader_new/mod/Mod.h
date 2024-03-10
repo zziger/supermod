@@ -25,6 +25,8 @@ namespace modloader
 
         uint8_t flags = 0;
         std::unique_ptr<ModState> state;
+        std::chrono::time_point<std::chrono::steady_clock> creationTime = std::chrono::steady_clock::now();
+        std::chrono::time_point<std::chrono::steady_clock> lastStateUpdate = std::chrono::steady_clock::now();
 
     public:
         explicit Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& impl);
@@ -32,6 +34,7 @@ namespace modloader
         [[nodiscard]] bool IsActive() const { return state->IsActive(*this); }
         [[nodiscard]] std::shared_ptr<ModInfo> GetInfo() const { return info; }
         [[nodiscard]] const std::unique_ptr<ModState>& GetState() const { return state; }
+        [[nodiscard]] std::chrono::duration<double, std::micro> GetTimeSinceUpdate() const { return std::chrono::steady_clock::now() - lastStateUpdate; }
         [[nodiscard]] const std::unique_ptr<ModImpl>& GetImpl() const { return impl; }
         [[nodiscard]] std::string GetID() const { return info->GetID(); }
 
