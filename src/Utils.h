@@ -36,6 +36,12 @@ namespace utils
         return str;
     }
 
+    inline std::string trim(std::string str) {
+        str.erase(str.find_last_not_of(' ') + 1);
+        str.erase(0, str.find_first_not_of(' '));
+        return str;
+    }
+
     inline void* read_file(const std::string& filename, int& size) {
         std::ifstream fstream { filename, std::ios::binary | std::ios::ate };
         size = fstream.tellg();
