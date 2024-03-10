@@ -19,5 +19,7 @@ namespace modloader {
          * \throws ModFileError Error related to mod directory or manifest
          */
         void FromPath(const std::filesystem::path& path);
+
+        void OpenFolder() const;
     };
 }

@@ -1,5 +1,6 @@
 #include "ModInfoFilesystem.h"
 
+#include <events/StartExecutionEvent.h>
 #include <yaml-cpp/node/parse.h>
 
 void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
@@ -14,4 +15,9 @@ void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
     Parse(manifest);
 
     basePath = path;
+}
+
+void modloader::ModInfoFilesystem::OpenFolder() const
+{
+    ShellExecuteW(nullptr, L"explore", basePath.wstring().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 }
