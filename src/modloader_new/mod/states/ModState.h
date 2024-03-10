@@ -30,6 +30,7 @@ namespace modloader
         virtual Type GetType() = 0;
 
         virtual std::string GetLabel() = 0;
+        virtual std::string GetIcon() = 0;
 
         virtual void Update(Mod& mod) = 0;
     };
