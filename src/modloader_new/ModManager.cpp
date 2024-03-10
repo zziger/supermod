@@ -55,23 +55,15 @@ void modloader::ModManager::ScanMods()
 
 void modloader::ModManager::Tick()
 {
-    std::vector<std::shared_ptr<Mod>> removalList {};
+    UpdateStates();
 
-    uint8_t tickCounter = 0;
-    do
+    if (IsDirty(DirtyFlag::DEPS))
     {
-        // Log::Info << "Performing an update loop" << Log::Endl;
-        dirty = false;
-        for (const auto& mod : mods)
-        {
-            mod->Update();
-        }
-        tickCounter++;
-    } while(dirty && tickCounter < MAX_STATE_UPDATE_TICKS);
+        UpdateDeps();
+        ClearDirty(DirtyFlag::DEPS);
+    }
 
-    if (tickCounter >= MAX_STATE_UPDATE_TICKS)
-        Log::Warn << "Reached mod state update tick limit per script tick. Calculated "
-                  << static_cast<int>(tickCounter) << " update ticks in 1 script tick" << Log::Endl;
+    std::vector<std::shared_ptr<Mod>> removalList {};
 
     for (const auto& mod : mods)
     {
@@ -81,33 +73,7 @@ void modloader::ModManager::Tick()
 
     if (!removalList.empty())
     {
-        mods.erase(
-            std::ranges::remove_if(mods, [](const std::shared_ptr<Mod>& mod)
-            {
-                return !mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED);
-            }).begin(),
-            mods.end()
-        );
-
-        for (const auto& mod : removalList)
-        {
-            mods_map.erase(mod->GetInfo()->GetID());
-        }
-
-        SaveConfig();
-
-        for (const auto& mod : removalList)
-        {
-            mod->ClearFlag(Mod::Flag::EXISTS);
-
-            if (mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
-            {
-                const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
-                if (!info) continue;
-                Log::Info << "Should delete file " << info->basePath << Log::Endl;
-                // TODO: delete from filesystem
-            }
-        }
+        RemoveMods(removalList);
     }
 }
 
@@ -117,11 +83,48 @@ std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::st
     return mods_map[id];
 }
 
+const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetModDependants(const std::string& id)
+{
+    if (!dependent_mods.contains(id)) return {};
+    return dependent_mods[id];
+}
+
 void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
 {
     mods.push_back(mod);
     mods_map[mod->GetInfo()->GetID()] = mod;
     mod->SetFlag(Mod::Flag::EXISTS);
+    UpdateDeps();
+    SaveConfig();
+}
+
+void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList)
+{
+    mods.erase(
+        std::ranges::remove_if(mods, [](const std::shared_ptr<Mod>& mod)
+        {
+            return !mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED);
+        }).begin(),
+        mods.end()
+    );
+    for (const auto& mod : removalList)
+        mods_map.erase(mod->GetInfo()->GetID());
+
+    UpdateDeps();
+    SaveConfig();
+
+    for (const auto& mod : removalList)
+    {
+        mod->ClearFlag(Mod::Flag::EXISTS);
+
+        if (mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
+        {
+            const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
+            if (!info) continue;
+            Log::Info << "Should delete file " << info->basePath << Log::Endl;
+            // TODO: delete from filesystem
+        }
+    }
 }
 
 void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
@@ -144,6 +147,41 @@ void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
     const auto id = mod->GetID();
 
     cfg.data["mods"][id]["enabled"] = mod->IsEnabled();
+}
+
+void modloader::ModManager::UpdateStates()
+{
+    uint8_t tickCounter = 0;
+    do
+    {
+        ClearDirty(DirtyFlag::STATES);
+        for (const auto& mod : mods)
+        {
+            mod->Update();
+        }
+        tickCounter++;
+    } while(IsDirty(DirtyFlag::STATES) && tickCounter < MAX_STATE_UPDATE_TICKS);
+
+    if (tickCounter >= MAX_STATE_UPDATE_TICKS)
+        Log::Warn << "Reached mod state update tick limit per script tick. Calculated "
+                  << static_cast<int>(tickCounter) << " update ticks in 1 script tick" << Log::Endl;
+}
+
+void modloader::ModManager::UpdateDeps()
+{
+    dependent_mods.clear();
+
+    for (const auto& mod : mods)
+    {
+        auto id = mod->GetID();
+        auto dependants = std::vector<std::shared_ptr<Mod>>();
+        std::ranges::copy_if(mods, std::back_inserter(dependants), [&](const std::shared_ptr<Mod>& innerMod)
+        {
+            return innerMod->GetInfo()->deps.contains(id);
+        });
+
+        dependent_mods[id] = dependants;
+    }
 }
 
 void modloader::ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)

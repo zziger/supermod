@@ -443,3 +443,32 @@ TEST_F(ModloaderFixture, ShouldNotDeleteModWaitingDependendants)
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::DISABLED);
     ASSERT_EQ(ModManager::GetMods().size(), 1);
 }
+
+TEST_F(ModloaderFixture, ShouldReturnEmptyDependantsList)
+{
+
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    infoChild->deps.insert("test-parent");
+
+    const auto child = AddMod(infoChild);
+    const auto parent = AddMod(infoParent);
+
+    auto dependants = ModManager::GetModDependants("test-child");
+    ASSERT_EQ(dependants.size(), 0);
+}
+
+TEST_F(ModloaderFixture, ShouldReturnFilledDependantsList)
+{
+
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    infoChild->deps.insert("test-parent");
+
+    const auto child = AddMod(infoChild);
+    const auto parent = AddMod(infoParent);
+
+    auto dependants = ModManager::GetModDependants("test-parent");
+    ASSERT_EQ(dependants.size(), 1);
+    ASSERT_EQ(dependants[0]->GetInfo()->GetID(), "test-child");
+}

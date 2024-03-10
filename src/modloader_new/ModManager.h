@@ -11,9 +11,16 @@ namespace modloader {
         inline static std::vector<std::shared_ptr<Mod>> internal_mods {};
         inline static std::vector<std::shared_ptr<Mod>> mods {};
         inline static std::map<std::string, std::shared_ptr<Mod>> mods_map {};
-        inline static bool dirty = false;
+        inline static std::map<std::string, std::vector<std::shared_ptr<Mod>>> dependent_mods {};
+        inline static uint32_t dirty_flags = 0;
 
     public:
+        enum class DirtyFlag
+        {
+            STATES = 0b1 << 0,
+            DEPS = 0b1 << 1,
+        };
+
         static constexpr std::string_view MODS_DIRECTORY = "mods";
         static constexpr uint8_t MAX_STATE_UPDATE_TICKS = 16;
 
@@ -24,18 +31,26 @@ namespace modloader {
         static const std::vector<std::shared_ptr<Mod>>& GetMods() { return mods; }
         static const std::vector<std::shared_ptr<Mod>>& GetInternalMods() { return internal_mods; }
         static std::shared_ptr<Mod> FindModByID(const std::string& id);
+        static const std::vector<std::shared_ptr<Mod>>& GetModDependants(const std::string& id);
 
         static void AddMod(const std::shared_ptr<Mod>& mod);
+        static void RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList);
         static void ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods);
 
         static void SaveConfig(const std::shared_ptr<Mod>& mod);
-        static void MarkDirty() { dirty = true; }
+        static void MarkDirty(const DirtyFlag flag) { dirty_flags |= static_cast<uint32_t>(flag); }
 
     private:
+        static void UpdateStates();
+        static void UpdateDeps();
+
         static void AddInternalMod(const std::shared_ptr<Mod>& mod);
 
         static void ValidateConfig();
         static void SaveConfig();
+
+        static bool IsDirty(const DirtyFlag flag) { return dirty_flags & static_cast<uint32_t>(flag); }
+        static void ClearDirty(const DirtyFlag flag) { dirty_flags &= ~static_cast<uint32_t>(flag); }
 
 #ifdef UNIT_TESTS
         static void Reset();

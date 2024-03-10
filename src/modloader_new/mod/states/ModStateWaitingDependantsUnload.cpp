@@ -35,7 +35,7 @@ std::string modloader::ModStateWaitingDependantsUnload::GetIcon()
 bool modloader::ModStateWaitingDependantsUnload::Check(const Mod& mod)
 {
     auto modID = mod.GetInfo()->GetID();
-    return std::ranges::none_of(ModManager::GetMods(), [&modID](const std::shared_ptr<Mod>& iterMod) -> bool {
-        return iterMod->IsActive() && iterMod->GetInfo()->deps.contains(modID);
+    return std::ranges::none_of(ModManager::GetModDependants(modID), [](const std::shared_ptr<Mod>& iterMod) -> bool {
+        return iterMod->IsActive();
     });
 }
