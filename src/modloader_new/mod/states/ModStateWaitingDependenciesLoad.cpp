@@ -6,7 +6,7 @@
 
 #include "ModStateDisabled.h"
 #include "ModStateEnabled.h"
-#include "ModStateWaitingDependantsUnload.h"
+#include "ModStateWaitingDependentsUnload.h"
 
 using namespace std::chrono;
 
@@ -19,7 +19,7 @@ void modloader::ModStateWaitingDependenciesLoad::Update(Mod& mod)
 {
     if (!mod.IsEnabled())
     {
-        mod.SetState<ModStateWaitingDependantsUnload>();
+        mod.SetState<ModStateWaitingDependentsUnload>();
         return;
     }
 

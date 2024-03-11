@@ -1,4 +1,4 @@
-#include "ModStateWaitingDependantsUnload.h"
+#include "ModStateWaitingDependentsUnload.h"
 
 #include <modloader_new/ModManager.h>
 
@@ -7,12 +7,12 @@
 
 using namespace std::chrono;
 
-void modloader::ModStateWaitingDependantsUnload::Init(Mod& mod)
+void modloader::ModStateWaitingDependentsUnload::Init(Mod& mod)
 {
     if (Check(mod)) mod.SetState<ModStateDisabled>();
 }
 
-void modloader::ModStateWaitingDependantsUnload::Update(Mod& mod)
+void modloader::ModStateWaitingDependentsUnload::Update(Mod& mod)
 {
     if (mod.IsEnabled())
     {
@@ -23,7 +23,7 @@ void modloader::ModStateWaitingDependantsUnload::Update(Mod& mod)
     if (Check(mod)) mod.SetState<ModStateDisabled>();
 }
 
-std::string modloader::ModStateWaitingDependantsUnload::GetIcon()
+std::string modloader::ModStateWaitingDependentsUnload::GetIcon()
 {
     auto animatedIcon = ICON_MD_HOURGLASS_TOP;
     if (duration_cast<seconds>(system_clock::now().time_since_epoch()).count() % 2 == 0)
@@ -32,10 +32,10 @@ std::string modloader::ModStateWaitingDependantsUnload::GetIcon()
     return std::string(ICON_MD_FORMAT_LIST_BULLETED) + animatedIcon;
 }
 
-bool modloader::ModStateWaitingDependantsUnload::Check(const Mod& mod)
+bool modloader::ModStateWaitingDependentsUnload::Check(const Mod& mod)
 {
     auto modID = mod.GetInfo()->GetID();
-    return std::ranges::none_of(ModManager::GetModDependants(modID), [](const std::shared_ptr<Mod>& iterMod) -> bool {
+    return std::ranges::none_of(ModManager::GetModDependents(modID), [](const std::shared_ptr<Mod>& iterMod) -> bool {
         return iterMod->IsActive();
     });
 }

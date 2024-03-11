@@ -83,7 +83,7 @@ std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::st
     return mods_map[id];
 }
 
-const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetModDependants(const std::string& id)
+const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetModDependents(const std::string& id)
 {
     if (!dependent_mods.contains(id)) return std::vector<std::shared_ptr<Mod>>{};
     return dependent_mods[id];
@@ -174,13 +174,13 @@ void modloader::ModManager::UpdateDeps()
     for (const auto& mod : mods)
     {
         auto id = mod->GetID();
-        auto dependants = std::vector<std::shared_ptr<Mod>>();
-        std::ranges::copy_if(mods, std::back_inserter(dependants), [&](const std::shared_ptr<Mod>& innerMod)
+        auto dependents = std::vector<std::shared_ptr<Mod>>();
+        std::ranges::copy_if(mods, std::back_inserter(dependents), [&](const std::shared_ptr<Mod>& innerMod)
         {
             return innerMod->GetInfo()->deps.contains(id);
         });
 
-        dependent_mods[id] = dependants;
+        dependent_mods[id] = dependents;
     }
 }
 

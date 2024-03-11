@@ -31,7 +31,7 @@ namespace modloader {
         static const std::vector<std::shared_ptr<Mod>>& GetMods() { return mods; }
         static const std::vector<std::shared_ptr<Mod>>& GetInternalMods() { return internal_mods; }
         static std::shared_ptr<Mod> FindModByID(const std::string& id);
-        static const std::vector<std::shared_ptr<Mod>>& GetModDependants(const std::string& id);
+        static const std::vector<std::shared_ptr<Mod>>& GetModDependents(const std::string& id);
 
         static void AddMod(const std::shared_ptr<Mod>& mod);
         static void RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList);

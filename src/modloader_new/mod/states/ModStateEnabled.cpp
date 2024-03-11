@@ -3,7 +3,7 @@
 #include <Log.h>
 
 #include "ModStateDisabled.h"
-#include "ModStateWaitingDependantsUnload.h"
+#include "ModStateWaitingDependentsUnload.h"
 #include "../Mod.h"
 
 void modloader::ModStateEnabled::Init(Mod& mod)
@@ -14,5 +14,5 @@ void modloader::ModStateEnabled::Init(Mod& mod)
 void modloader::ModStateEnabled::Update(Mod& mod)
 {
     if (mod.IsEnabled()) return;
-    mod.SetState<ModStateWaitingDependantsUnload>();
+    mod.SetState<ModStateWaitingDependentsUnload>();
 }

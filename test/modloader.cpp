@@ -1,7 +1,7 @@
 #include <Log.h>
 #include <gtest/gtest.h>
 #include <modloader_new/ModManager.h>
-#include <modloader_new/mod/states/ModStateWaitingDependantsUnload.h>
+#include <modloader_new/mod/states/ModStateWaitingDependentsUnload.h>
 #include <modloader_new/mod/states/ModStateWaitingDependenciesLoad.h>
 #include <sdk/Game.h>
 #include "mock/ModImplMock.h"
@@ -222,7 +222,7 @@ TEST_F(ModloaderFixture, ShouldUnloadOrderedWaitingDependantMod)
     parent->Toggle(false);
     ModManager::Tick();
 
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDENTS_UNLOAD);
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
 
     child->Toggle(false);
@@ -282,7 +282,7 @@ TEST_F(ModloaderFixture, ShouldUnloadUnorderedWaitingDependantMod)
     parent->Toggle(false);
     ModManager::Tick();
 
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDENTS_UNLOAD);
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
 
     child->Toggle(false);
@@ -321,7 +321,7 @@ TEST_F(ModloaderFixture, ShouldReturnNotActiveWhenWaitingDependencies)
     ASSERT_EQ(child->IsActive(), false);
 }
 
-TEST_F(ModloaderFixture, ShouldReturnActiveWhenWaitingDependants)
+TEST_F(ModloaderFixture, ShouldReturnActiveWhenWaitingDependents)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
@@ -341,7 +341,7 @@ TEST_F(ModloaderFixture, ShouldReturnActiveWhenWaitingDependants)
     parent->Toggle(false);
     ModManager::Tick();
 
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDENTS_UNLOAD);
     ASSERT_EQ(parent->IsActive(), true);
 }
 
@@ -428,13 +428,13 @@ TEST_F(ModloaderFixture, ShouldNotDeleteModWaitingDependendants)
     parent->Toggle(false);
     ModManager::Tick();
 
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDENTS_UNLOAD);
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
 
     parent->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
     ModManager::Tick();
 
-    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDANTS_UNLOAD);
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::WAITING_DEPENDENTS_UNLOAD);
     ASSERT_EQ(ModManager::GetMods().size(), 2);
 
     child->Toggle(false);
@@ -444,7 +444,7 @@ TEST_F(ModloaderFixture, ShouldNotDeleteModWaitingDependendants)
     ASSERT_EQ(ModManager::GetMods().size(), 1);
 }
 
-TEST_F(ModloaderFixture, ShouldReturnEmptyDependantsList)
+TEST_F(ModloaderFixture, ShouldReturnEmptyDependentsList)
 {
 
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
@@ -454,11 +454,11 @@ TEST_F(ModloaderFixture, ShouldReturnEmptyDependantsList)
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
-    auto dependants = ModManager::GetModDependants("test-child");
-    ASSERT_EQ(dependants.size(), 0);
+    auto dependents = ModManager::GetModDependents("test-child");
+    ASSERT_EQ(dependents.size(), 0);
 }
 
-TEST_F(ModloaderFixture, ShouldReturnFilledDependantsList)
+TEST_F(ModloaderFixture, ShouldReturnFilledDependentsList)
 {
 
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
@@ -468,7 +468,7 @@ TEST_F(ModloaderFixture, ShouldReturnFilledDependantsList)
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
-    auto dependants = ModManager::GetModDependants("test-parent");
-    ASSERT_EQ(dependants.size(), 1);
-    ASSERT_EQ(dependants[0]->GetInfo()->GetID(), "test-child");
+    auto dependents = ModManager::GetModDependents("test-parent");
+    ASSERT_EQ(dependents.size(), 1);
+    ASSERT_EQ(dependents[0]->GetInfo()->GetID(), "test-child");
 }

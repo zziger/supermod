@@ -15,7 +15,7 @@ namespace modloader
             DISABLED,
             ENABLED,
             WAITING_DEPENDENCIES_LOAD,
-            WAITING_DEPENDANTS_UNLOAD,
+            WAITING_DEPENDENTS_UNLOAD,
         };
 
         virtual bool IsActive(const Mod& mod)
