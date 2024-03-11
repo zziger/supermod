@@ -85,7 +85,8 @@ std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::st
 
 const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetModDependents(const std::string& id)
 {
-    if (!dependent_mods.contains(id)) return std::vector<std::shared_ptr<Mod>>{};
+    static constexpr std::vector<std::shared_ptr<Mod>> empty{};
+    if (!dependent_mods.contains(id)) return empty;
     return dependent_mods[id];
 }
 
