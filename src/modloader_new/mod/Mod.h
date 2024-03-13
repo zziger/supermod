@@ -1,7 +1,7 @@
 #pragma once
 
 #include "states/ModState.h"
-#include "ModImpl.h"
+#include "impl/ModImpl.h"
 #include "info/ModInfo.h"
 #include "info/ModInfoFilesystem.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <modloader_new/mod/info/ModInfo.h>
-#include <modloader_new/mod/ModImpl.h>
+#include <modloader_new/mod/impl/ModImpl.h>
 
 
 namespace modloader

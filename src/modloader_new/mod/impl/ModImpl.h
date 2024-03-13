@@ -6,9 +6,9 @@ namespace modloader
     public:
         virtual ~ModImpl() = default;
 
-        virtual void OnEnabled() = 0;
-        virtual void OnDisabled() = 0;
-        virtual void OnTick() = 0;
+        virtual void OnEnabled() {};
+        virtual void OnDisabled() {};
+        virtual void OnTick() {};
         virtual void RenderUI() {}
         virtual void Render() {}
     };

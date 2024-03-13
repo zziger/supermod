@@ -1,15 +1,18 @@
 ﻿#include "EventManager.h"
 
+#include <modloader_new/ModManager.h>
+#include <scripting/ModImplLua.h>
+
 #include "modloader/mods/ModManager.h"
-#include "scripting/LuaMod.h"
 
 std::vector<std::shared_ptr<LuaContext>> EventManager::GetLuaContexts() {
     std::vector<std::shared_ptr<LuaContext>> vec;
     
-    for (auto mod : ModManager::GetLuaMods()) {
-        if (!mod->IsEnabled()) continue;
-        if (!mod->lua) continue;
-        vec.push_back(mod->lua);
+    for (const auto& mod : modloader::ModManager::GetMods()) {
+        if (!mod->IsActive()) continue;
+        const auto luaImpl = dynamic_cast<modloader::ModImplLua*>(mod->GetImpl().get());
+        if (!luaImpl) continue;
+        vec.push_back(luaImpl->lua);
     }
 
     return vec;

@@ -3,6 +3,7 @@
 #include <Config.h>
 #include <Log.h>
 #include <mod/InternalMod.h>
+#include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
 
 #include "mod/impl/TestImpl.h"
@@ -35,7 +36,17 @@ void modloader::ModManager::ScanMods()
         auto modInfo = std::make_shared<ModInfoFilesystem>();
         modInfo->FromPath(file.path());
 
-        auto info = std::make_unique<TestImpl>(modInfo);
+        std::unique_ptr<ModImpl> info;
+        switch (modInfo->scriptType)
+        {
+        case ModInfo::ScriptType::LUA:
+            info = std::make_unique<ModImplLua>(modInfo);
+            break;
+        default:
+            info = std::make_unique<ModImpl>();
+            continue;
+        }
+
         const auto mod = std::make_shared<Mod>(modInfo, std::move(info));
         foundMods[mod->GetID()] = mod;
     }
