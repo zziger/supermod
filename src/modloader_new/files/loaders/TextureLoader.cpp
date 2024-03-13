@@ -8,9 +8,4 @@ namespace modloader {
     {
         return game::AssetPool::Instance()->ReloadGameAsset(path.filename().string());
     }
-
-    std::vector<std::string> TextureLoader::GetExtensions() const
-    {
-        return { ".jpg", ".jpeg", ".png", ".tga" };
-    }
 }

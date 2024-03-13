@@ -38,6 +38,20 @@ namespace game
         }
         BASS_StreamFree(ptr);
     }
+
+    void SoundHost::LoadMusic(const std::string& name, HSTREAM stream)
+    {
+        musicPool[loadedMusic] = stream;
+        name.copy(loadedMusicNames[loadedMusic], 32);
+        loadedMusic++;
+    }
+
+    void SoundHost::ReplaceMusic(int index, HSTREAM steam)
+    {
+        const auto old = musicPool[index];
+        BASS_StreamFree(old);
+        musicPool[index] = steam;
+    }
     
     void SoundHost::LoadMusic(const char* name) {
         static constexpr Memory::Pattern pat("55 8B EC 68 ? ? ? ? 8B 45 ? 50 E8");

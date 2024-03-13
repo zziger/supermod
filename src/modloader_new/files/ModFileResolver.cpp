@@ -5,6 +5,9 @@
 #include <events/EventManager.h>
 #include <events/ResolveFileEvent.h>
 
+#include "loaders/MusicLoader.h"
+#include "loaders/SoundLoader.h"
+
 namespace modloader {
     void ModFileResolver::InitLoader(const std::shared_ptr<BaseLoader>& loader)
     {
@@ -17,6 +20,8 @@ namespace modloader {
     void ModFileResolver::Init()
     {
         InitLoader<TextureLoader>();
+        InitLoader<MusicLoader>();
+        InitLoader<SoundLoader>();
 
         EventManager::On<ResolveFileEvent>([](auto& evt) {
             if (const std::optional<std::filesystem::path> path = ModFileResolver::ResolveGameFileInMods(evt.absolutePath))
