@@ -37,6 +37,7 @@ namespace modloader {
         static void RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList);
         static void ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods);
         static void ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled);
+        static void ScheduleModRemoval(const std::shared_ptr<Mod>& mod, bool remove = true);
 
         static void SaveConfig(const std::shared_ptr<Mod>& mod);
         static void MarkDirty(const DirtyFlag flag) { dirty_flags |= static_cast<uint32_t>(flag); }
@@ -44,11 +45,13 @@ namespace modloader {
     private:
         static void UpdateStates();
         static void UpdateDeps();
+        static void UpdateRemovedMods();
 
         static void AddInternalMod(const std::shared_ptr<Mod>& mod);
 
         static void ValidateConfig();
         static void SaveConfig();
+        static void PopulateConfig(const std::shared_ptr<Mod>& mod, YAML::Node&& node);
 
         static bool IsDirty(const DirtyFlag flag) { return dirty_flags & static_cast<uint32_t>(flag); }
         static void ClearDirty(const DirtyFlag flag) { dirty_flags &= ~static_cast<uint32_t>(flag); }

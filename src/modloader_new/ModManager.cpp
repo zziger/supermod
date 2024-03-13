@@ -14,8 +14,9 @@ void modloader::ModManager::Init()
 
     ScanMods();
     SaveConfig();
-
+    UpdateRemovedMods();
     Tick();
+
     EventManager::On<BeforeTickEvent>([]
     {
        Tick();
@@ -44,7 +45,7 @@ void modloader::ModManager::ScanMods()
             break;
         default:
             info = std::make_unique<ModImpl>();
-            continue;
+            break;
         }
 
         const auto mod = std::make_shared<Mod>(modInfo, std::move(info));
@@ -61,6 +62,12 @@ void modloader::ModManager::ScanMods()
 
         auto mod = foundMods[key];
         mod->Toggle(node["enabled"].as<bool>(false));
+        if (node["remove"].as<bool>(false))
+        {
+            mod->Toggle(false);
+            mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+            mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES);
+        }
         AddMod(mod);
     }
 }
@@ -75,18 +82,12 @@ void modloader::ModManager::Tick()
         ClearDirty(DirtyFlag::DEPS);
     }
 
-    std::vector<std::shared_ptr<Mod>> removalList {};
-
     for (const auto& mod : mods)
     {
         mod->Tick();
-        if (!mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED)) removalList.push_back(mod);
     }
 
-    if (!removalList.empty())
-    {
-        RemoveMods(removalList);
-    }
+    UpdateRemovedMods();
 }
 
 std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::string& id)
@@ -191,6 +192,14 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
     SaveConfig();
 }
 
+void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, const bool remove)
+{
+    // if (remove) ToggleMod(mod, false);
+    mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED, remove);
+    mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES, remove);
+    SaveConfig(mod);
+}
+
 void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 {
     if (mod->HasFlag(Mod::Flag::INTERNAL)) return;
@@ -201,7 +210,7 @@ void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 
     const auto id = mod->GetID();
 
-    cfg.data["mods"][id]["enabled"] = mod->IsEnabled();
+    PopulateConfig(mod, cfg.data["mods"][id]);
 }
 
 void modloader::ModManager::UpdateStates()
@@ -239,6 +248,17 @@ void modloader::ModManager::UpdateDeps()
     }
 }
 
+void modloader::ModManager::UpdateRemovedMods()
+{
+    std::vector<std::shared_ptr<Mod>> removalList {};
+    for (const auto& mod : mods)
+    {
+        if (!mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED)) removalList.push_back(mod);
+    }
+
+    if (!removalList.empty()) RemoveMods(removalList);
+}
+
 void modloader::ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)
 {
     internal_mods.push_back(mod);
@@ -271,10 +291,19 @@ void modloader::ModManager::SaveConfig()
         const auto id = mod->GetID();
 
         if (oldTree[id].IsMap()) tree[id] = oldTree[id];
-        tree[id]["enabled"] = mod->IsEnabled();
+        PopulateConfig(mod, tree[id]);
     }
 
     cfg.data["mods"] = tree;
+}
+
+void modloader::ModManager::PopulateConfig(const std::shared_ptr<Mod>& mod, YAML::Node&& node)
+{
+    node["enabled"] = mod->IsEnabled();
+
+    if (mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED) && mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
+        node["remove"] = true;
+    else node.remove("remove");
 }
 
 #ifdef UNIT_TESTS
