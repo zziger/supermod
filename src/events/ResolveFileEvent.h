@@ -49,17 +49,19 @@ T resolve(std::string filename, std::function<T (const std::string&)> fn) {
     const auto basePath = sdk::Game::GetDataPath() / "..";
     const auto curPath = std::filesystem::current_path();
     const auto path = curPath / filename;
+    auto relativePath = relative(path, basePath);
     
     ResolveFileEvent evt { path };
-    EventManager::Emit(evt);
+    if (!relativePath.empty() && relativePath.native()[0] != '.') EventManager::Emit(evt);
+    else Log::Debug << "Файл " << path << " находится вне папки data (resolution skipped)" << Log::Endl;
 
     if (evt.GetResolvedPath()) {
         const auto resolvedPath = *evt.GetResolvedPath();
         const auto workingDir = resolvedPath.parent_path();
         current_path(workingDir);
         filename = resolvedPath.filename().generic_string();
-        
-        Log::Debug << "Файл " << relative(path, basePath).generic_string() << " загружен из " << relative(resolvedPath, basePath).generic_string() << Log::Endl;
+
+        Log::Debug << "Файл " << relativePath.generic_string() << " загружен из " << relative(resolvedPath, basePath).generic_string() << Log::Endl;
     }
     const auto result = fn(filename);
     if (evt.GetResolvedPath()) current_path(curPath);
