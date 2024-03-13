@@ -36,6 +36,7 @@ namespace modloader {
         static void AddMod(const std::shared_ptr<Mod>& mod);
         static void RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList);
         static void ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods);
+        static void ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled);
 
         static void SaveConfig(const std::shared_ptr<Mod>& mod);
         static void MarkDirty(const DirtyFlag flag) { dirty_flags |= static_cast<uint32_t>(flag); }

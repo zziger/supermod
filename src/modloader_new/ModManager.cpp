@@ -137,6 +137,48 @@ void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>&
     SaveConfig();
 }
 
+void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled)
+{
+    const auto state = mod->IsEnabled();
+    if (state == enabled) return;
+
+    // TODO: deal with circular dependencies
+    if (enabled)
+    {
+        std::function<void(const std::shared_ptr<Mod>&, int)> enable;
+        enable = [&](const std::shared_ptr<Mod>& targetMod, int depth = 0)
+        {
+            if (depth < 5)
+            {
+                const auto deps = targetMod->GetInfo()->deps;
+                for (const auto& innerMod : GetMods())
+                    if (deps.contains(innerMod->GetID()) && !innerMod->IsEnabled())
+                        enable(innerMod, depth + 1);
+            }
+            targetMod->Toggle(true);
+        };
+        enable(mod, 0);
+    }
+    else
+    {
+        std::function<void(const std::shared_ptr<Mod>&, int)> disable;
+        disable = [&](const std::shared_ptr<Mod>& targetMod, int depth = 0)
+        {
+            if (depth < 5)
+            {
+                const auto dependents = GetModDependents(targetMod->GetID());
+                for (const auto& innerMod : dependents)
+                    if (innerMod->IsEnabled())
+                        disable(innerMod, depth + 1);
+            }
+            targetMod->Toggle(false);
+        };
+        disable(mod, 0);
+    }
+
+    SaveConfig();
+}
+
 void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 {
     if (mod->HasFlag(Mod::Flag::INTERNAL)) return;
