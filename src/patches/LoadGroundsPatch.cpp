@@ -4,6 +4,8 @@
 #include "memory/HookManager.h"
 #include "sdk/Game.h"
 #include <fstream>
+#include <modloader_new/ModManager.h>
+#include <modloader_new/mod/Mod.h>
 
 #include "events/ModEvent.h"
 #include "modloader/mods/ModManager.h"
@@ -18,9 +20,11 @@ static void* buffer;
 HOOK_FN(inline void*, load_ground_textures, ARGS()) {
     auto grounds = 5;
     
-    for (auto& mod : ModManager::GetMods()) {
-        if (mod->info.internal || !mod->IsEnabled()) continue;
-        const auto levelobjs = mod->info.basePath / "data" / "levelobjs";
+    for (auto& mod : modloader::ModManager::GetMods()) {
+        if (mod->HasFlag(modloader::Mod::Flag::INTERNAL) || !mod->IsActive()) continue;
+        const auto info = std::dynamic_pointer_cast<modloader::ModInfoFilesystem>(mod->GetInfo());
+        if (!info) continue;
+        const auto levelobjs = info->basePath / "data" / "levelobjs";
         auto i = 5;
         while (exists(levelobjs / std::format("ground{}.tga", i + 1)) || exists(levelobjs / std::format("_a_ground{}.jpg", i + 1)))
             i++;
@@ -32,8 +36,8 @@ HOOK_FN(inline void*, load_ground_textures, ARGS()) {
     buffer = calloc(grounds, 4);
     (fillOutGrounds + 3).Put(buffer);
     (readGrounds + 3).Put(buffer);
-    (fillOutLimit + 3).Put((char) grounds);
-    (readLimit + 3).Put((char) grounds);
+    (fillOutLimit + 3).Put(static_cast<char>(grounds));
+    (readLimit + 3).Put(static_cast<char>(grounds));
 
     return load_ground_textures_orig();
 }

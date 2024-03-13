@@ -14,6 +14,7 @@ void modloader::ModManager::Init()
     ScanMods();
     SaveConfig();
 
+    Tick();
     EventManager::On<BeforeTickEvent>([]
     {
        Tick();

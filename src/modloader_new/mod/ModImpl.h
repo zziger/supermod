@@ -10,5 +10,6 @@ namespace modloader
         virtual void OnDisabled() = 0;
         virtual void OnTick() = 0;
         virtual void RenderUI() {}
+        virtual void Render() {}
     };
 }

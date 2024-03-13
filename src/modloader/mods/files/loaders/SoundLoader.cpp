@@ -1,5 +1,7 @@
 ﻿#include <regex>
 #include <queue>
+#include <modloader_new/ModManager.h>
+#include <modloader_new/mod/Mod.h>
 
 #include "DirectXUtils.h"
 #include "Utils.h"
@@ -74,12 +76,14 @@ void ModFileResolver::LoadAdditionalMusic() {
     for (const auto& entry : std::filesystem::directory_iterator(sdk::Game::GetDataPath() / "audio" / "music"))
         defaultMusic.emplace(entry.path().filename().generic_string());
 
-    for (const auto& loadedMod : ModManager::GetMods()) {
-        if (loadedMod->info.internal || !loadedMod->IsEnabled()) continue;
-        if (!exists(loadedMod->info.basePath / "data" / "audio" / "music")) continue;
+    for (const auto& loadedMod : modloader::ModManager::GetMods()) {
+        if (loadedMod->HasFlag(modloader::Mod::Flag::INTERNAL) || !loadedMod->IsActive()) continue;
+        const auto info = std::dynamic_pointer_cast<modloader::ModInfoFilesystem>(loadedMod->GetInfo());
+        if (!info) continue;
+        if (!exists(info->basePath / "data" / "audio" / "music")) continue;
         
-        for (const auto& entry : std::filesystem::directory_iterator(loadedMod->info.basePath / "data" / "audio" / "music")) {
-            auto filename = entry.path().filename();
+        for (const auto& entry : std::filesystem::directory_iterator(info->basePath / "data" / "audio" / "music")) {
+            const auto filename = entry.path().filename();
             if (defaultMusic.contains(filename.generic_string()) || filename.extension() != ".ogg") continue;
 
             LoadSound(entry.path());

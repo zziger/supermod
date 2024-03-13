@@ -1,5 +1,8 @@
 ﻿#include "AssetPool.h"
 
+#include <ranges>
+#include <modloader_new/files/ModFileResolver.h>
+
 #include "events/TickEvent.h"
 #include "modloader/mods/ModManager.h"
 #include "modloader/mods/files/ModFileResolver.h"
@@ -106,15 +109,17 @@ namespace game
         modName = "";
         IDirect3DTexture8* tex = nullptr;
         
-        auto mods = ModManager::GetMods();
-        for (auto el = mods.rbegin(); el != mods.rend(); ++el)
+        auto mods = modloader::ModManager::GetMods();
+        for (const auto& mod : mods | std::ranges::views::reverse)
         {
-            if (!(*el)->IsEnabled()) continue;
-            tex = TryLoadTexture(ModFileResolver::GetModFilePath(*el, dir), name, alpha, size, canvasSizeMultiplier);
+            if (!mod->IsActive()) continue;
+            const auto path = modloader::ModFileResolver::GetGameFileInMod(mod, dir);
+            if (!path) continue;
+            tex = TryLoadTexture(*path, name, alpha, size, canvasSizeMultiplier);
             
             if (tex)
             {
-                modName = (*el)->info.id;
+                modName = mod->GetID();
                 break;
             }
         }
@@ -183,25 +188,25 @@ namespace game
         return asset;
     }
 
-    void AssetPool::ReloadGameAsset(const std::string& filename)
+    bool AssetPool::ReloadGameAsset(const std::string& filename)
     {
         auto key = CreateAssetKey(filename);
         const auto asset = GetByName(key);
-        if (!asset) return;
+        if (!asset) return false;
 
         if (asset->meta->loadedManually)
         {
             Log::Warn << "Перезагрузка текстуры " << filename << " невозможна, так как она была загружена вручную" << Log::Endl;
-            return;
+            return false;
         }
 
         if (asset->meta->origDir.empty() || asset->meta->origName.empty())
         {
             Log::Warn << "Перезагрузка текстуры " << filename << " невозможна, так как она была загружена из неизвестного места" << Log::Endl;
-            return;
+            return false;
         }
 
-        vector2ui size;
+        vector2ui size {};
         std::string modName;
         auto texture = TryLoadTextureFromMods(asset->meta->origDir, asset->meta->origName, asset->hasAlpha, size, modName, asset->meta->canvasSizeMultiplier);
         if (!texture)
@@ -217,6 +222,7 @@ namespace game
         asset->height = size.y;
 
         Log::Info << "Текстура " << filename << " (" + key + ") перезагружена" << Log::Endl;
+        return true;
     }
     
     Asset* AssetPool::LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size) {

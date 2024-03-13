@@ -46,7 +46,7 @@ namespace game
 
         Asset* LoadGameAsset(const std::filesystem::path & path, bool loadFallback = true, vector2 canvasSizeMultiplier = { 1, 1 });
         Asset* LoadGameAssetFromData(const std::filesystem::path & path, bool loadFallback, vector2 canvasSizeMultiplier);
-        void ReloadGameAsset(const std::string & filename);
+        bool ReloadGameAsset(const std::string & filename);
         Asset* LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size);
         Asset* LoadAsset(const std::filesystem::path & path, std::string key, bool loadFallback = true, vector2 canvasSizeMultiplier = { 1, 1 });
         Asset* LoadUnknownAsset(const std::string & key);
