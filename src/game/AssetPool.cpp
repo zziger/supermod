@@ -55,6 +55,15 @@ namespace game
         ctx->registerCastedMember<int>("format", &Asset::format);
     }
 
+    OwnedAsset::~OwnedAsset()
+    {
+        if (asset)
+        {
+            AssetPool::Instance()->RemoveAsset(asset);
+            if (AssetPool::ownedAssets.contains(asset)) AssetPool::ownedAssets.erase(asset);
+        }
+    }
+
     LPDIRECT3DTEXTURE8 AssetPool::LoadTexture(const std::filesystem::path& path, vector2ui& size, bool& alpha, vector2 canvasSizeMultiplier)
     {
         sdk::DirectX::EnsureDeviceReady();
@@ -343,6 +352,18 @@ namespace game
         mem.Get<void (__thiscall *)(void*, void*)>()(static_cast<void*>(this), asset);
     }
 
+    std::shared_ptr<OwnedAsset> AssetPool::MakeOwned(Asset* asset)
+    {
+        if (ownedAssets.contains(asset))
+        {
+            if (!ownedAssets[asset].expired()) return ownedAssets[asset].lock();
+        }
+
+        auto shared = std::make_shared<OwnedAsset>(asset);
+        ownedAssets[asset] = shared;
+        return shared;
+    }
+
     void AssetPool::FreeRemovedAssets() {
         if (removedAssets.empty()) return;
         const auto scheduledAssets = removedAssets;
@@ -398,7 +419,18 @@ namespace game
         bool alpha;
         return CreateAssetKey(name, alpha);
     }
-    
+
+    std::string AssetPool::MakeAssetKeyUnique(const std::string& key) const
+    {
+        if (!GetByName(key)) return key;
+        auto i = 0;
+        while (true) {
+            const auto newKey = key + "-" + std::to_string(i);
+            if (!GetByName(newKey)) return newKey;
+            i++;
+        }
+    }
+
     void AssetPool::AddToLua(LuaContext& ctx) {
         Asset::RegisterType(&ctx);
 

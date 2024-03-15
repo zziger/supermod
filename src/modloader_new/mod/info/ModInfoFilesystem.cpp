@@ -1,6 +1,7 @@
 #include "ModInfoFilesystem.h"
 
 #include <events/StartExecutionEvent.h>
+#include <sdk/DirectX.h>
 #include <yaml-cpp/node/parse.h>
 
 void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
@@ -13,8 +14,19 @@ void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
     // TODO handle when this throws
     auto manifest = YAML::LoadFile(manifestPath.string());
     Parse(manifest);
-
     basePath = path;
+    UpdateIcon();
+}
+
+void modloader::ModInfoFilesystem::UpdateIcon()
+{
+    const auto id = GetID();
+    if(!id.empty() && *sdk::DirectX::d3dDevice && exists(basePath / ICON_FILENAME))
+    {
+        const auto assetPool = game::AssetPool::Instance();
+        const auto iconAsset = assetPool->LoadAsset(basePath / ICON_FILENAME, assetPool->MakeAssetKeyUnique("$mod:icon:" + id));
+        SetIcon(ModIcon(assetPool->MakeOwned(iconAsset)));
+    }
 }
 
 void modloader::ModInfoFilesystem::OpenFolder() const

@@ -31,6 +31,24 @@ namespace game
 
         static void RegisterType(LuaContext* ctx);
     };
+
+    struct OwnedAsset
+    {
+        explicit OwnedAsset(Asset* asset) : asset(asset) {}
+        ~OwnedAsset();
+
+        Asset* asset;
+
+        explicit operator bool() const
+        {
+            return asset != nullptr;
+        }
+
+        void Reset()
+        {
+            asset = nullptr;
+        }
+    };
     
     class AssetPool {
     public:
@@ -39,6 +57,7 @@ namespace game
         
         Asset* assets[1024];
         int assetCount;
+        static inline std::map<Asset*, std::weak_ptr<OwnedAsset>> ownedAssets;
 
         [[nodiscard]] static LPDIRECT3DTEXTURE8 LoadTexture(const std::filesystem::path & path, vector2ui & size, bool & alpha, vector2 canvasSizeMultiplier = { 1, 1 });
         [[nodiscard]] static LPDIRECT3DTEXTURE8 TryLoadTexture(const std::filesystem::path & dir, const std::string & key, bool alpha, vector2ui & size, vector2 canvasSizeMultiplier);
@@ -55,6 +74,7 @@ namespace game
         Asset* AllocateAsset(const std::string& key);
         void RemoveAsset(Asset * asset);
         void FreeAsset(Asset * asset);
+        std::shared_ptr<OwnedAsset> MakeOwned(Asset* asset);
 
         static inline std::vector<IDirect3DTexture8*> removedTextures;
         static inline std::vector<Asset*> removedAssets;
@@ -65,6 +85,7 @@ namespace game
         static AssetPool* Instance();
         static void Init();
 
+        [[nodiscard]] std::string MakeAssetKeyUnique(const std::string& key) const;
         [[nodiscard]] static std::string TrimFileName(std::string name, bool& alpha);
         [[nodiscard]] static std::string CreateAssetKey(const std::string& name, bool& alpha);
         [[nodiscard]] static std::string CreateAssetKey(const std::string& name);

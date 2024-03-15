@@ -6,6 +6,7 @@
 #include <utility>
 #include <exceptions/Error.h>
 #include <yaml-cpp/node/node.h>
+#include "ModIcon.h"
 
 namespace modloader {
     struct ModInfo {
@@ -25,7 +26,8 @@ namespace modloader {
         ModInfo() = default;
         explicit ModInfo(std::string id) : id(std::move(id)) {}
 
-        std::string GetID() { return id; };
+        std::string GetID() { return id; }
+        std::optional<ModIcon> icon;
         std::string title;
         std::string author;
         std::string version;
@@ -45,6 +47,8 @@ namespace modloader {
          * \throws ParseError YAML parse error
          */
         void Parse(YAML::Node& node);
+
+        void SetIcon(std::optional<ModIcon> icon) { this->icon = std::move(icon); }
         // TODO serialize
 
     private:

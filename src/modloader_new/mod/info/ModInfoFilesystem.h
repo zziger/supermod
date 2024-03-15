@@ -4,6 +4,7 @@
 namespace modloader {
     struct ModInfoFilesystem final : ModInfo {
         static constexpr std::string_view MANIFEST_FILENAME = "manifest.yml";
+        static constexpr std::string_view ICON_FILENAME = "icon.png";
 
         std::filesystem::path basePath;
 
@@ -20,6 +21,7 @@ namespace modloader {
          */
         void FromPath(const std::filesystem::path& path);
 
+        void UpdateIcon();
         void OpenFolder() const;
     };
 }

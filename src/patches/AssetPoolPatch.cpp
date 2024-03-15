@@ -61,8 +61,17 @@ game::AssetPool* __fastcall remove_asset(game::AssetPool* this_, void*, game::As
     const auto origMeta = asset->meta;
     const auto count = this_->assetCount;
     remove_asset_orig(this_, asset);
-    if (this_->assetCount == count) Log::Warn << "Failed to free asset!" << Log::Endl;
-    else delete origMeta;
+    if (this_->assetCount != count)
+    {
+        delete origMeta;
+        if (game::AssetPool::ownedAssets.contains(asset))
+        {
+            const auto ownedAsset = game::AssetPool::ownedAssets[asset];
+            if (!ownedAsset.expired()) ownedAsset.lock()->Reset();
+            game::AssetPool::ownedAssets.erase(asset);
+        }
+    }
+    else Log::Warn << "Failed to free asset!" << Log::Endl;
     return this_;
 }
 
