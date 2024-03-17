@@ -30,6 +30,7 @@ namespace modloader {
 
         static void Init();
         static void ScanMods();
+        static void ScanCmdline();
         static void Tick();
 
         static const std::vector<std::shared_ptr<Mod>>& GetMods() { return mods; }

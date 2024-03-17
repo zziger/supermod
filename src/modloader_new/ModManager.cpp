@@ -19,6 +19,7 @@ void modloader::ModManager::Init()
     ScanMods();
     SaveConfig();
     UpdateRemovedMods();
+    ScanCmdline();
     Tick();
 
     EventManager::On<BeforeTickEvent>([]
@@ -84,6 +85,20 @@ void modloader::ModManager::ScanMods()
         install_requests.insert(std::end(install_requests), std::begin(requests), std::end(requests));
     }
 
+}
+
+void modloader::ModManager::ScanCmdline()
+{
+    const auto cmdline = GetCommandLineW();
+    int argvCount = 0;
+    const auto argv = CommandLineToArgvW(cmdline, &argvCount);
+    for (auto i = 0; i < argvCount; i++)
+    {
+        auto path = std::filesystem::path(argv[i]);
+        if (path.extension() != ".zip") continue;
+        auto requests = ModInstallRequestZip::FromZip(path, false);
+        install_requests.insert(std::end(install_requests), std::begin(requests), std::end(requests));
+    }
 }
 
 void modloader::ModManager::Tick()
@@ -171,8 +186,7 @@ void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& 
         {
             const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
             if (!info) continue;
-            Log::Info << "Should delete file " << info->basePath << Log::Endl;
-            // TODO: delete from filesystem
+            remove_all(info->basePath);
         }
     }
 }
@@ -230,7 +244,7 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
 
 void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, const bool remove)
 {
-    // if (remove) ToggleMod(mod, false);
+    if (remove) ToggleMod(mod, false);
     mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED, remove);
     mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES, remove);
     SaveConfig(mod);
