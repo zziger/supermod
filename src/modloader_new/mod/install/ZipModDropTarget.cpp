@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <modloader_new/ModManager.h>
+#include <sdk/Game.h>
 
 #include "ModInstallRequestZip.h"
 
@@ -42,8 +43,8 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
     ReleaseStgMedium(&stgMedium);
 
     if (!containsZip) return S_OK;
-    Log::Info << "Drag enter 4" << Log::Endl;
 
+    SetActiveWindow(*sdk::Game::window);
     lastEffect = *pdwEffect = DROPEFFECT_COPY;
     state = true;
     return S_OK;
@@ -51,6 +52,7 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 
 HRESULT ZipModDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
+    SetActiveWindow(*sdk::Game::window);
     *pdwEffect = lastEffect;
     return S_OK;
 }
