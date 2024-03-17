@@ -7,5 +7,6 @@ namespace modloader {
         rect uv = { 0, 0, 1, 1 };
 
         void Draw(ImDrawList* drawList, const ImVec2& from, const ImVec2& to, ImU32 color = IM_COL32_WHITE) const;
+        void Draw(const ImVec2& imageSize) const;
     };
 }
