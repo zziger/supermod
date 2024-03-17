@@ -30,15 +30,19 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
     zipNames.clear();
     for (UINT i = 0; i < count; ++i) {
         TCHAR filename[MAX_PATH];
-        auto path = std::filesystem::path(filename);
-        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0 && path.extension() == ".zip") {
-            zipNames.push_back(path.filename().string());
-            containsZip = true;
+        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0) {
+            auto path = std::filesystem::path(filename);
+            if (path.extension() == ".zip")
+            {
+                zipNames.push_back(path.filename().string());
+                containsZip = true;
+            }
         }
     }
     ReleaseStgMedium(&stgMedium);
 
     if (!containsZip) return S_OK;
+    Log::Info << "Drag enter 4" << Log::Endl;
 
     lastEffect = *pdwEffect = DROPEFFECT_COPY;
     state = true;
