@@ -10,6 +10,7 @@
 #include "mod/impl/TestImpl.h"
 #include "mod/install/ModInstallRequestDiscover.h"
 #include "mod/install/ModInstallRequestZip.h"
+#include "mod/install/ZipModDropTarget.h"
 
 void modloader::ModManager::Init()
 {
@@ -27,7 +28,8 @@ void modloader::ModManager::Init()
 
     EventManager::On<D3dInitEvent>([]
     {
-        auto wnd = *sdk::Game::window;
+        OleInitialize(nullptr);
+        RegisterDragDrop(*sdk::Game::window, &dropTarget);
     });
 }
 
@@ -70,7 +72,6 @@ void modloader::ModManager::ScanMods()
     {
         if (cfg.data["mods"][key]) continue;
 
-        Log::Info << "Discovered mod " << key << Log::Endl;
         AddMod(mod);
         install_requests.push_back(std::make_shared<ModInstallRequestDiscover>(mod));
     }

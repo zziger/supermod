@@ -4,6 +4,7 @@
 
 #include "mod/Mod.h"
 #include "mod/install/ModInstallRequest.h"
+#include "mod/install/ZipModDropTarget.h"
 
 class ModloaderFixture;
 
@@ -15,6 +16,7 @@ namespace modloader {
         inline static std::map<std::string, std::vector<std::shared_ptr<Mod>>> dependent_mods {};
         inline static std::vector<std::shared_ptr<ModInstallRequest>> install_requests {};
         inline static uint32_t dirty_flags = 0;
+        inline static ZipModDropTarget dropTarget {};
 
     public:
         enum class DirtyFlag
@@ -35,8 +37,10 @@ namespace modloader {
         static const std::vector<std::shared_ptr<Mod>>& GetModDependents(const std::string& id);
         static std::shared_ptr<Mod> FindModByID(const std::string& id);
 
+        static void RequestInstall(const std::shared_ptr<ModInstallRequest>& request) { install_requests.push_back(request); }
         static const std::vector<std::shared_ptr<ModInstallRequest>>& GetInstallRequests() { return install_requests; }
         static void ClearInstallRequests() { install_requests.clear(); }
+        static ZipModDropTarget& GetDropTarget() { return dropTarget; }
 
         static void AddMod(const std::shared_ptr<Mod>& mod);
         static void RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList);
