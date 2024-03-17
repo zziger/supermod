@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <string>
+#include <vector>
 
 class ZipModDropTarget final : public IDropTarget {
 public:
@@ -11,6 +12,7 @@ public:
     STDMETHODIMP_(ULONG) Release() override { return 1; }
 
     bool state = false;
+    std::vector<std::string> zipNames;
     DWORD lastEffect = DROPEFFECT_NONE;
 
     STDMETHODIMP DragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect) override;

@@ -27,11 +27,13 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
     const auto hDrop = static_cast<HDROP>(stgMedium.hGlobal);
     const auto count = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
     bool containsZip = false;
+    zipNames.clear();
     for (UINT i = 0; i < count; ++i) {
         TCHAR filename[MAX_PATH];
-        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0 && std::filesystem::path(filename).extension() == ".zip") {
+        auto path = std::filesystem::path(filename);
+        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0 && path.extension() == ".zip") {
+            zipNames.push_back(path.filename().string());
             containsZip = true;
-            break;
         }
     }
     ReleaseStgMedium(&stgMedium);
