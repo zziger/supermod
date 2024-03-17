@@ -2,11 +2,14 @@
 
 #include <Config.h>
 #include <Log.h>
+#include <events/D3dInitEvent.h>
 #include <mod/InternalMod.h>
 #include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
 
 #include "mod/impl/TestImpl.h"
+#include "mod/install/ModInstallRequestDiscover.h"
+#include "mod/install/ModInstallRequestZip.h"
 
 void modloader::ModManager::Init()
 {
@@ -21,6 +24,11 @@ void modloader::ModManager::Init()
     {
        Tick();
     });
+
+    EventManager::On<D3dInitEvent>([]
+    {
+        auto wnd = *sdk::Game::window;
+    });
 }
 
 void modloader::ModManager::ScanMods()
@@ -32,29 +40,15 @@ void modloader::ModManager::ScanMods()
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
     {
         if (!file.is_directory()) continue; // TODO maybe zipmod support?
-        if (!exists(file.path() / ModInfoFilesystem::MANIFEST_FILENAME)) continue;
-
-        auto modInfo = std::make_shared<ModInfoFilesystem>();
-        modInfo->FromPath(file.path());
-
-        std::unique_ptr<ModImpl> info;
-        switch (modInfo->scriptType)
-        {
-        case ModInfo::ScriptType::LUA:
-            info = std::make_unique<ModImplLua>(modInfo);
-            break;
-        default:
-            info = std::make_unique<ModImpl>();
-            break;
-        }
-
-        const auto mod = std::make_shared<Mod>(modInfo, std::move(info));
-        foundMods[mod->GetID()] = mod;
+        auto mod = CreateMod(file.path());
+        if (!mod) continue;
+        foundMods[(*mod)->GetID()] = *mod;
     }
 
     const Config cfg;
 
-    for (const auto& pair : cfg.data["mods"])
+    auto modsArr = Clone(cfg.data["mods"]);
+    for (const auto& pair : modsArr)
     {
         const auto key = pair.first.as<std::string>();
         const auto& node = pair.second;
@@ -68,8 +62,27 @@ void modloader::ModManager::ScanMods()
             mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
             mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES);
         }
+
         AddMod(mod);
     }
+
+    for (const auto& [key, mod] : foundMods)
+    {
+        if (cfg.data["mods"][key]) continue;
+
+        Log::Info << "Discovered mod " << key << Log::Endl;
+        AddMod(mod);
+        install_requests.push_back(std::make_shared<ModInstallRequestDiscover>(mod));
+    }
+
+    for (const auto& file : std::filesystem::directory_iterator(modsPath))
+    {
+        if (file.is_directory()) continue;
+        if (file.path().extension() != ".zip") continue;
+        auto requests = ModInstallRequestZip::FromZip(file.path(), true);
+        install_requests.insert(std::end(install_requests), std::begin(requests), std::end(requests));
+    }
+
 }
 
 void modloader::ModManager::Tick()
@@ -110,6 +123,28 @@ void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
     mod->SetFlag(Mod::Flag::EXISTS);
     UpdateDeps();
     SaveConfig();
+}
+
+std::optional<std::shared_ptr<modloader::Mod>> modloader::ModManager::CreateMod(const std::filesystem::path& modPath)
+{
+    if (!is_directory(modPath)) return {};
+    if (!exists(modPath / ModInfoFilesystem::MANIFEST_FILENAME)) return {};
+
+    auto modInfo = std::make_shared<ModInfoFilesystem>();
+    modInfo->FromPath(modPath);
+
+    std::unique_ptr<ModImpl> info;
+    switch (modInfo->scriptType)
+    {
+    case ModInfo::ScriptType::LUA:
+        info = std::make_unique<ModImplLua>(modInfo);
+        break;
+    default:
+        info = std::make_unique<ModImpl>();
+        break;
+    }
+
+    return std::make_shared<Mod>(modInfo, std::move(info));
 }
 
 void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList)
