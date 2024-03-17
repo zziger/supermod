@@ -4,6 +4,7 @@
 #include <modloader_new/ModManager.h>
 #include <sdk/Game.h>
 
+#include "ModInstaller.h"
 #include "ModInstallRequestZip.h"
 
 STDMETHODIMP ZipModDropTarget::QueryInterface(REFIID riid, void **ppv) {
@@ -84,7 +85,7 @@ HRESULT ZipModDropTarget::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
                 *pdwEffect = DROPEFFECT_COPY;
                 auto requests = modloader::ModInstallRequestZip::FromZip(path, false);
                 for (const auto& request : requests)
-                    modloader::ModManager::RequestInstall(request);
+                    modloader::ModInstaller::RequestInstall(request);
             }
         }
     }

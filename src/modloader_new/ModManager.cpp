@@ -7,10 +7,11 @@
 #include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
 
+#include "install/ModInstaller.h"
 #include "mod/impl/TestImpl.h"
-#include "mod/install/ModInstallRequestDiscover.h"
-#include "mod/install/ModInstallRequestZip.h"
-#include "mod/install/ZipModDropTarget.h"
+#include "install/ModInstallRequestDiscover.h"
+#include "install/ModInstallRequestZip.h"
+#include "install/ZipModDropTarget.h"
 
 void modloader::ModManager::Init()
 {
@@ -19,18 +20,11 @@ void modloader::ModManager::Init()
     ScanMods();
     SaveConfig();
     UpdateRemovedMods();
-    ScanCmdline();
     Tick();
 
     EventManager::On<BeforeTickEvent>([]
     {
        Tick();
-    });
-
-    EventManager::On<D3dInitEvent>([]
-    {
-        OleInitialize(nullptr);
-        RegisterDragDrop(*sdk::Game::window, &dropTarget);
     });
 }
 
@@ -74,30 +68,14 @@ void modloader::ModManager::ScanMods()
         if (cfg.data["mods"][key]) continue;
 
         AddMod(mod);
-        install_requests.push_back(std::make_shared<ModInstallRequestDiscover>(mod));
+        ModInstaller::RequestInstall(std::make_shared<ModInstallRequestDiscover>(mod));
     }
 
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
     {
         if (file.is_directory()) continue;
         if (file.path().extension() != ".zip") continue;
-        auto requests = ModInstallRequestZip::FromZip(file.path(), true);
-        install_requests.insert(std::end(install_requests), std::begin(requests), std::end(requests));
-    }
-
-}
-
-void modloader::ModManager::ScanCmdline()
-{
-    const auto cmdline = GetCommandLineW();
-    int argvCount = 0;
-    const auto argv = CommandLineToArgvW(cmdline, &argvCount);
-    for (auto i = 0; i < argvCount; i++)
-    {
-        auto path = std::filesystem::path(argv[i]);
-        if (path.extension() != ".zip") continue;
-        auto requests = ModInstallRequestZip::FromZip(path, false);
-        install_requests.insert(std::end(install_requests), std::begin(requests), std::end(requests));
+        ModInstaller::RequestInstall(ModInstallRequestZip::FromZip(file.path(), true));
     }
 }
 

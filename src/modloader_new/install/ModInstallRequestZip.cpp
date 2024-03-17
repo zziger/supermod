@@ -102,9 +102,9 @@ namespace modloader {
         return progress;
     }
 
-    std::vector<std::shared_ptr<ModInstallRequestZip>> ModInstallRequestZip::FromZip(const std::filesystem::path& path, bool remove)
+    std::vector<std::shared_ptr<ModInstallRequest>> ModInstallRequestZip::FromZip(const std::filesystem::path& path, bool remove)
     {
-        auto res = std::vector<std::shared_ptr<ModInstallRequestZip>> {};
+        auto res = std::vector<std::shared_ptr<ModInstallRequest>> {};
         auto zip = std::make_shared<OwnedZip>(path.string(), remove);
 
         for (auto& info : zip->zip->infolist())

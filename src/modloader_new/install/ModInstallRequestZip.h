@@ -36,6 +36,6 @@ namespace modloader {
         std::string GetError() override;
         Progress GetProgress() override;
 
-        static std::vector<std::shared_ptr<ModInstallRequestZip>> FromZip(const std::filesystem::path& path, bool remove = false);
+        static std::vector<std::shared_ptr<ModInstallRequest>> FromZip(const std::filesystem::path& path, bool remove = false);
     };
 }
