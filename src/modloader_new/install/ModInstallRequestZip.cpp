@@ -2,24 +2,22 @@
 
 #include <events/EventManager.h>
 #include <events/TickEvent.h>
+#include <game/textures/PngLoader.h>
 #include <modloader_new/ModManager.h>
 #include <sdk/DirectX.h>
 #include <sdk/Game.h>
+#include <utils/TempManager.h>
 #include <yaml-cpp/yaml.h>
+
+#include "ModInstaller.h"
 
 namespace modloader {
     void ModInstallRequestZip::Install()
     {
-        installing = true;
+        state = State::INSTALLING;
         error = "";
 
-        auto path = sdk::Game::GetModsPath();
-        auto counter = 1;
-        auto folder = modInfo->GetID();
-        while (exists(path / folder))
-            folder = std::format("{}-{}", modInfo->GetID(), counter++);
-        path /= folder;
-        create_directories(path);
+        auto path = TempManager::GetTempDir();
 
         progress.show = true;
         progress.message = "Распаковка...";
@@ -59,35 +57,39 @@ namespace modloader {
 
                 EventManager::Once<BeforeTickEvent>([this, path]
                 {
-                    const auto mod = ModManager::CreateMod(path);
-                    if (!mod)
+                    try
                     {
-                        finished = false;
-                        installing = false;
-                        std::lock_guard lock(mutex);
-                        error = "Не удалось создать мод";
-                        return;
+                        ModInstaller::InstallMod(modInfo, path);
+                        state = State::FINISHED;
                     }
-
-                    (*mod)->Toggle(true);
-                    ModManager::AddMod(*mod);
-                    finished = true;
-                    installing = false;
+                    catch(const std::exception& err)
+                    {
+                        Log::Error << "Failed to install zip mod: " << err.what() << Log::Endl;
+                        TempManager::RemoveTempDir(path);
+                        error = err.what();
+                        state = State::IDLE;
+                    }
+                    catch(...)
+                    {
+                        Log::Error << "Failed to install zip mod: Unknown error" << Log::Endl;
+                        TempManager::RemoveTempDir(path);
+                        error = "Unknown error";
+                        state = State::IDLE;
+                    }
                 });
             }
             catch(std::exception& e)
             {
-                finished = false;
-                installing = false;
+                state = State::IDLE;
                 std::lock_guard lock(mutex);
-                error = std::format("Ошибка установки: {}", e.what());
+                error = e.what();
             }
         }).detach();
     }
 
     void ModInstallRequestZip::Cancel()
     {
-        finished = true;
+        state = State::FINISHED;
     }
 
     std::string ModInstallRequestZip::GetError()
@@ -98,8 +100,10 @@ namespace modloader {
 
     ModInstallRequest::Progress ModInstallRequestZip::GetProgress()
     {
-        progress.progress = progressValue;
-        return progress;
+        auto progressCopy = progress;
+        progressCopy.progress = progressValue;
+        if (state != State::INSTALLING) progressCopy.show = false;
+        return progressCopy;
     }
 
     std::vector<std::shared_ptr<ModInstallRequest>> ModInstallRequestZip::FromZip(const std::filesystem::path& path, bool remove)
@@ -117,6 +121,23 @@ namespace modloader {
             auto manifest = YAML::Load(manifestContent.str());
             const auto modInfo = std::make_shared<ModInfo>();
             modInfo->Parse(manifest);
+
+            auto iconPath = rootPath + std::string(ModInfoFilesystem::ICON_FILENAME);
+            if (zip->zip->has_file(iconPath))
+            {
+                auto iconContent = std::stringstream {};
+                auto data = zip->zip->read(iconPath);
+                std::vector<byte> bytes(data.begin(), data.end());
+                // TODO: limit icon size
+
+                const auto assetPool = game::AssetPool::Instance();
+                vector2ui iconSize {};
+                if (const auto iconTex = PngLoader::LoadPngBuf(bytes, iconSize, { 1, 1 }))
+                {
+                    const auto asset = assetPool->LoadAsset(iconTex, assetPool->MakeAssetKeyUnique("$mod:icon:" + modInfo->GetID()), false, iconSize);
+                    modInfo->SetIcon(ModIcon(assetPool->MakeOwned(asset)));
+                }
+            }
 
             res.push_back(std::make_shared<ModInstallRequestZip>(modInfo, zip, rootPath));
         }

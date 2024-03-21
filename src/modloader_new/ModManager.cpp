@@ -33,13 +33,33 @@ void modloader::ModManager::ScanMods()
     const auto modsPath = sdk::Game::GetRootPath() / MODS_DIRECTORY;
 
     std::map<std::string, std::shared_ptr<Mod>> foundMods {};
+    std::set<std::string> foundIDs {};
 
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
     {
-        if (!file.is_directory()) continue; // TODO maybe zipmod support?
-        auto mod = CreateMod(file.path());
-        if (!mod) continue;
-        foundMods[(*mod)->GetID()] = *mod;
+        if (!file.is_directory() || file.path().filename().string().starts_with(".")) continue;
+
+        std::shared_ptr<Mod> mod;
+        try
+        {
+            mod = CreateMod(file.path());
+        }
+        catch(const std::exception& err)
+        {
+            // TODO: handle failed mods
+            Log::Error << "Failed to create mod from " << file.path().string() << ": " << err.what() << Log::Endl;
+        }
+
+        auto id = mod->GetID();
+        if (foundIDs.contains(id))
+        {
+            Log::Warn << "Found multiple mods with same ID: " << id << ". Disabling mod at " << file.path().string() << Log::Endl;
+            std::filesystem::rename(file.path(), file.path().parent_path() / ("." + file.path().filename().string()));
+            continue;
+        }
+
+        foundIDs.insert(id);
+        foundMods[mod->GetID()] = mod;
     }
 
     const Config cfg;
@@ -119,10 +139,13 @@ void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
     SaveConfig();
 }
 
-std::optional<std::shared_ptr<modloader::Mod>> modloader::ModManager::CreateMod(const std::filesystem::path& modPath)
+std::shared_ptr<modloader::Mod> modloader::ModManager::CreateMod(const std::filesystem::path& modPath)
 {
-    if (!is_directory(modPath)) return {};
-    if (!exists(modPath / ModInfoFilesystem::MANIFEST_FILENAME)) return {};
+    if (!is_directory(modPath))
+        throw Error(std::format("Path {} is not a directory", modPath.string()));
+
+    if (!exists(modPath / ModInfoFilesystem::MANIFEST_FILENAME))
+        throw Error(std::format("Failed to find manifest.yml in {}", modPath.string()));
 
     auto modInfo = std::make_shared<ModInfoFilesystem>();
     modInfo->FromPath(modPath);
@@ -226,6 +249,16 @@ void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, 
     mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED, remove);
     mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES, remove);
     SaveConfig(mod);
+}
+
+void modloader::ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
+{
+    const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
+    if (!info) return;
+
+    const auto newInfo = std::make_shared<ModInfoFilesystem>();
+    newInfo->FromPath(info->basePath);
+    mod->SetInfo(newInfo);
 }
 
 void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)

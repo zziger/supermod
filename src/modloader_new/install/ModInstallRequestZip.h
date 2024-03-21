@@ -12,10 +12,18 @@
 
 namespace modloader {
     class ModInstallRequestZip final : public ModInstallRequest {
+    public:
+        enum class State
+        {
+            IDLE,
+            INSTALLING,
+            FINISHED
+        };
+
+    private:
         std::mutex mutex;
 
-        std::atomic_bool installing = false;
-        std::atomic_bool finished = false;
+        std::atomic<State> state = State::IDLE;
         std::atomic<float> progressValue = 0.0f;
         std::string error; // lock with mutex
         Progress progress {};
@@ -31,8 +39,8 @@ namespace modloader {
 
         void Install() override;
         void Cancel() override;
-        bool IsFinished() override { return finished; }
-        bool IsInstalling() override { return installing; }
+        bool IsFinished() override { return state == State::FINISHED; }
+        bool IsInstalling() override { return state == State::INSTALLING; }
         std::string GetError() override;
         Progress GetProgress() override;
 

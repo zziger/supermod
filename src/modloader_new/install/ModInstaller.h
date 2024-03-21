@@ -20,5 +20,7 @@ namespace modloader {
         static const std::vector<std::shared_ptr<ModInstallRequest>>& GetInstallRequests() { return install_requests; }
         static void ClearInstallRequests() { install_requests.clear(); }
         static ZipModDropTarget& GetDropTarget() { return dropTarget; }
+
+        static std::shared_ptr<Mod> InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path);
     };
 }

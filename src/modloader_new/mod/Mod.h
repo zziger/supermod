@@ -15,12 +15,13 @@ namespace modloader
             REMOVAL_SCHEDULED = 0b1 << 1,
             REMOVE_WITH_FILES = 0b1 << 2,
             INTERNAL = 0b1 << 3,
-            EXISTS = 0b1 << 4
+            EXISTS = 0b1 << 4,
+            UPDATE_SCHEDULED = 0b1 << 5
         };
 
     private:
 
-        const std::shared_ptr<ModInfo> info;
+        std::shared_ptr<ModInfo> info;
         const std::unique_ptr<ModImpl> impl;
 
         uint8_t flags = 0;
@@ -38,6 +39,7 @@ namespace modloader
         [[nodiscard]] const std::unique_ptr<ModImpl>& GetImpl() const { return impl; }
         [[nodiscard]] std::string GetID() const { return info->GetID(); }
 
+        void SetInfo(const std::shared_ptr<ModInfo>& newInfo);
         void SetState(std::unique_ptr<ModState>&& state);
 
         template <typename T>

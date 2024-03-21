@@ -1,4 +1,8 @@
 #pragma once
+#include <memory>
+#include <optional>
+#include <string>
+#include <modloader/mods/ModInfo.h>
 
 namespace modloader {
     class ModInstallRequest

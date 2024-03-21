@@ -18,6 +18,12 @@ modloader::Mod::Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& im
     this->state->Init(*this);
 }
 
+void modloader::Mod::SetInfo(const std::shared_ptr<ModInfo>& newInfo)
+{
+    assert(info->GetID() == newInfo->GetID() && "Tried to set info with different ID");
+    info = newInfo;
+}
+
 void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
 {
     assert(state && "Tried to set empty state pointer to mod");
