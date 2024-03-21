@@ -75,6 +75,7 @@ class EventManager {
 public:
     template <std::derived_from<IAnyEvent> Event>
     static uint32_t On(std::function<void(Event&)> fn) {
+        std::lock_guard lock(_mutex);
         auto id = _lastId++;
         std::string typeId = Event::eventId;
         _enabledEvents.emplace(typeId);
@@ -85,6 +86,7 @@ public:
     }
     
     static uint32_t On(const std::string& name, std::function<void(IAnyEvent&)> fn) {
+        std::lock_guard lock(_mutex);
         auto id = _lastId++;
         _enabledEvents.emplace(name);
         _eventMap.emplace(name, std::pair(id, [fn](IAnyEvent& event) {
@@ -95,6 +97,7 @@ public:
     
     template <std::derived_from<IAnyEvent> Event>
     static uint32_t Once(std::function<void(Event&)> fn) {
+        std::lock_guard lock(_mutex);
         auto id = _lastId++;
         std::string typeId = Event::eventId;
         _enabledEvents.emplace(typeId);
@@ -107,6 +110,7 @@ public:
 
     template <std::derived_from<IAnyEvent> Event>
     static uint32_t On(const std::function<void()>& fn) {
+        std::lock_guard lock(_mutex);
         auto id = _lastId++;
         std::string typeId = Event::eventId;
         _enabledEvents.emplace(typeId);
@@ -117,6 +121,7 @@ public:
     }
 
     static uint32_t On(const std::string& name, const std::function<void()>& fn) {
+        std::lock_guard lock(_mutex);
         auto id = _lastId++;
         _enabledEvents.emplace(name);
         _eventMap.emplace(name, std::pair(id, [fn](IAnyEvent&) {
@@ -127,6 +132,7 @@ public:
 
     template <std::derived_from<IAnyEvent> Event>
     static uint32_t Once(const std::function<void()>& fn) {
+        std::lock_guard lock(_mutex);
         auto id = _lastId++;
         std::string typeId = Event::eventId;
         _enabledEvents.emplace(typeId);
