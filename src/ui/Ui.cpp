@@ -8,9 +8,9 @@
 #include <shellscalingapi.h>
 #include <backends/imgui_impl_win32.h>
 #include <imgui-dx8/imgui_impl_dx8.h>
-#include <modloader_new/ModManager.h>
-#include <modloader_new/install/ModInstaller.h>
-#include <modloader_new/mod/Mod.h>
+#include <modloader/ModManager.h>
+#include <modloader/install/ModInstaller.h>
+#include <modloader/mod/Mod.h>
 
 #include "Config.h"
 #include "Utils.h"

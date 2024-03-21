@@ -1,7 +1,7 @@
 #include "windows.h"
 
 #include <IconsMaterialDesign.h>
-#include <modloader_new/install/ModInstaller.h>
+#include <modloader/install/ModInstaller.h>
 #include <ui/Ui.h>
 
 void ui::windows::DropTarget()

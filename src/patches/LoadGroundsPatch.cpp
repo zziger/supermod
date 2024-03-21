@@ -4,11 +4,10 @@
 #include "memory/HookManager.h"
 #include "sdk/Game.h"
 #include <fstream>
-#include <modloader_new/ModManager.h>
-#include <modloader_new/mod/Mod.h>
+#include <modloader/ModManager.h>
+#include <modloader/mod/Mod.h>
 
 #include "events/ModEvent.h"
-#include "modloader/mods/ModManager.h"
 
 static Memory fillOutGrounds;
 static Memory readGrounds;

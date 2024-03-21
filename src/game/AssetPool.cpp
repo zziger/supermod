@@ -1,11 +1,9 @@
 ﻿#include "AssetPool.h"
 
 #include <ranges>
-#include <modloader_new/files/ModFileResolver.h>
+#include <modloader/files/ModFileResolver.h>
 
 #include "events/TickEvent.h"
-#include "modloader/mods/ModManager.h"
-#include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/Game.h"
 #include "textures/JpgLoader.h"
 #include "textures/PngLoader.h"

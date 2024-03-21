@@ -1,4 +1,4 @@
-#include <modloader_new/ModManager.h>
+#include <modloader/ModManager.h>
 
 #include "../widgets.h"
 

@@ -1,9 +1,7 @@
 ﻿#include "EventManager.h"
 
-#include <modloader_new/ModManager.h>
+#include <modloader/ModManager.h>
 #include <scripting/ModImplLua.h>
-
-#include "modloader/mods/ModManager.h"
 
 std::vector<std::shared_ptr<LuaContext>> EventManager::GetLuaContexts() {
     std::vector<std::shared_ptr<LuaContext>> vec;

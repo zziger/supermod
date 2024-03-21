@@ -2,7 +2,7 @@
 
 #include <events/D3dInitEvent.h>
 #include <game/textures/PngLoader.h>
-#include <modloader_new/mod/Mod.h>
+#include <modloader/mod/Mod.h>
 
 void ModImplInternal::OnEnabled()
 {

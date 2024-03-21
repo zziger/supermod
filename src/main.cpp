@@ -25,12 +25,12 @@
 #include "events/D3dInitEvent.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
-// #include "modloader_new/mods/files/ModFileResolver.h"
+// #include "modloader/mods/files/ModFileResolver.h"
 #include <mod/InternalMod.h>
-#include <modloader_new/files/ModFileResolver.h>
-#include <modloader_new/install/ModInstaller.h>
+#include <modloader/files/ModFileResolver.h>
+#include <modloader/install/ModInstaller.h>
 
-#include "modloader_new/ModManager.h"
+#include "modloader/ModManager.h"
 #include "sdk/Game.h"
 #include <thirdparty/zip_file.h>
 #include <utils/TempManager.h>

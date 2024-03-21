@@ -1,5 +1,5 @@
 #include <imgui_internal.h>
-#include <modloader_new/ModManager.h>
+#include <modloader/ModManager.h>
 #include <ui/Ui.h>
 
 #include "../widgets.h"

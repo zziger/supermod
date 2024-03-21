@@ -1,7 +1,7 @@
 #include "windows.h"
 
-#include <modloader_new/ModManager.h>
-#include <modloader_new/install/ModInstaller.h>
+#include <modloader/ModManager.h>
+#include <modloader/install/ModInstaller.h>
 #include <sdk/Game.h>
 #include <ui/styles/styles.h>
 #include <ui/widgets/widgets.h>

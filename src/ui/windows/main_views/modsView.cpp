@@ -1,8 +1,8 @@
 #include <imgui_internal.h>
 #include <memory>
 #include <vector>
-#include <modloader_new/ModManager.h>
-#include <modloader_new/mod/Mod.h>
+#include <modloader/ModManager.h>
+#include <modloader/mod/Mod.h>
 #include <sdk/Game.h>
 #include <ui/Ui.h>
 #include <ui/popups/popups.h>

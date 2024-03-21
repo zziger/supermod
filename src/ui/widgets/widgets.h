@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 #include <IconsMaterialDesign.h>
-#include <modloader_new/mod/Mod.h>
+#include <modloader/mod/Mod.h>
 
 namespace ui::widgets {
     void ProgressBar(float fraction, const ImVec2& sizeArg = ImVec2(-FLT_MIN, 0), const char* overlay = nullptr);

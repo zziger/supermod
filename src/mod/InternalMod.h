@@ -1,10 +1,9 @@
 ﻿#pragma once
-#include <modloader_new/mod/Mod.h>
-#include <modloader_new/mod/impl/ModImpl.h>
+#include <modloader/mod/Mod.h>
+#include <modloader/mod/impl/ModImpl.h>
 
 #include "DirectXUtils.h"
 #include "assets/assets.h"
-#include "modloader/mods/Mod.h"
 #include "modules/AdaptiveResolutionModule.h"
 #include "modules/ForwardGameLogsModule.h"
 #include "modules/RenderUnfocusedModule.h"

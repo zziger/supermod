@@ -1,8 +1,8 @@
 #include <Log.h>
 #include <gtest/gtest.h>
-#include <modloader_new/ModManager.h>
-#include <modloader_new/mod/states/ModStateWaitingDependentsUnload.h>
-#include <modloader_new/mod/states/ModStateWaitingDependenciesLoad.h>
+#include <modloader/ModManager.h>
+#include <modloader/mod/states/ModStateWaitingDependentsUnload.h>
+#include <modloader/mod/states/ModStateWaitingDependenciesLoad.h>
 #include <sdk/Game.h>
 #include "mock/ModImplMock.h"
 

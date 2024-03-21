@@ -1,6 +1,6 @@
 ﻿#include "ModImplLua.h"
 
-#include <modloader_new/mod/info/ModInfoFilesystem.h>
+#include <modloader/mod/info/ModInfoFilesystem.h>
 
 #include "Config.h"
 #include "assets/assets.h"

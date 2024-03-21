@@ -3,7 +3,7 @@
 #include "events/WindowEvent.h"
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <modloader_new/mod/Mod.h>
+#include <modloader/mod/Mod.h>
 
 #include "IconsFontAwesome5Brands.h"
 

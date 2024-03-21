@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <unordered_set>
-#include <modloader_new/mod/impl/ModImpl.h>
-#include <modloader_new/mod/info/ModInfo.h>
+#include <modloader/mod/impl/ModImpl.h>
+#include <modloader/mod/info/ModInfo.h>
 
 #include "exceptions/Error.h"
 #include "thirdparty/LuaContext.h"
