@@ -40,15 +40,15 @@ void Mod::Enable(bool manual) {
         if (manual && !info.internal) ModFileResolver::ReloadModFiles(info.basePath / "data");
         EventManager::Emit(ModLoadEvent(info));
         Log::Info << "Мод " << info.title << " загружен" << Log::Endl;
-        const Config cfg;
-        const auto& node = cfg.data[config_key];
+        auto& cfg = Config::GetYaml();
+        const auto& node = cfg[config_key];
         if (manual && node.IsSequence()) {
             std::vector<std::string> newList = {};
             for (const auto& value : node) {
                 const auto& id = value.as<std::string>("");
                 if (id != info.id) newList.push_back(id);
             }
-            cfg.data[config_key] = newList;
+            cfg[config_key] = newList;
         }
         loadingError = std::nullopt;
     } catch(std::exception& e) {
@@ -64,9 +64,9 @@ void Mod::Disable(bool manual) {
     _enabled = false;
     try {
         if (manual) {
-            const Config cfg;
-            if (!cfg.data[config_key].IsSequence()) cfg.data[config_key] = YAML::Node(YAML::NodeType::Sequence);
-            cfg.data[config_key].push_back(info.id);
+            auto& cfg = Config::GetYaml();
+            if (!cfg[config_key].IsSequence()) cfg[config_key] = YAML::Node(YAML::NodeType::Sequence);
+            cfg[config_key].push_back(info.id);
         }
         UnloadEvents();
         UnloadHooks();
@@ -121,7 +121,7 @@ bool Mod::IsEnabled() const {
 bool Mod::ShouldBeEnabled() const {
     if (incompatibleSdk) return false;
     
-    const auto& node = Config::Get()[config_key];
+    const auto& node = Config::GetYaml()[config_key];
     if (node.IsSequence()) {
         for (auto mod : node) {
             if (mod.as<std::string>("") == info.id) return false;

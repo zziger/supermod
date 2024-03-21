@@ -13,9 +13,9 @@ void Module::Load(bool manual) {
         OnLoad(manual);
         _loaded = true;
         if (manual) {
-            const Config cfg;
-            if (!cfg.data[config_key].IsMap()) cfg.data[config_key] = YAML::Node(YAML::NodeType::Map);
-            cfg.data[config_key][fullId] = true;
+            auto& cfg = Config::GetYaml();
+            if (!cfg[config_key].IsMap()) cfg[config_key] = YAML::Node(YAML::NodeType::Map);
+            cfg[config_key][fullId] = true;
         }
         Log::Info << "Модуль " << fullId << " загружен" << Log::Endl;
     } catch(std::exception& e) {
@@ -28,9 +28,9 @@ void Module::Unload(bool manual) {
     try {
         _loaded = false;
         if (manual) {
-            const Config cfg; 
-            if (!cfg.data[config_key].IsMap()) cfg.data[config_key] = YAML::Node(YAML::NodeType::Map);
-            cfg.data[config_key][fullId] = false;
+            auto& cfg = Config::GetYaml();
+            if (!cfg[config_key].IsMap()) cfg[config_key] = YAML::Node(YAML::NodeType::Map);
+            cfg[config_key][fullId] = false;
         }
         UnloadEvents();
         UnloadHooks();
@@ -47,7 +47,7 @@ bool Module::IsLoaded() const {
 }
 
 bool Module::ShouldBeLoaded() const {
-    const auto& node = Config::Get()[config_key];
+    const auto& node = Config::GetYaml()[config_key];
     if (node.IsMap() && node[fullId]) {
         return node[fullId].as<bool>(defaultLoaded);
     }

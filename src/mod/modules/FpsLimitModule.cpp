@@ -28,8 +28,8 @@ void FpsLimitModule::RenderModuleUI() {
     if (!IsLoaded()) return;
     ImGui::TreePush("fps");
     if (ImGui::SliderInt("Лимит FPS", &fpsLimit, 15, 200)) {
-        const Config cfg;
-        cfg.data[id]["limit"] = fpsLimit;
+        auto& cfg = Config::GetYaml();
+        cfg[id]["limit"] = fpsLimit;
         UpdateFrameTimeLimit();
     }
     ImGui::TreePop();

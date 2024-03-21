@@ -145,12 +145,12 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
 
         const bool shiftPressed = GetAsyncKeyState(VK_SHIFT) & 0x01;
 
-        Config::Init();
-        if (Config::Get()["disabled"].as<bool>(false))
+        auto& cfg = Config::Get();
+        if (cfg.disabled)
         {
             if (!shiftPressed) return TRUE;
-            Config::Get()["disabled"] = false;
-            Config::Save();
+            cfg.disabled = false;
+            cfg.Save();
         }
         if (shiftPressed) sdk::Game::bootMenuActive = true;
 

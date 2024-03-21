@@ -4,7 +4,7 @@
 #include "exceptions/Error.h"
 #include "files/ModFileResolver.h"
 #include "mod/InternalMod.h"
-#include "scripting/LuaMod.h"
+// #include "scripting/LuaMod.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 #include <thirdparty/zip_file.h>
@@ -14,20 +14,20 @@ std::shared_ptr<Mod> ModManager::GetInternalMod() {
 }
 
 void ModManager::CleanupConfig() {
-    const Config cfg;
-    if (!cfg.data["disabledMods"]) return;
-    if (!cfg.data["installedMods"]) {
-        cfg.data.remove("disabledMods");
+    auto& cfg = Config::GetYaml();
+    if (!cfg["disabledMods"]) return;
+    if (!cfg["installedMods"]) {
+        cfg.remove("disabledMods");
         return;
     }
 
-    auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();
-    auto disabled = cfg.data["disabledMods"].as<std::vector<std::string>>();
+    auto installed = cfg["installedMods"].as<std::vector<std::string>>();
+    auto disabled = cfg["disabledMods"].as<std::vector<std::string>>();
     auto remove = std::ranges::remove_if(disabled, [&](const std::string& str) {
         return std::ranges::find(installed, str) == installed.end();
     });
     disabled.erase(remove.begin(), remove.end());
-    cfg.data["disabledMods"] = disabled;
+    cfg["disabledMods"] = disabled;
 }
 
 void ModManager::Init() {
@@ -55,9 +55,7 @@ void ModManager::LoadMod(ModInfo info, bool manual) {
 
     const auto mod = createMod
                          ? createMod(info)
-                         : info.luaScript == ""
-                         ? std::make_shared<Mod>(info)
-                         : std::make_shared<LuaMod>(info);
+                         : std::make_shared<Mod>(info);
 
     const auto id = mod->info.id;
     if (std::ranges::find_if(_mods, [id](std::shared_ptr<Mod>& mod) { return mod->info.id == id; }) != _mods.end()) {
@@ -68,9 +66,9 @@ void ModManager::LoadMod(ModInfo info, bool manual) {
 
     _mods.push_back(mod);
 
-    if (!createMod && info.luaScript != "") {
-        _luaMods.push_back(static_pointer_cast<LuaMod>(mod));
-    }
+    // if (!createMod && info.luaScript != "") {
+    //     _luaMods.push_back(static_pointer_cast<LuaMod>(mod));
+    // }
 }
 
 void ModManager::LoadMod(const std::string_view modName, bool manual) {
@@ -92,9 +90,9 @@ void ModManager::UnloadMod(std::shared_ptr<Mod> mod) {
         return iterMod->info.id == id;
     });
     _mods.erase(erase.begin(), erase.end());
-    if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {
-        _luaMods.remove(luaMod);
-    }
+    // if (const auto luaMod = std::dynamic_pointer_cast<LuaMod>(mod)) {
+    //     _luaMods.remove(luaMod);
+    // }
 }
 
 void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
@@ -164,8 +162,8 @@ void ModManager::ReorderMods(std::vector<std::shared_ptr<Mod>> newOrder) {
         ModFileResolver::ReloadModFiles(mod->info.basePath / "data");
     }
 
-    const Config cfg;
-    cfg.data["installedMods"] = ids;
+    auto& cfg = Config::GetYaml();
+    cfg["installedMods"] = ids;
     CleanupConfig();
 }
 
@@ -182,8 +180,8 @@ void ModManager::InitMods(bool manual) {
     try {
         std::lock_guard lock(_modMutex);
 
-        const Config cfg;
-        const auto installed = cfg.data["installedMods"].as<std::vector<std::string>>(std::vector<std::string>{});
+        auto& cfg = Config::GetYaml();
+        const auto installed = cfg["installedMods"].as<std::vector<std::string>>(std::vector<std::string>{});
 
         std::map<std::string, ModInfo> existing{};
         const auto firstIt = std::filesystem::directory_iterator(_mods_folder);
@@ -225,7 +223,7 @@ void ModManager::InitMods(bool manual) {
             _modsToInstall.push_back(modPair.second);
         }
 
-        cfg.data["installedMods"] = installedExistingVec;
+        cfg["installedMods"] = installedExistingVec;
         CleanupConfig();
     } catch (std::exception& e) {
         Log::Error << "Ошибка загрузки модов:" << Log::Endl;
@@ -248,11 +246,11 @@ void ModManager::DeleteMod(std::shared_ptr<Mod> mod) {
     {
         game::AssetPool::Instance()->RemoveAsset(icon);
     }
-    const Config cfg;
-    auto installed = cfg.data["installedMods"].as<std::vector<std::string>>();
+    auto& cfg = Config::GetYaml();
+    auto installed = cfg["installedMods"].as<std::vector<std::string>>();
     auto remove = std::ranges::remove(installed, mod->info.id);
     installed.erase(remove.begin(), remove.end());
-    cfg.data["installedMods"] = installed;
+    cfg["installedMods"] = installed;
     CleanupConfig();
 }
 
@@ -285,11 +283,11 @@ void ModManager::InstallMod(ModInfo mod, bool state) {
         });
         _modsToInstall.erase(removeIter.begin(), removeIter.end());
     
-        const Config cfg;
+        auto& cfg = Config::GetYaml();
     
         if (inModsFolder) {
-            if (!state) cfg.data["disabledMods"].push_back(mod.id);
-            cfg.data["installedMods"].push_back(mod.id);
+            if (!state) cfg["disabledMods"].push_back(mod.id);
+            cfg["installedMods"].push_back(mod.id);
             LoadMod(mod, true);
         } else {
             if (!state) return;
@@ -316,7 +314,7 @@ void ModManager::InstallMod(ModInfo mod, bool state) {
                 }
             }
             
-            cfg.data["installedMods"].push_back(mod.id);
+            cfg["installedMods"].push_back(mod.id);
             LoadMod(mod.id, true);
         }
     } catch(std::exception& e) {

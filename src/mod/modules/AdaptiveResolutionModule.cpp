@@ -1,29 +1,30 @@
 ﻿#include "AdaptiveResolutionModule.h"
 
 #include <ui/widgets/widgets.h>
-
 #include "events/ResolutionChangeEvent.h"
 
 vector2i AdaptiveResolutionModule::GetTargetResolution() {
-    auto cfgBlock = Config::Get()["adaptiveResolution"];
-    auto mode = cfgBlock["mode"].as<int>(window);
+    const auto& cfg = Config::Get().patches.resolution;
+    auto mode = cfg.mode;
 
-    if (mode == window && sdk::Game::IsGameFullscreen()) mode = screen;
+    if (mode == Config::ResolutionPatchMode::WINDOW && sdk::Game::IsGameFullscreen())
+        mode = Config::ResolutionPatchMode::SCREEN;
+
     vector2i res {};
     RECT rect;
         
-    switch((resolution_mode) mode) {
-        case window:
+    switch(mode) {
+        case Config::ResolutionPatchMode::WINDOW:
             GetClientRect(*sdk::Game::window, &rect);
-            res = { rect.right - rect.left, rect.bottom - rect.top };
+            res = vector2i { static_cast<int>(rect.right - rect.left), static_cast<int>(rect.bottom - rect.top) };
             break;
-        case screen:
+        case Config::ResolutionPatchMode::SCREEN:
             static HWND desktopWnd = GetDesktopWindow();
             GetWindowRect(desktopWnd, &rect);
-            res = { rect.right - rect.left, rect.bottom - rect.top };
+            res = { static_cast<int>(rect.right - rect.left), static_cast<int>(rect.bottom - rect.top) };
             break;
-        case custom:
-            res = { cfgBlock["width"].as<int>(800), cfgBlock["width"].as<int>(600) };
+        case Config::ResolutionPatchMode::CUSTOM:
+            res = { cfg.width, cfg.height };
     }
 
     if (res.x == 0 || res.y == 0) res = lastResolution;
@@ -46,23 +47,17 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
     ptr[1] = y;
         
     EventManager::Emit(ResolutionChangeEvent(x, y));
-    Log::Debug << "Emit!" << Log::Endl;
     return value;
 }
 
 
 void AdaptiveResolutionModule::Init()
 {
-    state = GetConfigNode(Config::Get())["enabled"].as<bool>(true);
-    if (state) OnLoad(true);
+    state = Config::Get().patches.resolution.enabled;
+    if (state) OnLoad();
 }
 
-YAML::Node AdaptiveResolutionModule::GetConfigNode(YAML::Node node)
-{
-    return node["patches"]["resolution"];
-}
-
-void AdaptiveResolutionModule::OnLoad(const bool manual) {
+void AdaptiveResolutionModule::OnLoad() {
     d3dParamsHook = HookManager::RegisterHook("55 8B EC 51 C7 45 FC ? ? ? ? EB ? 8B 45 FC 83 C0 ? 89 45 FC 8B 4D FC 3B 0D ? ? ? ? 7D ? 8B 55 FC 8B 04 D5",
                  HOOK_REF(setup_d3d_params));
         
@@ -73,21 +68,19 @@ void AdaptiveResolutionModule::OnLoad(const bool manual) {
             
         if (evt.msg == WM_STYLECHANGED && evt.wParam == GWL_STYLE && !sdk::Game::IsGameFullscreen()) {
             const auto style = (STYLESTRUCT*) evt.lParam;
-            if ((style->styleNew & required_styles) != required_styles)
-                SetWindowLongA(evt.hWnd, GWL_STYLE, style->styleNew | required_styles);
+            if ((style->styleNew & REQUIRED_STYLES) != REQUIRED_STYLES)
+                SetWindowLongA(evt.hWnd, GWL_STYLE, style->styleNew | REQUIRED_STYLES);
         }
             
         if (evt.msg == WM_ACTIVATE && !sdk::Game::IsGameFullscreen()) {
             const auto oldStyle = GetWindowLongA(*sdk::Game::window, GWL_STYLE);
-            if ((oldStyle & required_styles) != required_styles)
-                SetWindowLongA(*sdk::Game::window, GWL_STYLE, oldStyle | required_styles);
+            if ((oldStyle & REQUIRED_STYLES) != REQUIRED_STYLES)
+                SetWindowLongA(*sdk::Game::window, GWL_STYLE, oldStyle | REQUIRED_STYLES);
         }
     });
-        
-    if (manual) {
-        sdk::DirectX::ResetDevice();
-        if (!sdk::Game::IsGameFullscreen()) SetWindowLongA(*sdk::Game::window, GWL_STYLE, GetWindowLongA(*sdk::Game::window, GWL_STYLE) | required_styles);
-    }
+
+    sdk::DirectX::ResetDevice();
+    if (!sdk::Game::IsGameFullscreen()) SetWindowLongA(*sdk::Game::window, GWL_STYLE, GetWindowLongA(*sdk::Game::window, GWL_STYLE) | REQUIRED_STYLES);
 }
 
 void AdaptiveResolutionModule::OnUnload() {
@@ -97,48 +90,46 @@ void AdaptiveResolutionModule::OnUnload() {
 }
 
 void AdaptiveResolutionModule::Render() {
+    auto& cfg = Config::Get();
+    auto& cfgBlock = cfg.patches.resolution;
+
     if (ImGui::Checkbox("Адаптивное разрешение", &state))
     {
-        const Config cfg;
-        auto cfgBlockEdit = GetConfigNode(cfg.data);
-        cfgBlockEdit["enabled"] = state;
+        cfgBlock.enabled = state;
+        cfg.Save();
 
         if (state)
-            OnLoad(true);
+            OnLoad();
         else
             OnUnload();
     }
 
-    if (ImGui::TreeNode("Параметры разрешения")) {
-        ImGui::Text("Разрешение");
-        auto cfgBlock = GetConfigNode(Config::Get());
+    ImGui::SameLine();
+    ui::widgets::HelpMarker("Позволяет игре рисоваться в другом разрешении,\nисправляет проблемы с качеством картинки.");
+    ImGui::Spacing();
 
+    if (ImGui::TreeNode("Параметры разрешения")) {
         static bool changed = false;
-        static int mode = cfgBlock["mode"].as<int>(0);
-        if (ImGui::RadioButton("Разрешение окна", &mode, 0)) changed = true;
+        const auto modePtr = reinterpret_cast<int*>(&cfgBlock.mode);
+
+        if (ImGui::RadioButton("Разрешение окна", modePtr, 0)) changed = true;
+
         ImGui::SameLine();
         ui::widgets::HelpMarker("Рекомендуемый вариант", ICON_MD_SETTINGS_SUGGEST);
-        if (ImGui::RadioButton("Разрешение экрана", &mode, 1)) changed = true;
-        if (ImGui::RadioButton("Ввести вручную", &mode, 2)) changed = true;;
 
-        static int res[2] = { cfgBlock["width"].as<int>(800), cfgBlock["height"].as<int>(600) };
-        
-        if (mode == custom) {
-            if (ImGui::InputInt2("##resolution", res)) changed = true;
-        }
-        
+        if (ImGui::RadioButton("Разрешение экрана", modePtr, 1)) changed = true;
+        if (ImGui::RadioButton("Ввести вручную", modePtr, 2)) changed = true;
+        if (cfgBlock.mode == Config::ResolutionPatchMode::CUSTOM)
+            if (ImGui::InputInt2("##resolution", &cfgBlock.width)) changed = true;
+
         if (changed) {
             if (ImGui::Button("Сохранить")) {
-                const Config cfg;
-
-                auto cfgBlockEdit = GetConfigNode(cfg.data);
-                cfgBlockEdit["mode"] = mode;
-                cfgBlockEdit["width"] = res[0];
-                cfgBlockEdit["height"] = res[1];
+                cfg.Save();
                 sdk::DirectX::ResetDevice();
                 changed = false;
             }
         }
+
         ImGui::TreePop();
     }
 }

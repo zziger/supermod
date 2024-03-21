@@ -62,9 +62,8 @@ void modloader::ModManager::ScanMods()
         foundMods[mod->GetID()] = mod;
     }
 
-    const Config cfg;
-
-    auto modsArr = Clone(cfg.data["mods"]);
+    auto& cfg = Config::GetYaml();
+    auto modsArr = Clone(cfg["mods"]);
     for (const auto& pair : modsArr)
     {
         const auto key = pair.first.as<std::string>();
@@ -85,7 +84,7 @@ void modloader::ModManager::ScanMods()
 
     for (const auto& [key, mod] : foundMods)
     {
-        if (cfg.data["mods"][key]) continue;
+        if (cfg["mods"][key]) continue;
 
         AddMod(mod);
         ModInstaller::RequestInstall(std::make_shared<ModInstallRequestDiscover>(mod));
@@ -267,11 +266,11 @@ void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 
     ValidateConfig();
 
-    const Config cfg;
-
+    auto& cfg = Config::GetYaml();
     const auto id = mod->GetID();
 
-    PopulateConfig(mod, cfg.data["mods"][id]);
+    PopulateConfig(mod, cfg["mods"][id]);
+    Config::Get().Save();
 }
 
 void modloader::ModManager::UpdateStates()
@@ -329,22 +328,24 @@ void modloader::ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)
 
 void modloader::ModManager::ValidateConfig()
 {
-    const Config cfg;
+    auto& cfg = Config::GetYaml();
 
-    if (!cfg.data["mods"].IsMap())
+    if (!cfg["mods"].IsMap())
     {
-        if (cfg.data["mods"]) Log::Warn << "'mods' in modcfg.yml was not a map. Overriding with an empty map instead" << Log::Endl;
-        cfg.data["mods"] = YAML::Node(YAML::NodeType::Map);
+        if (cfg["mods"]) Log::Warn << "'mods' in modcfg.yml was not a map. Overriding with an empty map instead" << Log::Endl;
+        cfg["mods"] = YAML::Node(YAML::NodeType::Map);
     }
+
+    Config::Get().Save();
 }
 
 void modloader::ModManager::SaveConfig()
 {
     ValidateConfig();
 
-    const Config cfg;
+    auto& cfg = Config::GetYaml();
 
-    auto oldTree = cfg.data["mods"];
+    auto oldTree = cfg["mods"];
     auto tree = YAML::Node();
 
     for (const auto& mod : mods)
@@ -355,7 +356,8 @@ void modloader::ModManager::SaveConfig()
         PopulateConfig(mod, tree[id]);
     }
 
-    cfg.data["mods"] = tree;
+    cfg["mods"] = tree;
+    Config::Get().Save();
 }
 
 void modloader::ModManager::PopulateConfig(const std::shared_ptr<Mod>& mod, YAML::Node&& node)

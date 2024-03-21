@@ -1,6 +1,8 @@
 #include "ModFileResolver.h"
 
 #include <regex>
+#include <modloader_new/files/ModFileResolver.h>
+#include <modloader_new/mod/Mod.h>
 
 #include "DirectXUtils.h"
 #include "../ModManager.h"
@@ -12,43 +14,43 @@
 #include "game/AssetPool.h"
 #include "sdk/DirectX.h"
 
-std::optional<std::filesystem::path> ModFileResolver::ResolveFile(const std::filesystem::path& path) {
-    auto mods = ModManager::GetMods();
-    for (auto el = mods.rbegin(); el != mods.rend(); ++el) {
-        if (!(*el)->IsEnabled()) continue;
-        const auto resolvedPath = ResolveModFile(*el, path);
-        if (!resolvedPath) continue;
-
-        return *resolvedPath;
-    }
-
-    return std::nullopt;
-}
-
-std::filesystem::path ModFileResolver::ResolveFileOrOriginal(const std::filesystem::path& path) {
-    const auto resolvedPath = ResolveFile(path);
-    return resolvedPath ? *resolvedPath : path;
-}
-
-std::filesystem::path ModFileResolver::GetModFilePath(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
-    if (!mod || mod->info.internal || !mod->IsEnabled()) return {};
-    const auto filePath = relative(path, sdk::Game::GetDataPath());
-    return mod->info.basePath / "data" / filePath;
-}
-
-std::optional<std::filesystem::path> ModFileResolver::ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
-    if (!mod || mod->info.internal || !mod->IsEnabled()) return std::nullopt;
-
-    const auto filePath = GetModFilePath(mod, path);
-    if (exists(filePath)) return filePath;
-    return std::nullopt;
-}
+// std::optional<std::filesystem::path> ModFileResolver::ResolveFile(const std::filesystem::path& path) {
+//     auto mods = ModManager::GetMods();
+//     for (auto el = mods.rbegin(); el != mods.rend(); ++el) {
+//         if (!(*el)->IsEnabled()) continue;
+//         const auto resolvedPath = ResolveModFile(*el, path);
+//         if (!resolvedPath) continue;
+//
+//         return *resolvedPath;
+//     }
+//
+//     return std::nullopt;
+// }
+//
+// std::filesystem::path ModFileResolver::ResolveFileOrOriginal(const std::filesystem::path& path) {
+//     const auto resolvedPath = ResolveFile(path);
+//     return resolvedPath ? *resolvedPath : path;
+// }
+//
+// std::filesystem::path ModFileResolver::GetModFilePath(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
+//     if (!mod || mod->info.internal || !mod->IsEnabled()) return {};
+//     const auto filePath = relative(path, sdk::Game::GetDataPath());
+//     return mod->info.basePath / "data" / filePath;
+// }
+//
+// std::optional<std::filesystem::path> ModFileResolver::ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path) {
+//     if (!mod || mod->info.internal || !mod->IsEnabled()) return std::nullopt;
+//
+//     const auto filePath = GetModFilePath(mod, path);
+//     if (exists(filePath)) return filePath;
+//     return std::nullopt;
+// }
 
 
 void ModFileResolver::Init() {
     if (_initialized) return;
     EventManager::On<ResolveFileEvent>([](auto& evt) {
-        auto path = ResolveFile(evt.absolutePath);
+        auto path = modloader::ModFileResolver::ResolveGameFileInMods(evt.absolutePath);
         if (path) evt.SetResolvedPath(*path);
     });
 
@@ -101,15 +103,6 @@ void ModFileResolver::ToggleFileListener(bool state) {
     }, nullptr, 0, nullptr);
 }
 
-std::string ModFileResolver::GetPoolFileName(const std::string& filename) {
-    static auto tgaRegex = std::regex("^_a_(.*?)\\.jpg$");
-    static auto excludeRegex = std::regex("^_a_back\\d+\\.jpg$");
-
-    if (!filename.starts_with("_a_")) return filename;
-    if (std::regex_match(filename, excludeRegex)) return filename;
-    return std::regex_replace(filename, tgaRegex, "$1.tga");
-}
-
 void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
     auto extension = filepath.extension().generic_string();
     std::ranges::transform(extension, extension.begin(), tolower);
@@ -120,7 +113,7 @@ void ModFileResolver::LoadFile(const std::filesystem::path filepath) {
         if (extension == ".jpg" || extension == ".png" || extension == ".tga" || extension == ".jpeg")
             game::AssetPool::Instance()->ReloadGameAsset(filepath.filename().string());
         else if (extension == ".ogg")
-            LoadSound(ResolveFileOrOriginal(filepath));
+            LoadSound(modloader::ModFileResolver::ResolveGameFile(filepath));
         else Log::Warn << "Динамическая загрузка файлов " << extension << " не поддерживается (нужен перезапуск игры)" << Log::Endl;
     } catch (std::exception& e) {
         Log::Error << "Ошибка при загрузке файла " << filepath << ": " << e.what() << Log::Endl;

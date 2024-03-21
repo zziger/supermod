@@ -12,7 +12,6 @@ class ModFileResolver {
     static inline bool listenerEnabled = false;
     static void FileListenerThread();
 
-    static std::string GetPoolFileName(const std::string& filename);
     static void LoadTexture(std::filesystem::path filepath);
     static void LoadFile(std::filesystem::path filepath);
 
@@ -24,11 +23,11 @@ public:
     static inline int assetReloadTotal = 0;
     static inline int assetReloadCurrent = 0;
     
-    [[nodiscard]] static std::optional<std::filesystem::path> ResolveFile(const std::filesystem::path& path);
-    [[nodiscard]] static std::filesystem::path ResolveFileOrOriginal(const std::filesystem::path& path);
-    static std::filesystem::path GetModFilePath(const std::shared_ptr<Mod> & mod, const std::filesystem::path & path);
-
-    [[nodiscard]] static std::optional<std::filesystem::path> ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path);
+    // [[nodiscard]] static std::optional<std::filesystem::path> ResolveFile(const std::filesystem::path& path);
+    // [[nodiscard]] static std::filesystem::path ResolveFileOrOriginal(const std::filesystem::path& path);
+    // static std::filesystem::path GetModFilePath(const std::shared_ptr<Mod> & mod, const std::filesystem::path & path);
+    //
+    // [[nodiscard]] static std::optional<std::filesystem::path> ResolveModFile(const std::shared_ptr<Mod>& mod, const std::filesystem::path& path);
 
     static void Init();
     static void ToggleFileListener(bool state);

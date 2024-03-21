@@ -17,8 +17,9 @@ void ui::popups::DisableSuperMod(const bool restart)
         styles::danger::PushStyle();
         if (ImGui::Button("Да, я внимательно прочитал(-а) и запомнил(-а)")) {
             ImGui::CloseCurrentPopup();
-            Config::Get()["disabled"] = true;
-            Config::Save();
+            auto& cfg = Config::Get();
+            cfg.disabled = true;
+            cfg.Save();
             sdk::Game::Restart();
         }
         styles::danger::PopStyle();

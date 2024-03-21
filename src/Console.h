@@ -14,7 +14,7 @@ class Console {
 public:
     
     static void Initialize() {
-        if (Config::Get()["console"].as<bool>(false)) Enable();
+        if (Config::Get().console) Enable();
     }
 
     inline static bool enabled = false;
@@ -30,7 +30,7 @@ public:
         SetConsoleTitle(L"SuperCow mod console");
         SetConsoleOutputCP( CP_UTF8);
         SetConsoleCP( CP_UTF8);
-        auto wnd = GetConsoleWindow();
+        const auto wnd = GetConsoleWindow();
         if (wnd != nullptr) {
             ShowWindow(wnd, SW_RESTORE);
         }
@@ -39,10 +39,9 @@ public:
     static void Disable() {
         if (!enabled) return;
         enabled = false;
-        auto wnd = GetConsoleWindow();
+        const auto wnd = GetConsoleWindow();
         if (wnd != nullptr) {
             ShowWindow(wnd, SW_HIDE);
         }
-        
     }
 };

@@ -9,15 +9,6 @@
 
 namespace ui
 {
-    enum WatermarkPosition : int {
-        TOP_LEFT,
-        TOP_CENTER,
-        TOP_RIGHT,
-        BOTTOM_LEFT,
-        BOTTOM_CENTER,
-        BOTTOM_RIGHT
-    };
-    
     class Ui {
         static void LoadFonts();
         static void OnWindowEvent(WindowEvent& evt);
