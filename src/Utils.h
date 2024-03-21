@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <imgui.h>
 #include <locale>
 #include <string>
@@ -9,6 +10,7 @@
 #include <format>
 #include <functional>
 #include <optional>
+#include <sstream>
 
 #define MAX_INPUT_LENGTH 255
 
@@ -105,6 +107,14 @@ namespace utils
         std::string result((char*)LockResource(resHandle), SizeofResource((HMODULE) &__ImageBase, res));
         FreeResource(resHandle);
         return result;
+    }
+
+    inline std::string pluralize(const int count, const std::array<std::string, 3>& words)
+    {
+        static std::array cases = { 2, 0, 1, 1, 1, 2 };
+        std::stringstream ss;
+        ss << count << " " << words[ count % 100 > 4 && count % 100 < 20 ? 2 : cases[std::min(count % 10, 5)] ];
+        return ss.str();
     }
 }
 

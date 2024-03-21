@@ -1,22 +1,27 @@
-﻿#include "UI.h"
-#include "Utils.h"
-#include "modloader/mods/ModManager.h"
-#include "sdk/Game.h"
+#include <Config.h>
+#include <imgui.h>
+#include <ui/Ui.h>
 
-using namespace ui;
+#include "windows.h"
 
-int triggered = 0;
+void ui::windows::Watermark()
+{
+    auto cfg = Config::Get()["watermark"];
+    const auto show = cfg["show"].as<bool>(true);
 
-void UI::RenderWatermark() {
-    if (!showWatermark) return;
-        
+    if (!show) return;
+
+    const auto position = static_cast<WatermarkPosition>(cfg["position"].as<int>(TOP_CENTER));
+    const auto opacity = cfg["opacity"].as<float>(1.0f);
+    const auto bgOpacity = cfg["bgOpacity"].as<float>(0.35f);
+
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     const ImVec2 workPos = viewport->WorkPos;
     const ImVec2 workSize = viewport->WorkSize;
     constexpr float margin = 10.0f;
     float x = 0.0f, xPivot = 0.0f, y = 0.0f, yPivot = 0.0f;
 
-    switch(watermarkPosition) {
+    switch(position) {
         case TOP_LEFT:
         case TOP_CENTER:
         case TOP_RIGHT:
@@ -30,7 +35,7 @@ void UI::RenderWatermark() {
             yPivot = 1.f;
     }
 
-    switch(watermarkPosition) {
+    switch(position) {
         case TOP_LEFT:
         case BOTTOM_LEFT:
             x = margin;
@@ -46,10 +51,10 @@ void UI::RenderWatermark() {
             x = workSize.x - margin;
             xPivot = 1.f;
     }
-    
+
     ImGui::SetNextWindowPos({ workPos.x + x, workPos.y + y }, ImGuiCond_Always, { xPivot, yPivot });
-    ImGui::SetNextWindowBgAlpha(watermarkBgOpacity * watermarkOpacity);
-    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, watermarkOpacity);
+    ImGui::SetNextWindowBgAlpha(bgOpacity * opacity);
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, opacity);
     if (ImGui::Begin("watermark", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize
                      | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
         ImGui::TextColored(0xFFCC00FF_color, "SuperMod");
@@ -57,18 +62,3 @@ void UI::RenderWatermark() {
     ImGui::End();
     ImGui::PopStyleVar();
 }
-
-// inline int (__thiscall *debug_orig)(void*, double, double) = nullptr;
-// inline int __fastcall debug(void* this_, void*, double a, double b) {
-//     triggered++;
-//     return debug_orig(this_, a, b);
-// }
-
-// HOOK_FN(inline void, debug, ARGS()) {
-//     MessageBoxA(nullptr, "amogus", "sussybaka", MB_OK);
-//     debug_orig();
-// }
-//
-// EventManager::Ready $debug([]() {
-//     HookManager::RegisterHook("55 8B EC 51 89 4D ? E8 ? ? ? ? 8B E5 5D C3 55 8B EC 51 89 4D ? E8 ? ? ? ? 8B E5 5D C3 55 8B EC 51 89 4D ? 8B 4D", HOOK_REF_FORCE(debug));
-// });

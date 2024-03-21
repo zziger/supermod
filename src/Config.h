@@ -7,15 +7,14 @@
 #include "LuaContext.h"
 
 class Config {
-    inline static std::filesystem::path _cfgPath {};
-    inline static YAML::Node _cfg { YAML::NodeType::Map };
-    inline static std::recursive_mutex _mutex {};
+    inline static std::filesystem::path cfgPath {};
+    inline static YAML::Node cfgNode { YAML::NodeType::Map };
     
 public:
     static void Init();
 
     static YAML::Node& Get() {
-        return _cfg;
+        return cfgNode;
     }
 
     static void Save();
@@ -24,7 +23,7 @@ public:
 
     // todo optional lock somehow
 
-    Config() : data(_cfg) {
+    Config() : data(cfgNode) {
     } 
 
     ~Config() {

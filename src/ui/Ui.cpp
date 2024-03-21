@@ -1,4 +1,4 @@
-#include "UI.h"
+#include "Ui.h"
 #include "events/EventManager.h"
 #include "events/GameLoadedEvent.h"
 #include "events/TickEvent.h"
@@ -8,27 +8,29 @@
 #include <shellscalingapi.h>
 #include <backends/imgui_impl_win32.h>
 #include <imgui-dx8/imgui_impl_dx8.h>
+#include <modloader_new/ModManager.h>
+#include <modloader_new/install/ModInstaller.h>
+#include <modloader_new/mod/Mod.h>
+
 #include "Config.h"
-#include "ImGuiWidgets.h"
 #include "Utils.h"
 #include "events/UIRenderEvent.h"
-#include "modloader/mods/ModManager.h"
-#include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
+#include "windows/windows.h"
 
 
 using namespace ui;
 
 
-void UI::LoadFonts(const ImGuiIO& io) {
-    fonts = new UIFonts(io, GetScalingFactor());
+void Ui::LoadFonts() {
+    fonts = new FontManager(GetScalingFactor());
 }
 
 static std::string imguiIniFilename;
 static std::string imguiLogFilename;
 
-void UI::InitImGui() {
+void Ui::InitImGui() {
     if (initialized) return;
         
     IMGUI_CHECKVERSION();
@@ -44,7 +46,7 @@ void UI::InitImGui() {
     imguiLogFilename = (sdk::Game::GetRootPath() / "imguilog.txt").string();
     io.LogFilename = imguiLogFilename.c_str();
         
-    LoadFonts(io);
+    LoadFonts();
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
         
     ImGui_ImplWin32_Init(*sdk::Game::window);
@@ -56,19 +58,11 @@ void UI::InitImGui() {
     initialized = true;
 }
 void RenderAssetReload() {
-    ImGui::OpenPopup("assetReload");
-    if (ImGui::BeginPopupModal("assetReload", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
-    {
-        ImGui::Text("Перезагрузка ассетов...");
-        ImGui::ProgressBar(ModFileResolver::assetReloadCurrent / (float) ModFileResolver::assetReloadTotal, ImVec2(-FLT_MIN, 0),
-            std::format("{}/{}", ModFileResolver::assetReloadCurrent + 1, ModFileResolver::assetReloadTotal).c_str());
-        ImGui::EndPopup();
-    }
 }
 
-void UI::ConstraintWindow(const char* windowTitle)
+void Ui::ConstraintWindow(const char* windowTitle)
 {
-    ImGuiWindow* existingWindow = ImGui::FindWindowByName(windowTitle);
+    const ImGuiWindow* existingWindow = ImGui::FindWindowByName(windowTitle);
     if (existingWindow != nullptr)
     {
         bool needsClampToScreen = false;
@@ -102,7 +96,7 @@ void UI::ConstraintWindow(const char* windowTitle)
 
 }
 
-void UI::Render() {
+void Ui::Render() {
     if (!initialized) return;
     
     ImGuiIO& io = ImGui::GetIO();
@@ -118,34 +112,27 @@ void UI::Render() {
     ImGui_ImplDX8_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+    ImGui::ShowDemoWindow();
     
     try {
+        windows::Boot();
+        windows::Watermark();
+        windows::Main();
+        if (textureViewerOpen) windows::TextureViewer();
 
-        if (sdk::Game::currentTickIsInner && ModFileResolver::assetReloadTotal) {
-            RenderAssetReload();
-        } else {
-            RenderBoot();
-            RenderWatermark();
-            RenderMenu();
-
-            for (auto mod : ModManager::GetMods()) {
-                if (!mod->IsEnabled()) continue;
-                mod->Render();
-            }
-
-            EventManager::Emit(UiRenderEvent());
+        for (const auto& mod : modloader::ModManager::GetMods()) {
+            if (!mod->IsActive()) continue;
+            mod->GetImpl()->Render();
         }
+
+        windows::Installer();
+        windows::DropTarget();
+        EventManager::Emit(UiRenderEvent());
     } catch(std::exception& e) {
         Log::Error << "Произошла ошибка в отрисовке кадра: " << e.what() << Log::Endl;
     }
     
-    ImGui::ErrorCheckEndFrameRecover([](void*, const char* format, ...) {
-        va_list va;
-        va_start(va, format);
-        char buffer[1024];
-        vsprintf_s(buffer, 1024, format, va);
-        Log::Warn << "Ошибка стека ImGui:\n\t" << buffer << Log::Endl;
-    }, nullptr);
+    ImGui::ErrorCheckEndFrameRecover(ImGuiErrorHandler, nullptr);
     ImGui::EndFrame();
 
     const auto d3dDevice = *sdk::DirectX::d3dDevice;
@@ -157,8 +144,13 @@ void UI::Render() {
     }
 }
 
+ImGuiID Ui::GetModalsId(const std::shared_ptr<modloader::Mod>& mod)
+{
+    return ImHashStr(std::format("modals_{}", mod->GetID()).c_str());
+}
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void UI::OnWindowEvent(WindowEvent& evt) {
+void Ui::OnWindowEvent(WindowEvent& evt) {
     if (ImGui_ImplWin32_WndProcHandler(evt.hWnd, evt.msg, evt.wParam, evt.lParam)) return evt.Cancel();
     if (!initialized) return;
     
@@ -173,7 +165,7 @@ void UI::OnWindowEvent(WindowEvent& evt) {
             return evt.Cancel();
 }
 
-float UI::GetScalingFactor()
+float Ui::GetScalingFactor()
 {
     static float value = 0;
     if (value > 0) return value;
@@ -188,24 +180,28 @@ float UI::GetScalingFactor()
     return value;
 }
 
-float UI::ScaledPx(float px)
+float Ui::ScaledPx(const float px)
 {
     return px * GetScalingFactor();
+}
+
+void Ui::PushFont(const float size, const FontManager::FontType type)
+{
+    fonts->PushFont(size, type);
+}
+
+void Ui::PopFont()
+{
+    fonts->PopFont();
 }
 
 static inline int (__thiscall *AssetPool__freeAssetsFromD3d_orig)(void* this_) = nullptr;
 static int __fastcall AssetPool__freeAssetsFromD3d(void* this_, void*) {
     ImGui_ImplDX8_InvalidateDeviceObjects();
-    // for (auto mod : ModManager::GetMods())
-    // {
-    //     mod->info.ReleaseIcon();
-    // }
-    // ModManager::GetInternalMod()->info.ReleaseIcon();
-
     return AssetPool__freeAssetsFromD3d_orig(this_);
 }
 
-void UI::Init() {
+void Ui::Init() {
     EventManager::On<WindowEvent>(OnWindowEvent);
     EventManager::On<TickEvent>([] {
         InitImGui();
@@ -214,14 +210,18 @@ void UI::Init() {
 
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? C7 45 ? ? ? ? ? EB ? 8B 45 ? 83 C0 ? 89 45 ? 8B 4D ? 8B 55 ? 3B 91 ? ? ? ? 7D ? 8B 45 ? 8B 4D ? 8B 54 81 ? 0F B6 82",
         HOOK_REF_FORCE(AssetPool__freeAssetsFromD3d));
-
-    auto watermarkCfg = Config::Get()["watermark"];
-    showWatermark = watermarkCfg["show"].as<bool>(true);
-    watermarkPosition = (WatermarkPosition) watermarkCfg["position"].as<int>(TOP_CENTER);
-    watermarkOpacity = watermarkCfg["opacity"].as<float>(1.0f);
-    watermarkBgOpacity = watermarkCfg["bgOpacity"].as<float>(0.35f);
 }
 
-inline EventManager::Ready $([] {
-    UI::Init();
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+void Ui::ImGuiErrorHandler(void* source, const char* msg, ...)
+{
+    va_list va;
+    va_start(va, msg);
+    char buffer[1024];
+    vsprintf_s(buffer, 1024, msg, va);
+    Log::Warn << "Ошибка стека ImGui" << (source ? " " : "") << (source ? static_cast<const char*>(source) : "") << ":\n\t" << buffer << Log::Endl;
+}
+
+inline EventManager::Ready $ui_ready([] {
+    Ui::Init();
 });

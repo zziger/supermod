@@ -4,20 +4,20 @@
 #include <Log.h>
 
 void Config::Init() {
-    _cfgPath = std::filesystem::current_path() / "modcfg.yml";
-    if (exists(_cfgPath)) _cfg = YAML::LoadFile(_cfgPath.string());
-    _cfg.SetStyle(YAML::EmitterStyle::Block);
+    cfgPath = std::filesystem::current_path() / "modcfg.yml";
+    if (exists(cfgPath)) cfgNode = YAML::LoadFile(cfgPath.string());
+    cfgNode.SetStyle(YAML::EmitterStyle::Block);
 }
 
 void Config::Save() {
-    _cfg.SetStyle(YAML::EmitterStyle::Block);
-    std::ofstream fstream(_cfgPath);
-    fstream << _cfg;
+    cfgNode.SetStyle(YAML::EmitterStyle::Block);
+    std::ofstream fstream(cfgPath);
+    fstream << cfgNode;
 }
 
 void Config::AddToLua(LuaContext& context, std::string modId) {
     context.writeFunction("__getModConfig", std::function([=]() {
-        return _cfg["modConfigs"][modId];
+        return cfgNode["modConfigs"][modId];
     }));
     context.writeFunction("__configKeyExists", std::function([](YAML::Node node, std::string key) {
         if (node[key]) return true;

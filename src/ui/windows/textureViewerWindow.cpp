@@ -1,27 +1,32 @@
-﻿#include <imgui.h>
+#include <game/AssetPool.h>
+#include <ui/Ui.h>
 
-#include "../UI.h"
-#include "game/AssetPool.h"
+#include "windows.h"
 
-namespace ui
-{
-    void UI::RenderTextureViewer() {
+void ui::windows::TextureViewer() {
         static auto pool = game::AssetPool::Instance();
         const auto& io = ImGui::GetIO();
-        ConstraintWindow("Просмотр текстур");
-        if (ImGui::Begin("Просмотр текстур", &_textureViewerOpen)) {
-            static char str0[128] = "";
-            ImGui::InputText("Поиск", str0, IM_ARRAYSIZE(str0));
-            
+
+        Ui::ConstraintWindow("###Texture viewer");
+        if (ImGui::Begin("Просмотр текстур###Texture viewer", &Ui::textureViewerOpen)) {
+            static char searchBuf[128] = "";
+            ImGui::InputTextEx("##search", "Поиск", searchBuf, IM_ARRAYSIZE(searchBuf), { -1.f, 0.f }, 0);
+            ImGui::Separator();
+            ImGui::Spacing();
+
             for (auto i = 0; i < pool->assetCount; i++) {
                 const auto asset = pool->assets[i];
-                if (str0[0] != '\0' && std::string(asset->name).find(str0) == std::string::npos) continue;
+
+                if (searchBuf[0] != '\0' && std::string(asset->name).find(searchBuf) == std::string::npos) continue;
+
                 if (ImGui::TreeNode(asset->name, "%s (%dx%d)", asset->name, asset->width, asset->height)) {
                     const ImVec2 pos = ImGui::GetCursorScreenPos();
-                    const auto aspectRatio = asset->height / (float) asset->width;
-                    const auto width = std::min(ImGui::GetContentRegionAvail().x - ImGui::GetCursorPosX(), (float) asset->width);
+                    const auto aspectRatio = static_cast<float>(asset->height) / static_cast<float>(asset->width);
+                    const auto width = std::min(ImGui::GetContentRegionAvail().x - ImGui::GetCursorPosX(), static_cast<float>(asset->width));
                     auto texSize = ImVec2(width, aspectRatio * width);
                     ImGui::Image(asset->texture, texSize, { 0, 0 }, { 1, 1 }, 0xFFFFFFFF_color, 0xFFFFFFAA_color);
+
+                    // Mangifier tooltip
                     if (ImGui::IsItemHovered()) {
                         ImGui::BeginTooltip();
                         constexpr float regionSz = 64.0f;
@@ -31,26 +36,26 @@ namespace ui
                         const auto y = std::clamp(io.MousePos.y - pos.y, off, texSize.y - off);
                         ImGui::Text(
                             "X: %d Y: %d",
-                            (int) ((io.MousePos.x - pos.x) / texSize.x * asset->width),
-                            (int) ((io.MousePos.y - pos.y) / texSize.y * asset->height)
+                            static_cast<int>((io.MousePos.x - pos.x) / texSize.x * static_cast<float>(asset->width)),
+                            static_cast<int>((io.MousePos.y - pos.y) / texSize.y * static_cast<float>(asset->height))
                         );
                         ImVec2 uv0{ (x - off) / texSize.x, (y - off) / texSize.y };
                         ImVec2 uv1{ (x + off) / texSize.x, (y + off) / texSize.y };
-                        
-                        if (asset->width < regionSz) {
+
+                        if (static_cast<float>(asset->width) < regionSz) {
                             uv0 = { 0, uv0.y };
                             uv1 = { 1, uv1.y };
                         }
 
-                        if (asset->height < regionSz) {
+                        if (static_cast<float>(asset->height) < regionSz) {
                             uv0 = { uv0.x, 0 };
                             uv1 = { uv1.x, 1 };
                         }
-                        
+
                         ImGui::Image(asset->texture, ImVec2(regionSz * zoom, regionSz * zoom), uv0, uv1);
                         ImGui::EndTooltip();
                     }
-                    
+
                     if (ImGui::TreeNode("Доп. информация"))
                     {
                         if (ImGui::BeginTable("info", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
@@ -58,7 +63,7 @@ namespace ui
                             ImGui::TableSetupColumn("Параметр");
                             ImGui::TableSetupColumn("Значение");
                             ImGui::TableHeadersRow();
-                            
+
                             std::map<std::string, std::string> data {
                                 { "Прозрачная", asset->hasAlpha ? "да" : "нет" },
                                 { "Пул", asset->isPoolDefault ? "D3DPOOL_DEFAULT" : "D3DPOOL_MANAGED" },
@@ -77,17 +82,16 @@ namespace ui
                                 ImGui::TableNextColumn();
                                 ImGui::Text("%s", row.second.c_str());
                             }
-                            
+
                             ImGui::EndTable();
                         }
-                        
+
                         ImGui::TreePop();
                     }
-                    
+
                     ImGui::TreePop();
                 }
             }
         }
         ImGui::End();
     }
-}

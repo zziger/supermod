@@ -1,5 +1,7 @@
 ﻿#include "AdaptiveResolutionModule.h"
 
+#include <ui/widgets/widgets.h>
+
 #include "events/ResolutionChangeEvent.h"
 
 vector2i AdaptiveResolutionModule::GetTargetResolution() {

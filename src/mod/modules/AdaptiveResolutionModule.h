@@ -11,7 +11,6 @@
 #include "sdk/DirectX.h"
 #include "sdk/Game.h"
 #include "thirdparty/IconsMaterialDesign.h"
-#include "ui/ImGuiWidgets.h"
 
 class AdaptiveResolutionModule {
 public:
