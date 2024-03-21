@@ -42,7 +42,7 @@ public:
 		return TextureLoader::LoadFromRgbaPixelData(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier, textureData->data());
 	}
 
-	static LPDIRECT3DTEXTURE8 LoadPngBuf(std::vector<byte>& inBuf, vector2ui& size, vector2 canvasSizeMultiplier)
+	static LPDIRECT3DTEXTURE8 LoadPngBuf(const std::vector<byte>& inBuf, vector2ui& size, vector2 canvasSizeMultiplier)
 	{
 		size = { 256, 256 };
 		
