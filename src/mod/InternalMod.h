@@ -7,12 +7,12 @@
 #include "modloader/mods/Mod.h"
 #include "modules/AdaptiveResolutionModule.h"
 #include "modules/ForwardGameLogsModule.h"
-#include "modules/FpsLimitModule.h"
-#include "modules/LevelBackRenderFixModule.h"
 #include "modules/RenderUnfocusedModule.h"
 
 class ModImplInternal final : public modloader::ModImpl {
     AdaptiveResolutionModule adaptive_resolution_module;
+    ForwardGameLogsModule forward_game_logs_module;
+    RenderUnfocusedModule render_unfocused_module;
 
 public:
     void OnEnabled() override;

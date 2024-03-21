@@ -60,6 +60,15 @@ public:
             int width = 800;
             int height = 600;
         } resolution {};
+        struct
+        {
+            bool enabled = false;
+            bool writeToLog = false;
+        } forwardGameLogs {};
+        struct
+        {
+            bool enabled = false;
+        } renderUnfocused {};
     } patches {};
 
     #define LINK(struct, path) if (read) struct = node##path.as<decltype(struct)>(struct); else node##path = struct

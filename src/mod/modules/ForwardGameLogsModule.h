@@ -1,18 +1,17 @@
 ﻿#pragma once
-#include "modloader/mods/Module.h"
+#include <optional>
+#include <memory/HookManager.h>
 
-class ForwardGameLogsModule final : public Module {
+class ForwardGameLogsModule {
 public:
-    ForwardGameLogsModule() :
-        Module(
-            "forwardGameLogs",
-            "Перенаправление логов",
-            "Позволяет отлключить или перенаправить логи игры.", false) {
-    }
+    bool state = true;
 
-    void OnLoad(bool manual) override;
+    std::optional<HookManager::RegisteredHook> logHook;
 
-    static inline bool writeToLog = false;
-    
-    void RenderModuleUI() override;
+    void Init();
+    void Render();
+
+private:
+    void OnLoad();
+    void OnUnload();
 };

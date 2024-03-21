@@ -1,15 +1,16 @@
 ﻿#pragma once
-#include "modloader/mods/Module.h"
+#include <optional>
 
-class RenderUnfocusedModule final : public Module {
+class RenderUnfocusedModule {
 public:
-    RenderUnfocusedModule() :
-        Module(
-            "renderUnfocused",
-            "Рендер вне фокуса",
-            "Разрешает игре рендериться когда окно не в фокусе.\n\n"
-            "До 1.0.0 модуль назывался RENDER_UNFOCUSED", false) {
-    }
+    bool state = true;
 
-    void OnLoad(bool manual) override;
+    std::optional<uint32_t> windowEventHandler;
+
+    void Init();
+    void Render();
+
+private:
+    void OnLoad();
+    void OnUnload();
 };
