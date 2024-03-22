@@ -3,7 +3,7 @@
 #include <Config.h>
 #include <Log.h>
 #include <events/D3dInitEvent.h>
-#include <mod/InternalMod.h>
+#include <mod/ModImplInternal.h>
 #include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
 

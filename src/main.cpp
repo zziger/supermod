@@ -26,7 +26,7 @@
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 // #include "modloader/mods/files/ModFileResolver.h"
-#include <mod/InternalMod.h>
+#include <mod/ModImplInternal.h>
 #include <modloader/files/ModFileResolver.h>
 #include <modloader/install/ModInstaller.h>
 

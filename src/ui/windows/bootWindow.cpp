@@ -12,7 +12,7 @@ void ui::windows::Boot() {
     const ImVec2 workSize = viewport->WorkSize;
 
     ImGui::SetNextWindowPos({ workPos.x + workSize.x - 10, workPos.y + workSize.y - 10 }, ImGuiCond_Always, { 1, 1 });
-    if (ImGui::Begin("startupOptions", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
+    if (ImGui::Begin("Startup options", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
         ImGui::TextColored(0xFFCC00FF_color, "Опции запуска:");
         ImGui::Spacing();
 

@@ -1,4 +1,4 @@
-﻿#include "InternalMod.h"
+﻿#include "ModImplInternal.h"
 
 #include <events/D3dInitEvent.h>
 #include <game/textures/PngLoader.h>
