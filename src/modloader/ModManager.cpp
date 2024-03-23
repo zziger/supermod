@@ -332,7 +332,7 @@ void modloader::ModManager::ValidateConfig()
 
     if (!cfg["mods"].IsMap())
     {
-        if (cfg["mods"]) Log::Warn << "'mods' in modcfg.yml was not a map. Overriding with an empty map instead" << Log::Endl;
+        if (cfg["mods"] && !cfg["mods"].IsNull()) Log::Warn << "'mods' in modcfg.yml was not a map. Overriding with an empty map instead" << Log::Endl;
         cfg["mods"] = YAML::Node(YAML::NodeType::Map);
     }
 
