@@ -12,7 +12,6 @@ class Config {
     YAML::Node node { YAML::NodeType::Map };
 
     Config();
-    ~Config();
 
 public:
     static Config& Get()

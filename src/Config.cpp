@@ -18,11 +18,6 @@ Config::Config()
     Process(true);
 }
 
-Config::~Config()
-{
-    Save();
-}
-
 void Config::Save() {
     Process(false);
     node.SetStyle(YAML::EmitterStyle::Block);
