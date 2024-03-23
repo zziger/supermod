@@ -1,6 +1,7 @@
 ﻿#include "Game.h"
 
 #include <filesystem>
+#include <modloader/ModManager.h>
 
 #include "Data.h"
 #include "DirectX.h"
@@ -92,7 +93,7 @@ namespace sdk
     }
 
     std::filesystem::path Game::GetModsPath() {
-        return GetRootPath() / "mods";
+        return GetRootPath() / modloader::ModManager::MODS_DIRECTORY;
     }
 
     uint64_t Game::GetGameVersion() {

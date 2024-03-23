@@ -15,6 +15,9 @@
 
 void modloader::ModManager::Init()
 {
+    if (!exists(sdk::Game::GetModsPath()))
+        create_directories(sdk::Game::GetModsPath());
+
     AddInternalMod(ModImplInternal::CreateMod());
 
     ScanMods();
@@ -30,7 +33,12 @@ void modloader::ModManager::Init()
 
 void modloader::ModManager::ScanMods()
 {
-    const auto modsPath = sdk::Game::GetRootPath() / MODS_DIRECTORY;
+    const auto modsPath = sdk::Game::GetModsPath();
+    if (!exists(modsPath))
+    {
+        Log::Warn << "Skipped mods scanning: Mods folder does not exist" << Log::Endl;
+        return;
+    }
 
     std::map<std::string, std::shared_ptr<Mod>> foundMods {};
     std::set<std::string> foundIDs {};
