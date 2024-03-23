@@ -186,7 +186,14 @@ void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& 
         {
             const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
             if (!info) continue;
-            remove_all(info->basePath);
+            try
+            {
+                remove_all(info->basePath);
+            } catch(const std::exception& err)
+            {
+                Log::Error << "Failed to remove " << info->basePath.string() << ": " << err.what() << Log::Endl;
+                // TODO: notif
+            }
         }
     }
 }
