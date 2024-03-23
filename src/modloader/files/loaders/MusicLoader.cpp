@@ -45,6 +45,7 @@ namespace modloader {
             host->ReplaceMusic(index, stream);
             Log::Info << "Музыка " << filename << " перезагружена" << Log::Endl;
         }
+
         return true;
     }
 }
