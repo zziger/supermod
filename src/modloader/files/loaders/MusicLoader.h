@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 namespace modloader {
-    class MusicLoader : public BaseLoader {
+    class MusicLoader final : public BaseLoader {
         static inline std::unordered_map<std::string, void*> soundMemory{};
 
         bool Load(const std::filesystem::path& path) override;

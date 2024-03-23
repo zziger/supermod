@@ -33,6 +33,7 @@ namespace modloader {
 
         if (!stream) {
             free(soundMemory[filename]);
+            soundMemory.erase(filename);
             Log::Error << "Не удалось загрузить файл " << filename << ". Ошибка: " << BASS_ErrorGetCode() << Log::Endl;
             return true;
         }
@@ -44,5 +45,6 @@ namespace modloader {
             host->ReplaceMusic(index, stream);
             Log::Info << "Музыка " << filename << " перезагружена" << Log::Endl;
         }
+        return true;
     }
 }
