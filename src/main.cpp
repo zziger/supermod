@@ -134,6 +134,7 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
         std::setlocale(LC_ALL, "en_US.utf-8");
         std::locale::global(std::locale("en_US.utf-8"));
 
+        current_path(sdk::Game::GetRootPath());
         try
         {
             auto _ = std::filesystem::current_path().string();
