@@ -7,6 +7,9 @@
 namespace modloader {
     bool SoundLoader::Load(const std::filesystem::path& path)
     {
+        if (!game::SoundHost::initialized)
+            return false;
+
         const auto filename = path.filename().generic_string();
         const auto host = game::SoundHost::GetInstance();
         auto cwd = std::filesystem::current_path();

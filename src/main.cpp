@@ -23,6 +23,7 @@
 #include "events/GameLoadedEvent.h"
 #include "events/StartExecutionEvent.h"
 #include "events/D3dInitEvent.h"
+#include "events/SoundHostInitEvent.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 // #include "modloader/mods/files/ModFileResolver.h"

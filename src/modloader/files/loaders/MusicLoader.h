@@ -4,6 +4,11 @@
 
 namespace modloader {
     class MusicLoader final : public BaseLoader {
+    public:
+        MusicLoader();
+
+    private:
+
         static inline std::unordered_map<std::string, void*> soundMemory{};
 
         bool Load(const std::filesystem::path& path) override;

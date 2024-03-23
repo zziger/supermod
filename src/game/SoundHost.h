@@ -14,6 +14,8 @@ namespace game
 #pragma pack(push, 1)
     class SoundHost {
     public:
+        static inline bool initialized = false;
+
         char stringRelatedToAudio[256];
         char loadedMusicNames[32][32];
         float unk1;

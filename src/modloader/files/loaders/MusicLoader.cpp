@@ -1,13 +1,46 @@
 #include "MusicLoader.h"
 
+#include <events/EventManager.h>
+#include <events/SoundHostInitEvent.h>
 #include <game/AssetPool.h>
 #include <game/SoundHost.h>
 #include <modloader/files/ModFileResolver.h>
 
 namespace modloader {
+    MusicLoader::MusicLoader()
+    {
+        EventManager::On<SoundHostInitEvent>([this]
+        {
+            Log::Debug << "Sound host init" << Log::Endl;
+            std::unordered_set<std::string> defaultMusic{};
+
+            for (const auto& entry : std::filesystem::directory_iterator(sdk::Game::GetDataPath() / "audio" / "music"))
+                defaultMusic.emplace(entry.path().filename().generic_string());
+
+            for (const auto& loadedMod : ModManager::GetMods())
+            {
+                if (loadedMod->HasFlag(Mod::Flag::INTERNAL) || !loadedMod->IsActive()) continue;
+                const auto infoFilesystem = std::dynamic_pointer_cast<ModInfoFilesystem>(loadedMod->GetInfo());
+                if (!infoFilesystem) continue;
+                const auto musicPath = infoFilesystem->basePath / "data" / "audio" / "music";
+                if (!exists(musicPath)) continue;
+
+                for (const auto& entry : std::filesystem::directory_iterator(musicPath)) {
+                    auto filename = entry.path().filename();
+                    if (defaultMusic.contains(filename.generic_string()) || filename.extension() != ".ogg") continue;
+
+                    Load(entry.path());
+                }
+            }
+        });
+    }
+
     bool MusicLoader::Load(const std::filesystem::path& path)
     {
         if (path.parent_path().filename() != "music")
+            return false;
+
+        if (!game::SoundHost::initialized)
             return false;
 
         const auto filename = path.filename().generic_string();
