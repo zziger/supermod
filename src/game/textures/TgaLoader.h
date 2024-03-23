@@ -5,6 +5,7 @@
 
 #include "Log.h"
 #include "TextureLoader.h"
+#include "TgaFileInterface.h"
 #include "directx/d3d8.h"
 #include "sdk/DirectX.h"
 
@@ -12,13 +13,11 @@ class TgaLoader
 {
 	
 public:
-	static std::optional<std::vector<byte>> ReadTga(std::filesystem::path path, vector2ui& size)
+	static std::optional<std::vector<byte>> ReadTga(const std::filesystem::path& path, vector2ui& size)
 	{
-		FILE* f;
-		if (fopen_s(&f, path.string().c_str(), "rb"))
-			return {};
+		TgaFileInterface file(path);
+		if (!file.ok()) return {};
 
-		tga::StdioFileInterface file(f);
 		tga::Decoder decoder(&file);
 		tga::Header header;
 		if (!decoder.readHeader(header))
