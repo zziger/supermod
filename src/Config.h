@@ -84,6 +84,9 @@ public:
         LINK(patches.resolution.height, ["patches"]["resolution"]["height"]);
         LINK(patches.resolution.width, ["patches"]["resolution"]["width"]);
         LINK_T(patches.resolution.mode, ["patches"]["resolution"]["mode"], int);
+        LINK(patches.forwardGameLogs.enabled, ["patches"]["forwardGameLogs"]["enabled"]);
+        LINK(patches.forwardGameLogs.writeToLog, ["patches"]["forwardGameLogs"]["writeToLog"]);
+        LINK(patches.renderUnfocused.enabled, ["patches"]["renderUnfocused"]["enabled"]);
     }
 
     static void AddToLua(LuaContext& context, const std::string& modId);
