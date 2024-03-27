@@ -92,7 +92,7 @@ void ui::windows::main::ModsView()
             ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
             if (ImGui::Button(ICON_MD_REFRESH))
             {
-                activeMod = std::nullopt;
+                modloader::ModManager::ScanMods();
             }
 
             widgets::Tooltip("Перезагрузить все моды");

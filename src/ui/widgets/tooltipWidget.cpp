@@ -2,9 +2,9 @@
 
 #include <imgui.h>
 
-void ui::widgets::Tooltip(const char* text)
+void ui::widgets::Tooltip(const char* text, const ImGuiHoveredFlags flags)
 {
-    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort | flags))
     {
         ImGui::BeginTooltip();
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);

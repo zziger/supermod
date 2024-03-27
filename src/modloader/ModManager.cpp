@@ -3,6 +3,7 @@
 #include <Config.h>
 #include <Log.h>
 #include <events/D3dInitEvent.h>
+#include <events/TickEvent.h>
 #include <mod/ModImplInternal.h>
 #include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
@@ -20,7 +21,7 @@ void modloader::ModManager::Init()
 
     AddInternalMod(ModImplInternal::CreateMod());
 
-    ScanMods();
+    ScanMods(true);
     SaveConfig();
     UpdateRemovedMods();
     Tick();
@@ -31,7 +32,7 @@ void modloader::ModManager::Init()
     });
 }
 
-void modloader::ModManager::ScanMods()
+void modloader::ModManager::ScanMods(const bool init)
 {
     const auto modsPath = sdk::Game::GetModsPath();
     if (!exists(modsPath))
@@ -59,6 +60,7 @@ void modloader::ModManager::ScanMods()
         }
 
         auto id = mod->GetID();
+
         if (foundIDs.contains(id))
         {
             Log::Warn << "Found multiple mods with same ID: " << id << ". Disabling mod at " << file.path().string() << Log::Endl;
@@ -67,27 +69,49 @@ void modloader::ModManager::ScanMods()
         }
 
         foundIDs.insert(id);
+
+        if (mods_map.contains(id))
+        {
+            ReloadMod(mods_map[id]);
+            continue;
+        }
+
         foundMods[mod->GetID()] = mod;
     }
 
     auto& cfg = Config::GetYaml();
-    auto modsArr = Clone(cfg["mods"]);
-    for (const auto& pair : modsArr)
+
+    if (init)
     {
-        const auto key = pair.first.as<std::string>();
-        const auto& node = pair.second;
-        if (!foundMods.contains(key)) continue;
-
-        auto mod = foundMods[key];
-        mod->Toggle(node["enabled"].as<bool>(false));
-        if (node["remove"].as<bool>(false))
+        auto modsArr = Clone(cfg["mods"]);
+        for (const auto& pair : modsArr)
         {
-            mod->Toggle(false);
-            mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
-            mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES);
-        }
+            const auto key = pair.first.as<std::string>();
+            const auto& node = pair.second;
+            if (!foundMods.contains(key)) continue;
 
-        AddMod(mod);
+            auto mod = foundMods[key];
+            mod->Toggle(node["enabled"].as<bool>(false));
+            if (node["remove"].as<bool>(false))
+            {
+                mod->Toggle(false);
+                mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+                mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES);
+            }
+
+            AddMod(mod);
+        }
+    }
+    else
+    {
+        for (const auto& mod : mods)
+        {
+            if (!foundIDs.contains(mod->GetID()))
+            {
+                ToggleMod(mod, false);
+                mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED);
+            }
+        }
     }
 
     for (const auto& [key, mod] : foundMods)
@@ -273,6 +297,7 @@ void modloader::ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
     const auto newInfo = std::make_shared<ModInfoFilesystem>();
     newInfo->FromPath(info->basePath);
     mod->SetInfo(newInfo);
+    UpdateDeps();
 }
 
 void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)

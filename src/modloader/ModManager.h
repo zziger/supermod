@@ -25,7 +25,7 @@ namespace modloader {
         static constexpr uint8_t MAX_STATE_UPDATE_TICKS = 16;
 
         static void Init();
-        static void ScanMods();
+        static void ScanMods(bool init = false);
         static void Tick();
 
         static const std::vector<std::shared_ptr<Mod>>& GetMods() { return mods; }

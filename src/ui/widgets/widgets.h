@@ -6,7 +6,7 @@
 
 namespace ui::widgets {
     void ProgressBar(float fraction, const ImVec2& sizeArg = ImVec2(-FLT_MIN, 0), const char* overlay = nullptr);
-    void Tooltip(const char* text);
+    void Tooltip(const char* text, ImGuiHoveredFlags flags = ImGuiHoveredFlags_None);
     void HelpMarker(const char* desc, const char* icon = ICON_MD_QUESTION_MARK);
     bool ToggleButton(const char* strId, bool value, float time = -1, ImVec2 size = { -1.f, -1.f });
 

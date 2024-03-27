@@ -30,10 +30,11 @@ void ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
         fsInfo->OpenFolder();
     }
 
-    if (ImGui::MenuItem(ICON_MD_REFRESH " Перезагрузить", nullptr, false, false))
+    if (ImGui::MenuItem(ICON_MD_REFRESH " Перезагрузить", nullptr, false, !mod->IsActive()))
     {
-        // mod->Reload();
+        modloader::ModManager::ReloadMod(mod);
     }
+    if (mod->IsActive()) Tooltip("Мод должен быть выключен для перезагрузки", ImGuiHoveredFlags_AllowWhenDisabled);
 
     ImGui::Separator();
 
