@@ -6,7 +6,7 @@
 
 #include "Log.h"
 #include "TextureLoader.h"
-#include "directx/d3d8.h"
+#include <d3d8/d3d8helpers.h>
 #include "sdk/DirectX.h"
 
 class PngLoader

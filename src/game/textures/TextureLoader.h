@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Data.h"
-#include "directx/d3d8.h"
+#include <d3d8/d3d8helpers.h>
 #include "exceptions/Error.h"
 
 class TextureLoader

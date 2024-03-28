@@ -171,3 +171,9 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
 
     return TRUE;
 }
+
+#ifndef UNIT_TESTS
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    return main(hModule, ul_reason_for_call, lpReserved);
+}
+#endif

@@ -2,7 +2,7 @@
 #include <string>
 
 #include "memory/Memory.h"
-#include "thirdparty/directx/d3d8.h"
+#include <d3d8/d3d8helpers.h>
 
 namespace game
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <thirdparty/directx/d3d8.h>
+#include <d3d8/d3d8helpers.h>
 
 namespace dx_utils {
     LPDIRECT3DTEXTURE8 load_png(IDirect3DDevice8* device, const char* filename);

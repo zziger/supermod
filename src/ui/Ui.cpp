@@ -6,8 +6,8 @@
 #include <imgui_internal.h>
 #include <shtypes.h>
 #include <shellscalingapi.h>
-#include <backends/imgui_impl_win32.h>
-#include <imgui-dx8/imgui_impl_dx8.h>
+#include <imgui-dx9/imgui_impl_win32.h>
+#include <imgui-dx9/imgui_impl_dx9.h>>
 #include <modloader/ModManager.h>
 #include <modloader/install/ModInstaller.h>
 #include <modloader/mod/Mod.h>
@@ -47,10 +47,10 @@ void Ui::InitImGui() {
     io.LogFilename = imguiLogFilename.c_str();
         
     LoadFonts();
-    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-        
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
+
     ImGui_ImplWin32_Init(*sdk::Game::window);
-    ImGui_ImplDX8_Init(*sdk::DirectX::d3dDevice);
+    ImGui_ImplDX9_Init(sdk::DirectX::GetDx9());
     
     io.IniFilename = imguiIniFilename.c_str();
     io.LogFilename = imguiLogFilename.c_str();
@@ -62,37 +62,37 @@ void RenderAssetReload() {
 
 void Ui::ConstraintWindow(const char* windowTitle)
 {
-    const ImGuiWindow* existingWindow = ImGui::FindWindowByName(windowTitle);
-    if (existingWindow != nullptr)
-    {
-        bool needsClampToScreen = false;
-        ImVec2 targetPos = existingWindow->Pos;
-        if (existingWindow->Pos.x < 0.f)
-        {
-            needsClampToScreen = true;
-            targetPos.x = 0.f;
-        }
-        else if (100 + existingWindow->Pos.x > ImGui::GetMainViewport()->Size.x)
-        {
-            needsClampToScreen = true;
-            targetPos.x = ImGui::GetMainViewport()->Size.x - 100;
-        }
-        if (existingWindow->Pos.y < 0.f)
-        {
-            needsClampToScreen = true;
-            targetPos.y = 0.f;
-        }
-        else if (100 + existingWindow->Pos.y > ImGui::GetMainViewport()->Size.y)
-        {
-            needsClampToScreen = true;
-            targetPos.y = ImGui::GetMainViewport()->Size.y - 100;
-        }
-
-        if (needsClampToScreen) // Necessary to prevent window from constantly undocking itself if docked.
-        {
-            ImGui::SetNextWindowPos(targetPos, ImGuiCond_Always);
-        }
-    }
+    // const ImGuiWindow* existingWindow = ImGui::FindWindowByName(windowTitle);
+    // if (existingWindow != nullptr)
+    // {
+    //     bool needsClampToScreen = false;
+    //     ImVec2 targetPos = existingWindow->Pos;
+    //     if (existingWindow->Pos.x < 0.f)
+    //     {
+    //         needsClampToScreen = true;
+    //         targetPos.x = 0.f;
+    //     }
+    //     else if (100 + existingWindow->Pos.x > ImGui::GetMainViewport()->Size.x)
+    //     {
+    //         needsClampToScreen = true;
+    //         targetPos.x = ImGui::GetMainViewport()->Size.x - 100;
+    //     }
+    //     if (existingWindow->Pos.y < 0.f)
+    //     {
+    //         needsClampToScreen = true;
+    //         targetPos.y = 0.f;
+    //     }
+    //     else if (100 + existingWindow->Pos.y > ImGui::GetMainViewport()->Size.y)
+    //     {
+    //         needsClampToScreen = true;
+    //         targetPos.y = ImGui::GetMainViewport()->Size.y - 100;
+    //     }
+    //
+    //     if (needsClampToScreen) // Necessary to prevent window from constantly undocking itself if docked.
+    //     {
+    //         ImGui::SetNextWindowPos(targetPos, ImGuiCond_Always);
+    //     }
+    // }
 
 }
 
@@ -109,7 +109,7 @@ void Ui::Render() {
     if (ImGui::IsKeyPressed(ImGuiKey_GraveAccent, false))
         menuOpen = !menuOpen;
 
-    ImGui_ImplDX8_NewFrame();
+    ImGui_ImplDX9_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
@@ -139,11 +139,16 @@ void Ui::Render() {
     if (d3dDevice->BeginScene() >= 0)
     {
         ImGui::Render();
-        ImGui_ImplDX8_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         d3dDevice->EndScene();
     }
-}
 
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+}
 ImGuiID Ui::GetModalsId(const std::shared_ptr<modloader::Mod>& mod)
 {
     return ImHashStr(std::format("modals_{}", mod->GetID()).c_str());
@@ -197,19 +202,37 @@ void Ui::PopFont()
 
 static inline int (__thiscall *AssetPool__freeAssetsFromD3d_orig)(void* this_) = nullptr;
 static int __fastcall AssetPool__freeAssetsFromD3d(void* this_, void*) {
-    ImGui_ImplDX8_InvalidateDeviceObjects();
+    ImGui_ImplDX9_InvalidateDeviceObjects();
     return AssetPool__freeAssetsFromD3d_orig(this_);
+}
+
+static inline int (__thiscall *AssetPool__reloadAssetsToD3d_orig)(void* this_) = nullptr;
+static int __fastcall AssetPool__reloadAssetsToD3d(void* this_, void*) {
+    const auto res = AssetPool__reloadAssetsToD3d_orig(this_);
+    ImGui_ImplDX9_CreateDeviceObjects();
+    return res;
 }
 
 void Ui::Init() {
     EventManager::On<WindowEvent>(OnWindowEvent);
     EventManager::On<TickEvent>([] {
-        InitImGui();
-        Render();
+        try
+        {
+            InitImGui();
+            Render();
+        } catch(const std::exception& e)
+        {
+            Log::Error << "Failed to render frame: " << e.what() << Log::Endl;
+        }
     });
+    // EventManager::On<AfterTickEvent>([] {
+    //     PostRender();
+    // });
 
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? C7 45 ? ? ? ? ? EB ? 8B 45 ? 83 C0 ? 89 45 ? 8B 4D ? 8B 55 ? 3B 91 ? ? ? ? 7D ? 8B 45 ? 8B 4D ? 8B 54 81 ? 0F B6 82",
         HOOK_REF_FORCE(AssetPool__freeAssetsFromD3d));
+    HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? C7 45 ? ? ? ? ? EB ? 8B 45 ? 83 C0 ? 89 45 ? 8B 4D ? 8B 55 ? 3B 91 ? ? ? ? 0F 8D ? ? ? ? 8B 45",
+        HOOK_REF_FORCE(AssetPool__reloadAssetsToD3d));
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
