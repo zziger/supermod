@@ -50,7 +50,7 @@ void ui::windows::Watermark()
     ImGui::SetNextWindowBgAlpha(cfg.bgOpacity * cfg.opacity);
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, cfg.opacity);
     if (ImGui::Begin("watermark", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize
-                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove)) {
+                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking)) {
         ImGui::TextColored(0xFFCC00FF_color, "SuperMod");
     }
     ImGui::End();
