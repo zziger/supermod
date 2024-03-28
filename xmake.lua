@@ -34,7 +34,7 @@ target("d3d8")
     add_includedirs("src")
     add_includedirs("src/thirdparty")
     add_linkdirs("deps")
-    add_shflags("/DEF:src/proxy/dinput8.def")
+    add_shflags("/DEF:src/d3d8/d3d8.def")
     add_cxflags("/MP", { force = true })
     add_cxflags("/utf-8", { force = true })
 
