@@ -13,35 +13,13 @@
 class Console {
 public:
     
-    static void Initialize() {
-        if (Config::Get().console) Enable();
-    }
+    static void Initialize();
 
     inline static bool enabled = false;
     inline static FILE* stdinFile = nullptr;
     inline static FILE* stdoutFile = nullptr;
 
-    static void Enable() {
-        if (enabled) return;
-        enabled = true;
-        AllocConsole();
-        if (stdinFile == nullptr) freopen_s(&stdinFile, "CONIN$", "r", stdin);
-        if (stdoutFile == nullptr) freopen_s(&stdoutFile, "CONOUT$", "w", stdout);
-        SetConsoleTitle(L"SuperCow mod console");
-        SetConsoleOutputCP( CP_UTF8);
-        SetConsoleCP( CP_UTF8);
-        const auto wnd = GetConsoleWindow();
-        if (wnd != nullptr) {
-            ShowWindow(wnd, SW_RESTORE);
-        }
-    }
+    static void Enable();
 
-    static void Disable() {
-        if (!enabled) return;
-        enabled = false;
-        const auto wnd = GetConsoleWindow();
-        if (wnd != nullptr) {
-            ShowWindow(wnd, SW_HIDE);
-        }
-    }
+    static void Disable();
 };

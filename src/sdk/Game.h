@@ -29,6 +29,7 @@ namespace sdk
 
         static std::filesystem::path GetRootPath();
         static char* GetRawDataPath();
+        static void RequestExit();
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 

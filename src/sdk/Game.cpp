@@ -87,6 +87,13 @@ namespace sdk
         return *mem.Get<char**>(1);
     }
 
+    void Game::RequestExit()
+    {
+        static constexpr Memory::Pattern pat("C7 05 ? ? ? ? ? ? ? ? EB ? 8D 45");
+        static auto mem = pat.Search();
+        **mem.Get<int32_t**>(2) = 1;
+    }
+
     std::filesystem::path Game::GetDataPath() {
         return GetRootPath() / "data";
     }
@@ -220,7 +227,7 @@ namespace sdk
         context.writeVariable("game", "parseGameVersion", IsGameLoaded);
         context.writeVariable("game", "parseGameVersion", IsGameLoaded);
         context.writeVariable("game", "getRenderSize", GetRenderSize);
-        
+
         context.writeVariable("game", "world", std::map<int, int>{});
         context.writeVariable("game", "world", "getCamWorldRect", World::GetCamWorldRect);
         context.writeVariable("game", "world", "getWorldProjectionSize", World::GetWorldProjectionSize);
@@ -228,6 +235,6 @@ namespace sdk
         context.writeVariable("game", "world", "getCamPos", World::GetCamPos);
         context.writeVariable("game", "world", "screenToWorld", World::ScreenToWorld);
         context.writeVariable("game", "world", "worldToScreen", World::WorldToScreen);
-       
+
     }
 }
