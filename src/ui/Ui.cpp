@@ -123,6 +123,7 @@ void Ui::Render() {
         windows::Watermark();
         windows::Main();
         if (textureViewerOpen) windows::TextureViewer();
+        if (animationViewerOpen) windows::AnimationViewer();
 
         for (const auto& mod : modloader::ModManager::GetMods()) {
             if (!mod->IsActive()) continue;

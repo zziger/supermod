@@ -7,4 +7,5 @@ namespace ui::windows {
     void Watermark();
     void Main();
     void TextureViewer();
+    void AnimationViewer();
 }

@@ -137,3 +137,5 @@ retn name(args)
 
 #define HOOK_REF(name) name, &name##_orig
 #define HOOK_REF_FORCE(name) (void*) name, (void**) &name##_orig
+
+#define ENSURE_SIZE(class, size) static_assert(sizeof(class) == size, "Invalid size of class " #class)

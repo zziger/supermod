@@ -20,7 +20,14 @@ namespace sdk
 
         sdk::DirectX::Init();
     }
-    
+
+    void Game::Free(void* mem)
+    {
+        static constexpr Memory::Pattern pat("56 8B 74 24 ? 85 F6 74 ? 83 3D");
+        static auto memory = pat.Search();
+        memory.Get<void(__cdecl *)(void*)>()(mem);
+    }
+
     void Game::Restart() {
         wchar_t buf[MAX_PATH];
         GetModuleFileNameW(nullptr, buf, MAX_PATH);

@@ -30,6 +30,11 @@ void ui::windows::main::ToolsView()
         Ui::textureViewerOpen = true;
     }
 
+    if (ImGui::Button(ICON_MD_ANIMATION " Просмотр анимаций"))
+    {
+        Ui::animationViewerOpen = true;
+    }
+
     if (ImGui::Button(ICON_MD_REFRESH " Перезапустить игру"))
     {
         ImGui::OpenPopup("Перезапуск игры");

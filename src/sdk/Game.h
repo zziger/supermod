@@ -16,6 +16,8 @@ namespace sdk
 
         static void Init();
 
+        static void Free(void* mem);
+
         static void Restart();
         static void StartEditor();
 
