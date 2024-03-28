@@ -5,7 +5,7 @@
 #include "Data.h"
 #include "thirdparty/LuaContext.h"
 #include <semver.hpp>
-#include "thirdparty/directx/d3d8.h"
+#include <d3d8/d3d8helpers.h>
 
 namespace sdk
 {
@@ -25,6 +25,7 @@ namespace sdk
         static inline bool currentTickIsInner = false;
         static inline bool bootMenuActive = false;
         static inline bool booted = false;
+        static inline vector2i lastResolution = { 800, 600 };
 
         static std::filesystem::path GetRootPath();
         static char* GetRawDataPath();

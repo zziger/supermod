@@ -6,9 +6,7 @@
 
 void ModImplInternal::OnEnabled()
 {
-    adaptive_resolution_module.Init();
     forward_game_logs_module.Init();
-    render_unfocused_module.Init();
 }
 
 void ModImplInternal::OnDisabled()
@@ -21,11 +19,7 @@ void ModImplInternal::OnTick()
 
 void ModImplInternal::RenderUI()
 {
-    render_unfocused_module.Render();
-    ImGui::Spacing();
     forward_game_logs_module.Render();
-    ImGui::Spacing();
-    adaptive_resolution_module.Render();
 }
 
 std::shared_ptr<modloader::Mod> ModImplInternal::CreateMod()

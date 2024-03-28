@@ -54,20 +54,9 @@ public:
     {
         struct
         {
-            bool enabled = true;
-            ResolutionPatchMode mode = ResolutionPatchMode::WINDOW;
-            int width = 800;
-            int height = 600;
-        } resolution {};
-        struct
-        {
             bool enabled = false;
             bool writeToLog = false;
         } forwardGameLogs {};
-        struct
-        {
-            bool enabled = false;
-        } renderUnfocused {};
     } patches {};
 
     #define LINK(struct, path) if (read) struct = node##path.as<decltype(struct)>(struct); else node##path = struct
@@ -80,13 +69,8 @@ public:
         LINK_T(watermark.position, ["watermark"]["position"], int);
         LINK(watermark.opacity, ["watermark"]["opacity"]);
         LINK(watermark.bgOpacity, ["watermark"]["bgOpacity"]);
-        LINK(patches.resolution.enabled, ["patches"]["resolution"]["enabled"]);
-        LINK(patches.resolution.height, ["patches"]["resolution"]["height"]);
-        LINK(patches.resolution.width, ["patches"]["resolution"]["width"]);
-        LINK_T(patches.resolution.mode, ["patches"]["resolution"]["mode"], int);
         LINK(patches.forwardGameLogs.enabled, ["patches"]["forwardGameLogs"]["enabled"]);
         LINK(patches.forwardGameLogs.writeToLog, ["patches"]["forwardGameLogs"]["writeToLog"]);
-        LINK(patches.renderUnfocused.enabled, ["patches"]["renderUnfocused"]["enabled"]);
     }
 
     static void AddToLua(LuaContext& context, const std::string& modId);

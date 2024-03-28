@@ -11,7 +11,6 @@
 #include "game/SoundHost.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
-#include "mod/modules/AdaptiveResolutionModule.h"
 
 namespace sdk
 {
@@ -116,7 +115,7 @@ namespace sdk
     
     vector2 Game::GetRenderSize()
     {
-        auto res = AdaptiveResolutionModule::lastResolution;
+        auto res = lastResolution;
         return { (float) res.x, (float) res.y };
     }
 

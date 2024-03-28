@@ -1,5 +1,6 @@
-﻿#include "mod/modules/AdaptiveResolutionModule.h"
-#include <DbgHelp.h>
+﻿#include <DbgHelp.h>
+#include <memory/HookManager.h>
+#include <memory/Memory.h>
 
 typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(
     HANDLE hProcess,
