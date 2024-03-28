@@ -13,6 +13,7 @@
 #include <modloader/mod/Mod.h>
 
 #include "Config.h"
+#include "NotificationManager.h"
 #include "Utils.h"
 #include "events/UIRenderEvent.h"
 #include "sdk/DirectX.h"
@@ -125,6 +126,7 @@ void Ui::Render() {
         if (textureViewerOpen) windows::TextureViewer();
         if (animationViewerOpen) windows::AnimationViewer();
         if (modelViewerOpen) windows::ModelViewer();
+        ui::NotificationManager::Render();
 
         for (const auto& mod : modloader::ModManager::GetMods()) {
             if (!mod->IsActive()) continue;
