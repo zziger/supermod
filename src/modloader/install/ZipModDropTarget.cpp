@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <modloader/ModManager.h>
 #include <sdk/Game.h>
+#include <ui/NotificationManager.h>
 
 #include "ModInstaller.h"
 #include "ModInstallRequestZip.h"
@@ -84,6 +85,8 @@ HRESULT ZipModDropTarget::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
             {
                 *pdwEffect = DROPEFFECT_COPY;
                 auto requests = modloader::ModInstallRequestZip::FromZip(path, false);
+                if (requests.empty())
+                    ui::NotificationManager::Notify(std::format("В архиве {} не найдено модов для установки", path.filename().string()), ui::Notification::WARN);
                 for (const auto& request : requests)
                     modloader::ModInstaller::RequestInstall(request);
             }

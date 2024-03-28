@@ -3,6 +3,7 @@
 #include <events/D3dInitEvent.h>
 #include <game/textures/PngLoader.h>
 #include <modloader/mod/Mod.h>
+#include <ui/NotificationManager.h>
 
 void ModImplInternal::OnEnabled()
 {

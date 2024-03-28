@@ -5,6 +5,7 @@
 #include <events/TickEvent.h>
 #include <modloader/ModManager.h>
 #include <sdk/Game.h>
+#include <ui/NotificationManager.h>
 #include <utils/TempManager.h>
 
 #include "ModInstallRequestZip.h"
@@ -77,6 +78,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
     }
     catch(const std::exception& err)
     {
+        ui::NotificationManager::Notify(std::format("Не удалось обновить мод {}.\n{}", info->GetID(), err.what()));
         Log::Debug << "Failed to install mod " << info->GetID() << ", attempting to recover state:" << err.what() << Log::Endl;
 
         try
@@ -88,6 +90,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
         }
         catch(const std::exception& errInner)
         {
+            ui::NotificationManager::Notify(std::format("Не удалось вернуть мод {} в прежнее состояние.\n{}", info->GetID(), err.what()));
             Log::Error << "Failed to recover initial mod state: " << errInner.what() << Log::Endl;
         }
         throw;
