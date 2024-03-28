@@ -85,8 +85,6 @@ D3DRESOURCETYPE STDMETHODCALLTYPE Direct3DVertexBuffer8::GetType()
 	return D3DRTYPE_VERTEXBUFFER;
 }
 
-static inline BYTE data[10000000] {};
-
 HRESULT STDMETHODCALLTYPE Direct3DVertexBuffer8::Lock(UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags)
 {
 	if ((Flags & D3DLOCK_DISCARD) != 0)
