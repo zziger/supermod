@@ -35,6 +35,11 @@ void ui::windows::main::ToolsView()
         Ui::animationViewerOpen = true;
     }
 
+    if (ImGui::Button(ICON_MD_VIEW_IN_AR " Просмотр моделей"))
+    {
+        Ui::modelViewerOpen = true;
+    }
+
     if (ImGui::Button(ICON_MD_REFRESH " Перезапустить игру"))
     {
         ImGui::OpenPopup("Перезапуск игры");

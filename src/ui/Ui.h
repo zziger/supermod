@@ -21,6 +21,7 @@ namespace ui
         static inline bool menuOpen = false;
         static inline bool textureViewerOpen = false;
         static inline bool animationViewerOpen = false;
+        static inline bool modelViewerOpen = false;
 
         static float GetScalingFactor();
         static float ScaledPx(float px);

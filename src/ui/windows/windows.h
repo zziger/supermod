@@ -8,4 +8,5 @@ namespace ui::windows {
     void Main();
     void TextureViewer();
     void AnimationViewer();
+    void ModelViewer();
 }
