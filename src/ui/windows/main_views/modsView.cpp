@@ -70,8 +70,6 @@ void ui::windows::main::ModsView()
                         std::swap(reorderMods[i], reorderMods[nextI]);
                         ImGui::ResetMouseDragDelta();
                     }
-
-                    ImGui::Spacing();
                 }
             }
         }
@@ -202,6 +200,7 @@ void ui::windows::main::ModsView()
             {
                 ImGui::Text("Зависимости:");
                 ImGui::Spacing();
+                ImGui::PushID("Dependencies");
 
                 for (const auto& dependency : mod->GetInfo()->deps)
                 {
@@ -209,6 +208,7 @@ void ui::windows::main::ModsView()
                     ImGui::Spacing();
                 }
 
+                ImGui::PopID();
                 ImGui::Separator();
                 ImGui::Spacing();
             }
@@ -218,6 +218,7 @@ void ui::windows::main::ModsView()
             {
                 ImGui::Text("Зависимые моды:");
                 ImGui::Spacing();
+                ImGui::PushID("Dependents");
 
                 for (const auto& dependant : dependents)
                 {
@@ -225,6 +226,7 @@ void ui::windows::main::ModsView()
                     ImGui::Spacing();
                 }
 
+                ImGui::PopID();
                 ImGui::Separator();
                 ImGui::Spacing();
             }
