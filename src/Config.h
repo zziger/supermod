@@ -58,6 +58,10 @@ public:
             bool writeToLog = false;
         } forwardGameLogs {};
     } patches {};
+    struct
+    {
+        bool showImGuiDemo = false;
+    } developer {};
 
     #define LINK(struct, path) if (read) struct = node##path.as<decltype(struct)>(struct); else node##path = struct
     #define LINK_T(struct, path, type) if (read) struct = static_cast<decltype(struct)>(node##path.as<type>(static_cast<type>(struct))); else node##path = static_cast<type>(struct)
@@ -71,6 +75,7 @@ public:
         LINK(watermark.bgOpacity, ["watermark"]["bgOpacity"]);
         LINK(patches.forwardGameLogs.enabled, ["patches"]["forwardGameLogs"]["enabled"]);
         LINK(patches.forwardGameLogs.writeToLog, ["patches"]["forwardGameLogs"]["writeToLog"]);
+        LINK(developer.showImGuiDemo, ["developer"]["showImGuiDemo"]);
     }
 
     static void AddToLua(LuaContext& context, const std::string& modId);

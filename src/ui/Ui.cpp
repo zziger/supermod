@@ -100,6 +100,7 @@ void Ui::Render() {
     if (!initialized) return;
     
     ImGuiIO& io = ImGui::GetIO();
+    auto& cfg = Config::Get();
     io.IniFilename = imguiIniFilename.c_str();
     io.LogFilename = imguiLogFilename.c_str();
 
@@ -112,7 +113,10 @@ void Ui::Render() {
     ImGui_ImplDX9_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+
+    const auto showValue = cfg.developer.showImGuiDemo;
+    if (showValue) ImGui::ShowDemoWindow(&cfg.developer.showImGuiDemo);
+    if (showValue != cfg.developer.showImGuiDemo) cfg.Save();
     
     try {
         windows::Boot();

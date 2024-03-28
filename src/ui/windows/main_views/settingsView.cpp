@@ -63,4 +63,13 @@ void ui::windows::main::SettingsView()
         }
     }
     ImGui::PopID();
+
+    ImGui::PushID("dev");
+    {
+        ImGui::Spacing();
+        ImGui::SeparatorText("Для разработчиков");
+        if (ImGui::Checkbox("Отображать окно ImGui Demo", &cfg.developer.showImGuiDemo))
+            cfg.Save();
+    }
+    ImGui::PopID();
 }
