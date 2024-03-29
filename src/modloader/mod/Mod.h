@@ -54,7 +54,7 @@ namespace modloader
         [[nodiscard]] bool HasFlag(const Flag flag) const { return (flags & static_cast<uint8_t>(flag)) != 0; }
 
         [[nodiscard]] bool IsEnabled() const { return HasFlag(Flag::ENABLED); }
-        void Toggle(const bool value) { SetFlag(Flag::ENABLED, value); }
+        void Toggle(const bool value);
 
         void Update();
         void Tick() const;

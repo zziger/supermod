@@ -7,7 +7,6 @@
 #include "exceptions/Error.h"
 #include <gdiplus.h>
 
-#include "Log.h"
 #include "Utils.h"
 #include <Shlwapi.h>
 

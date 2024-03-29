@@ -10,7 +10,6 @@
 #include <typeindex>
 #include <unordered_set>
 
-#include "Log.h"
 #include "thirdparty/LuaContext.h"
 
 struct IAnyEvent {

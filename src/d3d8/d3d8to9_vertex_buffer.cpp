@@ -3,7 +3,6 @@
  * License: https://github.com/crosire/d3d8to9#license
  */
 
-#include <Log.h>
 
 #include "d3d8to9.hpp"
 

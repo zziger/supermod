@@ -3,6 +3,7 @@
 #include <game/AssetPool.h>
 #include <game/SoundHost.h>
 #include <modloader/files/ModFileResolver.h>
+#include <spdlog/spdlog.h>
 
 namespace modloader {
     bool SoundLoader::Load(const std::filesystem::path& path)
@@ -18,12 +19,12 @@ namespace modloader {
         const auto resolvedPath = ModFileResolver::ResolveGameFile(sdk::Game::GetDataPath() / path);
         if (resolvedPath.empty() || !exists(resolvedPath))
         {
-            Log::Info << "Файл звука " << filename << " не найден" << Log::Endl;
+            spdlog::warn("Sound file {} was not found", filename);
             return false;
         }
 
         if (index == -1) {
-            Log::Warn << "Звук " << filename << " не найден в игре" << Log::Endl;
+            spdlog::warn("Sound {} does not exist in the game", filename);
             return false;
         }
 
@@ -31,14 +32,14 @@ namespace modloader {
         const auto sample = BASS_SampleLoad(0, resolvedPath.string().c_str(), 0, 0, 255, 0);
 
         if (!sample) {
-            Log::Debug << "Не удалось загрузить файл " << filename << ". Ошибка: " << BASS_ErrorGetCode() << Log::Endl;
+            spdlog::error("Failed to load sound {}: BASS error {}", filename, BASS_ErrorGetCode());
             return false;
         }
 
         BASS_SampleFree(sound.soundSample);
         sound.soundSample = sample;
 
-        Log::Info << "Звук " << filename << " перезагружен" << Log::Endl;
+        spdlog::debug("Reloaded sound {}", filename);
         return true;
     }
 }

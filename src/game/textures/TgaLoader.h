@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <tga.h>
 
-#include "Log.h"
 #include "TextureLoader.h"
 #include "TgaFileInterface.h"
 #include <d3d8/d3d8helpers.h>
@@ -62,7 +61,7 @@ public:
 
 		if (bytesPerPixel < 3)
 		{
-			Log::Warn << "TGA with less than 3 bytes per pixel is not supported" << Log::Endl;
+			spdlog::warn("Failed to load {}: TGA with less than 3 bytes per pixel is not supported", path.string());
 			return {};
 		}
 

@@ -1,8 +1,8 @@
 #include "ModInfo.h"
 
-#include <Log.h>
 #include <regex>
 #include <sdk/Game.h>
+#include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>
 
 void modloader::ModInfo::Parse(YAML::Node& node)
@@ -33,7 +33,7 @@ void modloader::ModInfo::Parse(YAML::Node& node)
         for (const auto& gameVersionString : versions) {
             auto gameVersion = sdk::Game::ParseGameVersion(gameVersionString);
             if (!gameVersion) {
-                Log::Warn << "Неверная версия " << gameVersionString << " в моде " << title << Log::Endl; // todo warning container
+                spdlog::warn("Invalid game version {} in mod {}", gameVersionString, title);
                 continue;
             }
             gameVersions.push_back(gameVersion);
@@ -48,7 +48,7 @@ void modloader::ModInfo::Parse(YAML::Node& node)
             : ScriptType::NONE; // TODO: better script type handling
 
 
-    if (!node["title"]) Log::Warn << "Не указано название для мода " << id << Log::Endl;
+    if (!node["title"]) spdlog::warn("No title found in mod {}", id);
     // todo compatibility check somewhere
 }
 

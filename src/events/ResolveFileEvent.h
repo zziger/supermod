@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <filesystem>
+#include <spdlog/spdlog.h>
 
 #include "EventManager.h"
 #include "Utils.h"
@@ -50,10 +51,11 @@ T resolve(std::string filename, std::function<T (const std::string&)> fn) {
     const auto curPath = std::filesystem::current_path();
     const auto path = curPath / filename;
     auto relativePath = relative(path, basePath);
+    spdlog::trace("Resolving file {}", relativePath.generic_string());
     
     ResolveFileEvent evt { path };
     if (!relativePath.empty() && relativePath.native()[0] != '.') EventManager::Emit(evt);
-    else Log::Debug << "Файл " << path << " находится вне папки data (resolution skipped)" << Log::Endl;
+    else spdlog::trace("File {} is located outside of data folder. Skipping resolution", path.string());
 
     if (evt.GetResolvedPath()) {
         const auto resolvedPath = *evt.GetResolvedPath();
@@ -61,7 +63,11 @@ T resolve(std::string filename, std::function<T (const std::string&)> fn) {
         current_path(workingDir);
         filename = resolvedPath.filename().generic_string();
 
-        Log::Debug << "Файл " << relativePath.generic_string() << " загружен из " << relative(resolvedPath, basePath).generic_string() << Log::Endl;
+        spdlog::trace("File {} was loaded from {}", relativePath.generic_string(), relative(resolvedPath, basePath).generic_string());
+    }
+    else
+    {
+        spdlog::trace("File {} was loaded from original location", relativePath.generic_string());
     }
     const auto result = fn(filename);
     if (evt.GetResolvedPath()) current_path(curPath);
@@ -77,21 +83,18 @@ HOOK_FN(inline void*, resolve_file, ARGS(const char* lpFileName, size_t* outBuf,
             std::lock_guard lock(fileResolveMutex);
             return resolve_file_orig(filename.c_str(), outBuf, isCritical);
         } catch(std::exception& e) {
-            Log::Error << "Исключение во время чтения файла " << e.what() << Log::Endl;
-            MessageBoxW(nullptr, L"Произошло исключение во время чтения файла", L"SuperMod", MB_OK);
+            spdlog::critical("Failed to read file {}: {}", filename, e.what());
         }
     });
 }
 
 HOOK_FN(inline void*, fopen_, ARGS(const char* lpFileName, const char* mode)) {
-    Log::Info << std::string(lpFileName) << Log::Endl;
     return resolve<void*>(std::string(lpFileName), [&](auto& filename) {
         try {
             std::lock_guard lock(fileResolveMutex);
             return fopen__orig(filename.c_str(), mode);
         } catch(std::exception& e) {
-            Log::Error << "Исключение во время открытия файла " << e.what() << Log::Endl;
-            MessageBoxW(nullptr, L"Произошло исключение во время открытия файла", L"SuperMod", MB_OK);
+            spdlog::critical("Failed to open file {}: {}", filename, e.what());
         }
     });
 }

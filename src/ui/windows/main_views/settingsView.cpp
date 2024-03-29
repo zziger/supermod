@@ -1,7 +1,7 @@
 #include "views.h"
 
 #include <Config.h>
-#include <Console.h>
+#include <logs/Console.h>
 #include <imgui.h>
 #include <sdk/Game.h>
 #include <ui/Ui.h>
@@ -54,13 +54,64 @@ void ui::windows::main::SettingsView()
     ImGui::PushID("console");
     {
         ImGui::Spacing();
-        ImGui::SeparatorText("Консоль");
-        if (ImGui::Checkbox("Отображать", &cfg.console))
+        ImGui::SeparatorText("Логи и консоль");
+
+        if (ImGui::Checkbox("Отображать консоль", &cfg.console))
         {
             cfg.Save();
-            if (cfg.console) Console::Enable();
-            else Console::Disable();
+            Console::Update();
         }
+
+        ImGui::Spacing();
+        if (ImGui::Checkbox("Ограничить количество лог-файлов", &cfg.log.limitFiles))
+        {
+            cfg.Save();
+        }
+
+        if (cfg.log.limitFiles)
+        {
+            ImGui::Spacing();
+            ImGui::Text("Максимальное количество лог-файлов:");
+            if (ImGui::InputInt("##Max log files", &cfg.log.maxFiles, 1, 100))
+            {
+                cfg.Save();
+            }
+        }
+
+        ImGui::Spacing();
+        ImGui::Text("Уровень логов:");
+
+        std::vector<std::tuple<spdlog::level::level_enum, std::string>> items = {
+            { spdlog::level::err, "Только ошибки" },
+            { spdlog::level::warn, "Ошибки и предупреждения" },
+            { spdlog::level::info, "Ошибки, предупреждения и сообщения (по-умолчанию)" },
+            { spdlog::level::debug, "Информация для разработчиков" },
+            { spdlog::level::trace, "Все сообщения (медленно)" },
+        };
+
+        auto currentItem = std::ranges::find_if(items, [&cfg](const auto& item) {
+            return std::get<0>(item) == cfg.log.level;
+        });
+        if (ImGui::BeginCombo("##Log level", currentItem == items.end() ? nullptr : std::get<1>(*currentItem).c_str()))
+        {
+            for (const auto& [level, msg] : items)
+            {
+                const auto selected = cfg.log.level == level;
+                if (ImGui::Selectable(msg.c_str(), selected))
+                {
+                    cfg.log.level = level;
+                    cfg.Save();
+                    Console::Update();
+                }
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+
+            ImGui::EndCombo();
+        }
+
+        ImGui::Spacing();
     }
     ImGui::PopID();
 

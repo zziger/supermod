@@ -5,7 +5,6 @@
 
 #include "Data.h"
 #include "DirectX.h"
-#include "Log.h"
 #include "Utils.h"
 #include "game/AssetPool.h"
 #include "game/SoundHost.h"

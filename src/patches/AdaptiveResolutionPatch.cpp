@@ -3,6 +3,7 @@
 /// This patch fixes rendered resolution and allows window resizing/maximizing,
 /// and resets the device on every window resize
 
+#include <logs/Console.h>
 #include <events/D3dInitEvent.h>
 #include <events/ResolutionChangeEvent.h>
 #include <events/WindowEvent.h>
@@ -40,7 +41,7 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
     if (res.x == 0 || res.y == 0) res = sdk::Game::lastResolution;
     else sdk::Game::lastResolution = res;
 
-    Log::Debug << "Разрешение рендера установлено на " << res.x << "x" << res.y << Log::Endl;
+    spdlog::info("Render resolution was set to {}x{}", Console::StyleEmphasise(res.x), Console::StyleEmphasise(res.y));
 
     ptr[0] = res.x;
     ptr[1] = res.y;

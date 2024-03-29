@@ -13,11 +13,10 @@
 #include <gdiplus.h>
 
 #include "Config.h"
-#include "Console.h"
+#include "logs/Console.h"
 #include "CrashHandler.h"
 #include "DirectXUtils.h"
 #include "ui/UI.h"
-#include "Log.h"
 #include "events/EventManager.h"
 #include "events/ResolveFileEvent.h"
 #include "events/GameLoadedEvent.h"
@@ -35,6 +34,9 @@
 #include "sdk/Game.h"
 #include <thirdparty/zip_file.h>
 #include <utils/TempManager.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/bundled/color.h>
+
 
 void InitMemory()
 {
@@ -43,7 +45,7 @@ void InitMemory()
     Memory::Base() = base;
     Memory::OnPatternNotFound([](const std::string& pattern)
     {
-        Log::Error << "Не удалось найти паттерн " << pattern << Log::Endl;
+        spdlog::error("Failed to find pattern {}", styled(pattern, fg(fmt::color::red) | fmt::emphasis::bold));
     });
 }
 
@@ -57,21 +59,21 @@ void PostInit()
 
 HOOK_FN(int, load_game, ARGS())
 {
-    Log::Info << "Инициализация загрузки игры" << Log::Endl;
+    spdlog::info("Initializing game loading...");
 
     for (const auto& mod : modloader::ModManager::GetMods())
     {
         const auto fsInfo = std::dynamic_pointer_cast<modloader::ModInfoFilesystem>(mod->GetInfo());
         if (fsInfo) fsInfo->UpdateIcon();
     }
-    if (GetAsyncKeyState(VK_SHIFT) & 0x01)
+    if (!sdk::Game::bootMenuActive && GetAsyncKeyState(VK_SHIFT) & 0x01)
     {
+        spdlog::info("Detected SHIFT (2nd chance), activating boot menu");
         sdk::Game::bootMenuActive = true;
     }
 
     if (sdk::Game::bootMenuActive)
     {
-        Log::Info << "Boot меню активно" << Log::Endl;
         EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     }
 
@@ -95,8 +97,7 @@ void Init()
 {
     auto cwd = std::filesystem::current_path();
     Console::Initialize();
-    Log::Info << "Загрузка SuperMod " << VERSION << " by zziger..." << Log::Endl;
-
+    spdlog::info("Loading {} by {}...", styled("SuperMod " VERSION, fmt::emphasis::bold), styled("zziger", fmt::emphasis::bold));
 
     const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -115,15 +116,14 @@ void Init()
 
     EventManager::On<StartExecutionEvent>([]
     {
-        Log::Info << "Пост-инициализация" << Log::Endl;
+        spdlog::info("Starting post-initialization...");
         utils::handle_error(PostInit, "пост-инициализации");
+        spdlog::info("Post-initialization finished");
     });
 
     EventManager::On<GameLoadedEvent>([]
     {
-        Log::Info << "Игра загружена!" << Log::Endl;
-
-        DragAcceptFiles(*sdk::Game::window, true);
+        spdlog::info("Game loading finished!");
     });
 }
 
@@ -160,7 +160,10 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
         utils::handle_error(InitCrashHandler, "инициализации обработчика ошибок");
         utils::handle_error(Init, "инициализации мода");
 
-        Log::Info << "Мод загружен!" << Log::Endl;
+        if (shiftPressed)
+            spdlog::info("Detected SHIFT, activating boot menu");
+
+        spdlog::info("Initialization finished");
     }
 
     if (ulReasonForCall == DLL_PROCESS_DETACH)

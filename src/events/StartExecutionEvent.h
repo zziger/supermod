@@ -4,10 +4,12 @@
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 #include "sdk/Game.h"
+#include <spdlog/spdlog.h>
 
 struct StartExecutionEvent final : IEvent<"startExecution", StartExecutionEvent> {};
 
 HOOK_FN_CONV(inline int, can_start_game, ARGS(const char* lpName), __cdecl) {
+    spdlog::trace("StartExecution event");
     EventManager::Emit(StartExecutionEvent{});
     return 1;
 }

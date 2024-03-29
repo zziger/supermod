@@ -1,10 +1,12 @@
 #include "ModInstaller.h"
 
+#include <logs/Console.h>
 #include <events/D3dInitEvent.h>
 #include <events/EventManager.h>
 #include <events/TickEvent.h>
 #include <modloader/ModManager.h>
 #include <sdk/Game.h>
+#include <spdlog/spdlog.h>
 #include <ui/NotificationManager.h>
 #include <utils/TempManager.h>
 
@@ -14,8 +16,8 @@ void modloader::ModInstaller::Init()
 {
     EventManager::On<D3dInitEvent>([]
     {
-        if (FAILED(OleInitialize(nullptr))) Log::Error << "Failed to initialize OLE" << Log::Endl;
-        if (FAILED(RegisterDragDrop(*sdk::Game::window, &dropTarget))) Log::Error << "Failed to register Drag'n'Drop" << Log::Endl;
+        if (FAILED(OleInitialize(nullptr))) spdlog::error("Failed to initialize OLE");
+        if (FAILED(RegisterDragDrop(*sdk::Game::window, &dropTarget))) spdlog::error("Failed to register drag and drop target");
         ScanCmdline();
     });
 }
@@ -62,7 +64,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
     const auto infoFilesystem = std::static_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
     if (mod->IsActive())
     {
-        throw Error("Mod should be disabled");
+        throw Error("Обновляемый мод должен быть выключен");
     }
 
     mod->Toggle(false);
@@ -79,7 +81,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
     catch(const std::exception& err)
     {
         ui::NotificationManager::Notify(std::format("Не удалось обновить мод {}.\n{}", info->GetID(), err.what()));
-        Log::Debug << "Failed to install mod " << info->GetID() << ", attempting to recover state:" << err.what() << Log::Endl;
+        spdlog::debug("Failed to install mod {}, attempting to recover state: {}", Console::StyleModName(info->GetID()), err.what());
 
         try
         {
@@ -91,7 +93,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
         catch(const std::exception& errInner)
         {
             ui::NotificationManager::Notify(std::format("Не удалось вернуть мод {} в прежнее состояние.\n{}", info->GetID(), err.what()));
-            Log::Error << "Failed to recover initial mod state: " << errInner.what() << Log::Endl;
+            spdlog::error("Failed to recover previous mod {}: {}", Console::StyleModName(info->GetID()), errInner.what());
         }
         throw;
     }

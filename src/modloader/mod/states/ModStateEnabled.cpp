@@ -1,6 +1,5 @@
 #include "ModStateEnabled.h"
 
-#include <Log.h>
 #include <modloader/files/ModFileResolver.h>
 
 #include "ModStateDisabled.h"

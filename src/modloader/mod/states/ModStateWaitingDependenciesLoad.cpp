@@ -1,6 +1,5 @@
 #include "ModStateWaitingDependenciesLoad.h"
 
-#include <Log.h>
 #include <modloader/ModManager.h>
 #include <modloader/mod/Mod.h>
 

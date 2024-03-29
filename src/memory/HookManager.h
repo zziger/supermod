@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <string>
+#include <format>
+#include <LuaContext.h>
 
 #include "Memory.h"
 

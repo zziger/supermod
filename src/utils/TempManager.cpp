@@ -1,7 +1,7 @@
 #include "TempManager.h"
 
-#include <Log.h>
 #include <sdk/Game.h>
+#include <spdlog/spdlog.h>
 
 std::filesystem::path TempManager::GetTempRoot()
 {
@@ -50,7 +50,7 @@ void TempManager::RemoveTempDir(const std::filesystem::path& path)
     }
     catch(const std::exception& err)
     {
-        Log::Warn << "Failed to remove temp directory " << path.string() << ": " << err.what() << Log::Endl;
+        spdlog::error("Failed to remove temp directory {}: {}", path.string(), err.what());
     }
 }
 

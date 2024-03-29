@@ -5,13 +5,13 @@
 #include <game/AssetPool.h>
 #include <game/SoundHost.h>
 #include <modloader/files/ModFileResolver.h>
+#include <spdlog/spdlog.h>
 
 namespace modloader {
     MusicLoader::MusicLoader()
     {
         EventManager::On<SoundHostInitEvent>([this]
         {
-            Log::Debug << "Sound host init" << Log::Endl;
             std::unordered_set<std::string> defaultMusic{};
 
             for (const auto& entry : std::filesystem::directory_iterator(sdk::Game::GetDataPath() / "audio" / "music"))
@@ -53,7 +53,7 @@ namespace modloader {
         {
             if (soundMemory.contains(filename)) free(soundMemory[filename]);
             if (index != -1) host->RemoveMusic(index);
-            Log::Info << "Музыка " << filename << " выгружена" << Log::Endl;
+            spdlog::debug("Unloaded music from {}", filename);
             return true;
         }
 
@@ -67,16 +67,16 @@ namespace modloader {
         if (!stream) {
             free(soundMemory[filename]);
             soundMemory.erase(filename);
-            Log::Error << "Не удалось загрузить файл " << filename << ". Ошибка: " << BASS_ErrorGetCode() << Log::Endl;
+            spdlog::error("Failed to load music {}: BASS error {}", filename, BASS_ErrorGetCode());
             return true;
         }
 
         if (index == -1) {
             host->LoadMusic(filename, stream);
-            Log::Info << "Музыка " << filename << " загружена" << Log::Endl;
+            spdlog::debug("Loaded music from {}", filename);
         } else {
             host->ReplaceMusic(index, stream);
-            Log::Info << "Музыка " << filename << " перезагружена" << Log::Endl;
+            spdlog::debug("Reloaded music {}", filename);
         }
 
         return true;

@@ -1,12 +1,14 @@
 #include "ModManager.h"
 
 #include <Config.h>
-#include <Log.h>
+#include <logs/Console.h>
 #include <events/D3dInitEvent.h>
 #include <events/TickEvent.h>
 #include <mod/ModImplInternal.h>
 #include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/bundled/color.h>
 #include <ui/NotificationManager.h>
 
 #include "install/ModInstaller.h"
@@ -38,7 +40,7 @@ void modloader::ModManager::ScanMods(const bool init)
     const auto modsPath = sdk::Game::GetModsPath();
     if (!exists(modsPath))
     {
-        Log::Warn << "Skipped mods scanning: Mods folder does not exist" << Log::Endl;
+        spdlog::warn("Skipped mods scanning: Mods folder does not exist");
         return;
     }
 
@@ -56,7 +58,7 @@ void modloader::ModManager::ScanMods(const bool init)
         }
         catch(const std::exception& err)
         {
-            Log::Error << "Failed to create mod from " << file.path().string() << ": " << err.what() << Log::Endl;
+            spdlog::error("Failed to create mod from {}: {}", file.path().string(), err.what());
             ui::NotificationManager::Notify(std::format("Не удалось загрузить мод из {}.\n{}", file.path().string(), err.what()));
         }
 
@@ -64,9 +66,9 @@ void modloader::ModManager::ScanMods(const bool init)
 
         if (foundIDs.contains(id))
         {
-            Log::Warn << "Found multiple mods with same ID: " << id << ". Disabling mod at " << file.path().string() << Log::Endl;
+            spdlog::warn("Found multiple mods with same ID: {}. Disabling mod at {}", id, file.path().string());
             std::filesystem::rename(file.path(), file.path().parent_path() / ("." + file.path().filename().string()));
-            ui::NotificationManager::Notify(std::format("Найдено несколько модов с ID {}. Дополнительные моды были выключены", id), ui::Notification::WARN);
+            ui::NotificationManager::Notify(std::format("Найдено несколько модов с ID {}. Мод {} был выключен", id, file.path().filename().string()), ui::Notification::WARN);
             continue;
         }
 
@@ -225,7 +227,7 @@ void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& 
                 remove_all(info->basePath);
             } catch(const std::exception& err)
             {
-                Log::Error << "Failed to remove " << info->basePath.string() << ": " << err.what() << Log::Endl;
+                spdlog::error("Failed to remove {}: {}", info->basePath.string(), err.what());
                 ui::NotificationManager::Notify(std::format("Не удалось удалить папку {}.\n{}", info->basePath.string(), err.what()));
             }
         }
@@ -245,6 +247,12 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
 {
     const auto state = mod->IsEnabled();
     if (state == enabled) return;
+
+    spdlog::info(
+        "{} mod {} with dependencies",
+        Console::StyleToggle(enabled ? "Enabling" : "Disabling", enabled),
+        Console::StyleModName(mod->GetID())
+    );
 
     if (enabled)
     {
@@ -328,8 +336,7 @@ void modloader::ModManager::UpdateStates()
     } while(IsDirty(DirtyFlag::STATES) && tickCounter < MAX_STATE_UPDATE_TICKS);
 
     if (tickCounter >= MAX_STATE_UPDATE_TICKS)
-        Log::Warn << "Reached mod state update tick limit per script tick. Calculated "
-                  << static_cast<int>(tickCounter) << " update ticks in 1 script tick" << Log::Endl;
+        spdlog::warn("Reached mod state update tick limit per script tick. Calculated {} update ticks in 1 script tick", tickCounter);
 }
 
 void modloader::ModManager::UpdateDeps()
@@ -373,7 +380,8 @@ void modloader::ModManager::ValidateConfig()
 
     if (!cfg["mods"].IsMap())
     {
-        if (cfg["mods"] && !cfg["mods"].IsNull()) Log::Warn << "'mods' in modcfg.yml was not a map. Overriding with an empty map instead" << Log::Endl;
+        if (cfg["mods"] && !cfg["mods"].IsNull())
+            spdlog::warn("'mods' in modcfg.yml was not a map. Overriding with an empty map instead");
         cfg["mods"] = YAML::Node(YAML::NodeType::Map);
     }
 

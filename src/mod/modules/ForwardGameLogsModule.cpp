@@ -1,5 +1,6 @@
 ﻿#include "ForwardGameLogsModule.h"
 
+#include <logs/Console.h>
 #include <ui/widgets/widgets.h>
 
 #include "Config.h"
@@ -11,7 +12,7 @@ HOOK_FN(int, debug_log, ARGS(char* format, ...)) {
     va_start(va, format);
     char buffer[1024];
     vsprintf_s(buffer, 1024, format, va);
-    Log::Game << buffer << Log::Endl;
+    Console::gameLogger->info(buffer);
     return 0;
 }
 

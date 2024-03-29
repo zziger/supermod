@@ -1,6 +1,5 @@
 #include "ModFileResolver.h"
 
-#include <Log.h>
 #include <ranges>
 #include <events/EventManager.h>
 #include <events/ResolveFileEvent.h>
@@ -73,7 +72,7 @@ namespace modloader {
         if (extension.empty()) return;
 
         if (!loaders.contains(extension)) {
-            Log::Debug << "No loader for file " << path << Log::Endl;
+            spdlog::trace("No loader found for file {}", path.string());
             return;
         }
 
@@ -82,7 +81,7 @@ namespace modloader {
             if (loader->Load(path)) return;
         }
 
-        Log::Debug << "All loaders failed to load file " << path << Log::Endl;
+        spdlog::debug("All loaders failed to laod file {}", path.string());
     }
 
     void ModFileResolver::LoadFiles(const std::filesystem::path& path)

@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <tga.h>
 
-#include "Log.h"
 #include "TextureLoader.h"
 #include <d3d8/d3d8helpers.h>
 #include "sdk/DirectX.h"

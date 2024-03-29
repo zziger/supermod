@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include <string>
+#include <filesystem>
+#include <Data.h>
+#include <LuaContext.h>
 
 #include "memory/Memory.h"
 #include <d3d8/d3d8helpers.h>

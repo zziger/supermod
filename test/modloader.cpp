@@ -1,4 +1,3 @@
-#include <Log.h>
 #include <gtest/gtest.h>
 #include <modloader/ModManager.h>
 #include <modloader/mod/states/ModStateWaitingDependentsUnload.h>

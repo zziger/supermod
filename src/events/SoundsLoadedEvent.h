@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <filesystem>
+#include <spdlog/spdlog.h>
 
 #include "EventManager.h"
 #include "Utils.h"
@@ -11,7 +12,7 @@ struct SoundsLoadedEvent final : IEvent<"soundsLoaded", SoundsLoadedEvent> {};
 
 HOOK_FN(inline int, load_sounds, ARGS()) {
     const auto res = load_sounds_orig();
-    Log::Debug << "Звуки игры загружены" << Log::Endl;
+    spdlog::trace("SoundsLoaded event");
     EventManager::Emit(SoundsLoadedEvent{});
     return res;
 }

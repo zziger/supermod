@@ -1,7 +1,10 @@
 ﻿#include "AssetPool.h"
 
+#include <logs/Console.h>
 #include <ranges>
 #include <modloader/files/ModFileResolver.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/bundled/color.h>
 
 #include "events/TickEvent.h"
 #include "sdk/Game.h"
@@ -87,7 +90,7 @@ namespace game
             return PngLoader::LoadPng(path, size, canvasSizeMultiplier);
         }
 
-        Log::Error << "Unknown texture extension " << ext << Log::Endl;
+        spdlog::error("Unknown texture extension {}", ext);
         return nullptr;
     }
 
@@ -156,7 +159,7 @@ namespace game
         
         if (!tex) 
         {
-            Log::Error << "Game texture " << path << " not found" << Log::Endl;
+            spdlog::error("Game texture {} not found", path.string());
             
             found = false;
             size = { 256, 256 };
@@ -180,7 +183,7 @@ namespace game
         asset->meta->origName = name;
 
         if (found && !modName.empty())
-            Log::Warn << "Loaded " << name << " from mod " << modName << Log::Endl;
+            spdlog::debug("Loaded texture {} from mod {}", Console::StyleEmphasise(name), Console::StyleModName(modName));
         
         return asset;
     }
@@ -203,13 +206,13 @@ namespace game
 
         if (asset->meta->loadedManually)
         {
-            Log::Warn << "Перезагрузка текстуры " << filename << " невозможна, так как она была загружена вручную" << Log::Endl;
+            spdlog::warn("Cannot reload texture {}, because it was loaded manually", filename);
             return false;
         }
 
         if (asset->meta->origDir.empty() || asset->meta->origName.empty())
         {
-            Log::Warn << "Перезагрузка текстуры " << filename << " невозможна, так как она была загружена из неизвестного места" << Log::Endl;
+            spdlog::warn("Cannot reload texture {}, because it was loaded from an unknown location", filename);
             return false;
         }
 
@@ -220,7 +223,7 @@ namespace game
         {
             size = { 256, 256 };
             texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, asset->meta->canvasSizeMultiplier);
-            Log::Error << "Не удалось перезагрузить текстуру " << filename << " (" + key + ")" << Log::Endl;
+            spdlog::error("Failed to reload texture {} ({})", filename, key);
         }
 
         sdk::DirectX::RemoveTexture(asset->texture);
@@ -228,7 +231,7 @@ namespace game
         asset->width = size.x;
         asset->height = size.y;
 
-        Log::Info << "Текстура " << filename << " (" + key + ") перезагружена" << Log::Endl;
+        spdlog::debug("Reloaded texture {} ({})", filename, key);
         return true;
     }
     
@@ -272,7 +275,7 @@ namespace game
         if (!tex) tex = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier);
 
         if (notFound)
-            Log::Error << "Texture " << path << " not found" << Log::Endl;
+            spdlog::error("Texture {} not found", path.string());
         
         const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
         if (asset->texture) sdk::DirectX::RemoveTexture(asset->texture);

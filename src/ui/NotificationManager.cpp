@@ -3,7 +3,7 @@
 #include <IconsMaterialDesign.h>
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <Log.h>
+#include <spdlog/spdlog.h>
 
 #include "Ui.h"
 
@@ -121,5 +121,10 @@ namespace ui
     void NotificationManager::Notify(const std::string& message, const Notification::Type level, const std::string& header)
     {
         notifications.push_back(std::make_shared<Notification>(Notification { lastId++, level, message, header }));
+
+        auto logLevel = spdlog::level::info;
+        if (level == Notification::ERR) logLevel = spdlog::level::err;
+        else if (level == Notification::WARN) logLevel = spdlog::level::warn;
+        spdlog::log(logLevel, "Notification: {} {}", message, !header.empty() ? std::format("({})", header) : "");
     }
 }

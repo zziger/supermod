@@ -1,9 +1,10 @@
 #include "Mod.h"
 
 #include <cassert>
+#include <logs/Console.h>
 #include <utility>
-#include <Log.h>
 #include <modloader/ModManager.h>
+#include <spdlog/spdlog.h>
 
 #include "states/ModStateDisabled.h"
 
@@ -28,11 +29,21 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
 {
     assert(state && "Tried to set empty state pointer to mod");
 
-    Log::Debug << "State update for mod " << GetInfo()->GetID() << ": " << state->GetLabel() << Log::Endl;
+    if (!HasFlag(Flag::INTERNAL)) spdlog::debug("State update for mod {}: {}", Console::StyleModName(GetInfo()->GetID()), state->GetLabel());
     this->state = std::move(state);
     this->state->Init(*this);
     ModManager::MarkDirty(ModManager::DirtyFlag::STATES);
     lastStateUpdate = std::chrono::steady_clock::now();
+}
+
+void modloader::Mod::Toggle(const bool value)
+{
+    if (!HasFlag(Flag::INTERNAL)) spdlog::info(
+        "{} mod {}",
+        Console::StyleToggle(value ? "Enabling" : "Disabling", value),
+        Console::StyleModName(GetID())
+    );
+    SetFlag(Flag::ENABLED, value);
 }
 
 void modloader::Mod::Update()

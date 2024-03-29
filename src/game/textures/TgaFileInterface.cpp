@@ -1,5 +1,4 @@
 #include "TgaFileInterface.h"
-#include <Log.h>
 
 TgaFileInterface::TgaFileInterface(const std::filesystem::path& path)
 {

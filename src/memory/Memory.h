@@ -10,7 +10,6 @@
 #include <Psapi.h>
 #include <cstdint>
 #include <MinHook.h>
-#include <Log.h>
 
 
 #define MAX_SIG_SIZE 128

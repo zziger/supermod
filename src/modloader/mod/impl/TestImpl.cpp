@@ -1,18 +1,17 @@
 #include "TestImpl.h"
 
-#include <Log.h>
+#include <spdlog/spdlog.h>
 
 void modloader::TestImpl::OnEnabled()
 {
-    Log::Info << "On enabled Impl " << info->GetID() << Log::Endl;
+    spdlog::debug("ModTestImpl {} was enabled", info->GetID());
 }
 
 void modloader::TestImpl::OnDisabled()
 {
-    Log::Info << "On disabled Impl " << info->GetID() << Log::Endl;
+    spdlog::debug("ModTestImpl {} was disabled", info->GetID());
 }
 
 void modloader::TestImpl::OnTick()
 {
-    // Log::Info << "On tick " << info->GetID() << Log::Endl;
 }

@@ -11,6 +11,7 @@
 #include <modloader/ModManager.h>
 #include <modloader/install/ModInstaller.h>
 #include <modloader/mod/Mod.h>
+#include <spdlog/spdlog.h>
 
 #include "Config.h"
 #include "NotificationManager.h"
@@ -137,7 +138,7 @@ void Ui::Render() {
         windows::DropTarget();
         EventManager::Emit(UiRenderEvent());
     } catch(std::exception& e) {
-        Log::Error << "Произошла ошибка в отрисовке кадра: " << e.what() << Log::Endl;
+        spdlog::error("Error in ImGui render function: {}", e.what());
     }
     
     ImGui::ErrorCheckEndFrameRecover(ImGuiErrorHandler, nullptr);
@@ -227,15 +228,20 @@ void Ui::Init() {
         try
         {
             InitImGui();
+        } catch(const std::exception& e)
+        {
+            spdlog::error("Failed to init ImGui: {}", e.what());
+            return;
+        }
+
+        try
+        {
             Render();
         } catch(const std::exception& e)
         {
-            Log::Error << "Failed to render frame: " << e.what() << Log::Endl;
+            spdlog::error("Failed to render ImGui frame: {}", e.what());
         }
     });
-    // EventManager::On<AfterTickEvent>([] {
-    //     PostRender();
-    // });
 
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? C7 45 ? ? ? ? ? EB ? 8B 45 ? 83 C0 ? 89 45 ? 8B 4D ? 8B 55 ? 3B 91 ? ? ? ? 7D ? 8B 45 ? 8B 4D ? 8B 54 81 ? 0F B6 82",
         HOOK_REF_FORCE(AssetPool__freeAssetsFromD3d));
@@ -250,7 +256,7 @@ void Ui::ImGuiErrorHandler(void* source, const char* msg, ...)
     va_start(va, msg);
     char buffer[1024];
     vsprintf_s(buffer, 1024, msg, va);
-    Log::Warn << "Ошибка стека ImGui" << (source ? " " : "") << (source ? static_cast<const char*>(source) : "") << ":\n\t" << buffer << Log::Endl;
+    spdlog::error("ImGui stack error while rendering {}:\n\t{}", source ? static_cast<const char*>(source) : "frame", buffer);
 }
 
 inline EventManager::Ready $ui_ready([] {

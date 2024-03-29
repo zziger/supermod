@@ -1,6 +1,8 @@
 ﻿#include "ModImplLua.h"
 
+#include <logs/Console.h>
 #include <modloader/mod/info/ModInfoFilesystem.h>
+#include <spdlog/spdlog.h>
 
 #include "Config.h"
 #include "assets/assets.h"
@@ -23,6 +25,7 @@ namespace modloader
         const auto fullPath = infoFs->basePath / scriptPath;
         if (!exists(fullPath) || is_directory(fullPath)) throw Error(std::format("Скрипт {} не найден", fullPath.generic_string()));
 
+        logger = Console::mainLogger->clone("mod " + info->GetID());
         lua = std::make_shared<LuaContext>(true);
 
         lua->appendPath((infoFs->basePath / "?.lua").generic_string());
@@ -48,7 +51,7 @@ namespace modloader
         // lua->writeVariable("currentMod", info);
         // TODO: currentMod
 
-        Log::AddToLua(*lua);
+        Console::AddToLua(logger, *lua);
         sdk::Game::AddDataToLua(*lua);
         sdk::Game::AddToLua(*lua);
         game::AssetPool::AddToLua(*lua);
@@ -76,12 +79,12 @@ namespace modloader
             }
             catch(const std::exception& e)
             {
-                Log::Error << "SAFECALL resulted in a C++ exception: " << e.what() << Log::Endl;
+                logger->error("Lua safecall resulted in a C++ exception: {}", e.what());
             }
             catch(...)
             {
-                Log::Error << "SAFECALL resulted in an unknown exception." << Log::Endl;
-                std::cout << "LUA stack:" << std::endl;
+                logger->error("Lua safecall resulted in an unknown exception");
+                std::cout << "LUA stack:" << std::endl; // TODO: rewrite
                 lua->dumpstack(lua->getState());
             }
         }));
@@ -105,7 +108,7 @@ namespace modloader
             auto fn = lua->readVariable<tl::optional<std::function<void()>>>("renderUi");
             if (fn) (*fn)();
         } catch (std::exception& e) {
-            Log::Error << "Ошибка рендера UI в моде " << info->GetID() << " :" << e.what() << Log::Endl;
+            logger->error("UI render error: {}", e.what());
         }
     }
 
@@ -119,7 +122,7 @@ namespace modloader
                 if (auto fn = lua->readVariable<tl::optional<std::function<void()>>>("__tick"))
                     (*fn)();
             } catch (std::exception& e) {
-                Log::Error << "Ошибка обработки таймеров " << info->GetID() << " :" << e.what() << Log::Endl;
+                logger->error("Timer error: {}", e.what());
             }
         }
 
@@ -127,7 +130,7 @@ namespace modloader
             auto fn = lua->readVariable<tl::optional<std::function<void()>>>("render");
             if (fn) (*fn)();
         } catch (std::exception& e) {
-            Log::Error << "Ошибка рендера в моде " << info->GetID() << " :" << e.what() << Log::Endl;
+            logger->error("Render error: {}", e.what());
         }
     }
 }

@@ -1,7 +1,6 @@
 #include "Config.h"
 
 #include <filesystem>
-#include <Log.h>
 
 Config::Config()
 {

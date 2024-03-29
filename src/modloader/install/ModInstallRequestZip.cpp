@@ -6,6 +6,7 @@
 #include <modloader/ModManager.h>
 #include <sdk/DirectX.h>
 #include <sdk/Game.h>
+#include <spdlog/spdlog.h>
 #include <utils/TempManager.h>
 #include <yaml-cpp/yaml.h>
 
@@ -64,14 +65,14 @@ namespace modloader {
                     }
                     catch(const std::exception& err)
                     {
-                        Log::Error << "Failed to install zip mod: " << err.what() << Log::Endl;
+                        spdlog::error("Failed to install zip mod: {}", err.what());
                         TempManager::RemoveTempDir(path);
                         error = err.what();
                         state = State::IDLE;
                     }
                     catch(...)
                     {
-                        Log::Error << "Failed to install zip mod: Unknown error" << Log::Endl;
+                        spdlog::error("Failed to install zip mod: Unknown error");
                         TempManager::RemoveTempDir(path);
                         error = "Unknown error";
                         state = State::IDLE;

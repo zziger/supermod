@@ -41,9 +41,9 @@
 //  2018-02-16: Misc: Obsoleted the io.RenderDrawListsFn callback and exposed ImGui_ImplDX9_RenderDrawData() in the .h file so you can call it yourself.
 //  2018-02-06: Misc: Removed call to ImGui::Shutdown() which is not available from 1.60 WIP, user needs to call CreateContext/DestroyContext themselves.
 
-#include <Log.h>
 #include <d3d8/d3d8.hpp>
 #include <d3d8/d3d8to9.hpp>
+#include <spdlog/spdlog.h>
 
 #include "imgui.h"
 #ifndef IMGUI_DISABLE
@@ -300,7 +300,7 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
                     }
                 } catch(const std::exception& e)
                 {
-                    Log::Error << "Failed to render image " << std::hex << reinterpret_cast<int>(pcmd->GetTexID()) << std::dec << ": " << e.what() << Log::Endl;
+                    spdlog::error("Failed to render image {:p}: {}", fmt::ptr(pcmd->GetTexID()), e.what());
                 }
 
                 if (texture)
