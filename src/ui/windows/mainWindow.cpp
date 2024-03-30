@@ -55,7 +55,7 @@ namespace ui
         ImGui::SetNextWindowSizeConstraints(ImVec2(500, menuSize + headerSize), ImVec2(FLT_MAX, FLT_MAX));
         Ui::ConstraintWindow("###MainWindow");
 
-        if (ImGui::Begin(std::format("SuperMod / {}###MainWindow", main::VIEW_NAMES[main::currentView]).c_str())) {
+        if (ImGui::Begin(std::format("SuperMod / {}###MainWindow", main::VIEW_NAMES[main::currentView]).c_str(), &Ui::menuOpen)) {
             ImGui::BeginChild("menu", ImVec2(Ui::ScaledPx(fontSize), 0));
 
             ImGui::BeginChild("upper", ImVec2(Ui::ScaledPx(fontSize), (-Ui::ScaledPx(fontSize) - spacing.y * 2) * 2));
