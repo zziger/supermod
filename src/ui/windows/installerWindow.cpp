@@ -3,6 +3,7 @@
 #include <modloader/ModManager.h>
 #include <modloader/install/ModInstaller.h>
 #include <sdk/Game.h>
+#include <ui/Ui.h>
 #include <ui/styles/styles.h>
 #include <ui/widgets/widgets.h>
 
@@ -30,8 +31,7 @@ void ui::windows::Installer()
     const auto canInstall = !mod || !mod->IsActive();
 
     ImGui::OpenPopup("###Installer");
-    const auto center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    Ui::FixNextPopupModal();
     ImGui::SetNextWindowSize(ImVec2{700, 500}, ImGuiCond_Appearing);
     if (ImGui::BeginPopupModal(
         std::format("{} мода {} из {}###Installer", mod ? "Обновление" : "Установка", index + 1,

@@ -1,12 +1,14 @@
 #include <Config.h>
 #include <imgui.h>
 #include <sdk/Game.h>
+#include <ui/Ui.h>
 #include <ui/styles/styles.h>
 
 #include "popups.h"
 
 void ui::popups::DisableSuperMod(const bool restart)
 {
+    Ui::FixNextPopupModal();
     if (ImGui::BeginPopupModal("Выключение SuperMod###Disable SuperMod", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::Text("Вы уверены, что хотите выключить SuperMod?");

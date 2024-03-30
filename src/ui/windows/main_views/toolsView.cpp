@@ -83,10 +83,11 @@ void ui::windows::main::ToolsView()
         ui::widgets::HelpMarker("Это действие недоступно в полноэкранном режиме");
     }
 
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    Ui::FixNextPopupModal();
     if (ImGui::BeginPopupModal("Перезапуск игры", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+        ImGui::BringWindowToFocusFront(ImGui::GetCurrentWindow());
         ImGui::Text("Вы уверены, что хотите перезапустить игру?");
 
         if (ImGui::Button("Да"))
@@ -104,7 +105,7 @@ void ui::windows::main::ToolsView()
         ImGui::EndPopup();
     }
 
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    Ui::FixNextPopupModal();
     if (ImGui::BeginPopupModal("Изменить размер окна", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::Text("Выберите новый размер окна:");

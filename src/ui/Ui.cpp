@@ -209,6 +209,18 @@ void Ui::PopFont()
     fonts->PopFont();
 }
 
+void Ui::FixNextPopupModal(bool center)
+{
+    ImGuiWindowClass noAutoMerge;
+    noAutoMerge.ViewportFlagsOverrideSet = ImGuiViewportFlags_NoAutoMerge | ImGuiViewportFlags_TopMost;
+    ImGui::SetNextWindowClass(&noAutoMerge);
+    if (center)
+    {
+        ImVec2 viewportCenter = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(viewportCenter, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    }
+}
+
 static inline int (__thiscall *AssetPool__freeAssetsFromD3d_orig)(void* this_) = nullptr;
 static int __fastcall AssetPool__freeAssetsFromD3d(void* this_, void*) {
     ImGui_ImplDX9_InvalidateDeviceObjects();

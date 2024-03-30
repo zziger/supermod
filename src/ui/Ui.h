@@ -27,6 +27,7 @@ namespace ui
         static float ScaledPx(float px);
         static void PushFont(float size, FontManager::FontType type = FontManager::DEFAULT);
         static void PopFont();
+        static void FixNextPopupModal(bool center = true);
 
         static void Init();
 
