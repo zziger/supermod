@@ -51,7 +51,7 @@ namespace ui
         const auto headerSize = ImGui::GetFontSize();
 
         // ImGui::ShowDemoWindow();
-        ImGui::SetNextWindowSize(ImVec2(700, 300), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(700, 300), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSizeConstraints(ImVec2(500, menuSize + headerSize), ImVec2(FLT_MAX, FLT_MAX));
         Ui::ConstraintWindow("###MainWindow");
 
