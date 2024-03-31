@@ -34,7 +34,9 @@ static std::string imguiLogFilename;
 
 void Ui::InitImGui() {
     if (initialized) return;
-        
+
+    auto& cfg = Config::Get();
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -50,6 +52,7 @@ void Ui::InitImGui() {
         
     LoadFonts();
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
+    io.ConfigDockingWithShift = cfg.imgui.dockingWithShift;
 
     ImGui_ImplWin32_Init(*sdk::Game::window);
     ImGui_ImplDX9_Init(sdk::DirectX::GetDx9());

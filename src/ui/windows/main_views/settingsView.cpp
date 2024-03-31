@@ -115,6 +115,19 @@ void ui::windows::main::SettingsView()
     }
     ImGui::PopID();
 
+    ImGui::PushID("imgui");
+    {
+        ImGui::Spacing();
+        ImGui::SeparatorText("ImGui");
+        if (ImGui::Checkbox("Совмещать окна только с зажатой клавишей Shift", &cfg.imgui.dockingWithShift))
+        {
+            cfg.Save();
+            ImGuiIO& io = ImGui::GetIO();
+            io.ConfigDockingWithShift = cfg.imgui.dockingWithShift;
+        }
+    }
+    ImGui::PopID();
+
     ImGui::PushID("dev");
     {
         ImGui::Spacing();

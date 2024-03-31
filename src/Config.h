@@ -69,12 +69,17 @@ public:
         int maxFiles = 5;
         bool limitFiles = true;
     } log {};
+    struct
+    {
+        bool dockingWithShift = true;
+    } imgui {};
 
     #define LINK(struct, path) if (read) struct = node##path.as<decltype(struct)>(struct); else node##path = struct
     #define LINK_T(struct, path, type) if (read) struct = static_cast<decltype(struct)>(node##path.as<type>(static_cast<type>(struct))); else node##path = static_cast<type>(struct)
     void Process(const bool read)
     {
         LINK(disabled, ["disabled"]);
+        LINK(console, ["console"]);
         LINK(console, ["console"]);
         LINK(watermark.show, ["watermark"]["show"]);
         LINK_T(watermark.position, ["watermark"]["position"], int);
@@ -83,6 +88,7 @@ public:
         LINK(patches.forwardGameLogs.enabled, ["patches"]["forwardGameLogs"]["enabled"]);
         LINK(patches.forwardGameLogs.writeToLog, ["patches"]["forwardGameLogs"]["writeToLog"]);
         LINK(developer.showImGuiDemo, ["developer"]["showImGuiDemo"]);
+        LINK(imgui.dockingWithShift, ["imgui"]["dockingWithShift"]);
         LINK_T(log.level, ["log"]["level"], int);
         LINK(log.maxFiles, ["log"]["maxFiles"]);
         LINK(log.limitFiles, ["log"]["limitFiles"]);
