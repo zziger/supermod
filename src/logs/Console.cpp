@@ -70,7 +70,7 @@ void Console::Initialize()
         if (DWORD dwMode = 0; GetConsoleMode(hOut, &dwMode))
             SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
-    CleanupLogs();
+    // CleanupLogs();
 
     std::vector<std::shared_ptr<spdlog::sinks::sink>> sinks {};
 
@@ -98,7 +98,7 @@ void Console::Initialize()
     gameLogger = std::make_shared<spdlog::logger>("game", begin(sinks), end(sinks));
     gameLogger->set_level(spdlog::level::info);
 
-    spdlog::flush_every(std::chrono::seconds(1));
+    // spdlog::flush_every(std::chrono::seconds(1));
 
     Update();
 }

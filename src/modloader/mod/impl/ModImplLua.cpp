@@ -1,16 +1,16 @@
 ﻿#include "ModImplLua.h"
 
 #include <logs/Console.h>
-#include <modloader/mod/info/ModInfoFilesystem.h>
+#include "../info/ModInfoFilesystem.h"
 #include <spdlog/spdlog.h>
 
-#include "Config.h"
-#include "assets/assets.h"
-#include "Utils.h"
-#include "events/TickEvent.h"
-#include "events/WindowEvent.h"
-#include "sdk/Game.h"
-#include "sdk/Graphics.h"
+#include <Config.h>
+#include <assets/assets.h>
+#include <Utils.h>
+#include <events/TickEvent.h>
+#include <events/WindowEvent.h>
+#include <sdk/Game.h>
+#include <sdk/Graphics.h>
 
 namespace modloader
 {
@@ -59,17 +59,20 @@ namespace modloader
         Config::AddToLua(*lua, info->GetID());
         HookManager::AddToLua(*lua);
 
-        lua->executeCode(*utils::read_resource(LUA_BASE_MODULE), "internal");
+        {
+            auto sdk = utils::read_zip_resource(LUA_SDK_ZIP);
+            lua->executeCode(sdk->read("library/base.lua"), "internal");
 
-        lua->RegisterEventMethods();
-        lua->executeModule("events", *utils::read_resource(LUA_MODULE_EVENTS));
-        lua->HideEventMethods();
+            lua->RegisterEventMethods();
+            lua->executeModule("events", sdk->read("library/events.lua"));
+            lua->HideEventMethods();
 
-        lua->executeModule("imguicdecl", *utils::read_resource(LUA_MODULE_IMGUI_CDECL));
-        lua->executeModule("imgui", *utils::read_resource(LUA_MODULE_IMGUI));
-        lua->executeModule("memory", *utils::read_resource(LUA_MODULE_MEMORY));
-        lua->executeModule("timers", *utils::read_resource(LUA_MODULE_TIMERS));
-        lua->executeModule("config", *utils::read_resource(LUA_MODULE_CONFIG));
+            lua->executeModule("imguicdecl", sdk->read("library/imguicdecl.lua"));
+            lua->executeModule("imgui", sdk->read("library/imgui.lua"));
+            lua->executeModule("memory", sdk->read("library/memory.lua"));
+            lua->executeModule("timers", sdk->read("library/timers.lua"));
+            lua->executeModule("config", sdk->read("library/config.lua"));
+        }
 
         lua->writeVariable("safecall",  std::function([this](const std::function<void()> cb) {
             if (!lua) return;

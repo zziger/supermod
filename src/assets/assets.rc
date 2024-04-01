@@ -1,10 +1,4 @@
 #include "assets.h"
 
-LUA_MODULE_IMGUI_CDECL RCDATA "../scripting/env/library/imguicdecl.lua"
-LUA_MODULE_IMGUI RCDATA "../scripting/env/library/imgui.lua"
-LUA_MODULE_MEMORY RCDATA "../scripting/env/library/memory.lua"
-LUA_MODULE_EVENTS RCDATA "../scripting/env/library/events.lua"
-LUA_MODULE_TIMERS RCDATA "../scripting/env/library/timers.lua"
-LUA_MODULE_CONFIG RCDATA "../scripting/env/library/config.lua"
-LUA_BASE_MODULE RCDATA "../scripting/env/library/base.lua"
+LUA_SDK_ZIP RCDATA "lua.zip"
 RES_LOGO RCDATA "./icon.png"

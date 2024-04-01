@@ -134,3 +134,4 @@ vsxmake2022/*
 .cache
 
 !deps/*.dll
+/src/assets/lua.zip

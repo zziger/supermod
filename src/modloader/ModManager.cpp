@@ -5,7 +5,6 @@
 #include <events/D3dInitEvent.h>
 #include <events/TickEvent.h>
 #include <mod/ModImplInternal.h>
-#include <scripting/ModImplLua.h>
 #include <sdk/Game.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/color.h>
@@ -13,6 +12,7 @@
 
 #include "install/ModInstaller.h"
 #include "mod/impl/TestImpl.h"
+#include "mod/impl/ModImplLua.h"
 #include "install/ModInstallRequestDiscover.h"
 #include "install/ModInstallRequestZip.h"
 #include "install/ZipModDropTarget.h"

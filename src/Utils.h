@@ -11,6 +11,8 @@
 #include <functional>
 #include <optional>
 #include <sstream>
+#include <filesystem>
+#include <zip_file.h>
 
 #define MAX_INPUT_LENGTH 255
 
@@ -107,6 +109,20 @@ namespace utils
         std::string result((char*)LockResource(resHandle), SizeofResource((HMODULE) &__ImageBase, res));
         FreeResource(resHandle);
         return result;
+    }
+
+    inline std::unique_ptr<miniz_cpp::zip_file> read_zip_resource(const int resource) {
+        const auto res = FindResource(reinterpret_cast<HMODULE>(&__ImageBase), MAKEINTRESOURCE(resource), RT_RCDATA);
+        if (!res) return nullptr;
+        const auto resHandle = LoadResource(reinterpret_cast<HMODULE>(&__ImageBase), res);
+        if (!resHandle) return nullptr;
+
+        const auto size = SizeofResource(reinterpret_cast<HMODULE>(&__ImageBase), res);
+        const auto data = static_cast<unsigned char*>(LockResource(resHandle));
+        std::vector vec(data, data + size);
+        FreeResource(resHandle);
+
+        return std::make_unique<miniz_cpp::zip_file>(vec);
     }
 
     inline std::string pluralize(const int count, const std::array<std::string, 3>& words)

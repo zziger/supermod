@@ -17,6 +17,18 @@ option("mod-version")
     set_showmenu(true)
     add_defines("VERSION=\"$(mod-version)\"")
 
+task("pack-resources")
+    on_run(function()
+        import("utils.archive")
+
+        if os.exists("./src/assets/lua.zip") then os.rm("./src/assets/lua.zip") end
+        archive.archive("./src/assets/lua.zip", "./src/lua/*", {})
+
+        -- Change last write date, forcing to relink resources
+        io.writefile("./src/assets/assets.rc", io.readfile("./src/assets/assets.rc"))
+    end)
+task_end()
+
 function add_packagelist()
     add_cxflags("/MP", { force = true })
     add_cxflags("/utf-8", { force = true })
@@ -46,6 +58,11 @@ target("d3d8")
     set_suffixname("")
     add_options("mod-version")
     add_rules("plugin.compile_commands.autoupdate")
+
+    before_build(function (target)
+        import("core.project.task")
+        task.run("pack-resources")
+    end)
 
     add_files("./src/**.cpp")
     add_files("./src/**.def")
