@@ -27,7 +27,7 @@ void modloader::ModInfo::Parse(YAML::Node& node)
     deps = { depsVector.begin(), depsVector.end() };
     socialLinks = node["socialLinks"].as<std::map<std::string, std::string>>(std::map<std::string, std::string>{});
 
-    sdkVersion = semver::version {node["sdk-version"].as<std::string>(VERSION)};
+    sdkVersion = semver::version {node["sdk-version"].as<std::string>(SUPERMOD_VERSION)};
     const auto versions = node["game-versions"].as<std::vector<std::string>>(std::vector<std::string>{});
     if (!versions.empty()) {
         for (const auto& gameVersionString : versions) {

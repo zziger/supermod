@@ -15,7 +15,25 @@ add_requires("spdlog v1.13.0", { configs = { wchar = true }})
 option("mod-version")
     set_default("0.0.0")
     set_showmenu(true)
-    add_defines("VERSION=\"$(mod-version)\"")
+    add_defines("SUPERMOD_VERSION=\"$(mod-version)\"")
+    after_check(function(option)
+         local major, minor, patch = string.match(get_config("mod-version"), "(%d+).(%d+).(%d+)")
+         local build = string.match(get_config("mod-version"), "%-[%w]+%.(%d+)$")
+
+         if not major or not minor then
+            major = "0"
+            minor = "0"
+            patch = "0"
+            cprint("${yellow}Invalid version is specified. Cannot parse version " .. get_config("mod-version"))
+         end
+
+         if not build then
+             build = "0"
+         end
+
+        option:add("defines", "SUPERMOD_VERSION_NUM=" .. major .. "," .. minor .. "," .. patch .. "," .. build)
+    end)
+option_end()
 
 task("pack-resources")
     on_run(function()

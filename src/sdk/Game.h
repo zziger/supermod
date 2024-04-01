@@ -36,7 +36,7 @@ namespace sdk
         static std::filesystem::path GetModsPath();
 
         static constexpr semver::version GetSdkVersion() {
-            return semver::version { VERSION };
+            return semver::version { SUPERMOD_VERSION };
         }
         static uint64_t GetGameVersion();
 

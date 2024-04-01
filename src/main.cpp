@@ -98,6 +98,7 @@ void Init()
     auto cwd = std::filesystem::current_path();
     Console::Initialize();
     spdlog::info("Loading {} by {}...", styled("SuperMod " VERSION, fmt::emphasis::bold), styled("zziger", fmt::emphasis::bold));
+    spdlog::info("Loading {} by {}...", styled("SuperMod " SUPERMOD_VERSION, fmt::emphasis::bold), styled("zziger", fmt::emphasis::bold));
 
     const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;

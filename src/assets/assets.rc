@@ -2,3 +2,32 @@
 
 LUA_SDK_ZIP RCDATA "lua.zip"
 RES_LOGO RCDATA "./icon.png"
+
+1 VERSIONINFO
+ FILEVERSION    SUPERMOD_VERSION_NUM
+ PRODUCTVERSION SUPERMOD_VERSION_NUM
+ FILEFLAGSMASK      0x3fL
+ FILEFLAGS          VER_FILEFLAGS
+ FILEOS             VER_FILEOS
+ FILETYPE           VER_FILETYPE
+ FILESUBTYPE        0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",           "zziger" "\0"
+            VALUE "FileDescription",       "SuperMod - Modloader for Nevosoft's 'Super-Cow'" "\0"
+            VALUE "FileVersion",           SUPERMOD_VERSION "\0"
+            VALUE "OriginalFilename",      "d3d8.dll" "\0"
+            VALUE "ProductName",           "SuperMod" "\0"
+            VALUE "ProductVersion",        SUPERMOD_VERSION "\0"
+            VALUE "LegalCopyright",        "Copyright 2024 zziger" "\0"
+            VALUE "Comments",              "https://github.com/zziger/supercow-mod" "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
