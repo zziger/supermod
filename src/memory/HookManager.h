@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <format>
-#include <LuaContext.h>
+#include <modloader/mod/impl/lua/lua.h>
 
 #include "Memory.h"
 
@@ -49,21 +49,28 @@ public:
 
     static void UnregisterHook(RegisteredHook hook);
 
-    static void AddToLua(LuaContext& ctx) {
-        ctx.writeFunction("__createHook", std::function([=](uint32_t ptr, uint32_t proc, uint32_t orig) -> uint32_t {
+    static void AddLuaIntrinsics(sol::table table)
+    {
+        table["__createHook"] = sol::as_function([](uint32_t ptr, uint32_t proc, uint32_t orig) -> uint32_t {
             auto idx = lastId++;
             auto createStatus = MH_CreateHookEx(idx, (void*) ptr, (void*) proc, (void**) orig);
             if (createStatus != MH_OK) throw std::exception(std::format("Не удалось создать хук. Статус MinHook: {}", (int) createStatus).c_str());
             auto enableStatus = MH_EnableHookEx(idx, (void*) ptr);
             if (enableStatus != MH_OK) throw std::exception(std::format("Не удалось активировать хук. Статус MinHook: {}", (int) enableStatus).c_str());
             return idx;
-        }));
-        ctx.writeFunction("__removeHook", std::function([=](uint32_t ptr, uint32_t idx) {
+        });
+        table["__removeHook"] = sol::as_function([](uint32_t ptr, uint32_t idx) {
             auto disableStatus = MH_DisableHookEx(idx, (void*) ptr);
             if (disableStatus != MH_OK) throw std::exception(std::format("Не удалось деактивировать хук. Статус MinHook: {}", (int) disableStatus).c_str());
             auto removeStatus = MH_RemoveHookEx(idx, (void*) ptr);
             if (removeStatus != MH_OK) throw std::exception(std::format("Не удалось удалить хук. Статус MinHook: {}", (int) removeStatus).c_str());
-        }));
+        });
+    }
+
+    static void RemoveLuaIntrinsics(sol::table table)
+    {
+        table["__createHook"] = sol::nil;
+        table["__removeHook"] = sol::nil;
     }
 };
     

@@ -1,6 +1,7 @@
 #include <sdk/Game.h>
 #include <ui/popups/popups.h>
 #include <ui/styles/styles.h>
+#include <Utils.h>
 
 #include "windows.h"
 

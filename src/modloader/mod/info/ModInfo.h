@@ -53,21 +53,19 @@ namespace modloader {
 
         [[nodiscard]] std::string ToString() const;
 
-        // void RegisterLuaType(LuaContext* ctx) {
-        //     if (ctx->isTypeRegistered<ModInfo>()) return;
-        //     ctx->registerConstMember("id", &ModInfo::id);
-        //     ctx->registerConstMember("title", &ModInfo::title);
-        //     ctx->registerConstMember("description", &ModInfo::description);
-        //     ctx->registerConstMember("author", &ModInfo::author);
-        //     ctx->registerConstMember("version", &ModInfo::version);
-        //     // ctx->registerConstMember("basePath", &ModInfo::basePath);
-        //     // ctx->registerConstMember("luaScript", &ModInfo::luaScript);
-        //     ctx->registerConstMember("gameVersions", &ModInfo::gameVersions);
-        //     // ctx->registerConstMember("compatible", &ModInfo::compatible);
-        //     // ctx->registerConstMember("internal", &ModInfo::internal);
-        //     // ctx->registerToStringFunction(&ModInfo::ToString);
-        //     // TODO: other fields
-        // }
+        static void RegisterLuaType(sol::state& lua) {
+            lua.new_usertype<ModInfo>(sol::no_constructor,
+                "id", &ModInfo::id,
+                "title", &ModInfo::title,
+                "author", &ModInfo::author,
+                "version", &ModInfo::version,
+                "description", &ModInfo::description,
+                "deps", &ModInfo::deps,
+                "socialLinks", &ModInfo::socialLinks,
+                "gameVersions", &ModInfo::gameVersions,
+                sol::meta_function::to_string, &ModInfo::ToString
+            );
+        }
 
     private:
         std::string id;

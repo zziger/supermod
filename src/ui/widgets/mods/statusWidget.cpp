@@ -1,4 +1,5 @@
 #include "../widgets.h"
+#include "Utils.h"
 
 void ui::widgets::mods::Status(const std::shared_ptr<modloader::Mod>& mod)
 {

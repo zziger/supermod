@@ -1,5 +1,3 @@
-local ffi = require "ffi"
-
 local events = {}
 
 local registeredEvents = {}

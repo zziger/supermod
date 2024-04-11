@@ -23,5 +23,12 @@ namespace modloader {
 
         void UpdateIcon();
         void OpenFolder() const;
+
+        static void RegisterLuaType(sol::state& lua) {
+            lua.new_usertype<ModInfoFilesystem>(sol::no_constructor,
+                "basePath", &ModInfoFilesystem::basePath,
+                sol::base_classes, sol::bases<ModInfo>()
+            );
+        }
     };
 }

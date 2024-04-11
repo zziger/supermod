@@ -1,6 +1,7 @@
 #pragma once
 #include <game/AssetPool.h>
 #include <Data.h>
+#include <imgui.h>
 
 namespace modloader {
     struct ModIcon {

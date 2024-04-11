@@ -13,12 +13,16 @@ struct WindowEvent final : ICancellableEvent<"windowEvent", WindowEvent> {
     WindowEvent(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
     : hWnd(hWnd), msg(msg), wParam(wParam), lParam(lParam) {}
 
-    void RegisterCancellableType(LuaContext* ctx) override {
-        ctx->registerMember<int (WindowEvent::*)>("hWnd",
-            [](const WindowEvent& evt) { return (int) evt.hWnd; }, [](WindowEvent& evt, int val) { evt.hWnd = (HWND) val; });
-        ctx->registerMember("msg", &WindowEvent::msg);
-        ctx->registerMember("wParam", &WindowEvent::wParam);
-        ctx->registerMember("lParam", &WindowEvent::lParam);
+    void RegisterLuaType(sol::state& state) override
+    {
+        state.new_usertype<WindowEvent>(sol::no_constructor,
+            "hWnd", &WindowEvent::hWnd,
+            "msg", &WindowEvent::msg,
+            "wParam", &WindowEvent::wParam,
+            "lParam", &WindowEvent::lParam,
+            "cancel", &WindowEvent::Cancel,
+            "isCancelled", &WindowEvent::IsCancelled
+        );
     }
 };
 

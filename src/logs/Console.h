@@ -3,6 +3,7 @@
 #include <string>
 #include <spdlog/logger.h>
 #include <spdlog/fmt/bundled/color.h>
+#include <modloader/mod/impl/lua/lua.h>
 
 #include "Config.h"
 
@@ -43,5 +44,5 @@ public:
         return styled(value, fg(fmt::rgb(0x999999)));
     }
 
-    static void AddToLua(std::shared_ptr<spdlog::logger> logger, LuaContext& ctx);
+    static void AddToLua(const std::shared_ptr<spdlog::logger>& logger, sol::table table);
 };

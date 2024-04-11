@@ -9,8 +9,10 @@ struct ModEvent : IEvent<EventId, ModEvent<EventId>> {
     explicit ModEvent(modloader::ModInfo modInfo) : modInfo(std::move(modInfo)) {}
     ModEvent() = default;
 
-    void RegisterType(LuaContext* ctx) override sealed {
-        ctx->registerConstMember("modInfo", &ModEvent::modInfo);
+    void RegisterLuaType(sol::state& state) override {
+        state.new_usertype<ModEvent>(sol::no_constructor,
+            "modInfo", &ModEvent::modInfo
+        );
     }
 };
 

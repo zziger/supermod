@@ -22,19 +22,18 @@ struct ResolveFileEvent final : IEvent<"resolveFile", ResolveFileEvent> {
         _resolvedPath = std::nullopt;
     }
 
-    const std::optional<std::filesystem::path>& GetResolvedPath() const {
+    [[nodiscard]] std::optional<std::filesystem::path> GetResolvedPath() const {
         return _resolvedPath;
     }
 
-    void RegisterType(LuaContext* ctx) override sealed {
-        ctx->registerConstMember("absolutePath", &ResolveFileEvent::absolutePath);
-        ctx->registerFunction<tl::optional<std::filesystem::path> (ResolveFileEvent::*)()>("getResolvedPath", [](ResolveFileEvent& evt) -> tl::optional<std::filesystem::path> {
-            auto path = evt.GetResolvedPath();
-            if (!path) return tl::nullopt;
-            return tl::optional<std::filesystem::path>(*path);
-        });
-        ctx->registerFunction("setResolvedPath", &ResolveFileEvent::SetResolvedPath);
-        ctx->registerFunction("clearResolvedPath", &ResolveFileEvent::ClearResolvedPath);
+    void RegisterLuaType(sol::state& state) override
+    {
+        state.new_usertype<ResolveFileEvent>(sol::no_constructor,
+            "absolutePath", &ResolveFileEvent::absolutePath,
+            "getResolvedPath", &ResolveFileEvent::GetResolvedPath,
+            "setResolvedPath", &ResolveFileEvent::SetResolvedPath,
+            "clearResolvedPath", &ResolveFileEvent::ClearResolvedPath
+        );
     }
 
 private: 

@@ -25,7 +25,6 @@
 #include "events/SoundHostInitEvent.h"
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
-// #include "modloader/mods/files/ModFileResolver.h"
 #include <mod/ModImplInternal.h>
 #include <modloader/files/ModFileResolver.h>
 #include <modloader/install/ModInstaller.h>
@@ -36,6 +35,7 @@
 #include <utils/TempManager.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/color.h>
+#include <modloader/mod/impl/lua/lua.h>
 
 
 void InitMemory()
@@ -97,7 +97,6 @@ void Init()
 {
     auto cwd = std::filesystem::current_path();
     Console::Initialize();
-    spdlog::info("Loading {} by {}...", styled("SuperMod " VERSION, fmt::emphasis::bold), styled("zziger", fmt::emphasis::bold));
     spdlog::info("Loading {} by {}...", styled("SuperMod " SUPERMOD_VERSION, fmt::emphasis::bold), styled("zziger", fmt::emphasis::bold));
 
     const Gdiplus::GdiplusStartupInput gdiplusStartupInput;

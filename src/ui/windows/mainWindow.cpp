@@ -1,6 +1,7 @@
 #include "windows.h"
 #include "main_views/views.h"
 
+#include <Windows.h>
 #include <ui/Ui.h>
 #include <ui/widgets/widgets.h>
 

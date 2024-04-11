@@ -136,30 +136,15 @@ void Console::Update()
     mainLogger->set_level(cfg.log.level >= 0 && cfg.log.level < spdlog::level::n_levels ? cfg.log.level : spdlog::level::info);
 }
 
-void Console::AddToLua(std::shared_ptr<spdlog::logger> logger, LuaContext& ctx)
+void Console::AddToLua(const std::shared_ptr<spdlog::logger>& logger, sol::table table)
 {
-    ctx.writeVariable("log", std::map<int, int>{});
+    auto log = table.create("log");
 
-    ctx.writeVariable("log", "info", std::function([logger](const std::string msg) {
-        logger->info(msg);
-    }));
-    ctx.writeVariable("log", "error", std::function([logger](const std::string msg) {
-        logger->error(msg);
-    }));
-    ctx.writeVariable("log", "warn", std::function([logger](const std::string msg) {
-        logger->warn(msg);
-    }));
-    ctx.writeVariable("log", "debug", std::function([logger](const std::string msg) {
-        logger->debug(msg);
-    }));
-    ctx.writeVariable("log", "trace", std::function([logger](const std::string msg) {
-        logger->trace(msg);
-    }));
-    ctx.writeVariable("log", "critical", std::function([logger](const std::string msg) {
-        logger->critical(msg);
-    }));
-    ctx.writeVariable("log", "game", std::function([logger](const std::string msg) {
-        // TODO: deprecate
-        logger->info(msg);
-    }));
+    log["info"] = sol::as_function([logger](const std::string& msg) { logger->info(msg); });
+    log["error"] = sol::as_function([logger](const std::string& msg) { logger->error(msg); });
+    log["warn"] = sol::as_function([logger](const std::string& msg) { logger->warn(msg); });
+    log["debug"] = sol::as_function([logger](const std::string& msg) { logger->debug(msg); });
+    log["trace"] = sol::as_function([logger](const std::string& msg) { logger->trace(msg); });
+    log["critical"] = sol::as_function([logger](const std::string& msg) { logger->critical(msg); });
+    log["game"] = sol::as_function([logger](const std::string& msg) { logger->info(msg); }); // TODO: deprecate
 }

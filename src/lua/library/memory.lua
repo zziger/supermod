@@ -425,8 +425,10 @@ function Memory:hook(fnType, fn, params)
     end
 
     local origBuf = ffi.new(ffi.typeof("$[1]", ffi.typeof(fnType)), {nil})
-    
-    function wrapper(...)
+    local fenv = getfenv()
+
+    local function wrapper(...)
+        setfenv(fn, fenv)
         local status, result = pcall(fn, ...)
         if status then
             return result
@@ -435,11 +437,11 @@ function Memory:hook(fnType, fn, params)
             return 0
         end
     end
-    
+
     local callback = ffi.cast(fnType, wrapper)
 
-    local id = __createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
-    
+    local id = createHook(self.addr, tonumber(ffi.cast("uint32_t", callback)), tonumber(ffi.cast("uint32_t", origBuf)))
+
     local res = {}
     res.destroyed = false
     res.orig = origBuf[0];
@@ -448,7 +450,7 @@ function Memory:hook(fnType, fn, params)
     function res.destroy()
         if res.destroyed then return end
         res.destroyed = true
-        __removeHook(self.addr, res.id)
+        removeHook(self.addr, res.id)
         ---@diagnostic disable-next-line: undefined-field
         callback:free()
     end

@@ -21,6 +21,20 @@ namespace sdk
 		static void SetRenderTransform(vector3 pos);
 		static void ResetRenderTransform();
 
-		static void AddToLua(LuaContext& context);
+		static void AddToLua(sol::table table)
+		{
+			table["setRenderAsset"] = &SetRenderAsset;
+			table["setTextColor"] = &SetTextColor;
+			table["setRenderProjection"] = &SetRenderProjection;
+			table["resetRenderProjection"] = &ResetRenderProjection;
+			table["setRenderTransform"] = &SetRenderTransform;
+			table["resetRenderTransform"] = &ResetRenderTransform;
+			table["renderText"] = &RenderText;
+			table["render"] = sol::overload_conv<
+				void(vector2, vector2, rect, rgba),
+				void(vector2, vector2, rect),
+				void(vector2, vector2)
+			>([](auto... args) { Graphics::Render(args...); });
+		}
 	};
 }

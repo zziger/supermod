@@ -1,7 +1,6 @@
 ﻿---@meta
 
 ---@package
-CURRENT_DLL_PATH = ""
 
 MOD_PATH = ""
 

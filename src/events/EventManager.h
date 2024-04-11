@@ -9,13 +9,13 @@
 #include <mutex>
 #include <typeindex>
 #include <unordered_set>
-
-#include "thirdparty/LuaContext.h"
+#include <modloader/mod/impl/lua/lua.h>
+#include <modloader/mod/impl/lua/LuaScriptRuntime.h>
 
 struct IAnyEvent {
     virtual ~IAnyEvent() = default;
     
-    virtual void RegisterType(LuaContext* ctx) {}
+    virtual void RegisterLuaType(sol::state& state) {}
 };
 
 template<size_t N>
@@ -30,10 +30,6 @@ struct EventId {
 template <EventId EventId, class EventType>
 struct IEvent : IAnyEvent {
     static constexpr auto eventId = EventId.value;
-
-    void RegisterType(LuaContext* ctx) override {
-        ctx->ensureTypeRegistration<EventType>(); // ensure type registration check won't return false even tho no members are registered
-    }
 };
 
 template <EventId EventId, class EventType>
@@ -46,14 +42,11 @@ struct ICancellableEvent : IEvent<EventId, EventType> {
         return _cancelled;
     }
 
-    virtual void RegisterCancellableType(LuaContext* ctx) {
-        
-    }
-
-    void RegisterType(LuaContext* ctx) override sealed {
-        ctx->registerFunction<void (EventType::*)()>("cancel", [](ICancellableEvent& evt) { evt.Cancel(); });
-        ctx->registerFunction<bool (EventType::*)()>("isCancelled", [](ICancellableEvent& evt) { return evt.IsCancelled(); });
-        RegisterCancellableType(ctx);
+    void RegisterLuaType(sol::state& state) override
+    {
+        state.new_usertype<EventType>(sol::no_constructor,
+            "cancel", &EventType::Cancel,
+            "isCancelled", &EventType::IsCancelled);
     }
 private:
     bool _cancelled = false;
@@ -150,8 +143,6 @@ public:
         return id;
     }
 
-    static std::vector<std::shared_ptr<LuaContext>> GetLuaContexts();
-
     template <std::derived_from<IAnyEvent> Event>
     static void Emit(Event& event) {
         const std::string typeId = Event::eventId;
@@ -169,7 +160,7 @@ public:
 
         for (auto& fn : fns) fn.second(event);
 
-        for (const auto& luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
+        modloader::LuaScriptRuntime::DispatchEvent(typeId, event);
     }
 
     template <std::derived_from<IAnyEvent> Event>
@@ -189,7 +180,7 @@ public:
 
         for (auto& fn : fns) fn.second(event);
 
-        for (const auto& luaContext : GetLuaContexts()) luaContext->EmitEvent(typeId, event);
+        modloader::LuaScriptRuntime::DispatchEvent(typeId, event);
     }
 
     struct Ready {

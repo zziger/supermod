@@ -1,5 +1,7 @@
 ﻿#include "Graphics.h"
 
+#include <Utils.h>
+
 namespace sdk
 {
 	void Graphics::SetRenderAsset(game::Asset * asset) {
@@ -57,23 +59,5 @@ namespace sdk
 	void Graphics::ResetRenderTransform()
 	{
 		SetRenderTransform({ 0, 0, 0 });
-	}
-
-	void Graphics::AddToLua(LuaContext & context) {
-		context.writeModuleVariable("graphics", LuaContext::Table{});
-		context.writeModuleVariable("graphics", "setRenderAsset", std::function([](std::variant<game::Asset*, std::nullptr_t> asset) {
-			std::visit([&](auto&& visited) {
-				SetRenderAsset(visited);
-			}, asset);
-		}));
-		context.writeModuleVariable("graphics", "setTextColor", SetTextColor);
-		context.writeModuleVariable("graphics", "setRenderProjection", SetRenderProjection);
-		context.writeModuleVariable("graphics", "resetRenderProjection", ResetRenderProjection);
-		context.writeModuleVariable("graphics", "setRenderTransform", SetRenderTransform);
-		context.writeModuleVariable("graphics", "resetRenderTransform", ResetRenderTransform);
-		context.writeModuleVariable("graphics", "renderText", RenderText);
-		context.writeModuleVariable("graphics", "render", std::function([](vector2 coords, vector2 size, tl::optional<rect> uv, tl::optional<rgba> color) {
-			Render(coords, size, uv ? *uv : rect { 0, 0, 1, 1 }, color ? *color : rgba { 255, 255, 255, 255 });
-		}));
 	}
 }
