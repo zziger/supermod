@@ -125,6 +125,11 @@ target("test")
     set_languages("c++20")
     add_options("mod-version")
 
+    before_build(function (target)
+        import("core.project.task")
+        task.run("pack-resources")
+    end)
+
     add_files("./test/**.cpp")
     add_files("./src/**.cpp")
     add_files("./src/**.def")
