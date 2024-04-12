@@ -28,11 +28,12 @@ namespace modloader
         std::unique_ptr<ModState> state;
         std::chrono::time_point<std::chrono::steady_clock> creationTime = std::chrono::steady_clock::now();
         std::chrono::time_point<std::chrono::steady_clock> lastStateUpdate = std::chrono::steady_clock::now();
+        std::string loadingError;
 
     public:
         explicit Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& impl);
 
-        [[nodiscard]] bool IsActive() const { return state->IsActive(*this); }
+        [[nodiscard]] bool IsActive() const { return state->IsActive(); }
         [[nodiscard]] std::shared_ptr<ModInfo> GetInfo() const { return info; }
         [[nodiscard]] const std::unique_ptr<ModState>& GetState() const { return state; }
         [[nodiscard]] std::chrono::duration<double, std::micro> GetTimeSinceUpdate() const { return std::chrono::steady_clock::now() - lastStateUpdate; }
@@ -42,8 +43,11 @@ namespace modloader
         void SetInfo(const std::shared_ptr<ModInfo>& newInfo);
         void SetState(std::unique_ptr<ModState>&& state);
 
-        template <typename T>
-        void SetState() { SetState(std::make_unique<T>()); }
+        template <typename T, typename... Args>
+        void SetState(Args&&... args) { SetState(std::make_unique<T>(std::forward<Args>(args)...)); }
+
+        void SetLoadingError(const std::string& err) { loadingError = err; }
+        [[nodiscard]] std::string GetLoadingError() const { return loadingError; }
 
         void SetFlag(Flag flag, const bool value = true)
         {

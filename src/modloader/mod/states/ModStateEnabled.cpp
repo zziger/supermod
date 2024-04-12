@@ -14,7 +14,16 @@ void modloader::ModStateEnabled::Init(Mod& mod)
         ModFileResolver::LoadFiles(path);
     }
 
-    mod.GetImpl()->OnEnabled();
+    try
+    {
+        mod.GetImpl()->OnEnabled();
+    }
+    catch(std::exception& e)
+    {
+        mod.Toggle(false);
+        mod.SetLoadingError(e.what());
+        Update(mod);
+    }
 }
 
 void modloader::ModStateEnabled::Update(Mod& mod)

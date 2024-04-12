@@ -9,7 +9,7 @@ namespace modloader
     {
     public:
         void Init(Mod& mod) override;
-        bool IsActive(const Mod& mod) override { return true; }
+        bool IsActive() override { return true; }
         void Update(Mod& mod) override;
         Type GetType() override { return Type::ENABLED; }
         std::string GetLabel() override { return "Включен"; }

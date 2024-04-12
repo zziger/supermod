@@ -100,17 +100,21 @@ namespace modloader
             Config::RemoveLuaIntrinsics(package->fenv);
 
             LuaScriptRuntime::RemoveIntrinsics(package);
-        } catch(std::exception& e)
+        }
+        catch(std::exception& e)
         {
             logger->error("Failed to initialize Lua script base: {}", e.what());
+            throw;
         }
 
         try
         {
             package->module = lua.script_file(fullPath.generic_string(), package->fenv, sol::script_throw_on_error);
-        } catch (std::exception& e)
+        }
+        catch (std::exception& e)
         {
             logger->error("Error in Lua script: {}", e.what());
+            throw;
         }
 
         package->Finalize();

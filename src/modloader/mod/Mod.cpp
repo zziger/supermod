@@ -38,6 +38,7 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
 
 void modloader::Mod::Toggle(const bool value)
 {
+    loadingError = "";
     if (!HasFlag(Flag::INTERNAL)) spdlog::info(
         "{} mod {}",
         Console::StyleToggle(value ? "Enabling" : "Disabling", value),

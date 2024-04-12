@@ -173,6 +173,7 @@ void ui::windows::main::ModsView()
 
                 if (mod->HasFlag(modloader::Mod::Flag::REMOVAL_SCHEDULED))
                 {
+                    ImGui::Spacing();
                     styles::warning::BeginPanel("Removal scheduled warning");
 
                     styles::warning::Icon();
@@ -186,6 +187,23 @@ void ui::windows::main::ModsView()
                     }
 
                     styles::warning::EndPanel();
+                }
+
+                if (const auto& error = mod->GetLoadingError(); !error.empty())
+                {
+                    ImGui::Spacing();
+                    styles::danger::BeginPanel("Loading error");
+
+                    ImGui::TextWrapped("Ошибка загрузки:");
+                    ImGui::TextWrapped(error.c_str());
+                    ImGui::Spacing();
+
+                    if (ImGui::Button(ICON_MD_REFRESH " Перезагрузить"))
+                    {
+                        mod->Toggle(true);
+                    }
+
+                    styles::danger::EndPanel();
                 }
                 ImGui::Spacing();
             }

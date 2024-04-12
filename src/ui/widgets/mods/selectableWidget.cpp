@@ -56,7 +56,7 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
                     const auto iconSize = ImGui::CalcTextSize(icon.c_str());
                     limitX -= iconSize.x;
                     ImGui::SetCursorScreenPos({ limitX, frameStart.y + (frameSize.y - iconSize.y) / 2.f });
-                    ImGui::TextColored(mod->IsActive() ? 0x77EE77FF_color : 0xEE7777FF_color, "%s", icon.c_str());
+                    ImGui::TextColored(mod->GetState()->GetColor(), "%s", icon.c_str());
 
                     limitX -= 3 * Ui::GetScalingFactor();
                 }
@@ -64,6 +64,17 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
                 // Removal pending icon
                 if (mod->HasFlag(modloader::Mod::Flag::REMOVAL_SCHEDULED)) {
                     const auto icon = ICON_MD_DELETE;
+                    const auto iconSize = ImGui::CalcTextSize(icon);
+                    limitX -= iconSize.x;
+                    ImGui::SetCursorScreenPos({ limitX, frameStart.y + (frameSize.y - iconSize.y) / 2.f });
+                    ImGui::TextColored(0xEE7777FF_color, "%s", icon);
+
+                    limitX -= 3 * Ui::GetScalingFactor();
+                }
+
+                // Mod error icon
+                if (!mod->GetLoadingError().empty()) {
+                    const auto icon = ICON_MD_ERROR;
                     const auto iconSize = ImGui::CalcTextSize(icon);
                     limitX -= iconSize.x;
                     ImGui::SetCursorScreenPos({ limitX, frameStart.y + (frameSize.y - iconSize.y) / 2.f });

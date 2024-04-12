@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <imgui.h>
+#include <Utils.h>
 
 namespace modloader
 {
@@ -18,7 +20,7 @@ namespace modloader
             WAITING_DEPENDENTS_UNLOAD,
         };
 
-        virtual bool IsActive(const Mod& mod)
+        virtual bool IsActive()
         {
             return false;
         }
@@ -31,6 +33,7 @@ namespace modloader
 
         virtual std::string GetLabel() = 0;
         virtual std::string GetIcon() = 0;
+        virtual ImVec4 GetColor() { return IsActive() ? 0x77EE77FF_color : 0xEE7777FF_color; };
 
         virtual void Update(Mod& mod) = 0;
     };
