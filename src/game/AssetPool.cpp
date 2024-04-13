@@ -301,8 +301,16 @@ namespace game
         
         if (asset->meta) asset->meta->notFound = true;
         const auto previousTexture = asset->texture;
-        // TODO: handle destructed dx
-        asset->texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, { asset->width, asset->height }, asset->meta ? asset->meta->canvasSizeMultiplier : vector2 { 1, 1 });
+
+        try
+        {
+            asset->texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, { asset->width, asset->height }, asset->meta ? asset->meta->canvasSizeMultiplier : vector2 { 1, 1 });
+        }
+        catch(std::exception& e)
+        {
+            asset->texture = nullptr;
+        }
+
         sdk::DirectX::RemoveTexture(previousTexture);
 
         if (asset->meta && asset->meta->loadedManually) {
