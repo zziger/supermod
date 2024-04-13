@@ -14,22 +14,22 @@
 #include "luaFilesystem.h"
 
 namespace modloader {
-    class LuaScriptRuntime
+    class LuaScriptRuntime : public std::enable_shared_from_this<LuaScriptRuntime>
     {
     public:
         class ModPackage
         {
             std::optional<sol::protected_function> eventHandler = std::nullopt;
-            sol::state& lua;
+            std::shared_ptr<LuaScriptRuntime> runtime;
             std::set<std::string> enabledEvents;
 
         public:
-            ModPackage(std::string id, const std::filesystem::path& root, sol::state& lua) :
-                lua(lua),
+            ModPackage(std::string id, const std::filesystem::path& root, const std::shared_ptr<LuaScriptRuntime>& runtime) :
+                runtime(runtime),
                 id(std::move(id)),
-                fenv(lua, sol::create, lua.globals()),
-                loaded(lua, sol::create),
-                builtin(lua, sol::create),
+                fenv(runtime->GetLua(), sol::create, runtime->GetLua().globals()),
+                loaded(runtime->GetLua(), sol::create),
+                builtin(runtime->GetLua(), sol::create),
                 module(sol::nil),
                 path((root / "?.lua").string() + LUA_PATHSEP + (root / "?" / "init.lua").string()),
                 cpath(".\?.dll;" + (root / "?.dll").string() + LUA_PATHSEP + (root / "loadall.dll").string())
@@ -72,6 +72,7 @@ namespace modloader {
                 if (!eventHandler.has_value()) return;
                 if (!enabledEvents.contains(eventName)) return;
 
+                auto& lua = runtime->GetLua();
                 if (!sol::is_usertype_registered<T>(lua))
                     event.RegisterLuaType(lua);
 
@@ -91,9 +92,7 @@ namespace modloader {
                     "cpath", sol::readonly(&ModPackage::cpath));
             }
         };
-    private:
 
-        static inline bool initialized = false;
         LuaScriptRuntime()
         {
             spdlog::info("Initializing Lua script runtime");
@@ -101,6 +100,8 @@ namespace modloader {
             luaPackages = lua.create_table();
             Init();
         }
+
+    private:
 
         void Init()
         {
@@ -144,7 +145,7 @@ namespace modloader {
         {
             assert(!packages.contains(id) && "Package with this id already exists");
 
-            auto package = std::make_shared<ModPackage>(id, root, lua);
+            auto package = std::make_shared<ModPackage>(id, root, shared_from_this());
             luaPackages[id] = package;
             packages[id] = package;
             AddIntrinsics(package);
@@ -180,18 +181,26 @@ namespace modloader {
         template <class T>
         static void DispatchEvent(const std::string eventName, T& event)
         {
-            if (!initialized) return;
-            for (const auto& package : Get().packages | std::views::values)
+            if (instance.expired()) return;
+            for (const auto& package : Get()->packages | std::views::values)
             {
                 package->HandleEvent(eventName, event);
             }
         }
 
-        static LuaScriptRuntime& Get()
+        static std::shared_ptr<LuaScriptRuntime> Get()
         {
-            static LuaScriptRuntime instance;
-            initialized = true;
-            return instance;
+            std::shared_ptr<LuaScriptRuntime> inst = instance.lock();
+            if (!inst)
+            {
+                inst = std::make_shared<LuaScriptRuntime>();
+                instance = inst;
+            }
+
+            return inst;
         }
+
+    private:
+        static inline std::weak_ptr<LuaScriptRuntime> instance;
     };
 }

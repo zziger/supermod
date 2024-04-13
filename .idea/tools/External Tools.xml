@@ -2,7 +2,7 @@
   <tool name="Build xmake project" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
     <exec>
       <option name="COMMAND" value="xmake" />
-      <option name="PARAMETERS" />
+      <option name="PARAMETERS" value="build d3d8" />
       <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
     </exec>
   </tool>
@@ -10,7 +10,7 @@
     <exec>
       <option name="COMMAND" value="xmake" />
       <option name="PARAMETERS" value="clean" />
-      <option name="WORKING_DIRECTORY" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
     </exec>
   </tool>
 </toolSet>

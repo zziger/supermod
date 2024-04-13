@@ -32,11 +32,11 @@ namespace modloader
         if (!exists(fullPath) || is_directory(fullPath)) throw Error(std::format("Скрипт {} не найден", fullPath.generic_string()));
 
         logger = Console::mainLogger->clone("mod " + info->GetID());
-        auto& runtime = LuaScriptRuntime::Get();
-        auto& lua = runtime.GetLua();
+        const auto runtime = LuaScriptRuntime::Get();
+        auto& lua = runtime->GetLua();
         auto sdk = utils::read_zip_resource(LUA_SDK_ZIP);
 
-        package = runtime.CreatePackage(info->GetID(), infoFs->basePath);
+        package = runtime->CreatePackage(info->GetID(), infoFs->basePath);
 
         package->fenv["MOD_PATH"] = infoFs->basePath.string() + "\\";
         package->fenv["wait"] = sol::as_function([](const float time)
@@ -127,18 +127,20 @@ namespace modloader
     void ModImplLua::OnDisabled() {
         if (!package) return;
 
+        auto runtime = LuaScriptRuntime::Get();
+        auto& lua = runtime->GetLua();
         auto event = LuaUnloadEvent{};
         package->HandleEvent(LuaUnloadEvent::eventId, event);
 
         package->fenv.clear();
-        LuaScriptRuntime::Get().RemovePackage(package->id);
+        runtime->RemovePackage(package->id);
 
         std::weak_ptr weak = package;
         package = nullptr;
         tick = std::nullopt;
 
-        LuaScriptRuntime::Get().GetLua().collect_gc();
-        LuaScriptRuntime::Get().GetLua().collect_gc();
+        lua.collect_gc();
+        lua.collect_gc();
 
         if (!weak.expired())
         {
