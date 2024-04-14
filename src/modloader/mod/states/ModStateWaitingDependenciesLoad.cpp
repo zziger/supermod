@@ -36,10 +36,10 @@ std::string modloader::ModStateWaitingDependenciesLoad::GetIcon()
 
 bool modloader::ModStateWaitingDependenciesLoad::Check(const Mod& mod)
 {
-    auto deps = mod.GetInfo()->deps;
+    auto deps = mod.GetInfo()->dependencies;
     if (deps.empty()) return true;
-    return std::ranges::all_of(deps, [](const std::string& modID) -> bool {
-        const auto mod = ModManager::FindModByID(modID);
-        return mod && mod->IsActive();
+    return std::ranges::all_of(deps, [](const ModInfo::Dependency& dependency) -> bool {
+        const auto mod = ModManager::FindModByID(dependency.id);
+        return mod && mod->IsActive() && dependency.version.Match(mod->GetInfo()->version);
     });
 }

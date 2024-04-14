@@ -33,7 +33,7 @@ public:
         );
     }
 
-    [[nodiscard]] std::string Serialize() const
+    [[nodiscard]] std::string Serialize(const bool localize = false) const
     {
         std::stringstream ss;
 
@@ -58,7 +58,7 @@ public:
                 if (i != groups - 1 || j != versions - 1) ss << " ";
             }
 
-            if (i != groups - 1) ss << " ||";
+            if (i != groups - 1) ss << (localize ? " или" : " ||");
         }
 
         return ss.str();

@@ -59,7 +59,7 @@ void ui::windows::main::ModsView()
                 {
                     const auto loadedMod = reorderMods[i];
                     bool hovered, active;
-                    widgets::mods::Selectable(loadedMod, false, false, true, &hovered, &active);
+                    widgets::mods::Selectable(loadedMod, false, false, std::nullopt, &hovered, &active);
 
                     if (active && !hovered)
                     {
@@ -214,15 +214,15 @@ void ui::windows::main::ModsView()
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (!mod->GetInfo()->deps.empty())
+            if (!mod->GetInfo()->dependencies.empty())
             {
                 ImGui::Text("Зависимости:");
                 ImGui::Spacing();
                 ImGui::PushID("Dependencies");
 
-                for (const auto& dependency : mod->GetInfo()->deps)
+                for (const auto& dependency : mod->GetInfo()->dependencies)
                 {
-                    widgets::mods::Reference(dependency);
+                    widgets::mods::Reference(dependency.id, dependency);
                     ImGui::Spacing();
                 }
 

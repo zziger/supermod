@@ -186,6 +186,7 @@ target("luajit")
     add_options("nojit", "fpu")
     if is_mode("debug") then
         add_defines("LUA_USE_ASSERT")
+        add_defines("LUAJIT_ASSERT")
     end
     if is_kind("shared") and is_plat("windows") then
         add_defines("LUA_BUILD_AS_DLL")

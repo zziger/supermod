@@ -12,7 +12,7 @@ void ui::widgets::mods::InfoBlock(const std::shared_ptr<modloader::ModInfo>& mod
 
     ImGui::BeginGroup();
     ImGui::TextWrapped("%s", modInfo->title.c_str());
-    if (!modInfo->version.empty()) ImGui::TextWrapped("%s", modInfo->version.c_str());
+    ImGui::TextWrapped("%s", modInfo->version.str().c_str());
     if (!modInfo->author.empty()) ImGui::TextWrapped("Автор: %s", modInfo->author.c_str());
     ImGui::EndGroup();
 }

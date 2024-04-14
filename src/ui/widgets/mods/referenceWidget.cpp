@@ -2,9 +2,9 @@
 
 #include "../widgets.h"
 
-std::shared_ptr<modloader::Mod> ui::widgets::mods::Reference(const std::string& modId)
+std::shared_ptr<modloader::Mod> ui::widgets::mods::Reference(const std::string& modId, const std::optional<modloader::ModInfo::Dependency>& dependency)
 {
-    const auto mod = modloader::ModManager::FindModByID(modId);
+    auto mod = modloader::ModManager::FindModByID(modId);
 
     if (!mod)
     {
@@ -14,7 +14,7 @@ std::shared_ptr<modloader::Mod> ui::widgets::mods::Reference(const std::string& 
     }
     else
     {
-        if (Selectable(mod, false, true))
+        if (Selectable(mod, false, true, dependency))
         {
             return mod;
         }

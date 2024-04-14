@@ -3,7 +3,7 @@
 
 #include "../widgets.h"
 
-bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, const bool selected, const bool border, bool contextMenu, bool* hovered, bool* active) {
+bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected, bool border, const std::optional<modloader::ModInfo::Dependency>& dependency, bool* hovered, bool* active) {
     const auto info = mod->GetInfo();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6, 6) * Ui::GetScalingFactor());
@@ -12,13 +12,13 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
     ImGui::PushID(info->GetID().c_str());
 
     const auto frameStart = ImGui::GetCursorScreenPos();
-    const auto val = ImGui::Selectable("", selected, ImGuiSelectableFlags_NoPadWithHalfSpacing, { 0, 50 * Ui::GetScalingFactor() });
-    const auto frameSize = ImGui::GetItemRectSize();
+    const auto frameSize = ImVec2 { 0, 50 * Ui::GetScalingFactor() };
 
+    const auto val = ImGui::Selectable("", selected, ImGuiSelectableFlags_NoPadWithHalfSpacing, { 0, 50 * Ui::GetScalingFactor() });
     if (active) *active = ImGui::IsItemActive();
     if (hovered) *hovered = ImGui::IsItemHovered();
 
-    if (contextMenu && ImGui::BeginPopupContextItem())
+    if (ImGui::BeginPopupContextItem())
     {
         ContextMenu(mod);
         ImGui::EndPopup();
@@ -26,11 +26,13 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
 
     ImGui::SetCursorScreenPos(frameStart);
 
+    // TODO: tooltips
     ImGui::BeginChild("Mod frame", ImGui::GetItemRectSize(), ImGuiChildFlags_AlwaysUseWindowPadding | (border ? ImGuiChildFlags_Border : 0), ImGuiWindowFlags_NoInputs);
     {
         const auto childStart = ImGui::GetCursorScreenPos();
         const auto drawList = ImGui::GetWindowDrawList();
         auto limitX = childStart.x + ImGui::GetContentRegionAvail().x;
+        const auto mismatchedDependency = dependency && !dependency->version.Match(mod->GetInfo()->version);
 
         if (!mod->HasFlag(modloader::Mod::Flag::INTERNAL))
         {
@@ -83,6 +85,17 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
                     limitX -= 3 * Ui::GetScalingFactor();
                 }
 
+                // Mod mismatched dependency
+                if (mismatchedDependency) {
+                    const auto icon = ICON_MD_WARNING;
+                    const auto iconSize = ImGui::CalcTextSize(icon);
+                    limitX -= iconSize.x;
+                    ImGui::SetCursorScreenPos({ limitX, frameStart.y + (frameSize.y - iconSize.y) / 2.f });
+                    ImGui::TextColored(0xeebe77FF_color, "%s", icon);
+
+                    limitX -= 3 * Ui::GetScalingFactor();
+                }
+
                 Ui::PopFont();
             }
             ImGui::EndGroup();
@@ -98,9 +111,14 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
 
         ImGui::BeginGroup();
         {
-            const auto lowerLine = ::utils::trim(info->version + " " + info->author);
-            if (lowerLine.empty()) ImGui::Dummy({ Ui::ScaledPx(1), Ui::ScaledPx(6) });
+            auto versionStr = info->version.str();
+            if (mismatchedDependency)
+            {
+                versionStr += " (требуется " + dependency->version.Serialize(true) + ")";
+            }
 
+            const auto lowerLine = ::utils::trim(versionStr + " " + info->author);
+            if (lowerLine.empty()) ImGui::Dummy({ Ui::ScaledPx(1), Ui::ScaledPx(6) });
 
             // Mod label
             Ui::PushFont(18);
@@ -110,6 +128,7 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
                 const auto max = ImVec2(limitX, min.y + lh * 1.5f);
                 ImGui::RenderTextEllipsis(drawList, min, max, max.x, max.x, info->title.c_str(), nullptr, nullptr);
                 ImGui::Text("");
+                Tooltip(info->title.c_str(), ImGuiHoveredFlags_DelayNormal);
             }
             Ui::PopFont();
 
@@ -122,7 +141,8 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, c
                     const auto min = ImGui::GetCursorScreenPos();
                     const auto max = ImVec2(limitX, min.y + lh * 1.5f);
                     ImGui::RenderTextEllipsis(drawList, min, max, max.x, max.x, lowerLine.c_str(), nullptr, nullptr);
-                    ImGui::Text("");
+                    ImGui::Text(" ");
+                    widgets::Tooltip(lowerLine.c_str(), ImGuiHoveredFlags_DelayNormal);
                 }
                 Ui::PopFont();
             }

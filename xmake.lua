@@ -142,6 +142,7 @@ target("test")
     add_includedirs("src")
     add_includedirs("src/thirdparty")
     add_linkdirs("deps")
+    add_cxxflags("/bigobj")
 
     add_packages("gtest")
     add_packagelist()

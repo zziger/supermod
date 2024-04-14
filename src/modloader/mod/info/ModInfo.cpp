@@ -5,6 +5,20 @@
 #include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>
 
+bool modloader::ModInfo::HasDependency(const std::string& id) const
+{
+    return std::ranges::find_if(dependencies, [&](const Dependency& dep) { return dep.id == id; }) != dependencies.end();
+}
+
+modloader::ModInfo::Dependency modloader::ModInfo::AsDependency() const
+{
+    return Dependency {
+        id,
+        title,
+        VersionRange({{ { VersionRange::Operator::GREATER_EQUAL, version } }})
+    };
+}
+
 void modloader::ModInfo::Parse(YAML::Node& node)
 {
     assert(id.empty() && "Tried to parse ModInfo overriding existing data");
@@ -21,10 +35,27 @@ void modloader::ModInfo::Parse(YAML::Node& node)
 
     title = node["title"].as<std::string>(id);
     author = node["author"].as<std::string>("");
-    version = node["version"].as<std::string>("");
+    version = semver::version::parse(node["version"].as<std::string>("0.0.0"), false);
     description = std::regex_replace(node["description"].as<std::string>(""), std::regex("^\\s+|\\s+$"), "");
-    auto depsVector = node["deps"].as<std::vector<std::string>>(std::vector<std::string> {});
-    deps = { depsVector.begin(), depsVector.end() };
+
+    if (node["deps"])
+    {
+        for (auto depsArr = Clone(node["deps"]); const auto& dep : depsArr) {
+            Dependency dependency;
+            if (dep.IsScalar())
+            {
+                dependency.id = dep.as<std::string>();
+            }
+            else
+            {
+                dependency.id = dep["id"].as<std::string>();
+                dependency.version = VersionRange::Parse(dep["version"].as<std::string>(""));
+                dependency.name = dep["name"].as<std::string>("");
+            }
+            dependencies.push_back(dependency);
+        }
+    }
+
     socialLinks = node["socialLinks"].as<std::map<std::string, std::string>>(std::map<std::string, std::string>{});
 
     sdkVersion = semver::version::parse(node["sdk-version"].as<std::string>(SUPERMOD_VERSION));

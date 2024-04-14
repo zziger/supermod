@@ -261,9 +261,9 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
         {
             if (depth < 5)
             {
-                const auto deps = targetMod->GetInfo()->deps;
+                const auto& info = targetMod->GetInfo();
                 for (const auto& innerMod : GetMods())
-                    if (deps.contains(innerMod->GetID()) && !innerMod->IsEnabled())
+                    if (!innerMod->IsEnabled() && info->HasDependency(innerMod->GetID()))
                         enable(innerMod, depth + 1);
             }
             targetMod->Toggle(true);
@@ -349,7 +349,7 @@ void modloader::ModManager::UpdateDeps()
         auto dependents = std::vector<std::shared_ptr<Mod>>();
         std::ranges::copy_if(mods, std::back_inserter(dependents), [&](const std::shared_ptr<Mod>& innerMod)
         {
-            return innerMod->GetInfo()->deps.contains(id);
+            return innerMod->GetInfo()->HasDependency(id);
         });
 
         dependent_mods[id] = dependents;

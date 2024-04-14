@@ -30,7 +30,7 @@ namespace modloader {
                 fenv(runtime->GetLua(), sol::create, runtime->GetLua().globals()),
                 loaded(runtime->GetLua(), sol::create),
                 builtin(runtime->GetLua(), sol::create),
-                module(sol::nil),
+                module(std::nullopt),
                 path((root / "?.lua").string() + LUA_PATHSEP + (root / "?" / "init.lua").string()),
                 cpath(".\?.dll;" + (root / "?.dll").string() + LUA_PATHSEP + (root / "loadall.dll").string())
             {
@@ -46,7 +46,7 @@ namespace modloader {
             sol::environment fenv;
             sol::table loaded;
             sol::table builtin;
-            sol::reference module;
+            std::optional<sol::object> module;
             std::string path;
             std::string cpath;
 
@@ -125,9 +125,9 @@ namespace modloader {
             lua.globals()["require"]("ffi"); // preload FFI
 
             const auto sdk = utils::read_zip_resource(LUA_SDK_ZIP);
-            lua.registry()["_LOADED"]["util"] = lua.script(sdk->read("library/util.lua"), "built-in util", sol::load_mode::text);
+            get_packages(lua)["util"] = lua.script(sdk->read("library/util.lua"), "built-in util", sol::load_mode::text);
             lua.script(sdk->read("library/imguicdecl.lua"), "imgui cdef", sol::load_mode::text);
-            lua.registry()["_LOADED"]["imgui"] = lua.script(sdk->read("library/imgui.lua"), "built-in imgui", sol::load_mode::text);
+            get_packages(lua)["imgui"] = lua.script(sdk->read("library/imgui.lua"), "built-in imgui", sol::load_mode::text);
 
             lua.globals()["require"] = sol::lua_nil; // We reimplement require in fenvs. Having it in global scope might lead to some weird nondebuggable bugs
         }

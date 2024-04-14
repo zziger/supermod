@@ -13,7 +13,7 @@ void ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
 
     if (mod->IsEnabled()
         ? !modloader::ModManager::GetModDependents(mod->GetID()).empty()
-        : !mod->GetInfo()->deps.empty())
+        : !mod->GetInfo()->dependencies.empty())
     {
         if (ImGui::MenuItem(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить без зависимых модов" : ICON_MD_POWER_SETTINGS_NEW " Включить без зависимостей"))
         {

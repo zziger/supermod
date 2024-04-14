@@ -12,8 +12,8 @@ namespace ui::widgets {
 
     namespace mods
     {
-        std::shared_ptr<modloader::Mod> Reference(const std::string& modId);
-        bool Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected = false, bool border = false, bool contextMenu = true, bool* hovered = nullptr, bool* active = nullptr);
+        std::shared_ptr<modloader::Mod> Reference(const std::string& modId, const std::optional<modloader::ModInfo::Dependency>& dependency = std::nullopt);
+        bool Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected = false, bool border = false, const std::optional<modloader::ModInfo::Dependency>& dependency = std::nullopt, bool* hovered = nullptr, bool* active = nullptr);
         void ContextMenu(const std::shared_ptr<modloader::Mod>& mod);
         void Status(const std::shared_ptr<modloader::Mod>& mod);
         void InfoBlock(const std::shared_ptr<modloader::ModInfo>& modInfo);

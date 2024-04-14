@@ -72,7 +72,7 @@ TEST_F(ModloaderFixture, ShouldLoadOrderedWaitingDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto parent = AddMod(infoParent);
     const auto child = AddMod(infoChild);
@@ -97,7 +97,7 @@ TEST_F(ModloaderFixture, ShouldLoadOrderedDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto parent = AddMod(infoParent);
     const auto child = AddMod(infoChild);
@@ -122,7 +122,7 @@ TEST_F(ModloaderFixture, ShouldLoadUnorderedWaitingDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
@@ -148,7 +148,7 @@ TEST_F(ModloaderFixture, ShouldLoadUnorderedDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
@@ -175,14 +175,13 @@ TEST_F(ModloaderFixture, ShouldUnloadOrderedDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto parent = AddMod(infoParent);
     const auto child = AddMod(infoChild);
 
     child->Toggle(true);
     parent->Toggle(true);
-    ModManager::Tick();
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -205,14 +204,13 @@ TEST_F(ModloaderFixture, ShouldUnloadOrderedWaitingDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto parent = AddMod(infoParent);
     const auto child = AddMod(infoChild);
 
     child->Toggle(true);
     parent->Toggle(true);
-    ModManager::Tick();
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -235,14 +233,13 @@ TEST_F(ModloaderFixture, ShouldUnloadUnorderedDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
     child->Toggle(true);
     parent->Toggle(true);
-    ModManager::Tick();
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -265,14 +262,13 @@ TEST_F(ModloaderFixture, ShouldUnloadUnorderedWaitingDependantMod)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
     child->Toggle(true);
     parent->Toggle(true);
-    ModManager::Tick();
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -304,7 +300,7 @@ TEST_F(ModloaderFixture, ShouldReturnNotActiveWhenWaitingDependencies)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto parent = AddMod(infoParent);
     const auto child = AddMod(infoChild);
@@ -324,14 +320,13 @@ TEST_F(ModloaderFixture, ShouldReturnActiveWhenWaitingDependents)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto parent = AddMod(infoParent);
     const auto child = AddMod(infoChild);
 
     child->Toggle(true);
     parent->Toggle(true);
-    ModManager::Tick();
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -386,7 +381,7 @@ TEST_F(ModloaderFixture, ShouldDeleteModWaitingDependencies)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
@@ -411,14 +406,13 @@ TEST_F(ModloaderFixture, ShouldNotDeleteModWaitingDependendants)
 {
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
     child->Toggle(true);
     parent->Toggle(true);
-    ModManager::Tick();
     ModManager::Tick();
 
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
@@ -445,29 +439,71 @@ TEST_F(ModloaderFixture, ShouldNotDeleteModWaitingDependendants)
 
 TEST_F(ModloaderFixture, ShouldReturnEmptyDependentsList)
 {
-
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
-    auto dependents = ModManager::GetModDependents("test-child");
+    auto dependents = ModManager::GetModDependents(infoChild->GetID());
     ASSERT_EQ(dependents.size(), 0);
 }
 
 TEST_F(ModloaderFixture, ShouldReturnFilledDependentsList)
 {
-
     const auto infoParent = std::make_shared<ModInfo>("test-parent");
     const auto infoChild = std::make_shared<ModInfo>("test-child");
-    infoChild->deps.insert("test-parent");
+    infoChild->dependencies.push_back(infoParent->AsDependency());
 
     const auto child = AddMod(infoChild);
     const auto parent = AddMod(infoParent);
 
-    auto dependents = ModManager::GetModDependents("test-parent");
+    auto dependents = ModManager::GetModDependents(infoParent->GetID());
     ASSERT_EQ(dependents.size(), 1);
-    ASSERT_EQ(dependents[0]->GetInfo()->GetID(), "test-child");
+    ASSERT_EQ(dependents[0]->GetInfo()->GetID(), infoChild->GetID());
+}
+
+TEST_F(ModloaderFixture, ShouldLoadMatchingDependencyVersion)
+{
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    infoParent->version = semver::version::parse("1.0.0");
+
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    auto dependency = infoParent->AsDependency();
+    dependency.version = VersionRange::Parse(">=1.0.0");
+
+    infoChild->dependencies.push_back(dependency);
+
+    const auto child = AddMod(infoChild);
+    const auto parent = AddMod(infoParent);
+    child->Toggle(true);
+    parent->Toggle(true);
+
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
+}
+
+TEST_F(ModloaderFixture, ShouldNotLoadMismatchingDependencyVersion)
+{
+    const auto infoParent = std::make_shared<ModInfo>("test-parent");
+    infoParent->version = semver::version::parse("1.0.0");
+
+    const auto infoChild = std::make_shared<ModInfo>("test-child");
+    auto dependency = infoParent->AsDependency();
+    dependency.version = VersionRange::Parse(">2.0.0");
+
+    infoChild->dependencies.push_back(dependency);
+
+    const auto child = AddMod(infoChild);
+    const auto parent = AddMod(infoParent);
+    child->Toggle(true);
+    parent->Toggle(true);
+
+    ModManager::Tick();
+
+    ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
+    ASSERT_EQ(child->GetState()->GetType(), ModState::Type::WAITING_DEPENDENCIES_LOAD);
 }
