@@ -28,7 +28,7 @@ std::shared_ptr<modloader::Mod> ModImplInternal::CreateMod()
     auto info = std::make_shared<modloader::ModInfo>("$internal");
     info->title = "SuperMod";
     info->author = "zziger";
-    info->version = SUPERMOD_VERSION;
+    info->version = semver::version::parse(SUPERMOD_VERSION);
     info->description = "Встроенные в мод патчи игры";
 
     EventManager::On<D3dInitEvent>([info]

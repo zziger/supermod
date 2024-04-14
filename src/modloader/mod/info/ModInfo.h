@@ -1,7 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <map>
-#include <semver.hpp>
+#include <semver/semver.hpp>
 #include <set>
 #include <utility>
 #include <exceptions/Error.h>

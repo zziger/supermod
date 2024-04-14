@@ -111,4 +111,16 @@ namespace sol
             return (inst.get()->*fn)(std::forward<Args>(args)...);
         });
     }
+
+    inline table get_packages(state& state)
+    {
+        return state.registry()["_LOADED"];
+    }
+
+    inline table get_package_table(state& state, const std::string& name)
+    {
+        auto packages = get_packages(state);
+        if (!packages[name].is<table>()) packages.create_named(name);
+        return packages[name];
+    }
 }

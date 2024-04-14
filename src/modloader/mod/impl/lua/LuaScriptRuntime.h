@@ -116,6 +116,7 @@ namespace modloader {
 
             registerLuaTypes(lua.globals());
             registerLuaFilesystem(lua.globals());
+            VersionRange::RegisterLuaType(lua);
             ModPackage::RegisterLuaType(lua);
             game::Asset::RegisterLuaType(lua);
             ModInfo::RegisterLuaType(lua);

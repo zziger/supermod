@@ -3,7 +3,7 @@
 #include <optional>
 
 #include "Data.h"
-#include <semver.hpp>
+#include <semver/semver.hpp>
 #include <d3d8/d3d8helpers.h>
 #include <modloader/mod/impl/lua/lua.h>
 
@@ -35,8 +35,8 @@ namespace sdk
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 
-        static constexpr semver::version GetSdkVersion() {
-            return semver::version { SUPERMOD_VERSION };
+        static semver::version GetSdkVersion() {
+            return semver::version::parse(SUPERMOD_VERSION);
         }
         static uint64_t GetGameVersion();
 
