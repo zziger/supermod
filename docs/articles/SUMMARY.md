@@ -12,3 +12,4 @@
 * [Модуль memory](lua/memory.md)
 * [Модуль timers](lua/timers.md)
 * [Модуль graphics](lua/graphics.md)
+* [Модуль util](lua/util.md)
