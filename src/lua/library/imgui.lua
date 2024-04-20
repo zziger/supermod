@@ -1,4 +1,5 @@
 ---@hideMembers
+---@moduleNoImport
 ---@moduleTitle ImGui
 ---@moduleDesc $snippet:imgui
 

@@ -193,9 +193,11 @@ for (const obj of json) {
             const doc = file.docComments.findField('moduleDesc');
             if (doc) module.md.text(doc.value.trim());
 
-            module.md.heading(2, `Импорт модуля`);
-            module.md.text('Для импорта модуля используйте следующий код:');
-            module.md.code(`local ${module.name} = require("${module.name}")`);
+            if (!file.docComments.findField('moduleNoImport')) {
+                module.md.heading(2, `Импорт модуля`);
+                module.md.text('Для импорта модуля используйте следующий код:');
+                module.md.code(`local ${module.name} = require("${module.name}")`);
+            }
         }
 
         module.file = file;
