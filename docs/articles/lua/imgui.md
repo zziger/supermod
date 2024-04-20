@@ -82,11 +82,3 @@ function render()
 end
 ```
 
-## Импорт модуля
-
-Для импорта модуля используйте следующий код:
-
-```lua
-local imgui = require("imgui")
-```
-
