@@ -1,3 +1,6 @@
+---@moduleTitle Events
+---@moduleDesc Этот модуль позволяет подписываться на события игры и SuperMod
+
 ---@class events
 local events = {}
 

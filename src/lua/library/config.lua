@@ -1,3 +1,6 @@
+---@moduleTitle Config
+---@moduleDesc Этот модуль предоставляет доступ к постоянному хранилищу данных, которое сохраняется между сессиями игры.
+
 local getModConfig = __getModConfig --[[@as fun(): userdata]]
 local configKeyExists = __configKeyExists --[[@as fun(cfg: userdata, key: string): boolean]]
 local configGetString = __configGetString --[[@as fun(cfg: userdata, key: string): string]]

@@ -1,4 +1,5 @@
 ---@hideMembers
+---@moduleTitle ImGui
 ---@moduleDesc $snippet:imgui
 
 local ffi = require "ffi"

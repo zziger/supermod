@@ -1,3 +1,6 @@
+---@moduleTitle Memory
+---@moduleDesc Этот модуль предоставляет доступ к памяти игры, позволяет читать и писать данные в память, а также создавать хуки на функции.
+
 local ffi = require "ffi"
 local imgui = require "imgui"
 local events = require "events"

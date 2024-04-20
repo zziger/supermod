@@ -1,3 +1,6 @@
+---@moduleTitle Util
+---@moduleDesc Этот модуль предоставляет вспомогательные функции для скриптов.
+
 ---@class util
 local M = {}
 

@@ -1,3 +1,6 @@
+---@moduleTitle Timers
+---@moduleDesc Этот модуль позволяет создавать таймеры, которые будут вызывать функции через определённое время или с определённым интервалом.
+
 local registeredTimers = {}
 local lastId = 1
 local activeTimers = 0

@@ -1,4 +1,6 @@
 ﻿---@meta
+---@moduleTitle Graphics
+---@moduleDesc Этот модуль позволяет рендерить текстуры и текст на экран. Эти функции нужно вызывать внутри `render` или своих хуков.
 
 ---@class graphics
 local M = {}

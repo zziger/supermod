@@ -1,4 +1,6 @@
 ﻿---@meta assetPool
+---@moduleTitle AssetPool
+---@moduleDesc Этот модуль предоставляет доступ к пулу текстур игры, позволяет получать и загружать текстуры.
 
 ---@class AssetMeta
 ---@field notFound boolean
