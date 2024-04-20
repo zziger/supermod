@@ -1,6 +1,3 @@
----@moduleDesc bruh bruh sussy
----very sussy amogus
-
 local ffi = require "ffi"
 local imgui = require "imgui"
 local events = require "events"
@@ -50,7 +47,6 @@ end
 ---@param location string | number Паттерн или адрес в памяти
 ---@param params? MemoryParams Параметры
 ---@return Memory mem --- Обьект Memory
----@example local amogus = 5;
 function M.at(location, params)
     local unsafe = false
     local cache = true
@@ -165,7 +161,6 @@ function Memory:unprotect(size, rights)
 end
 
 ---Возвращает новый обьект Memory добавляя указанный оффсет к адресу
----:amogus sussy
 ---@param offset number Оффсет от прошлого адреса (в байтах)
 ---@return Memory
 function Memory:add(offset)
@@ -230,7 +225,6 @@ Memory.readInt = Memory.readInt32
 Memory.readDword = Memory.readInt32
 
 ---Читает int16 по текущему адресу (2 байта)
----@sus amongi
 ---@return number
 function Memory:readInt16()
     return ffi.cast("__int16*", self.addr)[0]
@@ -307,7 +301,7 @@ end
 Memory.writeLong = Memory.writeInt64
 
 ---Записывает int32 по текущему адресу (4 байта)
----@param value number very sussy indeed
+---@param value number
 function Memory:writeInt32(value)
     local rights = self:protect(4)
     ffi.cast("__int32*", self.addr)[0] = value
