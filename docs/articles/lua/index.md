@@ -170,9 +170,10 @@ function log.error(msg: string)
 
 ### ~~Функция `log.game`~~ (устарела)
 
-> [!WARNING]
-> Эта функция устарела и будет удалена в будущих версиях SuperMod.<br/>
-> Используйте `log.info`
+{% hint style="warning" %}
+Эта функция устарела и будет удалена в будущих версиях SuperMod.<br/>
+Используйте `log.info`
+{% endhint %}
 
 #### Сигнатура
 
