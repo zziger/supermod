@@ -1,7 +1,6 @@
 # Модуль memory
 
-bruh bruh sussy<br/>
-very sussy amogus
+## Элементы модуля
 
 ### Функция `memory.at`
 
@@ -44,17 +43,6 @@ function memory.at(location: string|number, params?: MemoryParams)
 #### Возвращает
 
 - `Memory`  - - Обьект Memory
-
-#### Примеры
-
-<details>
-<summary>Показать пример #1</summary>
-
-```lua
-local amogus = 5;
-```
-
-</details>
 
 ### Функция `memory.restoreBackups`
 
@@ -261,8 +249,7 @@ function Memory.toU8(wstr: ffi.cdata*)
 
 ### Метод `Memory:add`
 
-Возвращает новый обьект Memory добавляя указанный оффсет к адресу<br/>
-:amogus sussy
+Возвращает новый обьект Memory добавляя указанный оффсет к адресу
 
 #### Сигнатура
 
@@ -821,7 +808,6 @@ Memory:writeInt32(value: number)
       <th>Имя</th>
       <th>Тип</th>
       <th>Обязателен?</th>
-      <th>Описание</th>
     </tr>
   </thead>
   <tbody>
@@ -829,7 +815,6 @@ Memory:writeInt32(value: number)
       <td><code>value</code></td>
       <td><code>number</code></td>
       <td>да</td>
-      <td>very sussy indeed</td>
     </tr>
   </tbody>
 </table>
@@ -966,7 +951,7 @@ Memory:writeNop(size: number)
   </tbody>
 </table>
 
-### ~~Метод `Memory:writeString`~~
+### Метод `Memory:writeString`
 
 #### Сигнатура
 

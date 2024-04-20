@@ -1,6 +1,8 @@
 # Модуль timers
 
-### ~~Функция `timers.clearTimer`~~
+## Элементы модуля
+
+### Функция `timers.clearTimer`
 
 #### Сигнатура
 

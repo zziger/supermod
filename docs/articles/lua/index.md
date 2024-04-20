@@ -2,7 +2,7 @@
 
 ## Глобальные элементы
 
-### ~~Функция `game.isGameLoaded`~~
+### Функция `game.isGameLoaded`
 
 #### Сигнатура
 
@@ -169,6 +169,10 @@ function log.error(msg: string)
 </table>
 
 ### ~~Функция `log.game`~~ (устарела)
+
+> [!WARNING]
+> Эта функция устарела и будет удалена в будущих версиях SuperMod.<br/>
+> Используйте `log.info`
 
 #### Сигнатура
 
