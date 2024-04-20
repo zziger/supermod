@@ -19,8 +19,8 @@ export class Markdown {
         return this;
     }
 
-    annotation(text: string, type = 'WARNING') {
-        this.content += `> [!${type}]\n> ${text.replace(/\r|\n|\r\n/g, '<br/>\n> ')}\n\n`;
+    annotation(text: string, type = 'warning') {
+        this.content += `{% hint style="warning" %}\n${text.replace(/\r|\n|\r\n/g, '<br/>\n')}\n{% endhint %}\n\n`;
         return this;
     }
 
