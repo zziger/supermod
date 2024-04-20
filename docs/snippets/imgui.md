@@ -13,7 +13,7 @@ local imgui = require("imgui")
 #### Функции `ImGui::*`
 Функции `ImGui::FunctionName` (C++) доступны в Lua как `imgui.FunctionName` <br/><br/>
 C++:
-```c++
+```cpp
 ImGui::Button("Click me");
 ```
 Lua:
@@ -24,7 +24,7 @@ imgui.Button("Click me")
 #### Энумерации
 Энумы `ImGuiEnumName_EnumMember` (C++) доступны в Lua как `imgui.EnumName.EnumMember` <br/><br/>
 C++
-```c++
+```cpp
 ImGui::Begin("Window", nullptr, ImGuiWindowFlags_NoTitleBar);
 ```
 Lua:
@@ -36,7 +36,7 @@ imgui.Begin("Window", nil, imgui.WindowFlags.NoTitleBar)
 Структуры `ImStruct` (C++) доступны в Lua как `imgui.ImStruct` <br/>
 Создание структур происходит через вызов. Например:<br/><br/>
 C++:
-```c++
+```cpp
 auto vec = ImVec2(10, 10);
 ```
 Lua:
@@ -47,7 +47,7 @@ local vec = imgui.ImVec2(10, 10)
 #### Функции структур
 Функции `struct.MethodName` (C++) доступны в Lua как `struct:MethodName` <br/><br/>
 C++:
-```c++
+```cpp
 auto drawList = ImGui::GetWindowDrawList();
 drawList->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), 0xFFFFFFFF);
 ```
