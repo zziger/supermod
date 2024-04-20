@@ -1,0 +1,16 @@
+{
+  "name": "supercow-mod-docs-scripts",
+  "version": "1.0.0",
+  "main": "generate.ts",
+  "type": "module",
+  "repository": "https://github.com/zziger/supercow-mod",
+  "author": "zziger",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^20.12.7"
+  },
+  "dependencies": {
+    "tsx": "^4.7.2"
+  }
+}
