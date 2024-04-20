@@ -188,6 +188,9 @@ for (const obj of json) {
         } else {
             module.title = `Модуль ${module.name}`;
             module.md.heading(1, module.title);
+            module.md.heading(2, `Импорт модуля`);
+            module.md.text('Для импорта модуля используйте следующий код:');
+            module.md.code(`local ${module.name} = require("${module.name}")`);
         }
 
         module.file = file;
