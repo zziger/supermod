@@ -1,4 +1,4 @@
-﻿---@meta
+﻿---@meta assetPool
 
 ---@class AssetMeta
 ---@field notFound boolean
@@ -17,7 +17,8 @@
 ---@field isPoolDefault boolean
 ---@field format number
 
-M = {}
+---@class assetPool
+local M = {}
 
 ---Возвращает все ассеты из пула
 ---@return Asset[] 

@@ -1,3 +1,4 @@
+---@class util
 local M = {}
 
 ---@generic T : table

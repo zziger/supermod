@@ -1,3 +1,6 @@
+---@moduleDesc bruh bruh sussy
+---very sussy amogus
+
 local ffi = require "ffi"
 local imgui = require "imgui"
 local events = require "events"
@@ -8,18 +11,22 @@ ffi.cdef [[
 
 local protectionBuf = ffi.new("int32_t[1]")
 
+---@class memory
+local M = {}
+
 ---@class Memory
 ---@field addr number
 ---@field unsafe boolean
 ---@field backup table
+---@priority 1
 local Memory = {}
 Memory.__index = Memory
 
 ---@private
 ---@param location string | number Паттерн или адрес в памяти
 ---@param cache boolean Использовать кеширование
----@return number Адрес в памяти
-function Memory.resolveLocation(location, cache)
+---@return number addr
+function M.resolveLocation(location, cache)
     local addr = 0
 
     if type(location) == "string" then
@@ -36,14 +43,15 @@ function Memory.resolveLocation(location, cache)
 end
 
 ---@class MemoryParams
----@field unsafe? boolean Отключить защиту памяти
----@field cache? boolean Использовать кеширование паттернов (нужно если паттерн указывает больше чем на одно место в памяти)
+---@field unsafe boolean? Отключить защиту памяти
+---@field cache boolean? Использовать кеширование паттернов (нужно если паттерн указывает больше чем на одно место в памяти)
 
 ---Создает новый обьект Memory
 ---@param location string | number Паттерн или адрес в памяти
 ---@param params? MemoryParams Параметры
----@return Memory
-function Memory.at(location, params)
+---@return Memory mem --- Обьект Memory
+---@example local amogus = 5;
+function M.at(location, params)
     local unsafe = false
     local cache = true
 
@@ -59,14 +67,14 @@ function Memory.at(location, params)
     end
 
     local instance = setmetatable({}, Memory)
-    instance.addr = Memory.resolveLocation(location, cache)
+    instance.addr = M.resolveLocation(location, cache)
     instance.unsafe = unsafe
     return instance
 end
 
----Возвращает Memory привязанный к конкретному хранилищу бекапов
----@return Memory
-function Memory.withBackup(backup)
+---Возвращает текущий модуль, но привязанный к выбранному хранилищу бекапов
+---@return memory
+function M.withBackup(backup)
     if not backup["map"] then
         backup["map"] = {}
     end
@@ -74,10 +82,10 @@ function Memory.withBackup(backup)
         backup["list"] = {}
     end
 
-    local mem = setmetatable({}, Memory)
+    local mem = setmetatable({}, M)
     mem.__index = mem
     function mem.at(location, params)
-        local oldInstance = Memory.at(location, params)
+        local oldInstance = M.at(location, params)
         local instance = setmetatable({}, mem)
         instance.addr = oldInstance.addr
         instance.unsafe = oldInstance.unsafe
@@ -89,7 +97,7 @@ end
 
 ---Восстанавливает оригинальные байты из бекапа
 ---@param backup table
-function Memory.restoreBackups(backup)
+function M.restoreBackups(backup)
     if not backup["list"] then
         return
     end
@@ -157,6 +165,7 @@ function Memory:unprotect(size, rights)
 end
 
 ---Возвращает новый обьект Memory добавляя указанный оффсет к адресу
+---:amogus sussy
 ---@param offset number Оффсет от прошлого адреса (в байтах)
 ---@return Memory
 function Memory:add(offset)
@@ -221,6 +230,7 @@ Memory.readInt = Memory.readInt32
 Memory.readDword = Memory.readInt32
 
 ---Читает int16 по текущему адресу (2 байта)
+---@sus amongi
 ---@return number
 function Memory:readInt16()
     return ffi.cast("__int16*", self.addr)[0]
@@ -297,7 +307,7 @@ end
 Memory.writeLong = Memory.writeInt64
 
 ---Записывает int32 по текущему адресу (4 байта)
----@param value number
+---@param value number very sussy indeed
 function Memory:writeInt32(value)
     local rights = self:protect(4)
     ffi.cast("__int32*", self.addr)[0] = value
@@ -469,4 +479,4 @@ end)
 
 --#endregion
 
-return Memory
+return M

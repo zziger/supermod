@@ -1,6 +1,7 @@
 ﻿---@meta
 
-M = {}
+---@class graphics
+local M = {}
 
 ---Устанавливает текущую текстуру для рендера
 ---@param asset Asset?

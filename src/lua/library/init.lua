@@ -71,6 +71,7 @@ function rect(left, top, right, bottom) end
 function rgba(r, g, b, a) end
 
 --#region Log
+---@hidden
 log = {}
 
 ---@param msg string Текст лога
@@ -86,11 +87,14 @@ function log.warn(msg) end
 function log.error(msg) end
 
 ---@param msg string Текст лога
+---@deprecated
 function log.game(msg) end
 --#endregion
 
 --#region Game
+---@hidden
 game = {}
+---@hidden
 game.world = {}
 
 function game.isGameLoaded() end
@@ -119,7 +123,9 @@ function game.world.worldToScreen(coords) end
 require('base')
 
 --- Вызывается модом каждый кадр игры. Можно использовать ImGui API
+---@hidden
 function render() end
 
 --- Вызывается модом каждый кадр, когда в главном меню выбран текущий мод. Можно использовать ImGui API
+---@hidden
 function renderUi() end

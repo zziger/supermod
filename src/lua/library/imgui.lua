@@ -41,6 +41,8 @@ local ImVec4= {}
 ImVec4.__index = ImVec4
 ImVec4 = ffi.metatype("ImVec4",ImVec4)
 --the module
+
+---@class imgui
 local M = {ImVec2 = ImVec2, ImVec4 = ImVec4 , ImStrv = ImStrv, lib = lib}
 
 if jit.os == "Windows" then

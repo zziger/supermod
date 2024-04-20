@@ -1,3 +1,4 @@
+---@class events
 local events = {}
 
 local registeredEvents = {}
@@ -77,6 +78,7 @@ function events.off(id)
     end
 end
 
+---@package
 function __handleEvent(eventName, eventObj)
     local currEvents = registeredEvents[eventName]
     if not currEvents then return end

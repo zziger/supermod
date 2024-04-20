@@ -657,3 +657,34 @@ function mt:searchUrisByRequireName(name)
     end
     return old_fn(self, name)
 end
+
+
+-- require('core.hover.description')
+-- local orig = package.loaded['core.hover.description'];
+-- package.loaded['core.hover.description'] = function(source, raw)
+--     if not source or not source.bindDocs then
+--         return orig(source, raw);
+--     end
+--     for _, doc in ipairs(source.bindDocs) do
+--         print(doc.type)
+--     end
+--     return 'bruh'
+-- end
+
+local function printLocals()
+    local i = 1
+    while true do
+        local name, value = debug.getlocal(3, i)
+        if not name then break end
+        print(name, i, value)
+        i = i + 1
+    end
+end
+
+local luadoc = require 'script.parser.luadoc'
+print(util.dump(luadoc))
+-- local orig = luadoc.buildAndBindDoc
+-- luadoc.buildAndBindDoc = function(...)
+--     printLocals()
+--     orig(...)
+-- end

@@ -9,7 +9,7 @@ local activeTimers = 0
 ---@field delay number
 ---@field once boolean
 
----@type { [number]: Timer }
+---@class timers
 local timers = {}
 
 ---Выполняет функцию fn через delay миллисекунд
@@ -45,6 +45,7 @@ function timers.clearTimer(id)
     registeredTimers[id] = nil
 end
 
+---@package
 function __tick()
     if activeTimers == 0 then return end
     local timestamp = currentTimestamp()

@@ -1,5 +1,6 @@
 {
     "runtime.version": "LuaJIT",
+    "runtime.plugin": "./plugin/plugin.lua",
     "diagnostics.globals": [
         "__handleEvent",
         "__enableEvent",

@@ -7,17 +7,28 @@ local configGetNested = __configGetNested --[[@as fun(cfg: userdata, key: string
 local configSet = __configSet --[[@as fun(cfg: userdata, val: any, key: string): userdata]]
 local configSave = __configSave --[[@as fun()]]
 
----@class Config
----@field handle userdata
-local Config = {}
-Config.__index = Config
+---@class config
+local config = {}
 
 ---@private
-function Config.fromHandle(handle)
-    local instance = setmetatable({}, Config)
+function config.fromHandle(handle)
+    local instance = setmetatable({}, config)
     instance.handle = handle
     return instance
 end
+
+---Сохраняет конфиг файл на диск
+function config.save()
+    configSave()
+end
+
+---Обьект конфигурации текущего мода
+---@type Config
+config.mod = config.fromHandle(getModConfig())
+
+---@class Config
+---@field private handle userdata
+local Config = {}
 
 ---Получает строковое значение по указанному ключу
 ---@param key string
@@ -40,7 +51,7 @@ end
 ---Получает вложенный обьект по указанному ключу
 ---@param key string
 function Config:getObject(key)
-    return Config.fromHandle(configGetNested(self.handle, key))
+    return config.fromHandle(configGetNested(self.handle, key))
 end
 
 ---Возвращает существует ли указанный ключ
@@ -55,13 +66,5 @@ end
 function Config:set(key, value)
     configSet(self.handle, value, key)
 end
-
----Сохраняет конфиг файл на диск
-function Config.save()
-    configSave()
-end
-
----Обьект конфигурации текущего мода
-Config.mod = Config.fromHandle(getModConfig())
 
 return Config
