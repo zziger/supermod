@@ -1,3 +1,5 @@
+import fs from "fs";
+
 export class Markdown {
     public content: string = '';
 
@@ -8,7 +10,17 @@ export class Markdown {
 
     text(text: string) {
         if (!text) return this;
-        this.content += `${text.replace(/\r|\n|\r\n/g, '<br/>\n')}\n\n`;
+        this.content += `${Markdown.resolveVariables(text.replace(/\r|\n|\r\n/g, '<br/>\n'))}\n\n`;
+        return this;
+    }
+
+    quote(text: string) {
+        this.content += `> ${text.replace(/\r|\n|\r\n/g, '<br/>\n> ')}\n\n`;
+        return this;
+    }
+
+    annotation(text: string, type = 'WARNING') {
+        this.content += `> [!${type}]\n> ${text.replace(/\r|\n|\r\n/g, '<br/>\n> ')}\n\n`;
         return this;
     }
 
@@ -81,5 +93,11 @@ export class Markdown {
 
         if (tag) return `<del>${text.replace(/</g, '&lt;')}</del>`;
         return `~~${text}~~`;
+    }
+
+    static resolveVariables(str: string) {
+        return str.replace(/\$snippet:(\w+)/g, (match, name) => {
+            return fs.readFileSync(`../snippets/${name}.md`, 'utf8');
+        })
     }
 }

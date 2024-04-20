@@ -1,9 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as url from 'url';
-import * as assert from 'assert';
-import * as util from 'util';
-import {DocComments} from "./docComments";
 import {SourceFile} from "./sourceFile";
 import {SourceLocation, SourceRange} from "./source";
 import {Markdown} from "./markdown";
@@ -123,6 +120,7 @@ class Module {
     classes: Entity[] = [];
     enums: Entity[] = [];
     title: string = "";
+    hideMembers: boolean = false;
 
     constructor(public name: string, public isGlobal = false) {
         this.md = new Markdown();
@@ -191,11 +189,15 @@ for (const obj of json) {
             module.title = `Модуль ${module.name}`;
             module.md.heading(1, module.title);
         }
-        const doc = file.docComments.findField('moduleDesc');
-        if (doc)
-            module.md.text(doc.value);
+
         module.file = file;
+
+        const doc = file.docComments.findField('moduleDesc');
+        if (doc) module.md.text(doc.value.trim());
+        module.hideMembers = !!file.docComments.findField('hideMembers');
     }
+
+    if (module.hideMembers) continue;
 
     if (obj.type === "type" && obj.defines[0].type === "doc.class") {
         const entity = new Entity(obj.name);
@@ -206,6 +208,7 @@ for (const obj of json) {
         if (isMainClass) {
             entity.priority = Number.MAX_SAFE_INTEGER;
             obj.name = module.name;
+            entity.content.heading(2, `Элементы модуля`);
         }
         else if (obj.global) {
             entity.priority = Number.MAX_SAFE_INTEGER;
@@ -317,12 +320,17 @@ for (const obj of json) {
                     if (functionDocEntity?.hasField('hidden')) return;
                     if (functionDocEntity?.hasField('private')) return;
                     if (functionDocEntity?.hasField('package')) return;
-                    const isDeprecated = functionDocEntity?.hasField('deprecated');
+                    const isDeprecated = functionDocEntity?.hasField('deprecated') ?? false;
                     const isCtor = functionDocEntity?.hasField('constructor');
 
                     let name = field.name;
                     if (!obj.global) name  = obj.name + (method ? ":" : ".") + name;
                     entity.content.heading(3, Markdown.strikethrough(`${isCtor ? "Конструктор" : method ? "Метод" : "Функция"} \`${name}\``, false, isDeprecated) + (isDeprecated ? ' (устарела)' : ''));
+
+                    if (isDeprecated) {
+                        const message = functionDocEntity!.getField('deprecated');
+                        entity.content.annotation(`Эта функция устарела и будет удалена в будущих версиях SuperMod.${message ? `\n${message}` : ''}`);
+                    }
 
                     const args = extendsObj.args ? [...extendsObj.args] : [];
                     if (method) args.shift();
