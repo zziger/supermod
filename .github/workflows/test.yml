@@ -1,0 +1,31 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup XMake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - name: Cache XMake packages
+        uses: actions/cache@v3
+        with:
+          key: build-${{ hashFiles('xmake.lua') }}
+          path: |
+            ~/AppData/Local/.xmake/packages
+            ~/AppData/Local/.xmake/cache
+      - name: Setup project
+        run: xmake f -y -m release -a x86
+      - name: Build project
+        run: xmake build -y test
+      - name: Test
+        env:
+          TERM: xterm
+        run: xmake run -y test --gtest_color=yes

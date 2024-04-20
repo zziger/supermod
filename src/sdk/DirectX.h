@@ -1,6 +1,8 @@
 ﻿#pragma once
+
+#include <d3d9.h>
+#include <d3d8/d3d8.hpp>
 #include "memory/Memory.h"
-#include "thirdparty/directx/d3d8.h"
 
 namespace sdk
 {
@@ -11,10 +13,12 @@ namespace sdk
         static constexpr Memory::Pattern deviceWasResetPat{ "C6 05 ? ? ? ? ? 0F B6 0D ? ? ? ? 85 C9 75 ? 83 3D" }; // mov deviceWasReset, 1
 
         static void Init();
-        static void ResetDevice();
+        static void RequestDeviceReset();
         static void EnsureDeviceReady();
 
         static void RemoveTexture(IDirect3DTexture8* texture);
+
+        static IDirect3DDevice9* GetDx9();
         
     private:
         static inline std::vector<IDirect3DTexture8*> removedTextures;

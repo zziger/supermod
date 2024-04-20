@@ -3,22 +3,20 @@
 #include <stdio.h>
 #include <tga.h>
 
-#include "Log.h"
 #include "TextureLoader.h"
-#include "directx/d3d8.h"
+#include "TgaFileInterface.h"
+#include <d3d8/d3d8helpers.h>
 #include "sdk/DirectX.h"
 
 class TgaLoader
 {
 	
 public:
-	static std::optional<std::vector<byte>> ReadTga(std::filesystem::path path, vector2ui& size)
+	static std::optional<std::vector<byte>> ReadTga(const std::filesystem::path& path, vector2ui& size)
 	{
-		FILE* f;
-		if (fopen_s(&f, path.string().c_str(), "rb"))
-			return {};
+		TgaFileInterface file(path);
+		if (!file.ok()) return {};
 
-		tga::StdioFileInterface file(f);
 		tga::Decoder decoder(&file);
 		tga::Header header;
 		if (!decoder.readHeader(header))
@@ -63,7 +61,7 @@ public:
 
 		if (bytesPerPixel < 3)
 		{
-			Log::Warn << "TGA with less than 3 bytes per pixel is not supported" << Log::Endl;
+			spdlog::warn("Failed to load {}: TGA with less than 3 bytes per pixel is not supported", path.string());
 			return {};
 		}
 

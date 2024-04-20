@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <xstring>
+
 #include "thirdparty/bass.h"
 
 namespace game
@@ -12,6 +14,8 @@ namespace game
 #pragma pack(push, 1)
     class SoundHost {
     public:
+        static inline bool initialized = false;
+
         char stringRelatedToAudio[256];
         char loadedMusicNames[32][32];
         float unk1;
@@ -28,6 +32,8 @@ namespace game
         int GetMusicIndex(const char* name) const;
         int GetSoundIndex(const char* name) const;
         void RemoveMusic(int index);
+        void LoadMusic(const std::string& name, HSTREAM stream);
+        void ReplaceMusic(int index, HSTREAM steam);
         void LoadMusic(const char* name);
         void LoadSound(const char* name);
     };

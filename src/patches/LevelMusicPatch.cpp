@@ -4,6 +4,7 @@
 #include "memory/HookManager.h"
 #include "sdk/Game.h"
 #include <fstream>
+#include <spdlog/spdlog.h>
 
 const char* (*parse_level_string)(char* a1, const char* str, const char* substr) = nullptr;
 
@@ -13,7 +14,7 @@ HOOK_FN_CONV(inline int, parse_level_int, ARGS(const char* content, const char* 
         parse_level_string(musicName, content, "curlevelmusicname=");
         auto index = game::SoundHost::GetInstance()->GetMusicIndex(musicName);
         if (index != -1) {
-            Log::Debug << "Музыка уровня перезаписана на " << musicName << " с индексом " << index << Log::Endl;
+            spdlog::debug("Level music was overwritten with {} at index {}", musicName, index);
             return index;
         }
     }
@@ -30,7 +31,7 @@ char __fastcall editor_write_level_file(void* this_, void*, int stage, int level
     std::fstream file(path, std::fstream::in);
 
     if (!file.is_open()) {
-        Log::Error << "Не удалось открыть файл " << path << Log::Endl;
+        spdlog::error("Failed to open file {} for writing from level editor", path.string());
         return res;
     }
     

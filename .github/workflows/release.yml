@@ -15,6 +15,19 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
+      - name: Cache XMake packages
+        uses: actions/cache@v3
+        with:
+          key: build-${{ hashFiles('xmake.lua') }}
+          path: |
+            ~/AppData/Local/.xmake/packages
+            ~/AppData/Local/.xmake/cache
+      - name: Build test project
+        run: xmake build -y test
+      - name: Test
+        env:
+          TERM: xterm
+        run: xmake run -y test --gtest_color=yes
       - name: Build
         run: ./build.bat ${{github.ref_name}}
       - name: Prepare SDK

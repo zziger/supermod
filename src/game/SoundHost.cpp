@@ -1,6 +1,5 @@
 ﻿#include "SoundHost.h"
 
-#include "Log.h"
 #include "memory/Memory.h"
 
 namespace game
@@ -37,6 +36,20 @@ namespace game
             musicPool[i] = musicPool[i + 1];
         }
         BASS_StreamFree(ptr);
+    }
+
+    void SoundHost::LoadMusic(const std::string& name, HSTREAM stream)
+    {
+        musicPool[loadedMusic] = stream;
+        name.copy(loadedMusicNames[loadedMusic], 32);
+        loadedMusic++;
+    }
+
+    void SoundHost::ReplaceMusic(int index, HSTREAM steam)
+    {
+        const auto old = musicPool[index];
+        BASS_StreamFree(old);
+        musicPool[index] = steam;
     }
     
     void SoundHost::LoadMusic(const char* name) {

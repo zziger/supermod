@@ -3,9 +3,9 @@
 #include <optional>
 
 #include "Data.h"
-#include "thirdparty/LuaContext.h"
-#include <semver.hpp>
-#include "thirdparty/directx/d3d8.h"
+#include <semver/semver.hpp>
+#include <d3d8/d3d8helpers.h>
+#include <modloader/mod/impl/lua/lua.h>
 
 namespace sdk
 {
@@ -16,6 +16,8 @@ namespace sdk
 
         static void Init();
 
+        static void Free(void* mem);
+
         static void Restart();
         static void StartEditor();
 
@@ -25,14 +27,16 @@ namespace sdk
         static inline bool currentTickIsInner = false;
         static inline bool bootMenuActive = false;
         static inline bool booted = false;
+        static inline vector2i lastResolution = { 800, 600 };
 
         static std::filesystem::path GetRootPath();
         static char* GetRawDataPath();
+        static void RequestExit();
         static std::filesystem::path GetDataPath();
         static std::filesystem::path GetModsPath();
 
-        static constexpr semver::version GetSdkVersion() {
-            return semver::version { VERSION };
+        static semver::version GetSdkVersion() {
+            return semver::version::parse(SUPERMOD_VERSION);
         }
         static uint64_t GetGameVersion();
 
@@ -51,8 +55,25 @@ namespace sdk
             static std::tuple<vector2, bool> WorldToScreen(vector2 coords);
         };
 
-        static void AddDataToLua(LuaContext& context);
-        static void AddToLua(LuaContext& context);
+        static void AddToLua(sol::table lua)
+        {
+            lua["restart"] = Restart;
+            lua["isGameLoaded"] = IsGameLoaded;
+            lua["getDataPath"] = GetDataPath;
+            lua["getModsPath"] = GetModsPath;
+            lua["getGameVersion"] = GetGameVersion;
+            lua["serializeGameVersion"] = SerializeGameVersion;
+            lua["parseGameVersion"] = ParseGameVersion;
+            lua["getRenderSize"] = GetRenderSize;
+
+            auto world = lua.create_named("world");
+            world["getCamWorldRect"] = World::GetCamWorldRect;
+            world["getWorldProjectionSize"] = World::GetWorldProjectionSize;
+            world["getCamZoom"] = World::GetCamZoom;
+            world["getCamPos"] = World::GetCamPos;
+            world["screenToWorld"] = World::ScreenToWorld;
+            world["worldToScreen"] = World::WorldToScreen;
+        }
     private:
         inline static std::optional<std::filesystem::path> _rootPath;
     };

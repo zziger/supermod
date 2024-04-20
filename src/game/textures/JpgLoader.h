@@ -3,9 +3,12 @@
 #include <stdio.h>
 #include <jpeglib.h>
 
-#include "Log.h"
 #include "TextureLoader.h"
-#include "directx/d3d8.h"
+#include <d3d8/d3d8helpers.h>
+#include <spdlog/spdlog.h>
+#include <filesystem>
+#include <fstream>
+
 #include "sdk/DirectX.h"
 
 class JpgLoader
@@ -17,7 +20,7 @@ class JpgLoader
 	};
 	
 	static boolean fill_mem_input_buffer(j_decompress_ptr cinfo) {
-		Log::Error << "JPGA: fill_mem_input_buffer should not be called" << Log::Endl;
+		spdlog::error("Failed to call fill_mem_input_buffer from JPGA loader");
 		return TRUE;
 	}
 	
@@ -39,14 +42,14 @@ public:
 	{
 		if (bufSize - imageSize <= 0)
 		{
-			Log::Debug << "Skipped JPGA alpha load for " << path << ": no alpha data found" << Log::Endl;
+			spdlog::debug("Skipped JPGA alpha load for {}: no alpha data found", path.string());
 			return;
 		}
 
 		auto expectedSize = size.x * size.y;
 		if (bufSize - imageSize < expectedSize)
 		{
-			Log::Debug << "Skipped JPGA alpha load for " << path << ": not enough alpha data (expected " << expectedSize << ", got " << (bufSize - imageSize) << ")" << Log::Endl;
+			spdlog::debug("Skipped JPGA alpha load for {}: not enough alpha data (expected {}, got {})", path.string(), expectedSize, bufSize - imageSize);
 			return;
 		}
 
@@ -126,11 +129,11 @@ public:
 			return rgba_buffer;
 		} catch(std::exception& e)
 		{
-			Log::Error << "Failed to load JPG: " << e.what() << Log::Endl;
+			spdlog::error("Failed to load JPG: {}", e.what());
 			return std::nullopt;
 		} catch(...)
 		{
-			Log::Error << "Failed to load JPG: unknown error" << Log::Endl;
+			spdlog::error("Failed to load JPG: unknown error");
 			return std::nullopt;
 		}
 		

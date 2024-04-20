@@ -1,9 +1,16 @@
 #pragma once
-#define LUA_MODULE_IMGUI_CDECL 300
-#define LUA_MODULE_IMGUI 301
-#define LUA_MODULE_MEMORY 302
-#define LUA_MODULE_EVENTS 303
-#define LUA_MODULE_TIMERS 304
-#define LUA_MODULE_CONFIG 306
-#define LUA_BASE_MODULE 305
+#include <winver.h>
+
+#ifdef _DEBUG
+  #define VER_VER_DEBUG             VS_FF_DEBUG
+#else
+  #define VER_VER_DEBUG             0
+#endif
+
+#define VER_FILEOS                  VOS_NT_WINDOWS32
+#define VER_FILEFLAGS               VER_VER_DEBUG
+#define VER_FILETYPE                VFT_APP
+
+
+#define LUA_SDK_ZIP 307
 #define RES_LOGO 400

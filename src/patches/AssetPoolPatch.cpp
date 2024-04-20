@@ -59,10 +59,20 @@ game::AssetPool* (__thiscall * remove_asset_orig)(game::AssetPool* this_, game::
 game::AssetPool* __fastcall remove_asset(game::AssetPool* this_, void*, game::Asset* asset) {
     if (asset == nullptr) return this_;
     const auto origMeta = asset->meta;
+    const auto name = asset->name;
     const auto count = this_->assetCount;
     remove_asset_orig(this_, asset);
-    if (this_->assetCount == count) Log::Warn << "Failed to free asset!" << Log::Endl;
-    else delete origMeta;
+    if (this_->assetCount != count)
+    {
+        delete origMeta;
+        if (game::AssetPool::ownedAssets.contains(asset))
+        {
+            const auto ownedAsset = game::AssetPool::ownedAssets[asset];
+            if (!ownedAsset.expired()) ownedAsset.lock()->Reset();
+            game::AssetPool::ownedAssets.erase(asset);
+        }
+    }
+    else spdlog::error("Failed to free asset {} from asset pool", name);
     return this_;
 }
 
@@ -91,7 +101,7 @@ game::Asset* __fastcall load_texture_obj(game::AssetPool* this_, void*, char* na
         return nullptr;
     }
 
-    Log::Error << "Object texture " << name << " not found" << Log::Endl;
+    spdlog::error("Texture for object {} was not found", name);
     return this_->LoadUnknownAsset(game::AssetPool::CreateAssetKey(name));
 }
 

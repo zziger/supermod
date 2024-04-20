@@ -1,22 +1,24 @@
 ﻿#pragma once
 #include "EventManager.h"
-#include "../modloader/mods/ModInfo.h"
+#include "../modloader/mod/info/ModInfo.h"
 
 template <EventId EventId>
 struct ModEvent : IEvent<EventId, ModEvent<EventId>> {
-    ModInfo modInfo;
+    modloader::ModInfo modInfo;
 
-    explicit ModEvent(ModInfo modInfo) : modInfo(std::move(modInfo)) {}
+    explicit ModEvent(modloader::ModInfo modInfo) : modInfo(std::move(modInfo)) {}
     ModEvent() = default;
 
-    void RegisterType(LuaContext* ctx) override sealed {
-        ctx->registerConstMember("modInfo", &ModEvent::modInfo);
+    void RegisterLuaType(sol::state& state) override {
+        state.new_usertype<ModEvent>(sol::no_constructor,
+            "modInfo", &ModEvent::modInfo
+        );
     }
 };
 
 struct ModLoadEvent final : ModEvent<"modLoad"> {
-    ModLoadEvent(ModInfo modInfo): ModEvent(std::move(modInfo)) {}
+    ModLoadEvent(modloader::ModInfo modInfo): ModEvent(std::move(modInfo)) {}
 };
 struct ModUnloadEvent final : ModEvent<"modUnload"> {
-    ModUnloadEvent(ModInfo modInfo): ModEvent(std::move(modInfo)) {}
+    ModUnloadEvent(modloader::ModInfo modInfo): ModEvent(std::move(modInfo)) {}
 };

@@ -10,8 +10,6 @@
 #include <Psapi.h>
 #include <cstdint>
 #include <MinHook.h>
-#include <Log.h>
-
 
 #define MAX_SIG_SIZE 128
 
@@ -34,11 +32,11 @@ public:
 
 	class Pattern
 	{
-		static bool Match(const byte* addr, const byte* pat, const byte* msk)
+		static bool Match(const BYTE* addr, const BYTE* pat, const BYTE* msk)
 		{
 			size_t n = 0;
 
-			while (addr[n] == pat[n] || msk[n] == (byte)'?')
+			while (addr[n] == pat[n] || msk[n] == (BYTE)'?')
 			{
 				if (!msk[++n])
 					return true;
@@ -47,12 +45,12 @@ public:
 			return false;
 		}
 
-		static byte* Find(byte* rangeStart, const int len, const char* sig, const char* mask)
+		static BYTE* Find(BYTE* rangeStart, const int len, const char* sig, const char* mask)
 		{
 			const size_t maskLength = strlen(mask);
 			for (int n = 0; n < len - maskLength; ++n)
 			{
-				if (Match(rangeStart + n, (byte*)sig, (byte*)mask)) {
+				if (Match(rangeStart + n, (BYTE*)sig, (BYTE*)mask)) {
 					return rangeStart + n;
 				}
 			}
@@ -79,7 +77,7 @@ public:
 		bool Includes(const Pattern& pat) const
 		{
 			if (this->size > pat.size) return false;
-			return Match((byte*)pat.sig, (byte*)this->sig, (byte*)this->mask);
+			return Match((BYTE*)pat.sig, (BYTE*)this->sig, (BYTE*)this->mask);
 		}
 
 		template<std::size_t Size>
@@ -158,7 +156,7 @@ public:
 				}
 			}
 
-			byte* res = Find(base == 0 ? (byte*)Base() : (byte*)base, (int)GetSize(), sig, mask);
+			BYTE* res = Find(base == 0 ? (BYTE*)Base() : (BYTE*)base, (int)GetSize(), sig, mask);
 
 			if (!res)
 			{
@@ -359,9 +357,9 @@ public:
 	}
 
 	template<std::size_t N>
-	void Put(uint8_t(&bytes)[N])
+	void Put(uint8_t(&BYTEs)[N])
 	{
-		Put<uint8_t[N]>(bytes);
+		Put<uint8_t[N]>(BYTEs);
 	}
 
 	template<class T>

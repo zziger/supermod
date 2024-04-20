@@ -1,8 +1,13 @@
 ﻿#include "AssetPool.h"
 
+#include <logs/Console.h>
+#include <ranges>
+#include <memory>
+#include <modloader/files/ModFileResolver.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/bundled/color.h>
+
 #include "events/TickEvent.h"
-#include "modloader/mods/ModManager.h"
-#include "modloader/mods/files/ModFileResolver.h"
 #include "sdk/Game.h"
 #include "textures/JpgLoader.h"
 #include "textures/PngLoader.h"
@@ -10,46 +15,18 @@
 
 namespace game
 {
-    void AssetMeta::RegisterType(LuaContext * ctx)
-    {
-        ctx->registerMember("notFound", &AssetMeta::notFound);
-        ctx->registerMember("origDir", &AssetMeta::origDir);
-        ctx->registerMember("origName", &AssetMeta::origName);
-        ctx->registerMember("canvasSizeMultiplier", &AssetMeta::canvasSizeMultiplier);
-        ctx->registerMember("loadedManually", &AssetMeta::loadedManually);
-    }
-    
     void Asset::ReplaceTexture(IDirect3DTexture8* tex) {
         sdk::DirectX::RemoveTexture(texture);
         texture = tex;
     }
-    
-    void Asset::RegisterType(LuaContext* ctx)
+
+    OwnedAsset::~OwnedAsset()
     {
-        AssetMeta::RegisterType(ctx);
-        
-        ctx->registerMember<std::string (Asset::*)>("name",
-            [](const Asset& asset) {
-                return std::string(asset.name);
-            },
-            [](Asset& asset, const std::string& name) {
-                if (name.length() > 123) throw std::runtime_error("Asset name is too long");
-                std::ranges::copy(name, asset.name);
-                asset.name[name.length()] = '\0';
-            });
-        ctx->registerMember("meta", &Asset::meta);
-        ctx->registerMember("width", &Asset::width);
-        ctx->registerMember("height", &Asset::height);
-        ctx->registerMember<int (Asset::*)>("texture",
-            [](const Asset& asset) {
-                return reinterpret_cast<int>(asset.texture);
-            },
-            [](Asset& asset, const int& ptr) {
-                asset.texture = reinterpret_cast<IDirect3DTexture8*>(ptr);
-            });
-        ctx->registerCastedMember<bool>("hasAlpha", &Asset::hasAlpha);
-        ctx->registerCastedMember<bool>("isPoolDefault", &Asset::hasAlpha);
-        ctx->registerCastedMember<int>("format", &Asset::format);
+        if (asset)
+        {
+            AssetPool::Instance()->RemoveAsset(asset);
+            if (AssetPool::ownedAssets.contains(asset)) AssetPool::ownedAssets.erase(asset);
+        }
     }
 
     LPDIRECT3DTEXTURE8 AssetPool::LoadTexture(const std::filesystem::path& path, vector2ui& size, bool& alpha, vector2 canvasSizeMultiplier)
@@ -77,7 +54,7 @@ namespace game
             return PngLoader::LoadPng(path, size, canvasSizeMultiplier);
         }
 
-        Log::Error << "Unknown texture extension " << ext << Log::Endl;
+        spdlog::error("Unknown texture extension {}", ext);
         return nullptr;
     }
 
@@ -106,15 +83,17 @@ namespace game
         modName = "";
         IDirect3DTexture8* tex = nullptr;
         
-        auto mods = ModManager::GetMods();
-        for (auto el = mods.rbegin(); el != mods.rend(); ++el)
+        auto mods = modloader::ModManager::GetMods();
+        for (const auto& mod : mods | std::ranges::views::reverse)
         {
-            if (!(*el)->IsEnabled()) continue;
-            tex = TryLoadTexture(ModFileResolver::GetModFilePath(*el, dir), name, alpha, size, canvasSizeMultiplier);
+            if (!mod->IsActive()) continue;
+            const auto path = modloader::ModFileResolver::GetGameFileInMod(mod, dir);
+            if (!path) continue;
+            tex = TryLoadTexture(*path, name, alpha, size, canvasSizeMultiplier);
             
             if (tex)
             {
-                modName = (*el)->info.id;
+                modName = mod->GetID();
                 break;
             }
         }
@@ -144,7 +123,7 @@ namespace game
         
         if (!tex) 
         {
-            Log::Error << "Game texture " << path << " not found" << Log::Endl;
+            spdlog::error("Game texture {} not found", path.string());
             
             found = false;
             size = { 256, 256 };
@@ -168,7 +147,7 @@ namespace game
         asset->meta->origName = name;
 
         if (found && !modName.empty())
-            Log::Warn << "Loaded " << name << " from mod " << modName << Log::Endl;
+            spdlog::debug("Loaded texture {} from mod {}", Console::StyleEmphasise(name), Console::StyleModName(modName));
         
         return asset;
     }
@@ -183,32 +162,32 @@ namespace game
         return asset;
     }
 
-    void AssetPool::ReloadGameAsset(const std::string& filename)
+    bool AssetPool::ReloadGameAsset(const std::string& filename)
     {
         auto key = CreateAssetKey(filename);
         const auto asset = GetByName(key);
-        if (!asset) return;
+        if (!asset) return false;
 
         if (asset->meta->loadedManually)
         {
-            Log::Warn << "Перезагрузка текстуры " << filename << " невозможна, так как она была загружена вручную" << Log::Endl;
-            return;
+            spdlog::warn("Cannot reload texture {}, because it was loaded manually", filename);
+            return false;
         }
 
         if (asset->meta->origDir.empty() || asset->meta->origName.empty())
         {
-            Log::Warn << "Перезагрузка текстуры " << filename << " невозможна, так как она была загружена из неизвестного места" << Log::Endl;
-            return;
+            spdlog::warn("Cannot reload texture {}, because it was loaded from an unknown location", filename);
+            return false;
         }
 
-        vector2ui size;
+        vector2ui size {};
         std::string modName;
         auto texture = TryLoadTextureFromMods(asset->meta->origDir, asset->meta->origName, asset->hasAlpha, size, modName, asset->meta->canvasSizeMultiplier);
         if (!texture)
         {
             size = { 256, 256 };
             texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, asset->meta->canvasSizeMultiplier);
-            Log::Error << "Не удалось перезагрузить текстуру " << filename << " (" + key + ")" << Log::Endl;
+            spdlog::error("Failed to reload texture {} ({})", filename, key);
         }
 
         sdk::DirectX::RemoveTexture(asset->texture);
@@ -216,7 +195,8 @@ namespace game
         asset->width = size.x;
         asset->height = size.y;
 
-        Log::Info << "Текстура " << filename << " (" + key + ") перезагружена" << Log::Endl;
+        spdlog::debug("Reloaded texture {} ({})", filename, key);
+        return true;
     }
     
     Asset* AssetPool::LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size) {
@@ -259,7 +239,7 @@ namespace game
         if (!tex) tex = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier);
 
         if (notFound)
-            Log::Error << "Texture " << path << " not found" << Log::Endl;
+            spdlog::error("Texture {} not found", path.string());
         
         const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
         if (asset->texture) sdk::DirectX::RemoveTexture(asset->texture);
@@ -321,7 +301,16 @@ namespace game
         
         if (asset->meta) asset->meta->notFound = true;
         const auto previousTexture = asset->texture;
-        asset->texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, { asset->width, asset->height }, asset->meta ? asset->meta->canvasSizeMultiplier : vector2 { 1, 1 });
+
+        try
+        {
+            asset->texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, { asset->width, asset->height }, asset->meta ? asset->meta->canvasSizeMultiplier : vector2 { 1, 1 });
+        }
+        catch(std::exception& e)
+        {
+            asset->texture = nullptr;
+        }
+
         sdk::DirectX::RemoveTexture(previousTexture);
 
         if (asset->meta && asset->meta->loadedManually) {
@@ -335,6 +324,18 @@ namespace game
         static constexpr Memory::Pattern pat("E8 ? ? ? ? C7 05 ? ? ? ? ? ? ? ? 68 ? ? ? ? FF 15");
         static auto mem = pat.Search().GoToNearCall();
         mem.Get<void (__thiscall *)(void*, void*)>()(static_cast<void*>(this), asset);
+    }
+
+    std::shared_ptr<OwnedAsset> AssetPool::MakeOwned(Asset* asset)
+    {
+        if (ownedAssets.contains(asset))
+        {
+            if (!ownedAssets[asset].expired()) return ownedAssets[asset].lock();
+        }
+
+        auto shared = std::make_shared<OwnedAsset>(asset);
+        ownedAssets[asset] = shared;
+        return shared;
     }
 
     void AssetPool::FreeRemovedAssets() {
@@ -392,33 +393,15 @@ namespace game
         bool alpha;
         return CreateAssetKey(name, alpha);
     }
-    
-    void AssetPool::AddToLua(LuaContext& ctx) {
-        Asset::RegisterType(&ctx);
 
-        ctx.writeModuleVariable("assetPool", LuaContext::Table{});
-        ctx.writeModuleVariable("assetPool", "getAssets", std::function([]() {
-            return std::vector<Asset*> {Instance()->assets, Instance()->assets + Instance()->assetCount};
-        }));
-        ctx.writeModuleVariable("assetPool", "getAssetByName", std::function([](const std::string& name) -> tl::optional<Asset*> {
-            auto asset = Instance()->GetByName(name);
-            if (!asset) return tl::nullopt;
-            return asset;
-        }));
-        ctx.writeModuleVariable("assetPool", "getUnknownAsset", std::function([]() {
-            return Instance()->GetSharedUnknownAsset();
-        }));
-        ctx.writeModuleVariable("assetPool", "loadGameAsset", std::function([](const std::string& path, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
-            return Instance()->LoadGameAsset(path, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
-        }));
-        ctx.writeModuleVariable("assetPool", "loadGameAssetFromData", std::function([](const std::string& path, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
-            return Instance()->LoadGameAssetFromData(path, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
-        }));
-        ctx.writeModuleVariable("assetPool", "loadAsset", std::function([](const std::string& path, const std::string& key, tl::optional<bool> loadFallback, tl::optional<vector2> canvasSizeMultiplier) -> tl::optional<Asset*> {
-            return Instance()->LoadAsset(path, key, loadFallback ? *loadFallback : true, canvasSizeMultiplier ? *canvasSizeMultiplier : vector2 { 1, 1 });
-        }));
-        ctx.writeModuleVariable("assetPool", "removeAsset", std::function([](Asset* asset) {
-            Instance()->RemoveAsset(asset);
-        }));
+    std::string AssetPool::MakeAssetKeyUnique(const std::string& key) const
+    {
+        if (!GetByName(key)) return key;
+        auto i = 0;
+        while (true) {
+            const auto newKey = key + "-" + std::to_string(i);
+            if (!GetByName(newKey)) return newKey;
+            i++;
+        }
     }
 }

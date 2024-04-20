@@ -1,14 +1,18 @@
 #pragma once
+#include <array>
 #include <imgui.h>
 #include <locale>
 #include <string>
 #include <Windows.h>
 #include <fstream>
 
-#include <thirdparty/directx/d3d8.h>
+#include <d3d8/d3d8.hpp>
 #include <format>
 #include <functional>
 #include <optional>
+#include <sstream>
+#include <filesystem>
+#include <zip_file.h>
 
 #define MAX_INPUT_LENGTH 255
 
@@ -31,6 +35,12 @@ namespace utils
     }
 
     inline std::string trim(std::string& str) {
+        str.erase(str.find_last_not_of(' ') + 1);
+        str.erase(0, str.find_first_not_of(' '));
+        return str;
+    }
+
+    inline std::string trim(std::string str) {
         str.erase(str.find_last_not_of(' ') + 1);
         str.erase(0, str.find_first_not_of(' '));
         return str;
@@ -100,6 +110,28 @@ namespace utils
         FreeResource(resHandle);
         return result;
     }
+
+    inline std::unique_ptr<miniz_cpp::zip_file> read_zip_resource(const int resource) {
+        const auto res = FindResource(reinterpret_cast<HMODULE>(&__ImageBase), MAKEINTRESOURCE(resource), RT_RCDATA);
+        if (!res) return nullptr;
+        const auto resHandle = LoadResource(reinterpret_cast<HMODULE>(&__ImageBase), res);
+        if (!resHandle) return nullptr;
+
+        const auto size = SizeofResource(reinterpret_cast<HMODULE>(&__ImageBase), res);
+        const auto data = static_cast<unsigned char*>(LockResource(resHandle));
+        std::vector vec(data, data + size);
+        FreeResource(resHandle);
+
+        return std::make_unique<miniz_cpp::zip_file>(vec);
+    }
+
+    inline std::string pluralize(const int count, const std::array<std::string, 3>& words)
+    {
+        static std::array cases = { 2, 0, 1, 1, 1, 2 };
+        std::stringstream ss;
+        ss << count << " " << words[ count % 100 > 4 && count % 100 < 20 ? 2 : cases[std::min(count % 10, 5)] ];
+        return ss.str();
+    }
 }
 
 template <typename...> struct WhichType;
@@ -115,9 +147,11 @@ inline std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16
 #define ARGS(...) __VA_ARGS__
 
 #define HOOK_FN(retn, name, args) retn (*name##_orig)(args) = nullptr;\
-    retn name(args)
+retn name(args)
 #define HOOK_FN_CONV(retn, name, args, conv) retn (conv *name##_orig)(args) = nullptr;\
     retn conv name(args)
 
 #define HOOK_REF(name) name, &name##_orig
 #define HOOK_REF_FORCE(name) (void*) name, (void**) &name##_orig
+
+#define ENSURE_SIZE(class, size) static_assert(sizeof(class) == size, "Invalid size of class " #class)

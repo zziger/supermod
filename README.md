@@ -50,7 +50,8 @@
 
 - Visual Studio Build Tools, рекомендуемо v143
 - Windows SDK
-- XMake 2.7.7 или новее
+- 7-Zip
+- XMake 2.8.5 или новее
 
 Для сборки нужно выполнить [`build.bat`](build.bat) в корне проекта.<br>
 Собранная DLL будет находиться по пути `build/windows/x86/release`
