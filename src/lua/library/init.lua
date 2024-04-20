@@ -87,7 +87,7 @@ function log.warn(msg) end
 function log.error(msg) end
 
 ---@param msg string Текст лога
----@deprecated
+---@deprecated Используйте `log.info`
 function log.game(msg) end
 --#endregion
 

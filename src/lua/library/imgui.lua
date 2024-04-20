@@ -1,3 +1,6 @@
+---@hideMembers
+---@moduleDesc $snippet:imgui
+
 local ffi = require "ffi"
 local lib = ffi.C
 
