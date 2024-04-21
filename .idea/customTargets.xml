@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CLionExternalBuildManager">
-    <target id="b39150ef-eaa1-4d3d-93d4-4e7173019bfc" name="Xmake" defaultType="TOOL">
-      <configuration id="f5bb9a1b-bb99-4ba7-829c-e3d8239a251c" name="Xmake">
+    <target id="b39150ef-eaa1-4d3d-93d4-4e7173019bfc" name="Xmake d3d8" defaultType="TOOL">
+      <configuration id="f5bb9a1b-bb99-4ba7-829c-e3d8239a251c" name="Xmake d3d8">
         <build type="TOOL">
-          <tool actionId="Tool_External Tools_Build xmake project" />
+          <tool actionId="Tool_External Tools_Build xmake d3d8" />
+        </build>
+        <clean type="TOOL">
+          <tool actionId="Tool_External Tools_Clean xmake project" />
+        </clean>
+      </configuration>
+    </target>
+    <target id="c60658a4-434e-4423-89b0-fcd74da761ca" name="Xmake test" defaultType="TOOL">
+      <configuration id="70b6c50b-0ef1-4149-9466-8014639f68e0" name="Xmake test">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_Build xmake test" />
         </build>
         <clean type="TOOL">
           <tool actionId="Tool_External Tools_Clean xmake project" />
