@@ -254,7 +254,7 @@ for (const obj of json) {
                     const aliasToObj = fieldNameMap[aliasToName];
                     if (!aliasToObj) continue;
                     const arr = aliasMap.get(aliasToObj.name) ?? [];
-                    arr.push(obj.name + ':' + field.name);
+                    arr.push(obj.name + (aliasToObj.type === 'setmethod' ? ':' : '.') + field.name);
                     aliasMap.set(aliasToObj.name, arr);
                     field.hidden = true;
                 }
