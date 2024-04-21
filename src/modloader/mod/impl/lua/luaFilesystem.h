@@ -19,11 +19,14 @@ namespace lua::helpers
         using namespace std::filesystem;
         copy_options flags = copy_options::none;
 
-        const std::optional<bool> recursive = table["recursive"];
-        if (!recursive)
-            throw std::exception("recursive was not bool");
-        if (*recursive)
-            flags |= copy_options::recursive;
+        if (const std::optional<bool> recursive = table["recursive"])
+        {
+            if (*recursive)
+                flags |= copy_options::recursive;
+        } else if(!table["recursive"].is<sol::nil_t>())
+        {
+            throw std::exception(std::format("expected 'recursive' to be a boolean, got {} instead", type_name(table.lua_state(), table["recursive"].get_type())).c_str());
+        }
 
         if (const std::optional<std::string> existing = table["existing"])
         {
@@ -34,11 +37,11 @@ namespace lua::helpers
             if (*existing == "overwrite")
                 flags |= copy_options::overwrite_existing;
             else
-                throw std::exception("invalid recursive value: should be 'skip', 'update' or 'overwrite'");
+                throw std::exception(std::format("expected 'existing' to be 'skip', 'update' or 'overwrite', got '{}' instead", *existing).c_str());
         }
         else if (!table["existing"].is<sol::nil_t>())
         {
-            throw std::exception("existing was not string");
+            throw std::exception(std::format("expected 'existing' to be 'skip', 'update' or 'overwrite', got {} instead", type_name(table.lua_state(), table["existing"].get_type())).c_str());
         }
 
         if (const std::optional<std::string> symlinks = table["symlinks"])
@@ -48,15 +51,15 @@ namespace lua::helpers
             if (symlinks == "skip")
                 flags |= copy_options::skip_symlinks;
             else
-                throw std::exception("invalid symlinks value: should be 'skip' or 'copy'");
+                throw std::exception(std::format("expected 'symlinks' to be 'skip' or 'copy', got '{}' instead", *symlinks).c_str());
         }
         else if (!table["symlinks"].is<sol::nil_t>())
         {
-            throw std::exception("symlinks was not string");
+            throw std::exception(std::format("expected 'symlinks' to be 'skip' or 'copy', got {} instead", type_name(table.lua_state(), table["symlinks"].get_type())).c_str());
         }
 
         return flags;
-    };
+    }
 }
 
 inline void registerLuaFilesystem(sol::table table)
@@ -91,6 +94,7 @@ inline void registerLuaFilesystem(sol::table table)
             path (path&, const path&),
             path (path&, const string&)
         >([](path& path, auto... args) { return path.replace_extension(args...); }),
+        "makePreferred", &path::make_preferred,
 
         "append", sol::overload_conv<
             path (const path&, const path&),
@@ -106,7 +110,7 @@ inline void registerLuaFilesystem(sol::table table)
         "hasParentPath", &path::has_parent_path,
         "hasFilename", &path::has_filename,
         "hasStem", &path::has_stem,
-        "hasExtension", &path::extension,
+        "hasExtension", &path::has_extension,
 
         "isAbsolute", &path::is_absolute,
         "isRelative", &path::is_relative,
@@ -173,9 +177,9 @@ inline void registerLuaFilesystem(sol::table table)
         [](const path& from, const string& to) -> void { return copy(from, to); }, // copy(path, string) -> void
         [](const string& from, const path& to) -> void { return copy(from, to); }, // copy(string, path) -> void
         [](const path& from, const path& to, const sol::table& options) -> void { copy(from, to, makeCopyFlagsFromLua(options)); }, // copy(path, path, options) -> void
-        [](const string& from, const string& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); }, // copy(string, string, options) -> void
-        [](const path& from, const string& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); }, // copy(path, string, options) -> void
-        [](const string& from, const path& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); } // copy(string, path, options) -> void
+        [](const string& from, const string& to, const sol::table& options) -> void { copy(path(from), path(to), makeCopyFlagsFromLua(options)); }, // copy(string, string, options) -> void
+        [](const path& from, const string& to, const sol::table& options) -> void { copy(path(from), path(to), makeCopyFlagsFromLua(options)); }, // copy(path, string, options) -> void
+        [](const string& from, const path& to, const sol::table& options) -> void { copy(path(from), path(to), makeCopyFlagsFromLua(options)); } // copy(string, path, options) -> void
     );
     table["move"] = table["rename"] = sol::overload_conv<
         void (const path&, const path&),

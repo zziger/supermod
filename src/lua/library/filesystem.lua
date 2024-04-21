@@ -32,6 +32,10 @@ function path:replaceFilename(filename) end
 ---@example fs.path('/path/to/file.tar.gz'):replaceExtension('.zip'):genericString() -- '/path/to/file.tar.zip'
 function path:replaceExtension(extension) end
 
+---Меняет слеши в пути на обратные (\)
+---@return path
+function path:makePreferred() end
+
 ---Возвращает новый путь, полученный добавлением другого пути к текущему
 ---Также для простоты можно использовать оператор /
 ---@param other path | string
@@ -109,7 +113,7 @@ function path:isAbsolute() end
 ---@example fs.path('../path'):isRelative() -- true
 function path:isRelative() end
 
----Возвращает путь в виде строки с обратными слешами (\)
+---Возвращает путь в виде строки с оригинальными слешами
 ---@return string
 ---@example fs.path('/path/to/file.txt'):string() -- '\\path\\to\\file.txt'
 function path:string() end
