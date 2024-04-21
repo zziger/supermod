@@ -391,6 +391,16 @@ for (const obj of json) {
                         }
                     }
 
+                    const overloads = functionDocEntity?.getFields('overload');
+                    if (overloads && overloads.length > 0) {
+                        entity.content.heading(4, `Перегрузки`);
+                        for (let j = 0; j < overloads.length; j++) {
+                            const data = overloads[j].split(/--/).map((e: string) => e.trim());
+                            data[0] = Markdown.codeline(data[0]);
+                            entity.content.text(`- ` + data.join(' - '));
+                        }
+                    }
+
                 }
 
                 const name = obj.global ? field.name : obj.name + "." + field.name;
