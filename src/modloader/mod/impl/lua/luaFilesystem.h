@@ -84,18 +84,18 @@ inline void registerLuaFilesystem(sol::table table)
         "clear", &path::clear,
         "removeFilename", &path::remove_filename,
         "replaceFilename", sol::overload_conv<
-            path& (path&, const path&),
-            path& (path&, const string&)
+            path (path&, const path&),
+            path (path&, const string&)
         >([](path& path, auto... args) { return path.replace_filename(args...); }),
         "replaceExtension", sol::overload_conv<
-            path& (path&, const path&),
-            path& (path&, const string&)
+            path (path&, const path&),
+            path (path&, const string&)
         >([](path& path, auto... args) { return path.replace_extension(args...); }),
 
         "append", sol::overload_conv<
             path (const path&, const path&),
             path (const path&, const string&)
-        >([](path& path, auto arg) { return path / arg; }),
+        >([](const path& path, auto arg) { return path / arg; }),
 
         "parentPath", &path::parent_path,
         "filename", &path::filename,
