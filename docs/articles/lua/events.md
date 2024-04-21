@@ -85,6 +85,30 @@ function events.on(eventName: string, fn: eventHandler<Event>)
 
 - `number` 
 
+#### Перегрузки
+
+- `fun(eventName: "gameLoaded", fn: eventHandler<Event>)`
+
+- `fun(eventName: "resolveFile", fn: eventHandler<ResolveFileEvent>)`
+
+- `fun(eventName: "soundsLoaded", fn: eventHandler<Event>)`
+
+- `fun(eventName: "beforeTick", fn: eventHandler<Event>)`
+
+- `fun(eventName: "afterTick", fn: eventHandler<Event>)`
+
+- `fun(eventName: "uiRender", fn: eventHandler<Event>)`
+
+- `fun(eventName: "modLoad", fn: eventHandler<ModEvent>)`
+
+- `fun(eventName: "modUnload", fn: eventHandler<ModEvent>)`
+
+- `fun(eventName: "windowEvent", fn: eventHandler<WindowEvent>)`
+
+- `fun(eventName: "resolutionChange", fn: eventHandler<ResolutionEvent>)`
+
+- `fun(eventName: "_unload", fn: eventHandler<Event>)`
+
 ---
 
 ## Класс `CancellableEvent`
