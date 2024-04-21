@@ -38,7 +38,7 @@ namespace lua::helpers
         }
         else if (!table["existing"].is<sol::nil_t>())
         {
-            throw std::exception("recursive was not string");
+            throw std::exception("existing was not string");
         }
 
         if (const std::optional<std::string> symlinks = table["symlinks"])
@@ -83,8 +83,19 @@ inline void registerLuaFilesystem(sol::table table)
 
         "clear", &path::clear,
         "removeFilename", &path::remove_filename,
-        "replaceFilename", &path::replace_filename,
-        "replaceExtension", &path::replace_filename,
+        "replaceFilename", sol::overload_conv<
+            path& (path&, const path&),
+            path& (path&, const string&)
+        >([](path& path, auto... args) { return path.replace_filename(args...); }),
+        "replaceExtension", sol::overload_conv<
+            path& (path&, const path&),
+            path& (path&, const string&)
+        >([](path& path, auto... args) { return path.replace_extension(args...); }),
+
+        "append", sol::overload_conv<
+            path (const path&, const path&),
+            path (const path&, const string&)
+        >([](path& path, auto arg) { return path / arg; }),
 
         "parentPath", &path::parent_path,
         "filename", &path::filename,
@@ -98,7 +109,10 @@ inline void registerLuaFilesystem(sol::table table)
         "hasExtension", &path::extension,
 
         "isAbsolute", &path::is_absolute,
-        "isRelative", &path::is_relative
+        "isRelative", &path::is_relative,
+
+        "genericString", static_cast<std::string (path::*)() const>(&path::generic_string),
+        "string", static_cast<std::string (path::*)() const>(&path::string)
     );
 
     table["currentPath"] = sol::overload_conv<
@@ -145,10 +159,8 @@ inline void registerLuaFilesystem(sol::table table)
     >([](auto... args) { return remove_all(args...); });
 
     table["createDirectory"] = sol::overload_conv<
-        bool (const path&, const path&),
-        bool (const string&, const string&),
-        bool (const path&, const string&),
-        bool (const string&, const path&)
+        bool (const path&),
+        bool (const string&)
     >([](auto... args) { return create_directory(args...); });
     table["createDirectories"] = sol::overload_conv<
         bool (const path&),
@@ -157,9 +169,13 @@ inline void registerLuaFilesystem(sol::table table)
 
     table["copy"] = sol::overload(
         sol::resolve<void(const path&, const path&)>(&copy), // copy(path, path) -> void
-        [](const std::string& from, const std::string& to) -> void { return copy(from, to); }, // copy(string, string) -> void
+        [](const string& from, const string& to) -> void { return copy(from, to); }, // copy(string, string) -> void
+        [](const path& from, const string& to) -> void { return copy(from, to); }, // copy(path, string) -> void
+        [](const string& from, const path& to) -> void { return copy(from, to); }, // copy(string, path) -> void
         [](const path& from, const path& to, const sol::table& options) -> void { copy(from, to, makeCopyFlagsFromLua(options)); }, // copy(path, path, options) -> void
-        [](const std::string& from, const std::string& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); } // copy(string, string, options) -> void
+        [](const string& from, const string& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); }, // copy(string, string, options) -> void
+        [](const path& from, const string& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); }, // copy(path, string, options) -> void
+        [](const string& from, const path& to, const sol::table& options) -> void { copy(path(from), path(from), makeCopyFlagsFromLua(options)); } // copy(string, path, options) -> void
     );
     table["move"] = table["rename"] = sol::overload_conv<
         void (const path&, const path&),
