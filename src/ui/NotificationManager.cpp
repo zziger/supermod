@@ -38,8 +38,21 @@ namespace ui
         }
     }
 
+    void NotificationManager::Update(const int updateCount)
+    {
+        for (auto i = 0; i < updateCount; i++)
+            notifications[i]->state += ImGui::GetIO().DeltaTime;
+
+        notifications.erase(
+            std::ranges::remove_if(notifications, [](const auto& notification) { return notification->state >= duration; }).begin(),
+            notifications.end()
+        );
+    }
+
     void NotificationManager::Render()
     {
+        std::lock_guard lock(mutex);
+
         static constexpr float VERTICAL_PADDING = 10.f;
         static constexpr float HORIZONTAL_PADDING = 15.f;
 
@@ -107,19 +120,9 @@ namespace ui
         if (!hovered || clicked) Update(i);
     }
 
-    void NotificationManager::Update(const int updateCount)
-    {
-        for (auto i = 0; i < updateCount; i++)
-            notifications[i]->state += ImGui::GetIO().DeltaTime;
-
-        notifications.erase(
-            std::ranges::remove_if(notifications, [](const auto& notification) { return notification->state >= duration; }).begin(),
-            notifications.end()
-        );
-    }
-
     void NotificationManager::Notify(const std::string& message, const Notification::Type level, const std::string& header)
     {
+        std::lock_guard lock(mutex);
         notifications.push_back(std::make_shared<Notification>(Notification { lastId++, level, message, header }));
 
         auto logLevel = spdlog::level::info;

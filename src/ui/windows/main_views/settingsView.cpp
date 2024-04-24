@@ -3,14 +3,27 @@
 #include <Config.h>
 #include <logs/Console.h>
 #include <imgui.h>
+#include <UpdateManager.h>
 #include <sdk/Game.h>
 #include <ui/Ui.h>
 
 void ui::windows::main::SettingsView()
 {
+    auto& cfg = Config::Get();
+
     const auto width = ImGui::GetContentRegionMax().x / 2;
     ImGui::PushItemWidth(width);
 
+    ImGui::SeparatorText("Обновления");
+
+    UpdateManager::RenderMessage();
+    ImGui::Spacing();
+    if (ImGui::Checkbox("Проверять автоматически", &cfg.updater.checkAutomatically))
+        cfg.Save();
+    if (ImGui::Checkbox("Устанавливать бета версии", &cfg.updater.usePrerelease))
+        cfg.Save();
+
+    ImGui::Spacing();
     ImGui::SeparatorText("Игра");
     ImGui::Text("Версия игры:");
     ImGui::SameLine();
@@ -22,8 +35,6 @@ void ui::windows::main::SettingsView()
     {
         utils::copy_text(gameVer);
     }
-
-    auto& cfg = Config::Get();
 
     ImGui::PushID("watermark");
     {

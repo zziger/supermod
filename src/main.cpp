@@ -11,6 +11,7 @@
 #include <yaml-cpp/yaml.h>
 #include <objidl.h>
 #include <gdiplus.h>
+#include <UpdateManager.h>
 
 #include "Config.h"
 #include "logs/Console.h"
@@ -36,6 +37,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/color.h>
 #include <modloader/mod/impl/lua/lua.h>
+#include <cpr/cpr.h>
 
 
 void InitMemory()
@@ -55,6 +57,7 @@ void PostInit()
     modloader::ModInstaller::Init();
     modloader::ModFileResolver::Init();
     EventManager::Emit(ReadyEvent());
+    if (Config::Get().updater.checkAutomatically) UpdateManager::CheckForUpdates();
 }
 
 HOOK_FN(int, load_game, ARGS())

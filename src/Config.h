@@ -72,6 +72,11 @@ public:
     {
         bool dockingWithShift = true;
     } imgui {};
+    struct
+    {
+        bool checkAutomatically = true;
+        bool usePrerelease = false;
+    } updater {};
 
     #define LINK(struct, path) if (read) struct = node##path.as<decltype(struct)>(struct); else node##path = struct
     #define LINK_T(struct, path, type) if (read) struct = static_cast<decltype(struct)>(node##path.as<type>(static_cast<type>(struct))); else node##path = static_cast<type>(struct)
@@ -91,6 +96,8 @@ public:
         LINK_T(log.level, ["log"]["level"], int);
         LINK(log.maxFiles, ["log"]["maxFiles"]);
         LINK(log.limitFiles, ["log"]["limitFiles"]);
+        LINK(updater.checkAutomatically, ["updater"]["checkAutomatically"]);
+        LINK(updater.usePrerelease, ["updater"]["usePrerelease"]);
     }
 
     static void AddLuaIntrinsics(sol::table table, const std::string& modId)

@@ -3,6 +3,7 @@
 #include <memory>
 #include <functional>
 #include <imgui.h>
+#include <mutex>
 #include <string>
 
 namespace ui {
@@ -27,13 +28,15 @@ namespace ui {
 
     class NotificationManager {
         static constexpr int MAX_NOTIFICATIONS = 5;
+        static inline std::mutex mutex {};
         static inline std::vector<std::shared_ptr<Notification>> notifications {};
         static inline int lastId = 0;
         static inline float duration = 5.0f;
 
+        static void Update(int updateCount);
+
     public:
         static void Render();
-        static void Update(int updateCount);
         static void Notify(const std::string& message, Notification::Type level = Notification::ERR, const std::string& header = "");
     };
 }
