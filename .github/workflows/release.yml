@@ -22,6 +22,8 @@ jobs:
           path: |
             ~/AppData/Local/.xmake/packages
             ~/AppData/Local/.xmake/cache
+      - name: Setup project
+        run: xmake f -y -m release -a x86
       - name: Build test project
         run: xmake build -y test
       - name: Test
