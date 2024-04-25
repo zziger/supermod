@@ -43,5 +43,5 @@ jobs:
           prerelease: ${{ contains(github.ref_name, 'beta') }}
           generate_release_notes: true
           files: |
-            ./build/windows/x86/release/dinput8.dll
-            ./build/windows/x86/release/dinput8.pdb
+            ./build/windows/x86/release/d3d8.dll
+            ./build/windows/x86/release/d3d8.pdb
