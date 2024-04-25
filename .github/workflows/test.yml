@@ -13,7 +13,7 @@ jobs:
       - name: Setup XMake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: '2.8.5'
       - name: Cache XMake packages
         uses: actions/cache@v3
         with:
