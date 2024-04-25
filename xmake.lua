@@ -153,7 +153,7 @@ target("test")
     add_defines("UNIT_TESTS")
 
     add_defines("_SILENCE_CXX20_CODECVT_FACETS_DEPRECATION_WARNING", "_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")
-    add_defines("_UNICODE", "UNICODE", "NOMINMAX", "IMGUI_DEFINE_MATH_OPERATORS")
+    add_defines("_UNICODE", "UNICODE", "NOMINMAX", "IMGUI_DEFINE_MATH_OPERATORS", "DLL_NAME=\"d3d8.dll\"")
     set_symbols("debug")
 
     after_build(function(target)
