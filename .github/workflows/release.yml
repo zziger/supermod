@@ -32,13 +32,6 @@ jobs:
         run: xmake run -y test --gtest_color=yes
       - name: Build
         run: ./build.bat ${{github.ref_name}}
-      - name: Prepare SDK
-        run: move src/scripting/env src/scripting/supermod-sdk
-      - uses: vimtor/action-zip@v1
-        name: Pack SDK
-        with:
-          files: src/scripting/supermod-sdk/
-          dest: supermod-sdk.zip
       - id: create_release
         name: Create release
         uses: softprops/action-gh-release@v1
@@ -52,4 +45,3 @@ jobs:
           files: |
             ./build/windows/x86/release/dinput8.dll
             ./build/windows/x86/release/dinput8.pdb
-            ./supermod-sdk.zip
