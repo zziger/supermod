@@ -62,7 +62,7 @@ namespace lua::helpers
     }
 }
 
-inline void registerLuaFilesystem(sol::table table)
+void registerLuaFilesystem(sol::table table)
 {
     using namespace std::filesystem;
     using string = std::string;

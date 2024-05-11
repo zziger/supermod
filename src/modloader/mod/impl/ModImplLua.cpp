@@ -15,8 +15,6 @@
 #include <sdk/Graphics.h>
 #include <ui/NotificationManager.h>
 
-#include "lua/luaDataTypes.h"
-
 namespace modloader
 {
     void ModImplLua::OnEnabled() {

@@ -124,3 +124,6 @@ namespace sol
         return packages[name];
     }
 }
+
+void registerLuaTypes(sol::table lua);
+void registerLuaFilesystem(sol::table table);

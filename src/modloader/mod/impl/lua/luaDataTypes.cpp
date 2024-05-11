@@ -2,7 +2,7 @@
 #include "lua.h"
 #include <Data.h>
 
-inline void registerLuaTypes(sol::table lua)
+void registerLuaTypes(sol::table lua)
 {
     lua.new_usertype<vector2>(
         "vector2", sol::call_constructor, sol::constructors<vector2(float, float)>(),
