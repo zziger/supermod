@@ -1,6 +1,5 @@
 #include <imgui_internal.h>
 #include <memory>
-#include <vector>
 #include <modloader/ModManager.h>
 #include <modloader/mod/Mod.h>
 #include <sdk/Game.h>
@@ -8,6 +7,7 @@
 #include <ui/popups/popups.h>
 #include <ui/styles/styles.h>
 #include <ui/widgets/widgets.h>
+#include <vector>
 
 #include "views.h"
 
@@ -43,12 +43,14 @@ void ui::windows::main::ModsView()
             {
                 for (const auto& loadedMod : modloader::ModManager::GetInternalMods())
                 {
-                    if (widgets::mods::Selectable(loadedMod, loadedMod == activeMod)) activeMod = loadedMod;
+                    if (widgets::mods::Selectable(loadedMod, loadedMod == activeMod))
+                        activeMod = loadedMod;
                     ImGui::Spacing();
                 }
                 for (const auto& loadedMod : modloader::ModManager::GetMods())
                 {
-                    if (widgets::mods::Selectable(loadedMod, loadedMod == activeMod)) activeMod = loadedMod;
+                    if (widgets::mods::Selectable(loadedMod, loadedMod == activeMod))
+                        activeMod = loadedMod;
                     ImGui::Spacing();
                 }
             }
@@ -64,9 +66,11 @@ void ui::windows::main::ModsView()
                     if (active && !hovered)
                     {
                         const auto dragY = ImGui::GetMouseDragDelta(0).y;
-                        if (dragY < 5 && dragY > -5) continue;
+                        if (dragY < 5 && dragY > -5)
+                            continue;
                         const int nextI = i + (dragY < 0.f ? -1 : 1);
-                        if (nextI < 0 || nextI >= count) continue;
+                        if (nextI < 0 || nextI >= count)
+                            continue;
                         std::swap(reorderMods[i], reorderMods[nextI]);
                         ImGui::ResetMouseDragDelta();
                     }
@@ -80,7 +84,8 @@ void ui::windows::main::ModsView()
             if (ImGui::Button(ICON_MD_REORDER " Изменить порядок"))
             {
                 reorderMods.clear();
-                for (const auto& mod : modloader::ModManager::GetMods()) reorderMods.push_back(mod);
+                for (const auto& mod : modloader::ModManager::GetMods())
+                    reorderMods.push_back(mod);
 
                 reorder = true;
                 activeMod = std::nullopt;
@@ -107,7 +112,8 @@ void ui::windows::main::ModsView()
             }
             ImGui::EndDisabled();
             ImGui::SameLine();
-            if (ImGui::Button(ICON_MD_CANCEL " Отмена")) reorder = false;
+            if (ImGui::Button(ICON_MD_CANCEL " Отмена"))
+                reorder = false;
             ImGui::SameLine();
             widgets::HelpMarker("Перетащите моды мышкой для изменения порядка загрузки");
         }
@@ -157,10 +163,8 @@ void ui::windows::main::ModsView()
                 }
 
                 if (widgets::ToggleButton(
-                    "Toggle",
-                    mod->IsEnabled(),
-                    static_cast<float>(duration_cast<milliseconds>(mod->GetTimeSinceUpdate()).count()) / 1000.f
-                ))
+                        "Toggle", mod->IsEnabled(),
+                        static_cast<float>(duration_cast<milliseconds>(mod->GetTimeSinceUpdate()).count()) / 1000.f))
                 {
                     modloader::ModManager::ToggleMod(mod, !mod->IsEnabled());
                 }

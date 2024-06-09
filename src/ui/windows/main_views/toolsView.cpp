@@ -10,14 +10,8 @@
 
 void SetWindowSize(const int w, const int h)
 {
-    SetWindowPos(
-        *sdk::Game::window,
-        nullptr,
-        0, 0,
-        GetSystemMetrics(SM_CXBORDER) + w,
-        GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) + h,
-        SWP_NOMOVE | SWP_NOZORDER
-    );
+    SetWindowPos(*sdk::Game::window, nullptr, 0, 0, GetSystemMetrics(SM_CXBORDER) + w,
+                 GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) + h, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 void ui::windows::main::ToolsView()

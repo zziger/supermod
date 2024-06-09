@@ -1,38 +1,41 @@
 #pragma once
+#include "Utils.h"
 #include <Data.h>
 #include <filesystem>
-#include "Utils.h"
 
 namespace game
 {
-    struct Animation {
-        char name[32];
-        int32_t boneCount;
-        int32_t frameCount;
-        int32_t frameTime;
-        int32_t duration;
-        int32_t interpolatedFrames;
-        float animationMovementTime;
-        vector4 *frames;
-        vector3 *frameMovements;
-        vector3 *interpolatedFrameMovements;
-    };
+struct Animation
+{
+    char name[32];
+    int32_t boneCount;
+    int32_t frameCount;
+    int32_t frameTime;
+    int32_t duration;
+    int32_t interpolatedFrames;
+    float animationMovementTime;
+    vector4* frames;
+    vector3* frameMovements;
+    vector3* interpolatedFrameMovements;
+};
 
-    class AnimationPool {
-        virtual ~AnimationPool() = default;
-    public:
-        AnimationPool() = delete;
+class AnimationPool
+{
+    virtual ~AnimationPool() = default;
 
-        int animationCount;
-        Animation* animations[1024];
+public:
+    AnimationPool() = delete;
 
-        Animation* Get(const std::string& name);
-        Animation* Reload(const std::filesystem::path& path);
+    int animationCount;
+    Animation* animations[1024];
 
-        static inline Animation* overrideAllocation = nullptr;
+    Animation* Get(const std::string& name);
+    Animation* Reload(const std::filesystem::path& path);
 
-        static AnimationPool* Instance();
-    };
+    static inline Animation* overrideAllocation = nullptr;
 
-    ENSURE_SIZE(AnimationPool, 0x1008);
-}
+    static AnimationPool* Instance();
+};
+
+ENSURE_SIZE(AnimationPool, 0x1008);
+} // namespace game

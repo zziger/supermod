@@ -11,7 +11,8 @@ using namespace std::chrono;
 
 void modloader::ModStateWaitingDependenciesLoad::Init(Mod& mod)
 {
-    if (Check(mod)) mod.SetState<ModStateEnabled>();
+    if (Check(mod))
+        mod.SetState<ModStateEnabled>();
 }
 
 void modloader::ModStateWaitingDependenciesLoad::Update(Mod& mod)
@@ -22,7 +23,8 @@ void modloader::ModStateWaitingDependenciesLoad::Update(Mod& mod)
         return;
     }
 
-    if (Check(mod)) mod.SetState<ModStateEnabled>();
+    if (Check(mod))
+        mod.SetState<ModStateEnabled>();
 }
 
 std::string modloader::ModStateWaitingDependenciesLoad::GetIcon()
@@ -37,7 +39,8 @@ std::string modloader::ModStateWaitingDependenciesLoad::GetIcon()
 bool modloader::ModStateWaitingDependenciesLoad::Check(const Mod& mod)
 {
     auto deps = mod.GetInfo()->dependencies;
-    if (deps.empty()) return true;
+    if (deps.empty())
+        return true;
     return std::ranges::all_of(deps, [](const ModInfo::Dependency& dependency) -> bool {
         const auto mod = ModManager::FindModByID(dependency.id);
         return mod && mod->IsActive() && dependency.version.Match(mod->GetInfo()->version);

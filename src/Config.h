@@ -1,16 +1,18 @@
 #pragma once
-#include <fstream>
 #include <filesystem>
-#include <yaml-cpp/yaml.h>
+#include <fstream>
 #include <mutex>
 #include <sdk/Game.h>
 #include <spdlog/common.h>
+#include <yaml-cpp/yaml.h>
 
-class Config {
+class Config
+{
     const std::filesystem::path path = sdk::Game::GetRootPath() / "modcfg.yml";
-    YAML::Node node { YAML::NodeType::Map };
+    YAML::Node node{YAML::NodeType::Map};
 
     Config();
+
 public:
     Config(const Config&) = delete;
 
@@ -20,13 +22,12 @@ public:
         return cfg;
     }
 
-    static YAML::Node& GetYaml() {
-        return Get().node;
-    }
+    static YAML::Node& GetYaml() { return Get().node; }
 
     void Save();
 
-    enum class WatermarkPosition : int {
+    enum class WatermarkPosition : int
+    {
         TOP_LEFT,
         TOP_CENTER,
         TOP_RIGHT,
@@ -35,7 +36,8 @@ public:
         BOTTOM_RIGHT
     };
 
-    enum class ResolutionPatchMode : int {
+    enum class ResolutionPatchMode : int
+    {
         WINDOW,
         SCREEN,
         CUSTOM
@@ -49,37 +51,46 @@ public:
         WatermarkPosition position = WatermarkPosition::TOP_CENTER;
         float opacity = 1.f;
         float bgOpacity = 0.35f;
-    } watermark {};
+    } watermark{};
     struct
     {
         struct
         {
             bool enabled = false;
             bool writeToLog = false;
-        } forwardGameLogs {};
-    } patches {};
+        } forwardGameLogs{};
+    } patches{};
     struct
     {
         bool showImGuiDemo = false;
-    } developer {};
+    } developer{};
     struct
     {
         spdlog::level::level_enum level = spdlog::level::info;
         int maxFiles = 5;
         bool limitFiles = true;
-    } log {};
+    } log{};
     struct
     {
         bool dockingWithShift = true;
-    } imgui {};
+    } imgui{};
     struct
     {
         bool checkAutomatically = true;
         bool usePrerelease = false;
-    } updater {};
+    } updater{};
 
-    #define LINK(struct, path) if (read) struct = node##path.as<decltype(struct)>(struct); else node##path = struct
-    #define LINK_T(struct, path, type) if (read) struct = static_cast<decltype(struct)>(node##path.as<type>(static_cast<type>(struct))); else node##path = static_cast<type>(struct)
+#define LINK(struct, path)                                                                                             \
+    if (read)                                                                                                          \
+        struct = node##path.as<decltype(struct)>(struct);                                                              \
+    else                                                                                                               \
+        node##path = struct
+#define LINK_T(struct, path, type)                                                                                     \
+    if (read)                                                                                                          \
+        struct = static_cast<decltype(struct)>(node##path.as<type>(static_cast<type>(struct)));                        \
+    else                                                                                                               \
+        node##path = static_cast<type>(struct)
+
     void Process(const bool read)
     {
         LINK(disabled, ["disabled"]);
@@ -104,16 +115,21 @@ public:
     {
         table["__getModConfig"] = [modId] { return GetYaml()["modConfigs"][modId]; };
         table["__configKeyExists"] = [](const YAML::Node& node, const std::string& key) { return !!node[key]; };
-        table["__configGetString"] = [](const YAML::Node& node, const std::string& key) { return node[key].as<std::string>(""); };
-        table["__configGetDouble"] = [](const YAML::Node& node, const std::string& key) { return node[key].as<double>(0); };
-        table["__configGetBool"] = [](const YAML::Node& node, const std::string& key) { return node[key].as<bool>(false); };
+        table["__configGetString"] = [](const YAML::Node& node, const std::string& key) {
+            return node[key].as<std::string>("");
+        };
+        table["__configGetDouble"] = [](const YAML::Node& node, const std::string& key) {
+            return node[key].as<double>(0);
+        };
+        table["__configGetBool"] = [](const YAML::Node& node, const std::string& key) {
+            return node[key].as<bool>(false);
+        };
         table["__configGetNested"] = [](const YAML::Node& node, const std::string& key) { return node[key]; };
-        table["__configSet"] = sol::overload(
-            [](YAML::Node& node, bool val, const std::string& key) { node[key] = val; },
-            [](YAML::Node& node, long long val, const std::string& key) { node[key] = val; },
-            [](YAML::Node& node, double val, const std::string& key) { node[key] = val; },
-            [](YAML::Node& node, const std::string& val, const std::string& key) { node[key] = val; }
-        );
+        table["__configSet"] =
+            sol::overload([](YAML::Node& node, bool val, const std::string& key) { node[key] = val; },
+                          [](YAML::Node& node, long long val, const std::string& key) { node[key] = val; },
+                          [](YAML::Node& node, double val, const std::string& key) { node[key] = val; },
+                          [](YAML::Node& node, const std::string& val, const std::string& key) { node[key] = val; });
         table["__configSave"] = [] { Get().Save(); };
     }
 

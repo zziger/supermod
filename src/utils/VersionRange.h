@@ -5,9 +5,11 @@
 #include "VersionRange.h"
 #include <modloader/mod/impl/lua/lua.h>
 
-class VersionRange {
+class VersionRange
+{
 public:
-    enum class Operator {
+    enum class Operator
+    {
         EQUAL,
         GREATER,
         LESS,
@@ -17,7 +19,9 @@ public:
 
     using ConditionGroup = std::vector<std::pair<Operator, semver::version>>;
     explicit VersionRange(const std::vector<ConditionGroup>& conditionGroups) : conditionGroups(conditionGroups) {}
-    explicit VersionRange(std::vector<ConditionGroup>&& conditionGroups) : conditionGroups(std::move(conditionGroups)) {}
+    explicit VersionRange(std::vector<ConditionGroup>&& conditionGroups) : conditionGroups(std::move(conditionGroups))
+    {
+    }
     VersionRange() = default;
     VersionRange(const VersionRange&) = default;
     VersionRange(VersionRange&&) = default;
@@ -26,11 +30,10 @@ public:
 
     [[nodiscard]] bool Match(const semver::version& ver) const
     {
-        if (conditionGroups.empty()) return true;
-        return std::ranges::any_of(
-            conditionGroups,
-            [&](const auto& group) { return VersionRange::MatchGroup(ver, group); }
-        );
+        if (conditionGroups.empty())
+            return true;
+        return std::ranges::any_of(conditionGroups,
+                                   [&](const auto& group) { return VersionRange::MatchGroup(ver, group); });
     }
 
     [[nodiscard]] std::string Serialize(const bool localize = false) const
@@ -45,20 +48,32 @@ public:
             for (auto j = 0; j < versions; j++)
             {
                 const auto& [op, version] = group[j];
-                switch(op)
+                switch (op)
                 {
-                    case Operator::EQUAL: ss << "="; break;
-                    case Operator::GREATER: ss << ">"; break;
-                    case Operator::LESS: ss << "<"; break;
-                    case Operator::GREATER_EQUAL: ss << ">="; break;
-                    case Operator::LESS_EQUAL: ss << "<="; break;
+                case Operator::EQUAL:
+                    ss << "=";
+                    break;
+                case Operator::GREATER:
+                    ss << ">";
+                    break;
+                case Operator::LESS:
+                    ss << "<";
+                    break;
+                case Operator::GREATER_EQUAL:
+                    ss << ">=";
+                    break;
+                case Operator::LESS_EQUAL:
+                    ss << "<=";
+                    break;
                 }
 
                 ss << version.str();
-                if (i != groups - 1 || j != versions - 1) ss << " ";
+                if (i != groups - 1 || j != versions - 1)
+                    ss << " ";
             }
 
-            if (i != groups - 1) ss << (localize ? " или" : " ||");
+            if (i != groups - 1)
+                ss << (localize ? " или" : " ||");
         }
 
         return ss.str();
@@ -72,9 +87,10 @@ public:
         std::stringstream ss(str);
         std::string token;
 
-        while(std::getline(ss, token, ' '))
+        while (std::getline(ss, token, ' '))
         {
-            if (token.empty()) continue;
+            if (token.empty())
+                continue;
 
             if (token == "||")
             {
@@ -129,23 +145,18 @@ public:
     {
         auto package = get_package_table(lua, "data");
 
-        package.new_usertype<semver::version>("version",
-            sol::call_constructor, sol::constructors<semver::version()>(),
-            "string", &semver::version::str,
-            "parse", &semver::version::parse,
-            sol::meta_function::to_string, [](const semver::version& ver) { return std::format("Version<{}>", ver.str()); },
-            sol::meta_function::equal_to, &semver::version::operator==,
-            sol::meta_function::less_than, &semver::version::operator<,
-            sol::meta_function::less_than_or_equal_to, &semver::version::operator<=
-        );
+        package.new_usertype<semver::version>(
+            "version", sol::call_constructor, sol::constructors<semver::version()>(), "string", &semver::version::str,
+            "parse", &semver::version::parse, sol::meta_function::to_string,
+            [](const semver::version& ver) { return std::format("Version<{}>", ver.str()); },
+            sol::meta_function::equal_to, &semver::version::operator==, sol::meta_function::less_than,
+            &semver::version::operator<, sol::meta_function::less_than_or_equal_to, &semver::version::operator<=);
 
-        package.new_usertype<VersionRange>("versionRange",
-            sol::call_constructor, sol::constructors<VersionRange()>(),
-            "serialize", &VersionRange::Serialize,
-            "match", &VersionRange::Match,
-            "parse", &VersionRange::Parse,
-            sol::meta_function::to_string, [](const VersionRange& ver) { return std::format("VersionRange<{}>", ver.Serialize()); }
-        );
+        package.new_usertype<VersionRange>(
+            "versionRange", sol::call_constructor, sol::constructors<VersionRange()>(), "serialize",
+            &VersionRange::Serialize, "match", &VersionRange::Match, "parse", &VersionRange::Parse,
+            sol::meta_function::to_string,
+            [](const VersionRange& ver) { return std::format("VersionRange<{}>", ver.Serialize()); });
     }
 
 private:
@@ -153,13 +164,28 @@ private:
     {
         for (const auto& [op, targetVer] : group)
         {
-            switch(op)
+            switch (op)
             {
-                case Operator::EQUAL: if (ver != targetVer) return false; break;
-                case Operator::GREATER: if (ver <= targetVer) return false; break;
-                case Operator::LESS: if (ver >= targetVer) return false; break;
-                case Operator::GREATER_EQUAL: if (ver < targetVer) return false; break;
-                case Operator::LESS_EQUAL: if (ver > targetVer) return false; break;
+            case Operator::EQUAL:
+                if (ver != targetVer)
+                    return false;
+                break;
+            case Operator::GREATER:
+                if (ver <= targetVer)
+                    return false;
+                break;
+            case Operator::LESS:
+                if (ver >= targetVer)
+                    return false;
+                break;
+            case Operator::GREATER_EQUAL:
+                if (ver < targetVer)
+                    return false;
+                break;
+            case Operator::LESS_EQUAL:
+                if (ver > targetVer)
+                    return false;
+                break;
             }
         }
 

@@ -1,9 +1,9 @@
 #include "views.h"
 
 #include <Config.h>
-#include <logs/Console.h>
-#include <imgui.h>
 #include <UpdateManager.h>
+#include <imgui.h>
+#include <logs/Console.h>
 #include <sdk/Game.h>
 #include <ui/Ui.h>
 
@@ -46,18 +46,20 @@ void ui::windows::main::SettingsView()
 
         if (cfg.watermark.show)
         {
-            const char* positions[] = {
-                "Сверху слева", "Сверху по центру", "Сверху справа", "Снизу слева", "Снизу по центру", "Снизу справа"
-            };
+            const char* positions[] = {"Сверху слева", "Сверху по центру", "Сверху справа",
+                                       "Снизу слева",  "Снизу по центру",  "Снизу справа"};
 
-            if (ImGui::Combo("Позиция", reinterpret_cast<int*>(&cfg.watermark.position), positions, IM_ARRAYSIZE(positions)))
+            if (ImGui::Combo("Позиция", reinterpret_cast<int*>(&cfg.watermark.position), positions,
+                             IM_ARRAYSIZE(positions)))
                 cfg.Save();
 
             ImGui::SliderFloat("Непрозрачность", &cfg.watermark.opacity, 0, 1);
-            if (ImGui::IsItemDeactivatedAfterEdit()) cfg.Save();
+            if (ImGui::IsItemDeactivatedAfterEdit())
+                cfg.Save();
 
             ImGui::SliderFloat("Непрозрачность фона", &cfg.watermark.bgOpacity, 0, 1);
-            if (ImGui::IsItemDeactivatedAfterEdit()) cfg.Save();
+            if (ImGui::IsItemDeactivatedAfterEdit())
+                cfg.Save();
         }
     }
     ImGui::PopID();
@@ -93,16 +95,15 @@ void ui::windows::main::SettingsView()
         ImGui::Text("Уровень логов:");
 
         std::vector<std::tuple<spdlog::level::level_enum, std::string>> items = {
-            { spdlog::level::err, "Только ошибки" },
-            { spdlog::level::warn, "Ошибки и предупреждения" },
-            { spdlog::level::info, "Ошибки, предупреждения и сообщения (по-умолчанию)" },
-            { spdlog::level::debug, "Информация для разработчиков" },
-            { spdlog::level::trace, "Все сообщения (медленно)" },
+            {spdlog::level::err, "Только ошибки"},
+            {spdlog::level::warn, "Ошибки и предупреждения"},
+            {spdlog::level::info, "Ошибки, предупреждения и сообщения (по-умолчанию)"},
+            {spdlog::level::debug, "Информация для разработчиков"},
+            {spdlog::level::trace, "Все сообщения (медленно)"},
         };
 
-        auto currentItem = std::ranges::find_if(items, [&cfg](const auto& item) {
-            return std::get<0>(item) == cfg.log.level;
-        });
+        auto currentItem =
+            std::ranges::find_if(items, [&cfg](const auto& item) { return std::get<0>(item) == cfg.log.level; });
         if (ImGui::BeginCombo("##Log level", currentItem == items.end() ? nullptr : std::get<1>(*currentItem).c_str()))
         {
             for (const auto& [level, msg] : items)

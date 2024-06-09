@@ -44,5 +44,5 @@ uint8_t TgaFileInterface::read8()
 
 void TgaFileInterface::write8(const uint8_t value)
 {
-  fputc(value, file);
+    fputc(value, file);
 }

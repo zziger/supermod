@@ -1,29 +1,20 @@
+#include "mock/ModImplMock.h"
 #include <gtest/gtest.h>
 #include <modloader/ModManager.h>
-#include <modloader/mod/states/ModStateWaitingDependentsUnload.h>
 #include <modloader/mod/states/ModStateWaitingDependenciesLoad.h>
+#include <modloader/mod/states/ModStateWaitingDependentsUnload.h>
 #include <sdk/Game.h>
-#include "mock/ModImplMock.h"
 
 using namespace modloader;
 
 class ModloaderFixture : public testing::Test
 {
 protected:
-    void SetUp() override
-    {
-        ASSERT_TRUE(ModManager::GetMods().empty()) << "Modloader list was not empty";
-    }
+    void SetUp() override { ASSERT_TRUE(ModManager::GetMods().empty()) << "Modloader list was not empty"; }
 
-    void TearDown() override
-    {
-        ModManager::Reset();
-    }
+    void TearDown() override { ModManager::Reset(); }
 
-    static std::shared_ptr<Mod> AddMod(const std::string& id)
-    {
-        return AddMod(std::make_shared<ModInfo>(id));
-    }
+    static std::shared_ptr<Mod> AddMod(const std::string& id) { return AddMod(std::make_shared<ModInfo>(id)); }
 
     static std::shared_ptr<Mod> AddMod(const std::shared_ptr<ModInfo>& info)
     {
@@ -142,7 +133,6 @@ TEST_F(ModloaderFixture, ShouldLoadUnorderedWaitingDependantMod)
     ASSERT_EQ(parent->GetState()->GetType(), ModState::Type::ENABLED);
     ASSERT_EQ(child->GetState()->GetType(), ModState::Type::ENABLED);
 }
-
 
 TEST_F(ModloaderFixture, ShouldLoadUnorderedDependantMod)
 {

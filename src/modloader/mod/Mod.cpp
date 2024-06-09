@@ -2,16 +2,16 @@
 
 #include <cassert>
 #include <logs/Console.h>
-#include <utility>
 #include <modloader/ModManager.h>
 #include <spdlog/spdlog.h>
+#include <utility>
 
 #include "states/ModStateDisabled.h"
 
 modloader::Mod::Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& impl)
-    : info(std::move(info))
-    , impl(std::move(impl))
-    , state(std::make_unique<ModStateDisabled>())
+    : info(std::move(info)),
+      impl(std::move(impl)),
+      state(std::make_unique<ModStateDisabled>())
 {
     assert(this->info && "Tried to create mod with empty info pointer");
     assert(this->impl && "Tried to create mod with empty impl pointer");
@@ -29,7 +29,8 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
 {
     assert(state && "Tried to set empty state pointer to mod");
 
-    if (!HasFlag(Flag::INTERNAL)) spdlog::debug("State update for mod {}: {}", Console::StyleModName(GetInfo()->GetID()), state->GetLabel());
+    if (!HasFlag(Flag::INTERNAL))
+        spdlog::debug("State update for mod {}: {}", Console::StyleModName(GetInfo()->GetID()), state->GetLabel());
     this->state = std::move(state);
     this->state->Init(*this);
     ModManager::MarkDirty(ModManager::DirtyFlag::STATES);
@@ -39,11 +40,9 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
 void modloader::Mod::Toggle(const bool value)
 {
     loadingError = "";
-    if (!HasFlag(Flag::INTERNAL)) spdlog::info(
-        "{} mod {}",
-        Console::StyleToggle(value ? "Enabling" : "Disabling", value),
-        Console::StyleModName(GetID())
-    );
+    if (!HasFlag(Flag::INTERNAL))
+        spdlog::info("{} mod {}", Console::StyleToggle(value ? "Enabling" : "Disabling", value),
+                     Console::StyleModName(GetID()));
     SetFlag(Flag::ENABLED, value);
 }
 
@@ -54,5 +53,6 @@ void modloader::Mod::Update()
 
 void modloader::Mod::Tick() const
 {
-    if (IsActive()) impl->OnTick();
+    if (IsActive())
+        impl->OnTick();
 }

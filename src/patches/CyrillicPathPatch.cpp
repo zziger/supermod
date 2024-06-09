@@ -8,20 +8,21 @@
 #include "events/EventManager.h"
 #include "memory/HookManager.h"
 
-BOOL (__stdcall *SetCurrentDirectoryAOrig)(LPCSTR lpPathName) = nullptr;
+BOOL(__stdcall* SetCurrentDirectoryAOrig)(LPCSTR lpPathName) = nullptr;
 BOOL __stdcall SetCurrentDirectoryAHook(LPCSTR lpPathName)
 {
     try
     {
         std::filesystem::current_path(lpPathName);
         return true;
-    } catch(...)
+    }
+    catch (...)
     {
         return false;
     }
 }
 
-DWORD (__stdcall *GetCurrentDirectoryAOrig)(DWORD nBufferLength, LPSTR lpBuffer) = nullptr;
+DWORD(__stdcall* GetCurrentDirectoryAOrig)(DWORD nBufferLength, LPSTR lpBuffer) = nullptr;
 DWORD __stdcall GetCurrentDirectoryAHook(DWORD nBufferLength, LPSTR lpBuffer)
 {
     try
@@ -38,7 +39,8 @@ DWORD __stdcall GetCurrentDirectoryAHook(DWORD nBufferLength, LPSTR lpBuffer)
             lpBuffer[len] = '\0';
         }
         return cwd.string().size();
-    } catch(...)
+    }
+    catch (...)
     {
         return 0;
     }
@@ -48,4 +50,3 @@ inline EventManager::Ready $cyrillic_path_patch([] {
     HookManager::RegisterHook(Memory(SetCurrentDirectoryA), SetCurrentDirectoryAHook, &SetCurrentDirectoryAOrig);
     HookManager::RegisterHook(Memory(GetCurrentDirectoryA), GetCurrentDirectoryAHook, &GetCurrentDirectoryAOrig);
 });
-

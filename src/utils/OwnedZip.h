@@ -3,7 +3,8 @@
 #include <optional>
 #include <zip_file.h>
 
-class OwnedZip {
+class OwnedZip
+{
 public:
     std::filesystem::path path;
     miniz_cpp::zip_file* zip;
@@ -17,6 +18,7 @@ public:
     ~OwnedZip()
     {
         delete zip;
-        if (remove) std::filesystem::remove(path);
+        if (remove)
+            std::filesystem::remove(path);
     }
 };

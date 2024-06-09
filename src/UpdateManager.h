@@ -1,7 +1,8 @@
 #include <cpr/cpr.h>
 #include <semver/semver.hpp>
 
-class UpdateManager {
+class UpdateManager
+{
 public:
     struct AvailableUpdate
     {

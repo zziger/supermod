@@ -4,23 +4,25 @@
 
 namespace game
 {
-    struct CachedFile {
-        char filename[128];
-        int size;
-        void* content;
-        int loaded;
+struct CachedFile
+{
+    char filename[128];
+    int size;
+    void* content;
+    int loaded;
 
-        void ReplaceContent(const std::string& filepath);
-    };
+    void ReplaceContent(const std::string& filepath);
+};
 
-    class CachedFilePool {
-    public:
-        CachedFile* files[1024];
-        int filesCount;
+class CachedFilePool
+{
+public:
+    CachedFile* files[1024];
+    int filesCount;
 
-        static CachedFilePool* GetInstance();
+    static CachedFilePool* GetInstance();
 
-        [[nodiscard]] static CachedFile* GetByName(const std::string& name);
-        static bool DeleteByName(const std::string& name);
-    };
-}
+    [[nodiscard]] static CachedFile* GetByName(const std::string& name);
+    static bool DeleteByName(const std::string& name);
+};
+} // namespace game

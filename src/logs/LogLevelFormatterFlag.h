@@ -5,10 +5,10 @@
 class LogLevelFormatterFlag final : public spdlog::custom_flag_formatter
 {
 public:
-    void format(const spdlog::details::log_msg& msg, const std::tm &, spdlog::memory_buf_t &dest) override
+    void format(const spdlog::details::log_msg& msg, const std::tm&, spdlog::memory_buf_t& dest) override
     {
         std::string txt;
-        switch(msg.level)
+        switch (msg.level)
         {
         case spdlog::level::trace:
             txt = "[trace]";

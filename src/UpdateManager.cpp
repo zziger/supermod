@@ -2,9 +2,9 @@
 
 #include <Config.h>
 #include <imgui.h>
-#include <semver/semver.hpp>
 #include <nlohmann/json.hpp>
 #include <sdk/Game.h>
+#include <semver/semver.hpp>
 #include <spdlog/spdlog.h>
 #include <ui/NotificationManager.h>
 #include <ui/styles/styles.h>
@@ -26,7 +26,8 @@ UpdateManager::UpdateState UpdateManager::GetUpdateState()
 void UpdateManager::CheckForUpdates()
 {
     std::lock_guard lock(mutex);
-    if (state.stage != UpdateState::IDLE && state.stage != UpdateState::FAILED && state.stage != UpdateState::UPDATE_AVAILABLE)
+    if (state.stage != UpdateState::IDLE && state.stage != UpdateState::FAILED &&
+        state.stage != UpdateState::UPDATE_AVAILABLE)
         return;
 
     state.stage = UpdateState::CHECKING;
@@ -50,12 +51,14 @@ bool UpdateManager::CheckForUpdatesSync()
     try
     {
         auto prerelease = Config::Get().updater.usePrerelease;
-        cpr::Response r = cpr::Get(cpr::Url{ std::string("https://api.github.com/repos/zziger/supercow-mod/releases") + (prerelease ? "?per_page=1" : "/latest") });
+        cpr::Response r = cpr::Get(cpr::Url{std::string("https://api.github.com/repos/zziger/supercow-mod/releases") +
+                                            (prerelease ? "?per_page=1" : "/latest")});
         if (r.status_code == 200)
         {
             // Parse JSON
             nlohmann::json j = nlohmann::json::parse(r.text);
-            if (prerelease) j = j[0];
+            if (prerelease)
+                j = j[0];
             semver::version latestVersion = semver::version::parse(j["tag_name"]);
             semver::version currentVersion = semver::version::parse(SUPERMOD_VERSION);
 
@@ -68,10 +71,13 @@ bool UpdateManager::CheckForUpdatesSync()
                 auto assets = j["assets"];
                 for (auto& asset : assets)
                 {
-                    if (asset["name"].get<std::string>() != DLL_NAME) continue;
-                    availableUpdate = AvailableUpdate { latestVersion, j["assets"][0]["browser_download_url"].get<std::string>() };
+                    if (asset["name"].get<std::string>() != DLL_NAME)
+                        continue;
+                    availableUpdate =
+                        AvailableUpdate{latestVersion, j["assets"][0]["browser_download_url"].get<std::string>()};
                     state.stage = UpdateState::UPDATE_AVAILABLE;
-                    ui::NotificationManager::Notify("Доступна новая версия: " + latestVersion.str(), ui::Notification::INFO, "Обновление SuperMod");
+                    ui::NotificationManager::Notify("Доступна новая версия: " + latestVersion.str(),
+                                                    ui::Notification::INFO, "Обновление SuperMod");
                 }
 
                 spdlog::error("Failed to find matching dll from latest release");
@@ -87,11 +93,15 @@ bool UpdateManager::CheckForUpdatesSync()
         if (r.status_code == 403 && r.header["X-Ratelimit-Remaining"] == "0")
         {
             using namespace std::chrono;
-            auto timePoint = std::chrono::duration_cast<seconds>(system_clock::from_time_t(std::stoll(r.header["X-Ratelimit-Reset"])) - system_clock::now());
-            details = std::format("\nВы проверяете обновления слишком часто. Повторите попытку через {:%H:%M:%S}", timePoint).c_str();
+            auto timePoint = std::chrono::duration_cast<seconds>(
+                system_clock::from_time_t(std::stoll(r.header["X-Ratelimit-Reset"])) - system_clock::now());
+            details =
+                std::format("\nВы проверяете обновления слишком часто. Повторите попытку через {:%H:%M:%S}", timePoint)
+                    .c_str();
         }
         throw std::runtime_error("HTTP " + std::to_string(r.status_code) + details);
-    } catch(std::exception& e)
+    }
+    catch (std::exception& e)
     {
         spdlog::error("Failed to check for updates: " + std::string(e.what()));
         std::lock_guard lock(mutex);
@@ -112,15 +122,13 @@ bool UpdateManager::DownloadUpdateSync()
     try
     {
         cpr::Response r = Download(
-            file,
-            cpr::Url{ availableUpdate->downloadUrl },
-            cpr::ProgressCallback([&](cpr::cpr_off_t downloadTotal, cpr::cpr_off_t downloadNow, cpr::cpr_off_t uploadTotal, cpr::cpr_off_t uploadNow, intptr_t userdata) -> bool
-            {
+            file, cpr::Url{availableUpdate->downloadUrl},
+            cpr::ProgressCallback([&](cpr::cpr_off_t downloadTotal, cpr::cpr_off_t downloadNow,
+                                      cpr::cpr_off_t uploadTotal, cpr::cpr_off_t uploadNow, intptr_t userdata) -> bool {
                 std::lock_guard lock(mutex);
                 state.progress = static_cast<float>(downloadNow) / static_cast<float>(downloadTotal);
                 return true;
-            })
-        );
+            }));
 
         if (r.status_code == 200)
         {
@@ -136,7 +144,7 @@ bool UpdateManager::DownloadUpdateSync()
 
         throw std::runtime_error("HTTP " + std::to_string(r.status_code));
     }
-    catch(std::exception& e)
+    catch (std::exception& e)
     {
         ui::NotificationManager::Notify(std::string("Не удалось загрузить обновление: ") + e.what());
         spdlog::error("Failed to download update: " + std::string(e.what()));
@@ -164,7 +172,7 @@ void UpdateManager::InstallUpdate(const std::filesystem::path& tempPath)
             state.stage = UpdateState::RESTART_REQUIRED;
         }
     }
-    catch(std::exception& e)
+    catch (std::exception& e)
     {
         std::filesystem::rename(backupDll, oldDll);
         ui::NotificationManager::Notify(std::string("Не удалось установить обновление: ") + e.what());
@@ -201,49 +209,44 @@ void UpdateManager::RenderMessage()
         ui::widgets::ProgressBar(static_cast<float>(ImGui::GetTime()) * -0.5f);
         break;
 
-    case UpdateState::UPDATE_AVAILABLE:
+    case UpdateState::UPDATE_AVAILABLE: {
+        auto availableUpdate = GetAvailableUpdate();
+        assert(availableUpdate && "State was UPDATE_AVAILABLE but no update available object was found");
+        if (availableUpdate)
         {
-            auto availableUpdate = GetAvailableUpdate();
-            assert(availableUpdate && "State was UPDATE_AVAILABLE but no update available object was found");
-            if (availableUpdate)
-            {
-                ImGui::Text("Доступно новое обновление: %s", availableUpdate->newVersion.str().c_str());
-                ImGui::Spacing();
-                if (ImGui::Button("Обновить"))
-                    DownloadUpdate();
-                ImGui::SameLine();
-                if (ImGui::Button("Проверить обновления"))
-                    CheckForUpdates();
-            }
-            break;
-        }
-
-    case UpdateState::DOWNLOADING:
-        {
-            ImGui::Text("Загрузка обновления...");
+            ImGui::Text("Доступно новое обновление: %s", availableUpdate->newVersion.str().c_str());
             ImGui::Spacing();
-            ui::widgets::ProgressBar(updateState.progress < 0
-                                       ? static_cast<float>(ImGui::GetTime()) * -0.5f
-                                       : updateState.progress);
-            break;
+            if (ImGui::Button("Обновить"))
+                DownloadUpdate();
+            ImGui::SameLine();
+            if (ImGui::Button("Проверить обновления"))
+                CheckForUpdates();
         }
+        break;
+    }
 
-    case UpdateState::INSTALLING:
-        {
-            ImGui::Text("Установка обновления...");
-            ImGui::Spacing();
-            ui::widgets::ProgressBar(static_cast<float>(ImGui::GetTime()) * -0.5f);
-            break;
-        }
+    case UpdateState::DOWNLOADING: {
+        ImGui::Text("Загрузка обновления...");
+        ImGui::Spacing();
+        ui::widgets::ProgressBar(updateState.progress < 0 ? static_cast<float>(ImGui::GetTime()) * -0.5f
+                                                          : updateState.progress);
+        break;
+    }
 
-    case UpdateState::RESTART_REQUIRED:
-        {
-            ImGui::Text("Обновление установлено, нужен перезапуск игры");
-            ImGui::Spacing();
-            if (ImGui::Button("Перезапустить игру"))
-                sdk::Game::Restart();
+    case UpdateState::INSTALLING: {
+        ImGui::Text("Установка обновления...");
+        ImGui::Spacing();
+        ui::widgets::ProgressBar(static_cast<float>(ImGui::GetTime()) * -0.5f);
+        break;
+    }
 
-            break;
-        }
+    case UpdateState::RESTART_REQUIRED: {
+        ImGui::Text("Обновление установлено, нужен перезапуск игры");
+        ImGui::Spacing();
+        if (ImGui::Button("Перезапустить игру"))
+            sdk::Game::Restart();
+
+        break;
+    }
     }
 }

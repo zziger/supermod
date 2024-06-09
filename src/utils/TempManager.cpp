@@ -16,18 +16,17 @@ void TempManager::Init()
 
 std::filesystem::path TempManager::GetTempDir(const bool create)
 {
-    auto randchar = []() -> char
-    {
-        constexpr char charset[] =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz";
+    auto randchar = []() -> char {
+        constexpr char charset[] = "0123456789"
+                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                   "abcdefghijklmnopqrstuvwxyz";
 
         std::uniform_int_distribution<> d1(0, sizeof(charset) - 2);
         return charset[d1(rand)];
     };
 
-    if (!exists(GetTempRoot())) create_directories(GetTempRoot());
+    if (!exists(GetTempRoot()))
+        create_directories(GetTempRoot());
 
     std::filesystem::path path;
     do
@@ -35,9 +34,10 @@ std::filesystem::path TempManager::GetTempDir(const bool create)
         std::string str(TEMP_LENGTH, 0);
         std::generate_n(str.begin(), TEMP_LENGTH, randchar);
         path = GetTempRoot() / str;
-    } while(exists(path));
+    } while (exists(path));
 
-    if (create) create_directories(path);
+    if (create)
+        create_directories(path);
     return path;
 }
 
@@ -45,10 +45,11 @@ void TempManager::RemoveTempDir(const std::filesystem::path& path)
 {
     try
     {
-        if (exists(path)) remove_all(path);
+        if (exists(path))
+            remove_all(path);
         Cleanup();
     }
-    catch(const std::exception& err)
+    catch (const std::exception& err)
     {
         spdlog::error("Failed to remove temp directory {}: {}", path.string(), err.what());
     }

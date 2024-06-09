@@ -4,21 +4,29 @@
 #include "memory/HookManager.h"
 #include "memory/Memory.h"
 
-struct BeforeTickEvent final : IEvent<"beforeTick", BeforeTickEvent> {};
-struct AfterTickEvent final : IEvent<"afterTick", AfterTickEvent> {};
-struct EarlyTickEvent final : IEvent<"earlyTick", EarlyTickEvent> {};
+struct BeforeTickEvent final : IEvent<"beforeTick", BeforeTickEvent>
+{
+};
+struct AfterTickEvent final : IEvent<"afterTick", AfterTickEvent>
+{
+};
+struct EarlyTickEvent final : IEvent<"earlyTick", EarlyTickEvent>
+{
+};
 
 typedef BeforeTickEvent TickEvent;
 
-inline int (__thiscall *render_orig)(void* this_) = nullptr;
-inline int  __fastcall render(void* this_, void*) {
+inline int(__thiscall* render_orig)(void* this_) = nullptr;
+inline int __fastcall render(void* this_, void*)
+{
     EventManager::Emit(TickEvent());
     auto res = render_orig(this_);
     EventManager::Emit(AfterTickEvent());
     return res;
 }
-inline int (__thiscall *main_loop_orig)(void* this_) = nullptr;
-inline int  __fastcall main_loop(void* this_, void*) {
+inline int(__thiscall* main_loop_orig)(void* this_) = nullptr;
+inline int __fastcall main_loop(void* this_, void*)
+{
     EventManager::Emit(EarlyTickEvent());
     return main_loop_orig(this_);
 }

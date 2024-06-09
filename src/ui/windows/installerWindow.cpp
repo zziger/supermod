@@ -10,12 +10,11 @@
 void ui::windows::Installer()
 {
     const auto requests = modloader::ModInstaller::GetInstallRequests();
-    if (requests.empty()) return;
+    if (requests.empty())
+        return;
 
     const auto currentIter = std::ranges::find_if(
-        requests,
-        [](const std::shared_ptr<modloader::ModInstallRequest>& req) { return !req->IsFinished(); }
-    );
+        requests, [](const std::shared_ptr<modloader::ModInstallRequest>& req) { return !req->IsFinished(); });
 
     if (currentIter == std::end(requests))
     {
@@ -34,12 +33,11 @@ void ui::windows::Installer()
     Ui::FixNextPopupModal();
     ImGui::SetNextWindowSize(ImVec2{700, 500}, ImGuiCond_Appearing);
     if (ImGui::BeginPopupModal(
-        std::format("{} мода {} из {}###Installer", mod ? "Обновление" : "Установка", index + 1,
-                    requests.size()).c_str(),
-        nullptr,
-        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize
-    ))
+            std::format("{} мода {} из {}###Installer", mod ? "Обновление" : "Установка", index + 1, requests.size())
+                .c_str(),
+            nullptr,
+            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
+                ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize))
     {
         widgets::mods::InfoBlock(info);
         ImGui::Spacing();
@@ -58,9 +56,8 @@ void ui::windows::Installer()
         const auto progress = current->GetProgress();
         if (progress.show)
         {
-            const auto progressValue = progress.progress < 0
-                                           ? static_cast<float>(ImGui::GetTime()) * -0.2f
-                                           : progress.progress;
+            const auto progressValue =
+                progress.progress < 0 ? static_cast<float>(ImGui::GetTime()) * -0.2f : progress.progress;
             widgets::ProgressBar(progressValue, {-FLT_MIN, 0}, progress.message ? progress.message->c_str() : nullptr);
         }
 
@@ -100,7 +97,8 @@ void ui::windows::Installer()
         if (!sdk::Game::booted)
         {
             ImGui::SameLine();
-            if (ImGui::Button("Выход")) exit(0);
+            if (ImGui::Button("Выход"))
+                exit(0);
         }
 
         ImGui::EndPopup();

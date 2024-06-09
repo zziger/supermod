@@ -6,16 +6,17 @@
 
 void ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
 {
-    if (ImGui::MenuItem(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить" : ICON_MD_POWER_SETTINGS_NEW "Включить"))
+    if (ImGui::MenuItem(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить"
+                                         : ICON_MD_POWER_SETTINGS_NEW "Включить"))
     {
         modloader::ModManager::ToggleMod(mod, !mod->IsEnabled());
     }
 
-    if (mod->IsEnabled()
-        ? !modloader::ModManager::GetModDependents(mod->GetID()).empty()
-        : !mod->GetInfo()->dependencies.empty())
+    if (mod->IsEnabled() ? !modloader::ModManager::GetModDependents(mod->GetID()).empty()
+                         : !mod->GetInfo()->dependencies.empty())
     {
-        if (ImGui::MenuItem(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить без зависимых модов" : ICON_MD_POWER_SETTINGS_NEW " Включить без зависимостей"))
+        if (ImGui::MenuItem(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить без зависимых модов"
+                                             : ICON_MD_POWER_SETTINGS_NEW " Включить без зависимостей"))
         {
             mod->Toggle(!mod->IsEnabled());
             modloader::ModManager::SaveConfig(mod);
@@ -34,7 +35,8 @@ void ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
     {
         modloader::ModManager::ReloadMod(mod);
     }
-    if (mod->IsActive()) Tooltip("Мод должен быть выключен для перезагрузки", ImGuiHoveredFlags_AllowWhenDisabled);
+    if (mod->IsActive())
+        Tooltip("Мод должен быть выключен для перезагрузки", ImGuiHoveredFlags_AllowWhenDisabled);
 
     ImGui::Separator();
 

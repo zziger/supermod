@@ -18,4 +18,3 @@ inline EventManager::Ready $trophy_scene_crash_patch([] {
     const Memory::Pattern pat("E8 ? ? ? ? 83 C4 ? 6A ? E8 ? ? ? ? 83 C4 ? C7 05 ? ? ? ? ? ? ? ? E8");
     HookManager::RegisterHook(pat.Search().GoToNearCall(), HOOK_REF(set_random_seed));
 });
-

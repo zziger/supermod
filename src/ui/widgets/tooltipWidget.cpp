@@ -4,7 +4,8 @@
 
 void ui::widgets::Tooltip(const char* text, ImGuiHoveredFlags flags)
 {
-    constexpr auto anyDelay = ImGuiHoveredFlags_DelayNone | ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_DelayNormal;
+    constexpr auto anyDelay =
+        ImGuiHoveredFlags_DelayNone | ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_DelayNormal;
     if (flags & anyDelay == 0)
         flags |= ImGuiHoveredFlags_DelayShort;
     if (ImGui::IsItemHovered(flags))

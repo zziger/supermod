@@ -48,13 +48,13 @@ void ui::widgets::ProgressBar(const float fraction, const ImVec2& sizeArg, const
         const ImVec2 overlaySize = ImGui::CalcTextSize(overlay, nullptr);
         if (overlaySize.x > 0.0f)
         {
-            const auto fillBr = ImVec2(indeterminate
-                                           ? (bb.Min.x + bb.Max.x - overlaySize.x) * 0.5f
-                                           : ImLerp(bb.Min.x, bb.Max.x, barEnd), bb.Max.y);
-            ImGui::RenderTextClipped(
-                ImVec2(ImClamp(fillBr.x + style.ItemSpacing.x, bb.Min.x,
-                               bb.Max.x - overlaySize.x - style.ItemInnerSpacing.x), bb.Min.y), bb.Max, overlay,
-                nullptr, &overlaySize, ImVec2(0.0f, 0.5f), &bb);
+            const auto fillBr = ImVec2(indeterminate ? (bb.Min.x + bb.Max.x - overlaySize.x) * 0.5f
+                                                     : ImLerp(bb.Min.x, bb.Max.x, barEnd),
+                                       bb.Max.y);
+            ImGui::RenderTextClipped(ImVec2(ImClamp(fillBr.x + style.ItemSpacing.x, bb.Min.x,
+                                                    bb.Max.x - overlaySize.x - style.ItemInnerSpacing.x),
+                                            bb.Min.y),
+                                     bb.Max, overlay, nullptr, &overlaySize, ImVec2(0.0f, 0.5f), &bb);
         }
     }
 }

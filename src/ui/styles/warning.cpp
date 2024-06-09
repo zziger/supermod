@@ -1,7 +1,7 @@
 #include "styles.h"
 
-#include <imgui.h>
 #include <Utils.h>
+#include <imgui.h>
 #include <ui/Ui.h>
 
 void ui::styles::warning::PushStyle()
@@ -19,7 +19,7 @@ void ui::styles::warning::PopStyle()
 void ui::styles::warning::BeginPanel(const char* id)
 {
     ImGui::PushStyleColor(ImGuiCol_ChildBg, 0xEF9B0552_color);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { Ui::ScaledPx(15), Ui::ScaledPx(10) });
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {Ui::ScaledPx(15), Ui::ScaledPx(10)});
     ImGui::BeginChild(id, ImVec2(-FLT_MIN, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
     ImGui::PushTextWrapPos(ImGui::GetWindowSize().x);
     PushStyle();
@@ -35,7 +35,8 @@ void ui::styles::warning::EndPanel()
 
     const auto childRectMin = ImGui::GetItemRectMin();
     const auto childRectMax = ImGui::GetItemRectMax();
-    ImGui::GetWindowDrawList()->AddRectFilled(childRectMin, { childRectMin.x + Ui::ScaledPx(3), childRectMax.y }, 0xFF48CEEE, Ui::ScaledPx(3));
+    ImGui::GetWindowDrawList()->AddRectFilled(childRectMin, {childRectMin.x + Ui::ScaledPx(3), childRectMax.y},
+                                              0xFF48CEEE, Ui::ScaledPx(3));
 }
 
 void ui::styles::warning::PanelText(const char* text)

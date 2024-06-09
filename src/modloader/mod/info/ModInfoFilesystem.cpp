@@ -6,10 +6,12 @@
 
 void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
 {
-    if (!exists(path)) throw ModFileError("Папка мода не найдена по пути " + path.string());
+    if (!exists(path))
+        throw ModFileError("Папка мода не найдена по пути " + path.string());
 
     const auto manifestPath = path / MANIFEST_FILENAME;
-    if (!exists(manifestPath)) throw ModFileError("Манифест мода (manifest.yml) не найден по пути " + manifestPath.string());
+    if (!exists(manifestPath))
+        throw ModFileError("Манифест мода (manifest.yml) не найден по пути " + manifestPath.string());
 
     // TODO handle when this throws
     auto manifest = YAML::LoadFile(manifestPath.string());
@@ -21,10 +23,11 @@ void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
 void modloader::ModInfoFilesystem::UpdateIcon()
 {
     const auto id = GetID();
-    if(!id.empty() && *sdk::DirectX::d3dDevice && exists(basePath / ICON_FILENAME))
+    if (!id.empty() && *sdk::DirectX::d3dDevice && exists(basePath / ICON_FILENAME))
     {
         const auto assetPool = game::AssetPool::Instance();
-        const auto iconAsset = assetPool->LoadAsset(basePath / ICON_FILENAME, assetPool->MakeAssetKeyUnique("$mod:icon:" + id));
+        const auto iconAsset =
+            assetPool->LoadAsset(basePath / ICON_FILENAME, assetPool->MakeAssetKeyUnique("$mod:icon:" + id));
         SetIcon(ModIcon(assetPool->MakeOwned(iconAsset)));
     }
 }

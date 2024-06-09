@@ -5,12 +5,14 @@
 #include <sdk/Game.h>
 #include <ui/NotificationManager.h>
 
-#include "ModInstaller.h"
 #include "ModInstallRequestZip.h"
+#include "ModInstaller.h"
 
-STDMETHODIMP ZipModDropTarget::QueryInterface(REFIID riid, void **ppv) {
-    if (IsEqualIID(riid, IID_IDropTarget) || IsEqualIID(riid, IID_IUnknown)) {
-        *ppv = static_cast<IDropTarget *>(this);
+STDMETHODIMP ZipModDropTarget::QueryInterface(REFIID riid, void** ppv)
+{
+    if (IsEqualIID(riid, IID_IDropTarget) || IsEqualIID(riid, IID_IUnknown))
+    {
+        *ppv = static_cast<IDropTarget*>(this);
         return S_OK;
     }
     *ppv = nullptr;
@@ -21,19 +23,23 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 {
     lastEffect = *pdwEffect = DROPEFFECT_NONE;
 
-    FORMATETC fmt = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-    if (pDataObj->QueryGetData(&fmt) != S_OK) return S_OK;
+    FORMATETC fmt = {CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+    if (pDataObj->QueryGetData(&fmt) != S_OK)
+        return S_OK;
 
     STGMEDIUM stgMedium;
-    if (pDataObj->GetData(&fmt, &stgMedium) != S_OK) return S_OK;
+    if (pDataObj->GetData(&fmt, &stgMedium) != S_OK)
+        return S_OK;
 
     const auto hDrop = static_cast<HDROP>(stgMedium.hGlobal);
     const auto count = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
     bool containsZip = false;
     zipNames.clear();
-    for (UINT i = 0; i < count; ++i) {
+    for (UINT i = 0; i < count; ++i)
+    {
         TCHAR filename[MAX_PATH];
-        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0) {
+        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0)
+        {
             auto path = std::filesystem::path(filename);
             if (path.extension() == ".zip")
             {
@@ -44,7 +50,8 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
     }
     ReleaseStgMedium(&stgMedium);
 
-    if (!containsZip) return S_OK;
+    if (!containsZip)
+        return S_OK;
 
     SetActiveWindow(*sdk::Game::window);
     lastEffect = *pdwEffect = DROPEFFECT_COPY;
@@ -69,24 +76,30 @@ HRESULT ZipModDropTarget::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 {
     state = false;
     lastEffect = *pdwEffect = DROPEFFECT_NONE;
-    FORMATETC fmt = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-    if (pDataObj->QueryGetData(&fmt) != S_OK) return S_OK;
+    FORMATETC fmt = {CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+    if (pDataObj->QueryGetData(&fmt) != S_OK)
+        return S_OK;
 
     STGMEDIUM stgMedium;
-    if (pDataObj->GetData(&fmt, &stgMedium) != S_OK) return S_OK;
+    if (pDataObj->GetData(&fmt, &stgMedium) != S_OK)
+        return S_OK;
 
     const auto hDrop = static_cast<HDROP>(stgMedium.hGlobal);
     const auto count = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
-    for (UINT i = 0; i < count; ++i) {
+    for (UINT i = 0; i < count; ++i)
+    {
         TCHAR filename[MAX_PATH];
-        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0) {
+        if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0)
+        {
             auto path = std::filesystem::path(filename);
             if (path.extension() == ".zip")
             {
                 *pdwEffect = DROPEFFECT_COPY;
                 auto requests = modloader::ModInstallRequestZip::FromZip(path, false);
                 if (requests.empty())
-                    ui::NotificationManager::Notify(std::format("В архиве {} не найдено модов для установки", path.filename().string()), ui::Notification::WARN);
+                    ui::NotificationManager::Notify(
+                        std::format("В архиве {} не найдено модов для установки", path.filename().string()),
+                        ui::Notification::WARN);
                 for (const auto& request : requests)
                     modloader::ModInstaller::RequestInstall(request);
             }

@@ -8,9 +8,12 @@
 #include "memory/Memory.h"
 #include "sdk/Game.h"
 
-struct SoundsLoadedEvent final : IEvent<"soundsLoaded", SoundsLoadedEvent> {};
+struct SoundsLoadedEvent final : IEvent<"soundsLoaded", SoundsLoadedEvent>
+{
+};
 
-HOOK_FN(inline int, load_sounds, ARGS()) {
+HOOK_FN(inline int, load_sounds, ARGS())
+{
     const auto res = load_sounds_orig();
     spdlog::trace("SoundsLoaded event");
     EventManager::Emit(SoundsLoadedEvent{});

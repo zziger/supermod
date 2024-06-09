@@ -12,6 +12,4 @@ void modloader::TestImpl::OnDisabled()
     spdlog::debug("ModTestImpl {} was disabled", info->GetID());
 }
 
-void modloader::TestImpl::OnTick()
-{
-}
+void modloader::TestImpl::OnTick() {}

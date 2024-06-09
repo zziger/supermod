@@ -1,9 +1,9 @@
 #include "ModInstaller.h"
 
-#include <logs/Console.h>
 #include <events/D3dInitEvent.h>
 #include <events/EventManager.h>
 #include <events/TickEvent.h>
+#include <logs/Console.h>
 #include <modloader/ModManager.h>
 #include <sdk/Game.h>
 #include <spdlog/spdlog.h>
@@ -14,14 +14,14 @@
 
 void modloader::ModInstaller::Init()
 {
-    EventManager::On<D3dInitEvent>([]
-    {
-        if (FAILED(OleInitialize(nullptr))) spdlog::error("Failed to initialize OLE");
-        if (FAILED(RegisterDragDrop(*sdk::Game::window, &dropTarget))) spdlog::error("Failed to register drag and drop target");
+    EventManager::On<D3dInitEvent>([] {
+        if (FAILED(OleInitialize(nullptr)))
+            spdlog::error("Failed to initialize OLE");
+        if (FAILED(RegisterDragDrop(*sdk::Game::window, &dropTarget)))
+            spdlog::error("Failed to register drag and drop target");
         ScanCmdline();
     });
 }
-
 
 void modloader::ModInstaller::ScanCmdline()
 {
@@ -31,12 +31,14 @@ void modloader::ModInstaller::ScanCmdline()
     for (auto i = 0; i < argvCount; i++)
     {
         auto path = std::filesystem::path(argv[i]);
-        if (path.extension() != ".zip") continue;
+        if (path.extension() != ".zip")
+            continue;
         RequestInstall(ModInstallRequestZip::FromZip(path, false));
     }
 }
 
-std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path)
+std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info,
+                                                                    const std::filesystem::path& path)
 {
     auto mod = ModManager::FindModByID(info->GetID());
     if (!mod)
@@ -53,7 +55,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
             ModManager::AddMod(newMod);
             return newMod;
         }
-        catch(...)
+        catch (...)
         {
             if (exists(newPath))
                 remove_all(newPath);
@@ -78,10 +80,11 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
         mod->Toggle(true);
         TempManager::RemoveTempDir(tempFile);
     }
-    catch(const std::exception& err)
+    catch (const std::exception& err)
     {
         ui::NotificationManager::Notify(std::format("Не удалось обновить мод {}.\n{}", info->GetID(), err.what()));
-        spdlog::debug("Failed to install mod {}, attempting to recover state: {}", Console::StyleModName(info->GetID()), err.what());
+        spdlog::debug("Failed to install mod {}, attempting to recover state: {}", Console::StyleModName(info->GetID()),
+                      err.what());
 
         try
         {
@@ -90,10 +93,12 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
             std::filesystem::rename(tempFile, infoFilesystem->basePath);
             TempManager::RemoveTempDir(path);
         }
-        catch(const std::exception& errInner)
+        catch (const std::exception& errInner)
         {
-            ui::NotificationManager::Notify(std::format("Не удалось вернуть мод {} в прежнее состояние.\n{}", info->GetID(), err.what()));
-            spdlog::error("Failed to recover previous mod {}: {}", Console::StyleModName(info->GetID()), errInner.what());
+            ui::NotificationManager::Notify(
+                std::format("Не удалось вернуть мод {} в прежнее состояние.\n{}", info->GetID(), err.what()));
+            spdlog::error("Failed to recover previous mod {}: {}", Console::StyleModName(info->GetID()),
+                          errInner.what());
         }
         throw;
     }

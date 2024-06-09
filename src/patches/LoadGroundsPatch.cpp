@@ -16,22 +16,28 @@ static Memory readLimit;
 static Memory reloadGrounds;
 static void* buffer;
 
-HOOK_FN(inline void*, load_ground_textures, ARGS()) {
+HOOK_FN(inline void*, load_ground_textures, ARGS())
+{
     auto grounds = 5;
-    
-    for (auto& mod : modloader::ModManager::GetMods()) {
-        if (mod->HasFlag(modloader::Mod::Flag::INTERNAL) || !mod->IsActive()) continue;
+
+    for (auto& mod : modloader::ModManager::GetMods())
+    {
+        if (mod->HasFlag(modloader::Mod::Flag::INTERNAL) || !mod->IsActive())
+            continue;
         const auto info = std::dynamic_pointer_cast<modloader::ModInfoFilesystem>(mod->GetInfo());
-        if (!info) continue;
+        if (!info)
+            continue;
         const auto levelobjs = info->basePath / "data" / "levelobjs";
         auto i = 5;
-        while (exists(levelobjs / std::format("ground{}.tga", i + 1)) || exists(levelobjs / std::format("_a_ground{}.jpg", i + 1)))
+        while (exists(levelobjs / std::format("ground{}.tga", i + 1)) ||
+               exists(levelobjs / std::format("_a_ground{}.jpg", i + 1)))
             i++;
 
         grounds = std::max(grounds, i);
     }
-    
-    if (buffer != nullptr) free(buffer);
+
+    if (buffer != nullptr)
+        free(buffer);
     buffer = calloc(grounds, 4);
     (fillOutGrounds + 3).Put(buffer);
     (readGrounds + 3).Put(buffer);
@@ -50,11 +56,12 @@ inline EventManager::Ready $level_music_patch([] {
     fillOutLimit = fillOutLimitPat.Search();
     static constexpr Memory::Pattern readLimitPat("83 7D F8 ? 7C ? C7 45 F8");
     readLimit = readLimitPat.Search();
-    static constexpr Memory::Pattern reloadTexPat("55 8B EC 83 EC ? A1 ? ? ? ? 89 45 FC 68 ? ? ? ? FF 15 ? ? ? ? C7 45 D8");
+    static constexpr Memory::Pattern reloadTexPat(
+        "55 8B EC 83 EC ? A1 ? ? ? ? 89 45 FC 68 ? ? ? ? FF 15 ? ? ? ? C7 45 D8");
     reloadGrounds = reloadTexPat.Search();
 
     EventManager::On<ModLoadEvent>([] { reloadGrounds.Call(); });
     EventManager::On<ModUnloadEvent>([] { reloadGrounds.Call(); });
-    
+
     HookManager::RegisterHook(reloadGrounds, HOOK_REF(load_ground_textures));
 });

@@ -1,21 +1,21 @@
 #include "ModManager.h"
 
 #include <Config.h>
-#include <logs/Console.h>
 #include <events/D3dInitEvent.h>
 #include <events/TickEvent.h>
+#include <logs/Console.h>
 #include <mod/ModImplInternal.h>
 #include <sdk/Game.h>
-#include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/color.h>
+#include <spdlog/spdlog.h>
 #include <ui/NotificationManager.h>
 
-#include "install/ModInstaller.h"
-#include "mod/impl/TestImpl.h"
-#include "mod/impl/ModImplLua.h"
 #include "install/ModInstallRequestDiscover.h"
 #include "install/ModInstallRequestZip.h"
+#include "install/ModInstaller.h"
 #include "install/ZipModDropTarget.h"
+#include "mod/impl/ModImplLua.h"
+#include "mod/impl/TestImpl.h"
 
 void modloader::ModManager::Init()
 {
@@ -29,10 +29,7 @@ void modloader::ModManager::Init()
     UpdateRemovedMods();
     Tick();
 
-    EventManager::On<BeforeTickEvent>([]
-    {
-       Tick();
-    });
+    EventManager::On<BeforeTickEvent>([] { Tick(); });
 }
 
 void modloader::ModManager::ScanMods(const bool init)
@@ -44,22 +41,24 @@ void modloader::ModManager::ScanMods(const bool init)
         return;
     }
 
-    std::map<std::string, std::shared_ptr<Mod>> foundMods {};
-    std::set<std::string> foundIDs {};
+    std::map<std::string, std::shared_ptr<Mod>> foundMods{};
+    std::set<std::string> foundIDs{};
 
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
     {
-        if (!file.is_directory() || file.path().filename().string().starts_with(".")) continue;
+        if (!file.is_directory() || file.path().filename().string().starts_with("."))
+            continue;
 
         std::shared_ptr<Mod> mod;
         try
         {
             mod = CreateMod(file.path());
         }
-        catch(const std::exception& err)
+        catch (const std::exception& err)
         {
             spdlog::error("Failed to create mod from {}: {}", file.path().string(), err.what());
-            ui::NotificationManager::Notify(std::format("Не удалось загрузить мод из {}.\n{}", file.path().string(), err.what()));
+            ui::NotificationManager::Notify(
+                std::format("Не удалось загрузить мод из {}.\n{}", file.path().string(), err.what()));
         }
 
         auto id = mod->GetID();
@@ -68,7 +67,9 @@ void modloader::ModManager::ScanMods(const bool init)
         {
             spdlog::warn("Found multiple mods with same ID: {}. Disabling mod at {}", id, file.path().string());
             std::filesystem::rename(file.path(), file.path().parent_path() / ("." + file.path().filename().string()));
-            ui::NotificationManager::Notify(std::format("Найдено несколько модов с ID {}. Мод {} был выключен", id, file.path().filename().string()), ui::Notification::WARN);
+            ui::NotificationManager::Notify(std::format("Найдено несколько модов с ID {}. Мод {} был выключен", id,
+                                                        file.path().filename().string()),
+                                            ui::Notification::WARN);
             continue;
         }
 
@@ -92,7 +93,8 @@ void modloader::ModManager::ScanMods(const bool init)
         {
             const auto key = pair.first.as<std::string>();
             const auto& node = pair.second;
-            if (!foundMods.contains(key)) continue;
+            if (!foundMods.contains(key))
+                continue;
 
             auto mod = foundMods[key];
             mod->Toggle(node["enabled"].as<bool>(false));
@@ -120,7 +122,8 @@ void modloader::ModManager::ScanMods(const bool init)
 
     for (const auto& [key, mod] : foundMods)
     {
-        if (cfg["mods"][key]) continue;
+        if (cfg["mods"][key])
+            continue;
 
         AddMod(mod);
         ModInstaller::RequestInstall(std::make_shared<ModInstallRequestDiscover>(mod));
@@ -128,8 +131,10 @@ void modloader::ModManager::ScanMods(const bool init)
 
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
     {
-        if (file.is_directory()) continue;
-        if (file.path().extension() != ".zip") continue;
+        if (file.is_directory())
+            continue;
+        if (file.path().extension() != ".zip")
+            continue;
         ModInstaller::RequestInstall(ModInstallRequestZip::FromZip(file.path(), true));
     }
 }
@@ -154,14 +159,16 @@ void modloader::ModManager::Tick()
 
 std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::string& id)
 {
-    if (!mods_map.contains(id)) return nullptr;
+    if (!mods_map.contains(id))
+        return nullptr;
     return mods_map[id];
 }
 
 const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetModDependents(const std::string& id)
 {
     static constexpr std::vector<std::shared_ptr<Mod>> empty{};
-    if (!dependent_mods.contains(id)) return empty;
+    if (!dependent_mods.contains(id))
+        return empty;
     return dependent_mods[id];
 }
 
@@ -201,13 +208,12 @@ std::shared_ptr<modloader::Mod> modloader::ModManager::CreateMod(const std::file
 
 void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList)
 {
-    mods.erase(
-        std::ranges::remove_if(mods, [](const std::shared_ptr<Mod>& mod)
-        {
-            return !mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED);
-        }).begin(),
-        mods.end()
-    );
+    mods.erase(std::ranges::remove_if(mods,
+                                      [](const std::shared_ptr<Mod>& mod) {
+                                          return !mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED);
+                                      })
+                   .begin(),
+               mods.end());
     for (const auto& mod : removalList)
         mods_map.erase(mod->GetInfo()->GetID());
 
@@ -221,14 +227,17 @@ void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& 
         if (mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
         {
             const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
-            if (!info) continue;
+            if (!info)
+                continue;
             try
             {
                 remove_all(info->basePath);
-            } catch(const std::exception& err)
+            }
+            catch (const std::exception& err)
             {
                 spdlog::error("Failed to remove {}: {}", info->basePath.string(), err.what());
-                ui::NotificationManager::Notify(std::format("Не удалось удалить папку {}.\n{}", info->basePath.string(), err.what()));
+                ui::NotificationManager::Notify(
+                    std::format("Не удалось удалить папку {}.\n{}", info->basePath.string(), err.what()));
             }
         }
     }
@@ -236,7 +245,8 @@ void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& 
 
 void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
 {
-    assert(newMods.size() == mods.size() && std::ranges::is_permutation(mods, newMods) && "Reordered mods list is different from mods list");
+    assert(newMods.size() == mods.size() && std::ranges::is_permutation(mods, newMods) &&
+           "Reordered mods list is different from mods list");
 
     mods = newMods;
 
@@ -246,19 +256,16 @@ void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>&
 void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled)
 {
     const auto state = mod->IsEnabled();
-    if (state == enabled) return;
+    if (state == enabled)
+        return;
 
-    spdlog::info(
-        "{} mod {} with dependencies",
-        Console::StyleToggle(enabled ? "Enabling" : "Disabling", enabled),
-        Console::StyleModName(mod->GetID())
-    );
+    spdlog::info("{} mod {} with dependencies", Console::StyleToggle(enabled ? "Enabling" : "Disabling", enabled),
+                 Console::StyleModName(mod->GetID()));
 
     if (enabled)
     {
         std::function<void(const std::shared_ptr<Mod>&, int)> enable;
-        enable = [&](const std::shared_ptr<Mod>& targetMod, int depth = 0)
-        {
+        enable = [&](const std::shared_ptr<Mod>& targetMod, int depth = 0) {
             if (depth < 5)
             {
                 const auto& info = targetMod->GetInfo();
@@ -273,8 +280,7 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
     else
     {
         std::function<void(const std::shared_ptr<Mod>&, int)> disable;
-        disable = [&](const std::shared_ptr<Mod>& targetMod, int depth = 0)
-        {
+        disable = [&](const std::shared_ptr<Mod>& targetMod, int depth = 0) {
             if (depth < 5)
             {
                 const auto dependents = GetModDependents(targetMod->GetID());
@@ -292,7 +298,8 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
 
 void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, const bool remove)
 {
-    if (remove) ToggleMod(mod, false);
+    if (remove)
+        ToggleMod(mod, false);
     mod->SetFlag(Mod::Flag::REMOVAL_SCHEDULED, remove);
     mod->SetFlag(Mod::Flag::REMOVE_WITH_FILES, remove);
     SaveConfig(mod);
@@ -301,7 +308,8 @@ void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, 
 void modloader::ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
 {
     const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
-    if (!info) return;
+    if (!info)
+        return;
 
     const auto newInfo = std::make_shared<ModInfoFilesystem>();
     newInfo->FromPath(info->basePath);
@@ -311,7 +319,8 @@ void modloader::ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
 
 void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 {
-    if (mod->HasFlag(Mod::Flag::INTERNAL)) return;
+    if (mod->HasFlag(Mod::Flag::INTERNAL))
+        return;
 
     ValidateConfig();
 
@@ -333,10 +342,11 @@ void modloader::ModManager::UpdateStates()
             mod->Update();
         }
         tickCounter++;
-    } while(IsDirty(DirtyFlag::STATES) && tickCounter < MAX_STATE_UPDATE_TICKS);
+    } while (IsDirty(DirtyFlag::STATES) && tickCounter < MAX_STATE_UPDATE_TICKS);
 
     if (tickCounter >= MAX_STATE_UPDATE_TICKS)
-        spdlog::warn("Reached mod state update tick limit per script tick. Calculated {} update ticks in 1 script tick", tickCounter);
+        spdlog::warn("Reached mod state update tick limit per script tick. Calculated {} update ticks in 1 script tick",
+                     tickCounter);
 }
 
 void modloader::ModManager::UpdateDeps()
@@ -347,8 +357,7 @@ void modloader::ModManager::UpdateDeps()
     {
         auto id = mod->GetID();
         auto dependents = std::vector<std::shared_ptr<Mod>>();
-        std::ranges::copy_if(mods, std::back_inserter(dependents), [&](const std::shared_ptr<Mod>& innerMod)
-        {
+        std::ranges::copy_if(mods, std::back_inserter(dependents), [&](const std::shared_ptr<Mod>& innerMod) {
             return innerMod->GetInfo()->HasDependency(id);
         });
 
@@ -358,13 +367,15 @@ void modloader::ModManager::UpdateDeps()
 
 void modloader::ModManager::UpdateRemovedMods()
 {
-    std::vector<std::shared_ptr<Mod>> removalList {};
+    std::vector<std::shared_ptr<Mod>> removalList{};
     for (const auto& mod : mods)
     {
-        if (!mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED)) removalList.push_back(mod);
+        if (!mod->IsActive() && mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED))
+            removalList.push_back(mod);
     }
 
-    if (!removalList.empty()) RemoveMods(removalList);
+    if (!removalList.empty())
+        RemoveMods(removalList);
 }
 
 void modloader::ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)
@@ -401,7 +412,8 @@ void modloader::ModManager::SaveConfig()
     {
         const auto id = mod->GetID();
 
-        if (oldTree[id].IsMap()) tree[id] = oldTree[id];
+        if (oldTree[id].IsMap())
+            tree[id] = oldTree[id];
         PopulateConfig(mod, tree[id]);
     }
 
@@ -415,7 +427,8 @@ void modloader::ModManager::PopulateConfig(const std::shared_ptr<Mod>& mod, YAML
 
     if (mod->HasFlag(Mod::Flag::REMOVAL_SCHEDULED) && mod->HasFlag(Mod::Flag::REMOVE_WITH_FILES))
         node["remove"] = true;
-    else node.remove("remove");
+    else
+        node.remove("remove");
 }
 
 #ifdef UNIT_TESTS

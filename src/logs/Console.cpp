@@ -1,16 +1,18 @@
 #include "logs/Console.h"
 
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/bundled/color.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <ui/NotificationManager.h>
 #include <logs/AnsiFileSink.h>
 #include <logs/LogLevelFormatterFlag.h>
+#include <spdlog/fmt/bundled/color.h>
 #include <spdlog/pattern_formatter.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+#include <ui/NotificationManager.h>
 
-static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
-    switch (dwCtrlType) {
+static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType)
+{
+    switch (dwCtrlType)
+    {
     case CTRL_C_EVENT:
     case CTRL_CLOSE_EVENT:
         sdk::Game::RequestExit();
@@ -28,10 +30,12 @@ std::filesystem::path Console::GetLogsDir()
 
 void Console::CleanupLogs()
 {
-    if (!exists(GetLogsDir())) return;
+    if (!exists(GetLogsDir()))
+        return;
 
     const auto& cfg = Config::Get();
-    if (!cfg.log.limitFiles) return;
+    if (!cfg.log.limitFiles)
+        return;
 
     try
     {
@@ -40,16 +44,21 @@ void Console::CleanupLogs()
         {
             const auto& path = entry.path();
             const auto& filename = path.filename().string();
-            if (path.extension() != ".log") continue;
-            if (filename.find("supermod_") == 0) logs.push_back(entry);
+            if (path.extension() != ".log")
+                continue;
+            if (filename.find("supermod_") == 0)
+                logs.push_back(entry);
         }
 
         if (logs.size() > cfg.log.maxFiles - 1)
         {
-            std::ranges::sort(logs, [](const auto& lhs, const auto& rhs) { return lhs.last_write_time() > rhs.last_write_time(); });
-            for (size_t i = cfg.log.maxFiles - 1; i < logs.size(); ++i) std::filesystem::remove(logs[i]);
+            std::ranges::sort(
+                logs, [](const auto& lhs, const auto& rhs) { return lhs.last_write_time() > rhs.last_write_time(); });
+            for (size_t i = cfg.log.maxFiles - 1; i < logs.size(); ++i)
+                std::filesystem::remove(logs[i]);
         }
-    } catch(std::exception& e)
+    }
+    catch (std::exception& e)
     {
         ui::NotificationManager::Notify(std::format("Не удалось очистить папку логов.\n{}", e.what()));
     }
@@ -60,11 +69,13 @@ void Console::Initialize()
     const auto& cfg = Config::Get();
 
     AllocConsole();
-    if (stdinFile == nullptr) freopen_s(&stdinFile, "CONIN$", "r", stdin);
-    if (stdoutFile == nullptr) freopen_s(&stdoutFile, "CONOUT$", "w", stdout);
+    if (stdinFile == nullptr)
+        freopen_s(&stdinFile, "CONIN$", "r", stdin);
+    if (stdoutFile == nullptr)
+        freopen_s(&stdoutFile, "CONOUT$", "w", stdout);
     SetConsoleTitle(L"SuperMod console");
-    SetConsoleOutputCP( CP_UTF8);
-    SetConsoleCP( CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
     if (void* hOut = GetStdHandle(STD_OUTPUT_HANDLE); hOut != INVALID_HANDLE_VALUE)
         if (DWORD dwMode = 0; GetConsoleMode(hOut, &dwMode))
@@ -72,7 +83,7 @@ void Console::Initialize()
 
     // CleanupLogs();
 
-    std::vector<std::shared_ptr<spdlog::sinks::sink>> sinks {};
+    std::vector<std::shared_ptr<spdlog::sinks::sink>> sinks{};
 
     {
         const auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -85,7 +96,9 @@ void Console::Initialize()
 
     {
         create_directories(GetLogsDir());
-        const auto logFilename = std::format("supermod_{:%Y-%m-%d-%H-%M-%S}.log", std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()));
+        const auto logFilename =
+            std::format("supermod_{:%Y-%m-%d-%H-%M-%S}.log",
+                        std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()));
         const auto fileSink = std::make_shared<AnsiFileSink<std::mutex>>((GetLogsDir() / logFilename).string(), true);
         fileSink->set_pattern("[%d.%m.%Y %T] [%n] [%l] %v");
         fileSink->set_level(spdlog::level::debug);
@@ -105,13 +118,15 @@ void Console::Initialize()
 
 void Console::Enable()
 {
-    if (enabled) return;
+    if (enabled)
+        return;
     enabled = true;
     const auto wnd = GetConsoleWindow();
-    if (wnd != nullptr) {
+    if (wnd != nullptr)
+    {
         ShowWindow(wnd, SW_RESTORE);
 
-        if(HMENU menu = GetSystemMenu(wnd, FALSE); menu != nullptr)
+        if (HMENU menu = GetSystemMenu(wnd, FALSE); menu != nullptr)
         {
             DeleteMenu(menu, SC_CLOSE, MF_BYCOMMAND);
         }
@@ -120,10 +135,12 @@ void Console::Enable()
 
 void Console::Disable()
 {
-    if (!enabled) return;
+    if (!enabled)
+        return;
     enabled = false;
     const auto wnd = GetConsoleWindow();
-    if (wnd != nullptr) {
+    if (wnd != nullptr)
+    {
         ShowWindow(wnd, SW_HIDE);
     }
 }
@@ -131,9 +148,12 @@ void Console::Disable()
 void Console::Update()
 {
     auto& cfg = Config::Get();
-    if (cfg.console) Enable();
-    else Disable();
-    mainLogger->set_level(cfg.log.level >= 0 && cfg.log.level < spdlog::level::n_levels ? cfg.log.level : spdlog::level::info);
+    if (cfg.console)
+        Enable();
+    else
+        Disable();
+    mainLogger->set_level(cfg.log.level >= 0 && cfg.log.level < spdlog::level::n_levels ? cfg.log.level
+                                                                                        : spdlog::level::info);
 }
 
 void Console::AddToLua(const std::shared_ptr<spdlog::logger>& logger, sol::table table)

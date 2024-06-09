@@ -1,15 +1,15 @@
 #pragma once
-#include <regex>
-#include <string>
-#include <spdlog/logger.h>
-#include <spdlog/fmt/bundled/color.h>
 #include <modloader/mod/impl/lua/lua.h>
+#include <regex>
+#include <spdlog/fmt/bundled/color.h>
+#include <spdlog/logger.h>
+#include <string>
 
 #include "Config.h"
 
-class Console {
+class Console
+{
 public:
-
     static constexpr std::string_view WARN_COLOR_RESET = "\x1b[1;33m";
 
     static std::filesystem::path GetLogsDir();
@@ -26,7 +26,6 @@ public:
     static void Enable();
     static void Disable();
     static void Update();
-
 
     static fmt::detail::styled_arg<std::string> StyleToggle(const std::string& modName, bool toggle)
     {

@@ -4,21 +4,21 @@
 #include <ui/Ui.h>
 
 static inline std::map<std::string, std::string> LINK_ICONS = {
-    { "discord", ICON_FA_DISCORD },
-    { "github", ICON_FA_GITHUB },
-    { "gitlab", ICON_FA_GITLAB },
-    { "bitbucket", ICON_FA_BITBUCKET },
-    { "youtube", ICON_FA_YOUTUBE },
-    { "reddit", ICON_FA_REDDIT },
-    { "patreon", ICON_FA_PATREON },
-    { "twitter", ICON_FA_TWITTER },
-    { "instagram", ICON_FA_INSTAGRAM },
-    { "vk", ICON_FA_VK },
-    { "odnoklassniki", ICON_FA_ODNOKLASSNIKI },
-    { "googlePay", ICON_FA_GOOGLE_PAY },
-    { "bingChilling", ICON_FA_ZHIHU },
-    { "wikipedia", ICON_FA_WIKIPEDIA_W },
-    { "steam", ICON_FA_STEAM },
+    {"discord", ICON_FA_DISCORD},
+    {"github", ICON_FA_GITHUB},
+    {"gitlab", ICON_FA_GITLAB},
+    {"bitbucket", ICON_FA_BITBUCKET},
+    {"youtube", ICON_FA_YOUTUBE},
+    {"reddit", ICON_FA_REDDIT},
+    {"patreon", ICON_FA_PATREON},
+    {"twitter", ICON_FA_TWITTER},
+    {"instagram", ICON_FA_INSTAGRAM},
+    {"vk", ICON_FA_VK},
+    {"odnoklassniki", ICON_FA_ODNOKLASSNIKI},
+    {"googlePay", ICON_FA_GOOGLE_PAY},
+    {"bingChilling", ICON_FA_ZHIHU},
+    {"wikipedia", ICON_FA_WIKIPEDIA_W},
+    {"steam", ICON_FA_STEAM},
 };
 
 bool ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& modInfo)
@@ -36,7 +36,8 @@ bool ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& m
         for (const auto& [key, link] : modInfo->socialLinks)
         {
             const auto& icon = LINK_ICONS.at(key);
-            if (icon.empty()) continue;
+            if (icon.empty())
+                continue;
 
             const float lastButton = ImGui::GetItemRectMax().x;
             const float nextButton = lastButton + style.ItemSpacing.x + Ui::ScaledPx(32);
@@ -45,7 +46,7 @@ bool ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& m
             first = false;
 
             if (ImGui::Button(icon.c_str(), ImVec2(Ui::ScaledPx(38), Ui::ScaledPx(38))))
-                ShellExecuteW(nullptr, L"open", ::utils::str_to_wstr(link).c_str(), nullptr, nullptr , SW_SHOWNORMAL);
+                ShellExecuteW(nullptr, L"open", ::utils::str_to_wstr(link).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
         }
 
         ImGui::PopStyleColor();

@@ -8,14 +8,11 @@ void modloader::LuaScriptRuntime::ModPackage::Finalize()
 
 void modloader::LuaScriptRuntime::ModPackage::RegisterLuaType(sol::state& lua)
 {
-    lua.new_usertype<ModPackage>(sol::no_constructor,
-                                 "id", sol::readonly(&ModPackage::id),
-                                 "fenv", sol::readonly(&ModPackage::fenv),
-                                 "loaded", sol::readonly(&ModPackage::loaded),
-                                 "builtin", sol::readonly(&ModPackage::builtin),
-                                 "module", sol::readonly(&ModPackage::module),
-                                 "path", sol::readonly(&ModPackage::path),
-                                 "cpath", sol::readonly(&ModPackage::cpath));
+    lua.new_usertype<ModPackage>(sol::no_constructor, "id", sol::readonly(&ModPackage::id), "fenv",
+                                 sol::readonly(&ModPackage::fenv), "loaded", sol::readonly(&ModPackage::loaded),
+                                 "builtin", sol::readonly(&ModPackage::builtin), "module",
+                                 sol::readonly(&ModPackage::module), "path", sol::readonly(&ModPackage::path), "cpath",
+                                 sol::readonly(&ModPackage::cpath));
 }
 
 void modloader::LuaScriptRuntime::Init()
@@ -44,7 +41,8 @@ void modloader::LuaScriptRuntime::Init()
     lua.script(sdk->read("library/imguicdecl.lua"), "imgui cdef", sol::load_mode::text);
     get_packages(lua)["imgui"] = lua.script(sdk->read("library/imgui.lua"), "built-in imgui", sol::load_mode::text);
 
-    lua.globals()["require"] = sol::lua_nil; // We reimplement require in fenvs. Having it in global scope might lead to some weird nondebuggable bugs
+    lua.globals()["require"] = sol::lua_nil; // We reimplement require in fenvs. Having it in global scope might lead to
+                                             // some weird nondebuggable bugs
 }
 
 std::shared_ptr<modloader::LuaScriptRuntime::ModPackage> modloader::LuaScriptRuntime::CreatePackage(

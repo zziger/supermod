@@ -13,11 +13,13 @@ void ui::popups::DisableSuperMod(const bool restart)
     {
         ImGui::Text("Вы уверены, что хотите выключить SuperMod?");
         ImGui::Text("Удерживайте Shift при запуске игры, чтоб включить SuperMod обратно.");
-        if (restart) ImGui::Text("Это действие перезапустит игру.");
+        if (restart)
+            ImGui::Text("Это действие перезапустит игру.");
 
         ImGui::Spacing();
         styles::danger::PushStyle();
-        if (ImGui::Button("Да, я внимательно прочитал(-а) и запомнил(-а)")) {
+        if (ImGui::Button("Да, я внимательно прочитал(-а) и запомнил(-а)"))
+        {
             ImGui::CloseCurrentPopup();
             auto& cfg = Config::Get();
             cfg.disabled = true;
@@ -28,7 +30,8 @@ void ui::popups::DisableSuperMod(const bool restart)
         ImGui::SetItemDefaultFocus();
 
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) {
+        if (ImGui::Button("Отмена"))
+        {
             ImGui::CloseCurrentPopup();
         }
 
@@ -38,6 +41,5 @@ void ui::popups::DisableSuperMod(const bool restart)
 
 void ui::popups::open::DisableSuperMod()
 {
-     ImGui::OpenPopup("###Disable SuperMod");
+    ImGui::OpenPopup("###Disable SuperMod");
 }
-

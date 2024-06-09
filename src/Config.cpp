@@ -17,7 +17,8 @@ Config::Config()
     Process(true);
 }
 
-void Config::Save() {
+void Config::Save()
+{
     Process(false);
     node.SetStyle(YAML::EmitterStyle::Block);
     std::ofstream fstream(path);

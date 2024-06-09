@@ -10,12 +10,13 @@
 #include "memory/HookManager.h"
 #include "sdk/Game.h"
 
-HOOK_FN(inline void, editor_leave_fullscreen, ARGS()) {
-	editor_leave_fullscreen_orig();
-	SetWindowPos(*sdk::Game::window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+HOOK_FN(inline void, editor_leave_fullscreen, ARGS())
+{
+    editor_leave_fullscreen_orig();
+    SetWindowPos(*sdk::Game::window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 }
 
 inline EventManager::Ready $editor_fullscreen_bug_patch([] {
-	HookManager::RegisterHook("55 8B EC C7 05 ? ? ? ? ? ? ? ? C7 05 ? ? ? ? ? ? ? ? 68 ? ? ? ? 6A", HOOK_REF_FORCE(editor_leave_fullscreen));
+    HookManager::RegisterHook("55 8B EC C7 05 ? ? ? ? ? ? ? ? C7 05 ? ? ? ? ? ? ? ? 68 ? ? ? ? 6A",
+                              HOOK_REF_FORCE(editor_leave_fullscreen));
 });
-

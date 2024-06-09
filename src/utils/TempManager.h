@@ -1,9 +1,10 @@
 #pragma once
-#include <random>
 #include <filesystem>
+#include <random>
 
-class TempManager {
-    static inline std::mt19937 rand {}; // NOLINT(*-msc51-cpp)
+class TempManager
+{
+    static inline std::mt19937 rand{}; // NOLINT(*-msc51-cpp)
 
     static std::filesystem::path GetTempRoot();
 

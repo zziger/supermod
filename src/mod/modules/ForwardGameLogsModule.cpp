@@ -6,8 +6,10 @@
 #include "Config.h"
 #include "Utils.h"
 
-HOOK_FN(int, debug_log, ARGS(char* format, ...)) {
-    if (!Config::Get().patches.forwardGameLogs.writeToLog) return 0;
+HOOK_FN(int, debug_log, ARGS(char* format, ...))
+{
+    if (!Config::Get().patches.forwardGameLogs.writeToLog)
+        return 0;
     va_list va;
     va_start(va, format);
     char buffer[1024];
@@ -19,7 +21,8 @@ HOOK_FN(int, debug_log, ARGS(char* format, ...)) {
 void ForwardGameLogsModule::Init()
 {
     state = Config::Get().patches.forwardGameLogs.enabled;
-    if (state) OnLoad();
+    if (state)
+        OnLoad();
 }
 
 void ForwardGameLogsModule::Render()
@@ -32,14 +35,17 @@ void ForwardGameLogsModule::Render()
         cfgBlock.enabled = state;
         cfg.Save();
 
-        if (state) OnLoad();
-        else OnUnload();
+        if (state)
+            OnLoad();
+        else
+            OnUnload();
     }
 
     ImGui::SameLine();
     ui::widgets::HelpMarker("Позволяет отключить или перенаправить логи игры");
 
-    if (!state) return;
+    if (!state)
+        return;
 
     ImGui::Spacing();
     ImGui::TreePush("Параметры логов");
@@ -62,10 +68,12 @@ void ForwardGameLogsModule::Render()
 
 void ForwardGameLogsModule::OnLoad()
 {
-    logHook = HookManager::RegisterHook("55 8B EC 83 EC ? 0F B6 05 ? ? ? ? 85 C0 75 ? E9 ? ? ? ? 8D 4D", HOOK_REF(debug_log));
+    logHook =
+        HookManager::RegisterHook("55 8B EC 83 EC ? 0F B6 05 ? ? ? ? 85 C0 75 ? E9 ? ? ? ? 8D 4D", HOOK_REF(debug_log));
 }
 
 void ForwardGameLogsModule::OnUnload()
 {
-    if (logHook) HookManager::UnregisterHook(*logHook);
+    if (logHook)
+        HookManager::UnregisterHook(*logHook);
 }

@@ -7,30 +7,31 @@
 
 bool modloader::ModInfo::HasDependency(const std::string& id) const
 {
-    return std::ranges::find_if(dependencies, [&](const Dependency& dep) { return dep.id == id; }) != dependencies.end();
+    return std::ranges::find_if(dependencies, [&](const Dependency& dep) { return dep.id == id; }) !=
+           dependencies.end();
 }
 
 modloader::ModInfo::Dependency modloader::ModInfo::AsDependency() const
 {
-    return Dependency {
-        id,
-        title,
-        VersionRange({{ { VersionRange::Operator::GREATER_EQUAL, version } }})
-    };
+    return Dependency{id, title, VersionRange({{{VersionRange::Operator::GREATER_EQUAL, version}}})};
 }
 
 void modloader::ModInfo::Parse(YAML::Node& node)
 {
     assert(id.empty() && "Tried to parse ModInfo overriding existing data");
 
-    if (!node.IsMap()) throw ParseError("Неверный формат манифеста");
-    if (!node["id"]) throw ParseError("Не удалось найти ID в манифесте");
+    if (!node.IsMap())
+        throw ParseError("Неверный формат манифеста");
+    if (!node["id"])
+        throw ParseError("Не удалось найти ID в манифесте");
 
     id = node["id"].as<std::string>();
     const std::regex idRegex("^[a-zA-Z0-9_-]{2,32}$");
 
-    if (!std::regex_match(id, idRegex)) {
-        throw Error("ID в манифесте должен состоять из символов английского алфавита, цифр, _ или - и быть длиной от 2 до 32 символов");
+    if (!std::regex_match(id, idRegex))
+    {
+        throw Error("ID в манифесте должен состоять из символов английского алфавита, цифр, _ или - и быть длиной от 2 "
+                    "до 32 символов");
     }
 
     title = node["title"].as<std::string>(id);
@@ -40,7 +41,8 @@ void modloader::ModInfo::Parse(YAML::Node& node)
 
     if (node["deps"])
     {
-        for (auto depsArr = Clone(node["deps"]); const auto& dep : depsArr) {
+        for (auto depsArr = Clone(node["deps"]); const auto& dep : depsArr)
+        {
             Dependency dependency;
             if (dep.IsScalar())
             {
@@ -60,10 +62,13 @@ void modloader::ModInfo::Parse(YAML::Node& node)
 
     sdkVersion = semver::version::parse(node["sdk-version"].as<std::string>(SUPERMOD_VERSION));
     const auto versions = node["game-versions"].as<std::vector<std::string>>(std::vector<std::string>{});
-    if (!versions.empty()) {
-        for (const auto& gameVersionString : versions) {
+    if (!versions.empty())
+    {
+        for (const auto& gameVersionString : versions)
+        {
             auto gameVersion = sdk::Game::ParseGameVersion(gameVersionString);
-            if (!gameVersion) {
+            if (!gameVersion)
+            {
                 spdlog::warn("Invalid game version {} in mod {}", gameVersionString, title);
                 continue;
             }
@@ -72,14 +77,12 @@ void modloader::ModInfo::Parse(YAML::Node& node)
     }
 
     scriptMain = node["main"].as<std::string>(node["lua-script"].as<std::string>(""));
-    scriptType = scriptMain.ends_with(".lua")
-        ? ScriptType::LUA
-        : scriptMain.ends_with(".dll")
-            ? ScriptType::DLL
-            : ScriptType::NONE; // TODO: better script type handling
+    scriptType = scriptMain.ends_with(".lua")   ? ScriptType::LUA
+                 : scriptMain.ends_with(".dll") ? ScriptType::DLL
+                                                : ScriptType::NONE; // TODO: better script type handling
 
-
-    if (!node["title"]) spdlog::warn("No title found in mod {}", id);
+    if (!node["title"])
+        spdlog::warn("No title found in mod {}", id);
     // todo compatibility check somewhere
 }
 

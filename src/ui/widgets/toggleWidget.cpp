@@ -5,10 +5,10 @@
 
 bool ui::widgets::ToggleButton(const char* strId, const bool value, const float time, const ImVec2 size)
 {
-    static constexpr ImVec4 SLIDER_ACTIVE_COLOR = { 0.56f, 0.83f, 0.26f, 1.0f };
-    static constexpr ImVec4 SLIDER_ACTIVE_HOVERED_COLOR = { 0.64f, 0.83f, 0.34f, 1.0f };
-    static constexpr ImVec4 SLIDER_COLOR = { 0.85f, 0.85f, 0.85f, 1.0f };
-    static constexpr ImVec4 SLIDER_HOVERED_COLOR = { 0.78f, 0.78f, 0.78f, 1.0f };
+    static constexpr ImVec4 SLIDER_ACTIVE_COLOR = {0.56f, 0.83f, 0.26f, 1.0f};
+    static constexpr ImVec4 SLIDER_ACTIVE_HOVERED_COLOR = {0.64f, 0.83f, 0.34f, 1.0f};
+    static constexpr ImVec4 SLIDER_COLOR = {0.85f, 0.85f, 0.85f, 1.0f};
+    static constexpr ImVec4 SLIDER_HOVERED_COLOR = {0.78f, 0.78f, 0.78f, 1.0f};
 
     const auto pos = ImGui::GetCursorScreenPos();
     const auto drawList = ImGui::GetWindowDrawList();
@@ -39,7 +39,9 @@ bool ui::widgets::ToggleButton(const char* strId, const bool value, const float 
         colBg = ImGui::GetColorU32(ImLerp(SLIDER_COLOR, SLIDER_ACTIVE_COLOR, t));
 
     drawList->AddRectFilled(pos, ImVec2(pos.x + width, pos.y + height), colBg, height * rounding);
-    drawList->AddRectFilled(ImVec2(pos.x + t * trackWidth, pos.y), ImVec2(pos.x + radius * 2 + t * trackWidth, pos.y + height), IM_COL32(255, 255, 255, 255), height * rounding);
+    drawList->AddRectFilled(ImVec2(pos.x + t * trackWidth, pos.y),
+                            ImVec2(pos.x + radius * 2 + t * trackWidth, pos.y + height), IM_COL32(255, 255, 255, 255),
+                            height * rounding);
 
     return result;
 }

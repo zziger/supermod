@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-struct Menu {
+struct Menu
+{
     wchar_t name[64];
     wchar_t* title;
     int data[50];
@@ -9,14 +10,15 @@ struct Menu {
 
 namespace game
 {
-    class MenuPool {
-    public:
-        Menu menus[256];
-        int unk3;
-        int unk4;
-        int menusCount;
+class MenuPool
+{
+public:
+    Menu menus[256];
+    int unk3;
+    int unk4;
+    int menusCount;
 
-        static MenuPool* GetInstance();
-        Menu* GetByName(wchar_t* name);
-    };
-}
+    static MenuPool* GetInstance();
+    Menu* GetByName(wchar_t* name);
+};
+} // namespace game

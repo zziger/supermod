@@ -3,422 +3,397 @@
 
 #include <functional>
 #include <iomanip>
-#include <vector>
 #include <sstream>
+#include <vector>
 
-#include <Windows.h>
-#include <Psapi.h>
-#include <cstdint>
 #include <MinHook.h>
+#include <Psapi.h>
+#include <Windows.h>
+#include <cstdint>
 
 #define MAX_SIG_SIZE 128
 
-class Memory {
-	uintptr_t _address;
-	
+class Memory
+{
+    uintptr_t _address;
+
 public:
-	using pattern_not_found_callback = void(*)(const std::string& pattern);
+    using pattern_not_found_callback = void (*)(const std::string& pattern);
 
-	static pattern_not_found_callback OnPatternNotFound(const pattern_not_found_callback cb = nullptr)
-	{
-		static pattern_not_found_callback callback = nullptr;
-		if (cb != nullptr)
-			callback = cb;
-		return callback;
-	}
+    static pattern_not_found_callback OnPatternNotFound(const pattern_not_found_callback cb = nullptr)
+    {
+        static pattern_not_found_callback callback = nullptr;
+        if (cb != nullptr)
+            callback = cb;
+        return callback;
+    }
 
-	class Pattern;
-	static inline std::list<std::pair<Pattern, uintptr_t>> cache{};
+    class Pattern;
+    static inline std::list<std::pair<Pattern, uintptr_t>> cache{};
 
-	class Pattern
-	{
-		static bool Match(const BYTE* addr, const BYTE* pat, const BYTE* msk)
-		{
-			size_t n = 0;
+    class Pattern
+    {
+        static bool Match(const BYTE* addr, const BYTE* pat, const BYTE* msk)
+        {
+            size_t n = 0;
 
-			while (addr[n] == pat[n] || msk[n] == (BYTE)'?')
-			{
-				if (!msk[++n])
-					return true;
-			}
+            while (addr[n] == pat[n] || msk[n] == (BYTE)'?')
+            {
+                if (!msk[++n])
+                    return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		static BYTE* Find(BYTE* rangeStart, const int len, const char* sig, const char* mask)
-		{
-			const size_t maskLength = strlen(mask);
-			for (int n = 0; n < len - maskLength; ++n)
-			{
-				if (Match(rangeStart + n, (BYTE*)sig, (BYTE*)mask)) {
-					return rangeStart + n;
-				}
-			}
-			return nullptr;
-		}
+        static BYTE* Find(BYTE* rangeStart, const int len, const char* sig, const char* mask)
+        {
+            const size_t maskLength = strlen(mask);
+            for (int n = 0; n < len - maskLength; ++n)
+            {
+                if (Match(rangeStart + n, (BYTE*)sig, (BYTE*)mask))
+                {
+                    return rangeStart + n;
+                }
+            }
+            return nullptr;
+        }
 
-		constexpr static unsigned char FromHex(const char c)
-		{
-			if (c >= 'a' && c <= 'f')
-				return c - 'a' + 10;
-			if (c >= 'A' && c <= 'F')
-				return c - 'A' + 10;
-			if (c >= '0' && c <= '9')
-				return c - '0';
+        constexpr static unsigned char FromHex(const char c)
+        {
+            if (c >= 'a' && c <= 'f')
+                return c - 'a' + 10;
+            if (c >= 'A' && c <= 'F')
+                return c - 'A' + 10;
+            if (c >= '0' && c <= '9')
+                return c - '0';
 
-			return 0;
-		}
+            return 0;
+        }
 
-	public:
-		char sig[MAX_SIG_SIZE];
-		char mask[MAX_SIG_SIZE];
-		std::size_t size;
+    public:
+        char sig[MAX_SIG_SIZE];
+        char mask[MAX_SIG_SIZE];
+        std::size_t size;
 
-		bool Includes(const Pattern& pat) const
-		{
-			if (this->size > pat.size) return false;
-			return Match((BYTE*)pat.sig, (BYTE*)this->sig, (BYTE*)this->mask);
-		}
+        bool Includes(const Pattern& pat) const
+        {
+            if (this->size > pat.size)
+                return false;
+            return Match((BYTE*)pat.sig, (BYTE*)this->sig, (BYTE*)this->mask);
+        }
 
-		template<std::size_t Size>
-		explicit constexpr Pattern(const char(&idaPattern)[Size]) :sig{ 0 }, mask{ 0 }, size(0)
-		{
-			std::size_t j = 0;
-			std::size_t q = 0;	
-			for (std::size_t i = 0; i < Size; ++i, ++j)
-			{
-				const char c = idaPattern[i];
+        template <std::size_t Size>
+        explicit constexpr Pattern(const char (&idaPattern)[Size]) : sig{0},
+                                                                     mask{0},
+                                                                     size(0)
+        {
+            std::size_t j = 0;
+            std::size_t q = 0;
+            for (std::size_t i = 0; i < Size; ++i, ++j)
+            {
+                const char c = idaPattern[i];
 
-				if (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' || c >= '0' && c <= '9')
-				{
-					sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
-					mask[j] = 'x';
-					i += 2;
-					q = 0;
-				}
-				else if (c == '?')
-				{
-					sig[j] = '\x00';
-					mask[j] = '?';
-					++i;
-					++q;
-				}
-				else
-				{
-					--j;
-				}
-			}
+                if (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' || c >= '0' && c <= '9')
+                {
+                    sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
+                    mask[j] = 'x';
+                    i += 2;
+                    q = 0;
+                }
+                else if (c == '?')
+                {
+                    sig[j] = '\x00';
+                    mask[j] = '?';
+                    ++i;
+                    ++q;
+                }
+                else
+                {
+                    --j;
+                }
+            }
 
-			size = j - q;
-		}
-		explicit Pattern(const char* idaPattern, int size) :sig{ 0 }, mask{ 0 }, size(0)
-		{
-			std::size_t j = 0;
-			std::size_t q = 0;	
-			for (std::size_t i = 0; i < size; ++i, ++j)
-			{
-				const char c = idaPattern[i];
+            size = j - q;
+        }
+        explicit Pattern(const char* idaPattern, int size) : sig{0}, mask{0}, size(0)
+        {
+            std::size_t j = 0;
+            std::size_t q = 0;
+            for (std::size_t i = 0; i < size; ++i, ++j)
+            {
+                const char c = idaPattern[i];
 
-				if (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' || c >= '0' && c <= '9')
-				{
-					sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
-					mask[j] = 'x';
-					i += 2;
-					q = 0;
-				}
-				else if (c == '?')
-				{
-					sig[j] = '\x00';
-					mask[j] = '?';
-					++i;
-					++q;
-				}
-				else
-				{
-					--j;
-				}
-			}
+                if (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F' || c >= '0' && c <= '9')
+                {
+                    sig[j] = (FromHex(c) << 4) + FromHex(idaPattern[i + 1]);
+                    mask[j] = 'x';
+                    i += 2;
+                    q = 0;
+                }
+                else if (c == '?')
+                {
+                    sig[j] = '\x00';
+                    mask[j] = '?';
+                    ++i;
+                    ++q;
+                }
+                else
+                {
+                    --j;
+                }
+            }
 
-			this->size = j - q;
-		}
+            this->size = j - q;
+        }
 
-		Memory Search(const bool useCaching = true, const uintptr_t base = 0) const
-		{
-			if (useCaching)
-			{
-				for (auto& pair : cache)
-				{
-					if (pair.first.Includes(*this))
-					{
-						// Log::Debug << "Found " << this->ToString() << " from cached " << pair.first.ToString() << Log::Endl;
-						return Memory(pair.second);
-					}
-				}
-			}
+        Memory Search(const bool useCaching = true, const uintptr_t base = 0) const
+        {
+            if (useCaching)
+            {
+                for (auto& pair : cache)
+                {
+                    if (pair.first.Includes(*this))
+                    {
+                        // Log::Debug << "Found " << this->ToString() << " from cached " << pair.first.ToString() <<
+                        // Log::Endl;
+                        return Memory(pair.second);
+                    }
+                }
+            }
 
-			BYTE* res = Find(base == 0 ? (BYTE*)Base() : (BYTE*)base, (int)GetSize(), sig, mask);
+            BYTE* res = Find(base == 0 ? (BYTE*)Base() : (BYTE*)base, (int)GetSize(), sig, mask);
 
-			if (!res)
-			{
-				const std::string patString = ToString();
-				if (OnPatternNotFound())
-					OnPatternNotFound()(patString);
-				return Memory(UINTPTR_MAX, false);
-			}
+            if (!res)
+            {
+                const std::string patString = ToString();
+                if (OnPatternNotFound())
+                    OnPatternNotFound()(patString);
+                return Memory(UINTPTR_MAX, false);
+            }
 
-			if (useCaching)
-			{
-				auto addr = (uintptr_t)res - Memory::Base();
-				bool found = false;
-				
-				for (auto& pair : cache)
-				{
-					if (this->Includes(pair.first) && pair.second == addr)
-					{
-						// Log::Debug << "Found worse pattern! Replacing " << pair.first.ToString() << " with " << this->ToString() << Log::Endl;
-						found = true;
-						pair.first = *this;
-					}
-				}
+            if (useCaching)
+            {
+                auto addr = (uintptr_t)res - Memory::Base();
+                bool found = false;
 
-				if (!found)
-				{
-					// Log::Debug << "Did not found worse pattern! Adding " << this->ToString() << Log::Endl;
-					cache.push_back({ *this, addr });
-				}
-			}
-			return Memory(res);
-		}
+                for (auto& pair : cache)
+                {
+                    if (this->Includes(pair.first) && pair.second == addr)
+                    {
+                        // Log::Debug << "Found worse pattern! Replacing " << pair.first.ToString() << " with " <<
+                        // this->ToString() << Log::Endl;
+                        found = true;
+                        pair.first = *this;
+                    }
+                }
 
-		std::string ToString() const
-		{
-			std::stringstream ss;
+                if (!found)
+                {
+                    // Log::Debug << "Did not found worse pattern! Adding " << this->ToString() << Log::Endl;
+                    cache.push_back({*this, addr});
+                }
+            }
+            return Memory(res);
+        }
 
-			for (size_t i = 0; i < size; ++i)
-			{
-				if (mask[i] == 'x')
-					ss << std::setfill('0') << std::setw(2) << std::hex << (int)(unsigned char)sig[i] << " ";
-				else
-					ss << "? ";
-			}
+        std::string ToString() const
+        {
+            std::stringstream ss;
 
-			return ss.str();
-		}
-	};
+            for (size_t i = 0; i < size; ++i)
+            {
+                if (mask[i] == 'x')
+                    ss << std::setfill('0') << std::setw(2) << std::hex << (int)(unsigned char)sig[i] << " ";
+                else
+                    ss << "? ";
+            }
 
-	static size_t GetSize()
-	{
-		static MODULEINFO info { nullptr };
-		GetModuleInformation(GetCurrentProcess(), nullptr, &info, sizeof(MODULEINFO));
-		return info.SizeOfImage;
-	}
+            return ss.str();
+        }
+    };
 
-	static uintptr_t& Base()
-	{
-		static uintptr_t _Base;
-		return _Base;
-	}
+    static size_t GetSize()
+    {
+        static MODULEINFO info{nullptr};
+        GetModuleInformation(GetCurrentProcess(), nullptr, &info, sizeof(MODULEINFO));
+        return info.SizeOfImage;
+    }
 
-	struct Hook
-	{
-		static std::vector<std::function<void()>>& Hooks()
-		{
-			static std::vector<std::function<void()>> _Hooks;
-			return _Hooks;
-		}
+    static uintptr_t& Base()
+    {
+        static uintptr_t _Base;
+        return _Base;
+    }
 
-		Hook(const std::function<void()>& fn) {
-			Hooks().push_back(fn);
-		}
-	};
+    struct Hook
+    {
+        static std::vector<std::function<void()>>& Hooks()
+        {
+            static std::vector<std::function<void()>> _Hooks;
+            return _Hooks;
+        }
 
-	static void RunHooks()
-	{
-		for (auto& fn : Hook::Hooks())
-			fn();
-	}
-	
-	explicit Memory(const uintptr_t address, const bool addBase = true) : _address(addBase ? Base() + address : address) { }
-	explicit Memory(void* address) : _address((uintptr_t)address) { }
-	explicit Memory() : _address(0) { }
+        Hook(const std::function<void()>& fn) { Hooks().push_back(fn); }
+    };
 
-	bool IsValid() const
-	{
-		return _address != UINTPTR_MAX;
-	}
+    static void RunHooks()
+    {
+        for (auto& fn : Hook::Hooks())
+            fn();
+    }
 
-	uintptr_t GetAddress() const {
-		return _address;
-	}
+    explicit Memory(const uintptr_t address, const bool addBase = true) : _address(addBase ? Base() + address : address)
+    {
+    }
+    explicit Memory(void* address) : _address((uintptr_t)address) {}
+    explicit Memory() : _address(0) {}
 
-	Memory& Add(int offset)
-	{
-		_address += offset;
-		return *this;
-	}
+    bool IsValid() const { return _address != UINTPTR_MAX; }
 
-	void FarJump(void* func)
-	{
-		MemUnlock lock(_address, 12);
+    uintptr_t GetAddress() const { return _address; }
 
-		*((WORD*)_address) = 0xB848;
-		*((intptr_t *)(_address + 2)) = (uintptr_t)func;
-		*((WORD*)(_address + 10)) = 0xE0FF;
-	}
+    Memory& Add(int offset)
+    {
+        _address += offset;
+        return *this;
+    }
 
-	void FarJump(const Memory& func)
-	{
-		FarJump((void*)func._address);
-	}
+    void FarJump(void* func)
+    {
+        MemUnlock lock(_address, 12);
 
-	void NearCall(void* func)
-	{
-		Put<uint8_t>(0xE8);
-		(*this + 1).Put(int32_t(reinterpret_cast<uintptr_t>(func) - _address - 5));
-	}
+        *((WORD*)_address) = 0xB848;
+        *((intptr_t*)(_address + 2)) = (uintptr_t)func;
+        *((WORD*)(_address + 10)) = 0xE0FF;
+    }
 
-	void NearCall(const Memory& func)
-	{
-		NearCall((void*) func._address);
-	}
+    void FarJump(const Memory& func) { FarJump((void*)func._address); }
 
-	void SetOffset(uint64_t value, int offset = 1)
-	{
-		(*this + offset).Put(static_cast<int32_t>(value - _address - (4 + offset)));
-	}
+    void NearCall(void* func)
+    {
+        Put<uint8_t>(0xE8);
+        (*this + 1).Put(int32_t(reinterpret_cast<uintptr_t>(func) - _address - 5));
+    }
 
-	void SetOffset(const Memory& func)
-	{
-		SetOffset(func._address);
-	}
+    void NearCall(const Memory& func) { NearCall((void*)func._address); }
 
-	void Nop(size_t len)
-	{
-		MemUnlock lock(_address, len);
+    void SetOffset(uint64_t value, int offset = 1)
+    {
+        (*this + offset).Put(static_cast<int32_t>(value - _address - (4 + offset)));
+    }
 
-		memset((void*)_address, 0x90, len);
-	}
+    void SetOffset(const Memory& func) { SetOffset(func._address); }
 
-	void PutRetn()
-	{
-		Put<uint8_t>(0xC3);
-	}
+    void Nop(size_t len)
+    {
+        MemUnlock lock(_address, len);
 
-	Memory GetOffset(int offset = 3) const
-	{
-		const auto ptr = (int32_t*)(_address + offset);
-		return Memory(*ptr + (_address + offset + 4), false);
-	}
+        memset((void*)_address, 0x90, len);
+    }
 
-	Memory& operator+=(const int rhs)
-	{
-		_address += rhs;
-		return *this;
-	}
+    void PutRetn() { Put<uint8_t>(0xC3); }
 
-	Memory& operator-=(const int rhs)
-	{
-		_address -= rhs;
-		return *this;
-	}
+    Memory GetOffset(int offset = 3) const
+    {
+        const auto ptr = (int32_t*)(_address + offset);
+        return Memory(*ptr + (_address + offset + 4), false);
+    }
 
-	Memory operator+(const int right) const
-	{
-		return Memory(*this) += right;
-	}
+    Memory& operator+=(const int rhs)
+    {
+        _address += rhs;
+        return *this;
+    }
 
-	Memory operator-(const int right) const
-	{
-		return Memory(*this) -= right;
-	}
-	
-	bool operator==(const Memory &other) const {
-		return _address == other._address;
-	}
+    Memory& operator-=(const int rhs)
+    {
+        _address -= rhs;
+        return *this;
+    }
 
-	template <typename R = void*, typename ...Args>
-	R Call(Args... args)
-	{
-		return ((R(*)(Args...))_address)(args...);
-	}
+    Memory operator+(const int right) const { return Memory(*this) += right; }
 
-	template<class T = void*>
-	T Get(const int offset = 0) const
-	{
-		return (T)(_address + offset);
-	}
+    Memory operator-(const int right) const { return Memory(*this) -= right; }
 
-	template<typename T>
-	void Put(const T& value)
-	{
-		MemUnlock lock(_address, sizeof(T));
+    bool operator==(const Memory& other) const { return _address == other._address; }
 
-		memcpy((void*)_address, &value, sizeof(T));
-	}
+    template <typename R = void*, typename... Args>
+    R Call(Args... args)
+    {
+        return ((R(*)(Args...))_address)(args...);
+    }
 
-	template<std::size_t N>
-	void Put(uint8_t(&BYTEs)[N])
-	{
-		Put<uint8_t[N]>(BYTEs);
-	}
+    template <class T = void*>
+    T Get(const int offset = 0) const
+    {
+        return (T)(_address + offset);
+    }
 
-	template<class T>
-	T GetCall() const
-	{
-		return (T)(*(int32_t*)(_address + 1) + _address + 5);
-	}
+    template <typename T>
+    void Put(const T& value)
+    {
+        MemUnlock lock(_address, sizeof(T));
 
-	Memory& GoToNearCall() {
-		Add(*(int32_t*)(_address + 1) + 5);
-		return *this;
-	}
+        memcpy((void*)_address, &value, sizeof(T));
+    }
+
+    template <std::size_t N>
+    void Put(uint8_t (&BYTEs)[N])
+    {
+        Put<uint8_t[N]>(BYTEs);
+    }
+
+    template <class T>
+    T GetCall() const
+    {
+        return (T)(*(int32_t*)(_address + 1) + _address + 5);
+    }
+
+    Memory& GoToNearCall()
+    {
+        Add(*(int32_t*)(_address + 1) + 5);
+        return *this;
+    }
 
 #ifdef MH_ALL_HOOKS
-	template<class T>
-	bool Detour(T* fn, T** orig = nullptr, int32_t id = 0) const
-	{
-		MH_CreateHookEx(id, (void*)_address, (void*)fn, (void**)orig);
-		return MH_EnableHookEx(id, (void*)_address) == MH_OK;
-	}
+    template <class T>
+    bool Detour(T* fn, T** orig = nullptr, int32_t id = 0) const
+    {
+        MH_CreateHookEx(id, (void*)_address, (void*)fn, (void**)orig);
+        return MH_EnableHookEx(id, (void*)_address) == MH_OK;
+    }
 
-	void DeactivateDetour(int32_t id = 0) const {
-		MH_DisableHookEx(id, (void*)_address);
-	}
-	
-	template<class T>
-	bool ExclusiveDetour(T* fn, T** orig = nullptr) const
-	{
-		MH_CreateHook((void*)_address, (void*)fn, (void**)orig);
-		return MH_EnableHook((void*)_address) == MH_OK;
-	}
+    void DeactivateDetour(int32_t id = 0) const { MH_DisableHookEx(id, (void*)_address); }
 
-	void DeactivateExclusiveDetour() const {
-		MH_DisableHook((void*)_address);
-	}
+    template <class T>
+    bool ExclusiveDetour(T* fn, T** orig = nullptr) const
+    {
+        MH_CreateHook((void*)_address, (void*)fn, (void**)orig);
+        return MH_EnableHook((void*)_address) == MH_OK;
+    }
+
+    void DeactivateExclusiveDetour() const { MH_DisableHook((void*)_address); }
 #endif
 
 private:
-	struct MemUnlock
-	{
-		unsigned long rights;
-		size_t size;
-		void * address;
+    struct MemUnlock
+    {
+        unsigned long rights;
+        size_t size;
+        void* address;
 
-		MemUnlock(const uint64_t addr, const size_t len) : size(len), address((void*)addr)
-		{
-			VirtualProtect(address, len, PAGE_EXECUTE_READWRITE, &rights);
-		}
+        MemUnlock(const uint64_t addr, const size_t len) : size(len), address((void*)addr)
+        {
+            VirtualProtect(address, len, PAGE_EXECUTE_READWRITE, &rights);
+        }
 
-		~MemUnlock()
-		{
-			VirtualProtect(address, size, rights, nullptr);
-		}
-	};
+        ~MemUnlock() { VirtualProtect(address, size, rights, nullptr); }
+    };
 };
 
 template <>
-struct std::hash<Memory> {
-	auto operator()(const Memory &mem) const noexcept -> size_t {
-		return mem.GetAddress();
-	}
+struct std::hash<Memory>
+{
+    auto operator()(const Memory& mem) const noexcept -> size_t { return mem.GetAddress(); }
 };

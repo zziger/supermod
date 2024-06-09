@@ -2,9 +2,9 @@
 
 #include <modloader/files/ModFileResolver.h>
 
+#include "../Mod.h"
 #include "ModStateDisabled.h"
 #include "ModStateWaitingDependentsUnload.h"
-#include "../Mod.h"
 
 void modloader::ModStateEnabled::Init(Mod& mod)
 {
@@ -18,7 +18,7 @@ void modloader::ModStateEnabled::Init(Mod& mod)
     {
         mod.GetImpl()->OnEnabled();
     }
-    catch(std::exception& e)
+    catch (std::exception& e)
     {
         mod.Toggle(false);
         mod.SetLoadingError(e.what());
@@ -28,6 +28,7 @@ void modloader::ModStateEnabled::Init(Mod& mod)
 
 void modloader::ModStateEnabled::Update(Mod& mod)
 {
-    if (mod.IsEnabled()) return;
+    if (mod.IsEnabled())
+        return;
     mod.SetState<ModStateWaitingDependentsUnload>();
 }

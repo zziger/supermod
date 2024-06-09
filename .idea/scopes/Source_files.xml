@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Source files" pattern="file[supercow-mod]:src//*&amp;&amp;!file[supercow-mod]:src/thirdparty//*&amp;&amp;!file[supercow-mod]:src/lua//*" />
+</component>

@@ -6,7 +6,8 @@
 #include "assets/assets.h"
 #include "modules/ForwardGameLogsModule.h"
 
-class ModImplInternal final : public modloader::ModImpl {
+class ModImplInternal final : public modloader::ModImpl
+{
     ForwardGameLogsModule forward_game_logs_module;
 
 public:

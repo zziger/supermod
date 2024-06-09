@@ -9,7 +9,8 @@ using namespace std::chrono;
 
 void modloader::ModStateWaitingDependentsUnload::Init(Mod& mod)
 {
-    if (Check(mod)) mod.SetState<ModStateDisabled>();
+    if (Check(mod))
+        mod.SetState<ModStateDisabled>();
 }
 
 void modloader::ModStateWaitingDependentsUnload::Update(Mod& mod)
@@ -20,7 +21,8 @@ void modloader::ModStateWaitingDependentsUnload::Update(Mod& mod)
         return;
     }
 
-    if (Check(mod)) mod.SetState<ModStateDisabled>();
+    if (Check(mod))
+        mod.SetState<ModStateDisabled>();
 }
 
 std::string modloader::ModStateWaitingDependentsUnload::GetIcon()
@@ -35,7 +37,6 @@ std::string modloader::ModStateWaitingDependentsUnload::GetIcon()
 bool modloader::ModStateWaitingDependentsUnload::Check(const Mod& mod)
 {
     auto modID = mod.GetInfo()->GetID();
-    return std::ranges::none_of(ModManager::GetModDependents(modID), [](const std::shared_ptr<Mod>& iterMod) -> bool {
-        return iterMod->IsActive();
-    });
+    return std::ranges::none_of(ModManager::GetModDependents(modID),
+                                [](const std::shared_ptr<Mod>& iterMod) -> bool { return iterMod->IsActive(); });
 }

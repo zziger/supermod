@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include <optional>
 #include <memory/HookManager.h>
+#include <optional>
 
-class ForwardGameLogsModule {
+class ForwardGameLogsModule
+{
 public:
     bool state = true;
 
