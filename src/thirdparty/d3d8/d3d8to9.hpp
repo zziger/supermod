@@ -175,7 +175,7 @@ private:
 	float StoredClipPlanes[MAX_CLIP_PLANES][4] = {};
 	DWORD ClipPlaneRenderState = 0;
 
-	// Store Shader Handles so they can be destroyed later to mirror D3D8 behavior 
+	// Store Shader Handles so they can be destroyed later to mirror D3D8 behavior
 	std::unordered_set<DWORD> PixelShaderHandles, VertexShaderHandles;
 	unsigned int VertexShaderAndDeclarationCount = 0;
 };
