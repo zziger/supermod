@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <semver/semver.hpp>
-#include <utils/VersionRange.h>
+#include <supermod/utils/VersionRange.hpp>
 
 TEST(VersionRange, ShouldCheckRangesCorrectly)
 {

@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
-#include <modloader/ModManager.h>
-#include <modloader/mod/impl/ModImplLua.h>
-#include <modloader/mod/states/ModStateWaitingDependenciesLoad.h>
-#include <modloader/mod/states/ModStateWaitingDependentsUnload.h>
-#include <sdk/Game.h>
+#include <supermod/modloader/mod/impl/ModImplLua.hpp>
+#include <supermod/sdk/Game.hpp>
 
 using namespace modloader;
 

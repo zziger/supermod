@@ -1,5 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
+#include <supermod/modloader/mod/Mod.hpp>
 
 class ModImplMock : public modloader::ModImpl
 {

@@ -1,9 +1,9 @@
-#include "mock/ModImplMock.h"
+#include "mock/ModImplMock.hpp"
 #include <gtest/gtest.h>
-#include <modloader/ModManager.h>
-#include <modloader/mod/states/ModStateWaitingDependenciesLoad.h>
-#include <modloader/mod/states/ModStateWaitingDependentsUnload.h>
-#include <sdk/Game.h>
+#include <supermod/modloader/ModManager.hpp>
+#include <supermod/modloader/mod/states/ModStateWaitingDependenciesLoad.hpp>
+#include <supermod/modloader/mod/states/ModStateWaitingDependentsUnload.hpp>
+#include <supermod/sdk/Game.hpp>
 
 using namespace modloader;
 
