@@ -11,6 +11,7 @@
 #include <supermod/DirectXUtils.hpp>
 #include <supermod/UpdateManager.hpp>
 #include <supermod/Utils.hpp>
+#include <supermod/builtin/ModImplBuiltin.hpp>
 #include <supermod/events/D3dInitEvent.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/GameLoadedEvent.hpp>
@@ -21,7 +22,6 @@
 #include <supermod/logs/Console.hpp>
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
-#include <supermod/mod/ModImplInternal.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/files/ModFileResolver.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>

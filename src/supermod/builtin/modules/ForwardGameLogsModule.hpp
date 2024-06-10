@@ -3,7 +3,7 @@
 
 #include <supermod/memory/HookManager.hpp>
 
-namespace sm::mod
+namespace sm::builtin
 {
 class ForwardGameLogsModule
 {
@@ -19,4 +19,4 @@ private:
     void OnLoad();
     void OnUnload();
 };
-} // namespace sm::mod
+} // namespace sm::builtin

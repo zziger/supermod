@@ -1,15 +1,15 @@
 ﻿#pragma once
-#include <supermod/mod/ModImplInternal.hpp>
+#include <supermod/builtin/ModImplBuiltin.hpp>
 #include <supermod/pch.hpp>
 
 #include <supermod/DirectXUtils.hpp>
-#include <supermod/mod/modules/ForwardGameLogsModule.hpp>
+#include <supermod/builtin/modules/ForwardGameLogsModule.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/modloader/mod/impl/ModImpl.hpp>
 
-namespace sm::mod
+namespace sm::builtin
 {
-class ModImplInternal final : public modloader::ModImpl
+class ModImplBuiltin final : public modloader::ModImpl
 {
     ForwardGameLogsModule forward_game_logs_module;
 
@@ -21,4 +21,4 @@ public:
 
     static std::shared_ptr<modloader::Mod> CreateMod();
 };
-} // namespace sm::mod
+} // namespace sm::builtin

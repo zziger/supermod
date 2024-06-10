@@ -1,4 +1,4 @@
-﻿#include <supermod/mod/modules/ForwardGameLogsModule.hpp>
+﻿#include <supermod/builtin/modules/ForwardGameLogsModule.hpp>
 #include <supermod/pch.hpp>
 
 #include <supermod/Config.hpp>
@@ -6,7 +6,7 @@
 #include <supermod/logs/Console.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
 
-namespace sm::mod
+namespace sm::builtin
 {
 HOOK_FN(int, debug_log, ARGS(char* format, ...))
 {
@@ -80,4 +80,4 @@ void ForwardGameLogsModule::OnUnload()
     if (logHook)
         HookManager::UnregisterHook(*logHook);
 }
-} // namespace sm::mod
+} // namespace sm::builtin

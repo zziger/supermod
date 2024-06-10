@@ -1,4 +1,4 @@
-﻿#include <supermod/mod/ModImplInternal.hpp>
+﻿#include <supermod/builtin/ModImplBuiltin.hpp>
 
 #include <assets/assets.h>
 #include <supermod/UpdateManager.hpp>
@@ -8,18 +8,18 @@
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/ui/styles/styles.hpp>
 
-namespace sm::mod
+namespace sm::builtin
 {
-void ModImplInternal::OnEnabled()
+void ModImplBuiltin::OnEnabled()
 {
     forward_game_logs_module.Init();
 }
 
-void ModImplInternal::OnDisabled() {}
+void ModImplBuiltin::OnDisabled() {}
 
-void ModImplInternal::OnTick() {}
+void ModImplBuiltin::OnTick() {}
 
-void ModImplInternal::RenderUI()
+void ModImplBuiltin::RenderUI()
 {
     using namespace update;
 
@@ -36,9 +36,9 @@ void ModImplInternal::RenderUI()
     forward_game_logs_module.Render();
 }
 
-std::shared_ptr<modloader::Mod> ModImplInternal::CreateMod()
+std::shared_ptr<modloader::Mod> ModImplBuiltin::CreateMod()
 {
-    auto info = std::make_shared<modloader::ModInfo>("$internal");
+    auto info = std::make_shared<modloader::ModInfo>("builtin");
     info->title = "SuperMod";
     info->author = "zziger";
     info->version = semver::version::parse(SUPERMOD_VERSION);
@@ -56,11 +56,11 @@ std::shared_ptr<modloader::Mod> ModImplInternal::CreateMod()
         }
     });
 
-    auto mod = std::make_shared<modloader::Mod>(info, std::make_unique<ModImplInternal>());
+    auto mod = std::make_shared<modloader::Mod>(info, std::make_unique<ModImplBuiltin>());
     mod->SetFlag(modloader::Mod::Flag::INTERNAL);
     mod->Toggle(true);
     mod->Update();
 
     return mod;
 }
-} // namespace sm::mod
+} // namespace sm::builtin
