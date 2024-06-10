@@ -5,9 +5,9 @@
 #include <supermod/data.hpp>
 #include <supermod/game/AssetPool.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
-#include <supermod/sdk/DirectX.hpp>
+#include <supermod/game/DirectX.hpp>
 
-namespace sm::sdk
+namespace sm::game
 {
 class Graphics
 {
@@ -39,4 +39,4 @@ public:
                                              void(vector2, vector2)>([](auto... args) { Graphics::Render(args...); });
     }
 };
-} // namespace sm::sdk
+} // namespace sm::game

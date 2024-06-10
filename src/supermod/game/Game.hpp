@@ -7,7 +7,7 @@
 #include <supermod/data.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
-namespace sm::sdk
+namespace sm::game
 {
 class Game
 {
@@ -76,4 +76,4 @@ public:
 private:
     inline static std::optional<std::filesystem::path> _rootPath;
 };
-} // namespace sm::sdk
+} // namespace sm::game

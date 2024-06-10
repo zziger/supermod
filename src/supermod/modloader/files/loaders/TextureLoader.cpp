@@ -1,7 +1,7 @@
 #include <supermod/modloader/files/loaders/TextureLoader.hpp>
 
 #include <supermod/game/AssetPool.hpp>
-#include <supermod/sdk/DirectX.hpp>
+#include <supermod/game/DirectX.hpp>
 
 namespace sm::modloader
 {

@@ -10,14 +10,14 @@
 #include <supermod/Utils.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 
 HOOK_FN(inline void, editor_leave_fullscreen, ARGS())
 {
     editor_leave_fullscreen_orig();
-    SetWindowPos(*sdk::Game::window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    SetWindowPos(*game::Game::window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 }
 
 inline EventManager::Ready $editor_fullscreen_bug_patch([] {

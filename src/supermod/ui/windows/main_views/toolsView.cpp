@@ -4,7 +4,7 @@
 #include <IconsMaterialDesign.h>
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/popups/popups.hpp>
 #include <supermod/ui/styles/styles.hpp>
@@ -12,7 +12,7 @@
 
 void SetWindowSize(const int w, const int h)
 {
-    SetWindowPos(*sm::sdk::Game::window, nullptr, 0, 0, GetSystemMetrics(SM_CXBORDER) + w,
+    SetWindowPos(*sm::game::Game::window, nullptr, 0, 0, GetSystemMetrics(SM_CXBORDER) + w,
                  GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) + h, SWP_NOMOVE | SWP_NOZORDER);
 }
 
@@ -51,7 +51,7 @@ void sm::ui::windows::main::ToolsView()
 
     ImGui::Spacing();
     ImGui::SeparatorText("Окно игры");
-    const auto fullscreen = sdk::Game::IsGameFullscreen();
+    const auto fullscreen = game::Game::IsGameFullscreen();
 
     ImGui::BeginDisabled(fullscreen);
     if (ImGui::Button(ICON_MD_FULLSCREEN " Вернуть окно в 800x600"))
@@ -88,7 +88,7 @@ void sm::ui::windows::main::ToolsView()
 
         if (ImGui::Button("Да"))
         {
-            sdk::Game::Restart();
+            game::Game::Restart();
         }
         ImGui::SetItemDefaultFocus();
 

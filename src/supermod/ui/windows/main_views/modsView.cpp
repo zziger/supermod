@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/popups/popups.hpp>
 #include <supermod/ui/styles/styles.hpp>
@@ -91,7 +91,7 @@ void sm::ui::windows::main::ModsView()
             }
 
             ImGui::SameLine();
-            ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
+            ImGui::BeginDisabled(game::Game::currentTickIsInner);
             if (ImGui::Button(ICON_MD_REFRESH))
             {
                 modloader::ModManager::ScanMods();
@@ -103,7 +103,7 @@ void sm::ui::windows::main::ModsView()
         }
         else
         {
-            ImGui::BeginDisabled(sdk::Game::currentTickIsInner);
+            ImGui::BeginDisabled(game::Game::currentTickIsInner);
             if (ImGui::Button(ICON_MD_SAVE " Сохранить"))
             {
                 modloader::ModManager::ReorderMods(reorderMods);
@@ -135,14 +135,14 @@ void sm::ui::windows::main::ModsView()
                 widgets::mods::Status(mod);
                 ImGui::Spacing();
 
-                const auto currentVersion = sdk::Game::GetGameVersion();
+                const auto currentVersion = game::Game::GetGameVersion();
                 if (!info->gameVersions.empty())
                 {
                     if (ImGui::TreeNode("Поддерживаемые версии игры:"))
                     {
                         for (auto gameVersion : info->gameVersions)
                         {
-                            ImGui::Text(sdk::Game::SerializeGameVersion(gameVersion).c_str());
+                            ImGui::Text(game::Game::SerializeGameVersion(gameVersion).c_str());
                             if (currentVersion == gameVersion)
                             {
                                 ImGui::SameLine();

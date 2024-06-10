@@ -1,13 +1,13 @@
 #include <supermod/io/TempManager.hpp>
 #include <supermod/pch.hpp>
 
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm::io
 {
 std::filesystem::path TempManager::GetTempRoot()
 {
-    return sdk::Game::GetRootPath() / TEMP_DIR;
+    return game::Game::GetRootPath() / TEMP_DIR;
 }
 
 void TempManager::Init()

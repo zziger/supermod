@@ -6,7 +6,7 @@
 #include <supermod/Config.hpp>
 #include <supermod/logs/AnsiFileSink.hpp>
 #include <supermod/logs/LogLevelFormatterFlag.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm
@@ -17,7 +17,7 @@ static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType)
     {
     case CTRL_C_EVENT:
     case CTRL_CLOSE_EVENT:
-        sdk::Game::RequestExit();
+        game::Game::RequestExit();
         return TRUE;
 
     default:
@@ -27,7 +27,7 @@ static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType)
 
 std::filesystem::path Console::GetLogsDir()
 {
-    return sdk::Game::GetRootPath() / "logs";
+    return game::Game::GetRootPath() / "logs";
 }
 
 void Console::CleanupLogs()

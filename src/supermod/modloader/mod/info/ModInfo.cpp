@@ -2,7 +2,7 @@
 #include <supermod/pch.hpp>
 
 #include <regex>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm::utils;
 
@@ -69,7 +69,7 @@ void ModInfo::Parse(YAML::Node& node)
     {
         for (const auto& gameVersionString : versions)
         {
-            auto gameVersion = sdk::Game::ParseGameVersion(gameVersionString);
+            auto gameVersion = game::Game::ParseGameVersion(gameVersionString);
             if (!gameVersion)
             {
                 spdlog::warn("Invalid game version {} in mod {}", gameVersionString, title);

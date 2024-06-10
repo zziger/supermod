@@ -2,7 +2,7 @@
 #include <supermod/pch.hpp>
 
 #include <supermod/memory/Memory.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm::game
 {
@@ -18,7 +18,7 @@ Animation* AnimationPool::Get(const std::string& name)
 Animation* AnimationPool::Reload(const std::filesystem::path& path)
 {
     const auto instance = Get(path.filename().string());
-    const auto dir = sdk::Game::GetDataPath() / path.parent_path();
+    const auto dir = game::Game::GetDataPath() / path.parent_path();
     if (!instance)
         return nullptr;
 
@@ -36,9 +36,9 @@ Animation* AnimationPool::Reload(const std::filesystem::path& path)
     mem.Get<Animation*(__thiscall*)(AnimationPool*, const char*)>()(this, path.filename().string().c_str());
     current_path(oldPath);
 
-    sdk::Game::Free(framesPtr);
-    sdk::Game::Free(frameMovementsPtr);
-    sdk::Game::Free(interpolatedFrameMovementsPtr);
+    game::Game::Free(framesPtr);
+    game::Game::Free(frameMovementsPtr);
+    game::Game::Free(interpolatedFrameMovementsPtr);
     return instance;
 }
 

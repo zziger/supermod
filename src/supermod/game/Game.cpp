@@ -1,5 +1,5 @@
-﻿#include <supermod/pch.hpp>
-#include <supermod/sdk/Game.hpp>
+﻿#include <supermod/game/Game.hpp>
+#include <supermod/pch.hpp>
 
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
@@ -7,19 +7,19 @@
 #include <supermod/Utils.hpp>
 #include <supermod/data.hpp>
 #include <supermod/game/AssetPool.hpp>
+#include <supermod/game/DirectX.hpp>
 #include <supermod/game/SoundHost.hpp>
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
-#include <supermod/sdk/DirectX.hpp>
 
-namespace sm::sdk
+namespace sm::game
 {
 void Game::Init()
 {
     constexpr Memory::Pattern movWindow("A3 ? ? ? ? 83 3D ? ? ? ? ? 74 ? 68 ? ? ? ? E8 ? ? ? ?");
     window = *movWindow.Search().Get<HWND**>(1);
 
-    sdk::DirectX::Init();
+    game::DirectX::Init();
 }
 
 void Game::Free(void* mem)
@@ -205,4 +205,4 @@ std::tuple<vector2, bool> Game::World::WorldToScreen(vector2 coords)
 
     return {pos, onScreen};
 }
-} // namespace sm::sdk
+} // namespace sm::game

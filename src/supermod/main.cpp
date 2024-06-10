@@ -19,6 +19,7 @@
 #include <supermod/events/SoundHostInitEvent.hpp>
 #include <supermod/events/SoundsLoadedEvent.hpp>
 #include <supermod/events/StartExecutionEvent.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/memory/HookManager.hpp>
@@ -28,7 +29,6 @@
 #include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/Game.hpp>
 #include <supermod/ui/UI.hpp>
 
 using namespace sm;
@@ -63,18 +63,18 @@ HOOK_FN(int, load_game, ARGS())
         if (fsInfo)
             fsInfo->UpdateIcon();
     }
-    if (!sdk::Game::bootMenuActive && GetAsyncKeyState(VK_SHIFT) & 0x01)
+    if (!game::Game::bootMenuActive && GetAsyncKeyState(VK_SHIFT) & 0x01)
     {
         spdlog::info("Detected SHIFT (2nd chance), activating boot menu");
-        sdk::Game::bootMenuActive = true;
+        game::Game::bootMenuActive = true;
     }
 
-    if (sdk::Game::bootMenuActive)
+    if (game::Game::bootMenuActive)
     {
-        EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+        EnableMenuItem(GetSystemMenu(*game::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     }
 
-    while (sdk::Game::bootMenuActive || !modloader::ModInstaller::GetInstallRequests().empty())
+    while (game::Game::bootMenuActive || !modloader::ModInstaller::GetInstallRequests().empty())
     {
         auto start = GetTickCount64();
         dx_utils::force_render_tick();
@@ -85,8 +85,8 @@ HOOK_FN(int, load_game, ARGS())
             Sleep(needed - delta);
     }
 
-    EnableMenuItem(GetSystemMenu(*sdk::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
-    sdk::Game::booted = true;
+    EnableMenuItem(GetSystemMenu(*game::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
+    game::Game::booted = true;
     EventManager::Emit(WindowReadyEvent{});
     return load_game_orig();
 }
@@ -104,7 +104,7 @@ void Init()
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 
     MH_Initialize();
-    sdk::Game::Init();
+    game::Game::Init();
     game::AssetPool::Init();
     io::TempManager::Init();
 
@@ -129,7 +129,7 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
         std::setlocale(LC_ALL, "en_US.utf-8");
         std::locale::global(std::locale("en_US.utf-8"));
 
-        current_path(sdk::Game::GetRootPath());
+        current_path(game::Game::GetRootPath());
         try
         {
             auto _ = std::filesystem::current_path().string();
@@ -151,7 +151,7 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
             cfg.Save();
         }
         if (shiftPressed)
-            sdk::Game::bootMenuActive = true;
+            game::Game::bootMenuActive = true;
 
         utils::handle_error(InitMemory, "инициализации памяти");
         utils::handle_error(InitCrashHandler, "инициализации обработчика ошибок");

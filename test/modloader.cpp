@@ -3,7 +3,7 @@
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/states/ModStateWaitingDependenciesLoad.hpp>
 #include <supermod/modloader/mod/states/ModStateWaitingDependentsUnload.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 using namespace sm::io;

@@ -4,7 +4,7 @@
 #include <supermod/Utils.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm
 {
@@ -40,7 +40,7 @@ T resolve(std::string filename, std::function<T(const std::string&)> fn)
     if (!should_resolve_files)
         return fn(filename);
 
-    const auto basePath = sdk::Game::GetDataPath() / "..";
+    const auto basePath = game::Game::GetDataPath() / "..";
     const auto curPath = std::filesystem::current_path();
     const auto path = curPath / filename;
     auto relativePath = relative(path, basePath);
@@ -126,9 +126,9 @@ inline void set_should_resolve_files(bool state)
 inline char(__thiscall* load_sprite_map_orig)(void* a1, const char* filename, int a3, int a4) = nullptr;
 inline char __fastcall load_sprite_map(void* this_, void*, const char* filename, int a3, int a4)
 {
-    const auto basePath = sdk::Game::GetDataPath() / "..";
+    const auto basePath = game::Game::GetDataPath() / "..";
     const auto curPath = std::filesystem::current_path();
-    const auto path = sdk::Game::GetDataPath() / "sprites" / std::filesystem::path(filename).stem();
+    const auto path = game::Game::GetDataPath() / "sprites" / std::filesystem::path(filename).stem();
 
     ResolveFileEvent evt{path};
     EventManager::Emit(evt);
@@ -136,7 +136,7 @@ inline char __fastcall load_sprite_map(void* this_, void*, const char* filename,
     if (evt.GetResolvedPath())
     {
         const auto resolvedPath = *evt.GetResolvedPath();
-        const auto rawPtr = sdk::Game::GetRawDataPath();
+        const auto rawPtr = game::Game::GetRawDataPath();
         const auto oldDataPath = std::string(rawPtr);
         const auto newDataPath = resolvedPath.parent_path().parent_path().string() + "\\";
 

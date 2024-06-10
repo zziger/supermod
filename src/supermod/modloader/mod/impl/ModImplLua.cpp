@@ -8,8 +8,8 @@
 #include <supermod/logs/Console.hpp>
 #include <supermod/modloader/mod/impl/lua/LuaScriptRuntime.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/Game.hpp>
-#include <supermod/sdk/Graphics.hpp>
+#include <supermod/game/Game.hpp>
+#include <supermod/game/Graphics.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm::modloader
@@ -69,7 +69,7 @@ void ModImplLua::OnEnabled()
 
         Console::AddToLua(logger, package->fenv);
         auto game = package->fenv.create("game");
-        sdk::Game::AddToLua(game); // todo: deprecate?
+        game::Game::AddToLua(game); // todo: deprecate?
 
         {
             const auto assetPool = package->builtin.create("assetPool");
@@ -78,7 +78,7 @@ void ModImplLua::OnEnabled()
 
         {
             const auto graphics = package->builtin.create("graphics");
-            sdk::Graphics::AddToLua(graphics);
+            game::Graphics::AddToLua(graphics);
         }
 
         lua.script(sdk->read("internal/bootstrapper.lua"), package->fenv, sol::script_throw_on_error, "bootstrapper");

@@ -7,7 +7,7 @@
 #include <supermod/events/ResolveFileEvent.hpp>
 #include <supermod/game/animations/AnimationPool.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Graphics.hpp>
+#include <supermod/game/Graphics.hpp>
 
 using namespace sm;
 

@@ -2,7 +2,7 @@
 #include <supermod/pch.hpp>
 
 #include <supermod/events/StartExecutionEvent.hpp>
-#include <supermod/sdk/DirectX.hpp>
+#include <supermod/game/DirectX.hpp>
 
 namespace sm::modloader
 {
@@ -25,7 +25,7 @@ void ModInfoFilesystem::FromPath(const std::filesystem::path& path)
 void ModInfoFilesystem::UpdateIcon()
 {
     const auto id = GetID();
-    if (!id.empty() && *sdk::DirectX::d3dDevice && exists(basePath / ICON_FILENAME))
+    if (!id.empty() && *game::DirectX::d3dDevice && exists(basePath / ICON_FILENAME))
     {
         const auto assetPool = game::AssetPool::Instance();
         const auto iconAsset =

@@ -1,12 +1,12 @@
-﻿#include <supermod/pch.hpp>
-#include <supermod/sdk/DirectX.hpp>
+﻿#include <supermod/game/DirectX.hpp>
+#include <supermod/pch.hpp>
 
 #include <d3d8/d3d8to9.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/exceptions/Error.hpp>
 
-namespace sm::sdk
+namespace sm::game
 {
 void DirectX::Init()
 {
@@ -65,4 +65,4 @@ void DirectX::ReleaseRemovedTextures()
         texture->Release();
     }
 }
-} // namespace sm::sdk
+} // namespace sm::game

@@ -3,7 +3,7 @@
 
 #include <supermod/modloader/install/ModInstallRequestZip.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm::modloader
@@ -53,7 +53,7 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
     if (!containsZip)
         return S_OK;
 
-    SetActiveWindow(*sdk::Game::window);
+    SetActiveWindow(*game::Game::window);
     lastEffect = *pdwEffect = DROPEFFECT_COPY;
     state = true;
     return S_OK;
@@ -61,7 +61,7 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 
 HRESULT ZipModDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    SetActiveWindow(*sdk::Game::window);
+    SetActiveWindow(*game::Game::window);
     *pdwEffect = lastEffect;
     return S_OK;
 }

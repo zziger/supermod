@@ -3,7 +3,7 @@
 
 #include <imgui.h>
 #include <supermod/Config.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/styles/styles.hpp>
 
@@ -25,7 +25,7 @@ void sm::ui::popups::DisableSuperMod(const bool restart)
             auto& cfg = Config::Get();
             cfg.disabled = true;
             cfg.Save();
-            sdk::Game::Restart();
+            game::Game::Restart();
         }
         styles::danger::PopStyle();
         ImGui::SetItemDefaultFocus();

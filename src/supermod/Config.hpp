@@ -1,13 +1,13 @@
 #pragma once
 #include <supermod/pch.hpp>
 
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm
 {
 class Config
 {
-    const std::filesystem::path path = sdk::Game::GetRootPath() / "modcfg.yml";
+    const std::filesystem::path path = game::Game::GetRootPath() / "modcfg.yml";
     YAML::Node node{YAML::NodeType::Map};
 
     Config();

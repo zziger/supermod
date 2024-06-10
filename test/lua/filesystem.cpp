@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <supermod/modloader/mod/impl/ModImplLua.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 using namespace sm::modloader;

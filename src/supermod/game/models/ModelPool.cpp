@@ -2,23 +2,23 @@
 #include <supermod/pch.hpp>
 
 #include <supermod/memory/Memory.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm::game
 {
 void Model::Free() const
 {
-    sdk::Game::Free(bones);
-    sdk::Game::Free(boneVecs);
-    sdk::Game::Free(vertLinks);
-    sdk::Game::Free(indxFaces);
-    sdk::Game::Free(dword44);
+    game::Game::Free(bones);
+    game::Game::Free(boneVecs);
+    game::Game::Free(vertLinks);
+    game::Game::Free(indxFaces);
+    game::Game::Free(dword44);
     indexBuffer->Release();
-    sdk::Game::Free(unk16);
-    sdk::Game::Free(dword58);
-    sdk::Game::Free(dword5C);
-    sdk::Game::Free(dword50);
-    sdk::Game::Free(dword54);
+    game::Game::Free(unk16);
+    game::Game::Free(dword58);
+    game::Game::Free(dword5C);
+    game::Game::Free(dword50);
+    game::Game::Free(dword54);
     vertexBuffer->Release();
 }
 
@@ -34,7 +34,7 @@ Model* ModelPool::Get(const std::string& name)
 Model* ModelPool::Reload(const std::filesystem::path& path)
 {
     auto instance = Get(path.filename().string());
-    const auto dir = sdk::Game::GetDataPath() / path.parent_path();
+    const auto dir = game::Game::GetDataPath() / path.parent_path();
     if (!instance)
         return nullptr;
 

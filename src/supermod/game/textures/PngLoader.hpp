@@ -4,7 +4,7 @@
 #include <d3d8/d3d8helpers.h>
 #include <lodepng.h>
 #include <supermod/game/textures/TextureLoader.hpp>
-#include <supermod/sdk/DirectX.hpp>
+#include <supermod/game/DirectX.hpp>
 #include <tga.h>
 
 namespace sm::game::loaders
@@ -39,7 +39,7 @@ public:
             return nullptr;
         }
 
-        return TextureLoader::LoadFromRgbaPixelData(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier,
+        return TextureLoader::LoadFromRgbaPixelData(*game::DirectX::d3dDevice, size, canvasSizeMultiplier,
                                                     textureData->data());
     }
 
@@ -58,7 +58,7 @@ public:
 
         size = {width, height};
 
-        return TextureLoader::LoadFromRgbaPixelData(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier, buf.data());
+        return TextureLoader::LoadFromRgbaPixelData(*game::DirectX::d3dDevice, size, canvasSizeMultiplier, buf.data());
     }
 };
 } // namespace sm::game::loaders

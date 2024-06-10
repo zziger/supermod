@@ -6,6 +6,7 @@
 #include <supermod/events/D3dInitEvent.hpp>
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/exceptions/Error.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/modloader/install/ModInstallRequestDiscover.hpp>
 #include <supermod/modloader/install/ModInstallRequestZip.hpp>
@@ -15,15 +16,14 @@
 #include <supermod/modloader/mod/impl/ModImplLua.hpp>
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm::modloader
 {
 void ModManager::Init()
 {
-    if (!exists(sdk::Game::GetModsPath()))
-        create_directories(sdk::Game::GetModsPath());
+    if (!exists(game::Game::GetModsPath()))
+        create_directories(game::Game::GetModsPath());
 
     AddInternalMod(builtin::ModImplBuiltin::CreateMod());
 
@@ -37,7 +37,7 @@ void ModManager::Init()
 
 void ModManager::ScanMods(const bool init)
 {
-    const auto modsPath = sdk::Game::GetModsPath();
+    const auto modsPath = game::Game::GetModsPath();
     if (!exists(modsPath))
     {
         spdlog::warn("Skipped mods scanning: Mods folder does not exist");

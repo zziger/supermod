@@ -4,7 +4,7 @@
 #include <supermod/game/AssetPool.hpp>
 #include <supermod/game/SoundHost.hpp>
 #include <supermod/modloader/files/ModFileResolver.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm::modloader
 {
@@ -18,7 +18,7 @@ bool SoundLoader::Load(const std::filesystem::path& path)
     auto cwd = std::filesystem::current_path();
     const auto index = host->GetSoundIndex(filename.c_str());
 
-    const auto resolvedPath = ModFileResolver::ResolveGameFile(sdk::Game::GetDataPath() / path);
+    const auto resolvedPath = ModFileResolver::ResolveGameFile(game::Game::GetDataPath() / path);
     if (resolvedPath.empty() || !exists(resolvedPath))
     {
         spdlog::warn("Sound file {} was not found", filename);

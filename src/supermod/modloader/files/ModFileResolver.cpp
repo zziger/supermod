@@ -63,7 +63,7 @@ std::optional<std::filesystem::path> ModFileResolver::GetGameFileInMod(const std
 {
     if (!mod || mod->HasFlag(Mod::Flag::INTERNAL) || !mod->IsActive())
         return {};
-    const auto filePath = relative(path, sdk::Game::GetDataPath());
+    const auto filePath = relative(path, game::Game::GetDataPath());
     const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
     if (!info)
         return {};

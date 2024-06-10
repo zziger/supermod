@@ -14,7 +14,7 @@
 #include <supermod/events/ResolveFileEvent.hpp>
 #include <supermod/game/AssetPool.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Graphics.hpp>
+#include <supermod/game/Graphics.hpp>
 
 using namespace sm;
 
@@ -104,7 +104,7 @@ game::Asset* __fastcall load_texture_obj(game::AssetPool* this_, void*, char* na
 
     // If texture exists in sprites/ then return nullptr, so game can try to load it as a SpriteAnim
     const auto cwd = std::filesystem::current_path();
-    current_path(sdk::Game::GetDataPath() / "sprites");
+    current_path(game::Game::GetDataPath() / "sprites");
     const auto secondTex = this_->LoadGameAsset(name, false);
     current_path(cwd);
     if (secondTex)
@@ -122,7 +122,7 @@ HOOK_FN_CONV(int, render_border, ARGS(int* a1), __cdecl)
     static game::Asset* white = nullptr;
     if (!white)
         white = game::AssetPool::Instance()->GetByName("white");
-    sdk::Graphics::SetRenderAsset(white);
+    game::Graphics::SetRenderAsset(white);
     return render_border_orig(a1);
 }
 

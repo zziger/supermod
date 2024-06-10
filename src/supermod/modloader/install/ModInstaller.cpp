@@ -4,12 +4,12 @@
 #include <supermod/events/D3dInitEvent.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/TickEvent.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstallRequestZip.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm::modloader
@@ -19,7 +19,7 @@ void ModInstaller::Init()
     EventManager::On<D3dInitEvent>([] {
         if (FAILED(OleInitialize(nullptr)))
             spdlog::error("Failed to initialize OLE");
-        if (FAILED(RegisterDragDrop(*sdk::Game::window, &dropTarget)))
+        if (FAILED(RegisterDragDrop(*game::Game::window, &dropTarget)))
             spdlog::error("Failed to register drag and drop target");
         ScanCmdline();
     });
@@ -44,9 +44,9 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
     auto mod = ModManager::FindModByID(info->GetID());
     if (!mod)
     {
-        auto newPath = sdk::Game::GetModsPath() / info->GetID();
+        auto newPath = game::Game::GetModsPath() / info->GetID();
         for (auto i = 1; exists(newPath);)
-            newPath = sdk::Game::GetModsPath() / std::format("{}-{}", info->GetID(), i++);
+            newPath = game::Game::GetModsPath() / std::format("{}-{}", info->GetID(), i++);
 
         try
         {

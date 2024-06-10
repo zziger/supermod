@@ -10,7 +10,7 @@
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 

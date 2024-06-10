@@ -6,7 +6,7 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/game/SoundHost.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 
@@ -34,7 +34,7 @@ char __fastcall editor_write_level_file(void* this_, void*, int stage, int level
 {
     const auto res = editor_write_level_file_orig(this_, stage, levelIndex);
     const auto path =
-        sdk::Game::GetDataPath() / "levels" / std::to_string(stage + 1) / std::format("level{:02}.lev", levelIndex + 1);
+        game::Game::GetDataPath() / "levels" / std::to_string(stage + 1) / std::format("level{:02}.lev", levelIndex + 1);
 
     std::stringstream buf;
     std::fstream file(path, std::fstream::in);

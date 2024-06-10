@@ -5,7 +5,7 @@
 #include <fstream>
 #include <jpeglib.h>
 #include <supermod/game/textures/TextureLoader.hpp>
-#include <supermod/sdk/DirectX.hpp>
+#include <supermod/game/DirectX.hpp>
 
 namespace sm::game::loaders
 {
@@ -195,7 +195,7 @@ public:
             // textureData = TextureLoader::GenerateUnknown(width, height);
         }
 
-        return TextureLoader::LoadFromRgbaPixelData(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier,
+        return TextureLoader::LoadFromRgbaPixelData(*game::DirectX::d3dDevice, size, canvasSizeMultiplier,
                                                     textureData->data());
     }
 };

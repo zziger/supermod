@@ -12,8 +12,8 @@
 #include <supermod/events/WindowEvent.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/DirectX.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/DirectX.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 
@@ -29,7 +29,7 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
     vector2i res = {};
     RECT rect;
 
-    if (sdk::Game::IsGameFullscreen())
+    if (game::Game::IsGameFullscreen())
     {
         static HWND desktopWnd = GetDesktopWindow();
         GetWindowRect(desktopWnd, &rect);
@@ -37,14 +37,14 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
     }
     else
     {
-        GetClientRect(*sdk::Game::window, &rect);
+        GetClientRect(*game::Game::window, &rect);
         res = {static_cast<int>(rect.right - rect.left), static_cast<int>(rect.bottom - rect.top)};
     }
 
     if (res.x == 0 || res.y == 0)
-        res = sdk::Game::lastResolution;
+        res = game::Game::lastResolution;
     else
-        sdk::Game::lastResolution = res;
+        game::Game::lastResolution = res;
 
     spdlog::info("Render resolution was set to {}x{}", Console::StyleEmphasise(res.x), Console::StyleEmphasise(res.y));
 
@@ -61,31 +61,31 @@ inline EventManager::Ready $adaptive_resolution_patch([] {
         HOOK_REF(setup_d3d_params));
 
     EventManager::On<WindowEvent>([](const WindowEvent& evt) {
-        if (evt.hWnd != *sdk::Game::window)
+        if (evt.hWnd != *game::Game::window)
             return;
 
         if (evt.msg == WM_SIZE)
-            sdk::DirectX::RequestDeviceReset();
+            game::DirectX::RequestDeviceReset();
 
-        if (evt.msg == WM_STYLECHANGED && evt.wParam == GWL_STYLE && !sdk::Game::IsGameFullscreen())
+        if (evt.msg == WM_STYLECHANGED && evt.wParam == GWL_STYLE && !game::Game::IsGameFullscreen())
         {
             const auto style = reinterpret_cast<STYLESTRUCT*>(evt.lParam);
             if ((style->styleNew & REQUIRED_STYLES) != REQUIRED_STYLES)
                 SetWindowLongA(evt.hWnd, GWL_STYLE, static_cast<long>(style->styleNew) | REQUIRED_STYLES);
         }
 
-        if (evt.msg == WM_ACTIVATE && !sdk::Game::IsGameFullscreen())
+        if (evt.msg == WM_ACTIVATE && !game::Game::IsGameFullscreen())
         {
-            const auto oldStyle = GetWindowLongA(*sdk::Game::window, GWL_STYLE);
+            const auto oldStyle = GetWindowLongA(*game::Game::window, GWL_STYLE);
             if ((oldStyle & REQUIRED_STYLES) != REQUIRED_STYLES)
-                SetWindowLongA(*sdk::Game::window, GWL_STYLE, oldStyle | REQUIRED_STYLES);
+                SetWindowLongA(*game::Game::window, GWL_STYLE, oldStyle | REQUIRED_STYLES);
         }
     });
 
     EventManager::On<D3dInitEvent>([] {
-        if (!sdk::Game::IsGameFullscreen())
-            SetWindowLongA(*sdk::Game::window, GWL_STYLE,
-                           GetWindowLongA(*sdk::Game::window, GWL_STYLE) | REQUIRED_STYLES);
+        if (!game::Game::IsGameFullscreen())
+            SetWindowLongA(*game::Game::window, GWL_STYLE,
+                           GetWindowLongA(*game::Game::window, GWL_STYLE) | REQUIRED_STYLES);
     });
 
     // Prevent game from changing window size/pos on reset

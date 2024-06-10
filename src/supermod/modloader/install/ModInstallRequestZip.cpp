@@ -3,13 +3,13 @@
 
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/TickEvent.hpp>
+#include <supermod/game/DirectX.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/game/textures/PngLoader.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/DirectX.hpp>
-#include <supermod/sdk/Game.hpp>
 
 namespace sm::modloader
 {

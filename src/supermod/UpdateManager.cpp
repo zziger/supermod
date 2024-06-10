@@ -5,7 +5,7 @@
 #include <semver/semver.hpp>
 #include <spdlog/spdlog.h>
 #include <supermod/Config.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/ui/styles/styles.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
@@ -248,7 +248,7 @@ void UpdateManager::RenderMessage()
         ImGui::Text("Обновление установлено, нужен перезапуск игры");
         ImGui::Spacing();
         if (ImGui::Button("Перезапустить игру"))
-            sdk::Game::Restart();
+            game::Game::Restart();
 
         break;
     }

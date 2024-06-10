@@ -2,14 +2,14 @@
 #include <supermod/pch.hpp>
 
 #include <supermod/events/TickEvent.hpp>
+#include <supermod/game/DirectX.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/game/textures/JpgLoader.hpp>
 #include <supermod/game/textures/PngLoader.hpp>
 #include <supermod/game/textures/TgaLoader.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/files/ModFileResolver.hpp>
-#include <supermod/sdk/DirectX.hpp>
-#include <supermod/sdk/Game.hpp>
 
 using namespace sm::utils;
 using namespace sm::game::loaders;
@@ -18,7 +18,7 @@ namespace sm::game
 {
 void Asset::ReplaceTexture(IDirect3DTexture8* tex)
 {
-    sdk::DirectX::RemoveTexture(texture);
+    game::DirectX::RemoveTexture(texture);
     texture = tex;
 }
 
@@ -35,7 +35,7 @@ OwnedAsset::~OwnedAsset()
 LPDIRECT3DTEXTURE8 AssetPool::LoadTexture(const std::filesystem::path& path, vector2ui& size, bool& alpha,
                                           vector2 canvasSizeMultiplier)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     alpha = false;
     auto ext = path.extension().string();
     std::ranges::transform(ext, ext.begin(), tolower);
@@ -65,7 +65,7 @@ LPDIRECT3DTEXTURE8 AssetPool::LoadTexture(const std::filesystem::path& path, vec
 LPDIRECT3DTEXTURE8 AssetPool::TryLoadTexture(const std::filesystem::path& dir, const std::string& key, bool alpha,
                                              vector2ui& size, vector2 canvasSizeMultiplier)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     if (dir.empty())
         return nullptr;
 
@@ -93,7 +93,7 @@ LPDIRECT3DTEXTURE8 AssetPool::TryLoadTextureFromMods(const std::filesystem::path
                                                      bool alpha, vector2ui& size, std::string& modName,
                                                      vector2 canvasSizeMultiplier)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     modName = "";
     IDirect3DTexture8* tex = nullptr;
 
@@ -122,7 +122,7 @@ LPDIRECT3DTEXTURE8 AssetPool::TryLoadTextureFromMods(const std::filesystem::path
 
 Asset* AssetPool::LoadGameAsset(const std::filesystem::path& path, bool loadFallback, vector2 canvasSizeMultiplier)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     bool alpha;
     const auto key = CreateAssetKey(path.filename().string(), alpha);
     const auto previousAsset = GetByName(key);
@@ -146,12 +146,12 @@ Asset* AssetPool::LoadGameAsset(const std::filesystem::path& path, bool loadFall
 
         found = false;
         size = {256, 256};
-        tex = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier);
+        tex = TextureLoader::LoadUnknown(*game::DirectX::d3dDevice, size, canvasSizeMultiplier);
     }
 
     const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
     if (asset->texture)
-        sdk::DirectX::RemoveTexture(asset->texture);
+        game::DirectX::RemoveTexture(asset->texture);
     delete asset->meta;
 
     asset->texture = tex;
@@ -163,7 +163,7 @@ Asset* AssetPool::LoadGameAsset(const std::filesystem::path& path, bool loadFall
     asset->meta = new AssetMeta;
     asset->meta->notFound = !found;
     asset->meta->canvasSizeMultiplier = canvasSizeMultiplier;
-    asset->meta->origDir = relative(dir, sdk::Game::GetDataPath());
+    asset->meta->origDir = relative(dir, game::Game::GetDataPath());
     asset->meta->origName = name;
 
     if (found && !modName.empty())
@@ -175,9 +175,9 @@ Asset* AssetPool::LoadGameAsset(const std::filesystem::path& path, bool loadFall
 Asset* AssetPool::LoadGameAssetFromData(const std::filesystem::path& path, bool loadFallback,
                                         vector2 canvasSizeMultiplier)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     const auto oldCwd = std::filesystem::current_path();
-    current_path(sdk::Game::GetDataPath());
+    current_path(game::Game::GetDataPath());
     const auto asset = LoadGameAsset(path, loadFallback, canvasSizeMultiplier);
     current_path(oldCwd);
     return asset;
@@ -209,11 +209,11 @@ bool AssetPool::ReloadGameAsset(const std::string& filename)
     if (!texture)
     {
         size = {256, 256};
-        texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, asset->meta->canvasSizeMultiplier);
+        texture = TextureLoader::LoadUnknown(*game::DirectX::d3dDevice, size, asset->meta->canvasSizeMultiplier);
         spdlog::error("Failed to reload texture {} ({})", filename, key);
     }
 
-    sdk::DirectX::RemoveTexture(asset->texture);
+    game::DirectX::RemoveTexture(asset->texture);
     asset->texture = texture;
     asset->width = size.x;
     asset->height = size.y;
@@ -224,17 +224,17 @@ bool AssetPool::ReloadGameAsset(const std::string& filename)
 
 Asset* AssetPool::LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha, vector2ui size)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     const auto previousAsset = GetByName(key);
     if (previousAsset && !(previousAsset->meta && previousAsset->meta->notFound))
     {
-        sdk::DirectX::RemoveTexture(tex);
+        game::DirectX::RemoveTexture(tex);
         return previousAsset;
     }
 
     const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
     if (asset->texture)
-        sdk::DirectX::RemoveTexture(asset->texture);
+        game::DirectX::RemoveTexture(asset->texture);
     delete asset->meta;
 
     asset->texture = tex;
@@ -252,7 +252,7 @@ Asset* AssetPool::LoadAsset(LPDIRECT3DTEXTURE8 tex, std::string key, bool alpha,
 Asset* AssetPool::LoadAsset(const std::filesystem::path& path, std::string key, bool loadFallback,
                             vector2 canvasSizeMultiplier)
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     if (key.empty())
         key = CreateAssetKey(path.filename().string());
     const auto previousAsset = GetByName(key);
@@ -266,14 +266,14 @@ Asset* AssetPool::LoadAsset(const std::filesystem::path& path, std::string key, 
     if (!tex && !loadFallback)
         return nullptr;
     if (!tex)
-        tex = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier);
+        tex = TextureLoader::LoadUnknown(*game::DirectX::d3dDevice, size, canvasSizeMultiplier);
 
     if (notFound)
         spdlog::error("Texture {} not found", path.string());
 
     const auto asset = previousAsset ? previousAsset : AllocateAsset(key);
     if (asset->texture)
-        sdk::DirectX::RemoveTexture(asset->texture);
+        game::DirectX::RemoveTexture(asset->texture);
     delete asset->meta;
 
     asset->texture = tex;
@@ -292,8 +292,8 @@ Asset* AssetPool::LoadAsset(const std::filesystem::path& path, std::string key, 
 
 Asset* AssetPool::LoadUnknownAsset(const std::string& key)
 {
-    sdk::DirectX::EnsureDeviceReady();
-    const auto tex = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, {256, 256}, {1, 1});
+    game::DirectX::EnsureDeviceReady();
+    const auto tex = TextureLoader::LoadUnknown(*game::DirectX::d3dDevice, {256, 256}, {1, 1});
     const auto asset = AllocateAsset(key);
 
     asset->texture = tex;
@@ -310,7 +310,7 @@ Asset* AssetPool::LoadUnknownAsset(const std::string& key)
 
 Asset* AssetPool::GetSharedUnknownAsset()
 {
-    sdk::DirectX::EnsureDeviceReady();
+    game::DirectX::EnsureDeviceReady();
     static Asset* asset = nullptr;
     if (asset)
         return asset;
@@ -338,7 +338,7 @@ void AssetPool::RemoveAsset(Asset* asset)
 
     try
     {
-        asset->texture = TextureLoader::LoadUnknown(*sdk::DirectX::d3dDevice, {asset->width, asset->height},
+        asset->texture = TextureLoader::LoadUnknown(*game::DirectX::d3dDevice, {asset->width, asset->height},
                                                     asset->meta ? asset->meta->canvasSizeMultiplier : vector2{1, 1});
     }
     catch (std::exception& e)
@@ -346,7 +346,7 @@ void AssetPool::RemoveAsset(Asset* asset)
         asset->texture = nullptr;
     }
 
-    sdk::DirectX::RemoveTexture(previousTexture);
+    game::DirectX::RemoveTexture(previousTexture);
 
     if (asset->meta && asset->meta->loadedManually)
     {

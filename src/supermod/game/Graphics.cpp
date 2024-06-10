@@ -1,10 +1,10 @@
-﻿#include <supermod/pch.hpp>
-#include <supermod/sdk/Graphics.hpp>
+﻿#include <supermod/game/Graphics.hpp>
+#include <supermod/pch.hpp>
 
 #include <supermod/Utils.hpp>
 #include <supermod/memory/Memory.hpp>
 
-namespace sm::sdk
+namespace sm::game
 {
 void Graphics::SetRenderAsset(game::Asset* asset)
 {
@@ -68,4 +68,4 @@ void Graphics::ResetRenderTransform()
 {
     SetRenderTransform({0, 0, 0});
 }
-} // namespace sm::sdk
+} // namespace sm::game

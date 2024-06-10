@@ -6,14 +6,14 @@
 #include <supermod/Utils.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 using namespace sm;
 
 inline int(__thiscall* update_load_orig)(void* this_, int a2);
 inline int __fastcall update_load(void* this_, void*, int a2)
 {
-    if (sdk::Game::IsGameInLoadingTick())
+    if (game::Game::IsGameInLoadingTick())
     {
         tagMSG msg{};
 
@@ -24,9 +24,9 @@ inline int __fastcall update_load(void* this_, void*, int a2)
         }
     }
 
-    sdk::Game::currentTickIsInner = true;
+    game::Game::currentTickIsInner = true;
     const auto res = update_load_orig(this_, a2);
-    sdk::Game::currentTickIsInner = false;
+    game::Game::currentTickIsInner = false;
     return res;
 }
 

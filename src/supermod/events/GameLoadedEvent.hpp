@@ -4,7 +4,7 @@
 #include <supermod/Utils.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm
 {
@@ -18,7 +18,7 @@ inline void(__thiscall* tickLoopInner_orig)(void* this_) = nullptr;
 inline void __fastcall tickLoopInner(void* this_, void* _)
 {
     tickLoopInner_orig(this_);
-    if (!sentGameLoaded && sdk::Game::IsGameLoaded())
+    if (!sentGameLoaded && game::Game::IsGameLoaded())
     {
         sentGameLoaded = true;
         EventManager::Emit(GameLoadedEvent());

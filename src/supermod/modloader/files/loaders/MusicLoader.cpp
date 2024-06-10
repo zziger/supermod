@@ -9,7 +9,7 @@
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/files/ModFileResolver.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 
 namespace sm::modloader
 {
@@ -18,7 +18,7 @@ MusicLoader::MusicLoader()
     EventManager::On<SoundHostInitEvent>([this] {
         std::unordered_set<std::string> defaultMusic{};
 
-        for (const auto& entry : std::filesystem::directory_iterator(sdk::Game::GetDataPath() / "audio" / "music"))
+        for (const auto& entry : std::filesystem::directory_iterator(game::Game::GetDataPath() / "audio" / "music"))
             defaultMusic.emplace(entry.path().filename().generic_string());
 
         for (const auto& loadedMod : ModManager::GetMods())
@@ -57,7 +57,7 @@ bool MusicLoader::Load(const std::filesystem::path& path)
     auto cwd = std::filesystem::current_path();
     const auto index = host->GetMusicIndex(filename.c_str());
 
-    const auto resolvedPath = ModFileResolver::ResolveGameFile(sdk::Game::GetDataPath() / path);
+    const auto resolvedPath = ModFileResolver::ResolveGameFile(game::Game::GetDataPath() / path);
     if (resolvedPath.empty() || !exists(resolvedPath))
     {
         if (soundMemory.contains(filename))

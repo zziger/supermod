@@ -6,7 +6,7 @@
 #include <supermod/UpdateManager.hpp>
 #include <supermod/Utils.hpp>
 #include <supermod/logs/Console.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 
 void sm::ui::windows::main::SettingsView()
@@ -30,7 +30,7 @@ void sm::ui::windows::main::SettingsView()
     ImGui::Text("Версия игры:");
     ImGui::SameLine();
 
-    const auto gameVer = sdk::Game::SerializeGameVersion(sdk::Game::GetGameVersion());
+    const auto gameVer = game::Game::SerializeGameVersion(game::Game::GetGameVersion());
     ImGui::TextColored(0xFFA000FF_color, gameVer.c_str());
 
     if (ImGui::Button("Скопировать"))

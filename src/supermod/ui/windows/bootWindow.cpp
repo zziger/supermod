@@ -2,13 +2,13 @@
 #include <supermod/ui/windows/windows.hpp>
 
 #include <supermod/Utils.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/popups/popups.hpp>
 #include <supermod/ui/styles/styles.hpp>
 
 void sm::ui::windows::Boot()
 {
-    if (!sdk::Game::bootMenuActive)
+    if (!game::Game::bootMenuActive)
         return;
 
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -29,13 +29,13 @@ void sm::ui::windows::Boot()
 
         ImGui::SameLine();
         if (ImGui::Button("Игра"))
-            sdk::Game::bootMenuActive = false;
+            game::Game::bootMenuActive = false;
 
         ImGui::SameLine();
         if (ImGui::Button("Редактор"))
         {
-            sdk::Game::StartEditor();
-            sdk::Game::bootMenuActive = false;
+            game::Game::StartEditor();
+            game::Game::bootMenuActive = false;
         }
 
         ImGui::Spacing();

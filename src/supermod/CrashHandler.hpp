@@ -65,8 +65,8 @@ inline void InitCrashHandler()
 {
     using namespace sm;
 
-    const auto folder = sdk::Game::GetRootPath() / "crashdumps";
-    const auto filePrefix = std::format("{}-", sdk::Game::GetGameVersion());
+    const auto folder = game::Game::GetRootPath() / "crashdumps";
+    const auto filePrefix = std::format("{}-", game::Game::GetGameVersion());
     dumpsPath = (folder / filePrefix).wstring();
     if (!exists(folder))
         create_directory(folder);

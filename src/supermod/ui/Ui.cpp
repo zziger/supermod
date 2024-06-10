@@ -16,8 +16,8 @@
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
-#include <supermod/sdk/DirectX.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/DirectX.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/ui/windows/windows.hpp>
 
@@ -45,10 +45,10 @@ void Ui::InitImGui()
 
     ImGuiIO& io = ImGui::GetIO();
 
-    imguiIniFilename = (sdk::Game::GetRootPath() / "imgui.ini").string();
+    imguiIniFilename = (game::Game::GetRootPath() / "imgui.ini").string();
     io.IniFilename = imguiIniFilename.c_str();
 
-    imguiLogFilename = (sdk::Game::GetRootPath() / "imguilog.txt").string();
+    imguiLogFilename = (game::Game::GetRootPath() / "imguilog.txt").string();
     io.LogFilename = imguiLogFilename.c_str();
 
     LoadFonts();
@@ -56,8 +56,8 @@ void Ui::InitImGui()
         ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
     io.ConfigDockingWithShift = cfg.imgui.dockingWithShift;
 
-    ImGui_ImplWin32_Init(*sdk::Game::window);
-    ImGui_ImplDX9_Init(sdk::DirectX::GetDx9());
+    ImGui_ImplWin32_Init(*game::Game::window);
+    ImGui_ImplDX9_Init(game::DirectX::GetDx9());
 
     io.IniFilename = imguiIniFilename.c_str();
     io.LogFilename = imguiLogFilename.c_str();
@@ -161,7 +161,7 @@ void Ui::Render()
     ImGui::ErrorCheckEndFrameRecover(ImGuiErrorHandler, nullptr);
     ImGui::EndFrame();
 
-    const auto d3dDevice = *sdk::DirectX::d3dDevice;
+    const auto d3dDevice = *game::DirectX::d3dDevice;
     if (d3dDevice->BeginScene() >= 0)
     {
         ImGui::Render();
@@ -205,7 +205,7 @@ float Ui::GetScalingFactor()
     if (value > 0)
         return value;
 
-    const auto monitor = MonitorFromWindow(*sdk::Game::window, MONITOR_DEFAULTTONEAREST);
+    const auto monitor = MonitorFromWindow(*game::Game::window, MONITOR_DEFAULTTONEAREST);
 
     DEVICE_SCALE_FACTOR factor;
     const auto result = GetScaleFactorForMonitor(monitor, &factor);

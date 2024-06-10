@@ -4,7 +4,7 @@
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstallRequest.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
-#include <supermod/sdk/Game.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/styles/styles.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
@@ -96,7 +96,7 @@ void sm::ui::windows::Installer()
             ImGui::EndDisabled();
         }
 
-        if (!sdk::Game::booted)
+        if (!game::Game::booted)
         {
             ImGui::SameLine();
             if (ImGui::Button("Выход"))
