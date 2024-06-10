@@ -11,7 +11,7 @@
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/sdk/Game.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 MusicLoader::MusicLoader()
 {
@@ -97,4 +97,4 @@ bool MusicLoader::Load(const std::filesystem::path& path)
 
     return true;
 }
-} // namespace modloader
+} // namespace sm::modloader

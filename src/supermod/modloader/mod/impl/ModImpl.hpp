@@ -1,6 +1,6 @@
 #pragma once
 
-namespace modloader
+namespace sm::modloader
 {
 class ModImpl
 {
@@ -13,4 +13,4 @@ public:
     virtual void RenderUI() {}
     virtual void Render() {}
 };
-} // namespace modloader
+} // namespace sm::modloader

@@ -11,6 +11,8 @@
 #include <typeinfo>
 #include <unordered_set>
 
+namespace sm
+{
 struct IAnyEvent
 {
     virtual ~IAnyEvent() = default;
@@ -191,3 +193,4 @@ public:
         Ready(const std::function<void()>& fn) { On<ReadyEvent>(fn); }
     };
 };
+} // namespace sm

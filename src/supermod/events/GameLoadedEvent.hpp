@@ -6,6 +6,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Game.hpp>
 
+namespace sm
+{
 struct GameLoadedEvent final : IEvent<"gameLoaded", GameLoadedEvent>
 {
 };
@@ -27,3 +29,4 @@ inline EventManager::Ready $game_loaded_event_hook([] {
     HookManager::RegisterHook("55 8B EC 83 EC ? 89 4D ? D9 05 ? ? ? ? D8 1D",
                               HOOK_REF_FORCE(tickLoopInner)); // push ebp
 });
+} // namespace sm

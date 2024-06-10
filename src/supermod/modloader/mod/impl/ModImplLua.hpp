@@ -6,7 +6,7 @@
 
 #include <supermod/modloader/mod/impl/lua/LuaScriptRuntime.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModImplLua final : public ModImpl
 {
@@ -29,4 +29,4 @@ public:
 
     uint64_t lastMs = 0;
 };
-} // namespace modloader
+} // namespace sm::modloader

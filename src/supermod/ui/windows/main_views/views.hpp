@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-namespace ui::windows::main
+namespace sm::ui::windows::main
 {
 static const std::vector<std::string> VIEW_NAMES = {"Моды", "Настройки", "Инструменты"};
 
@@ -29,4 +29,4 @@ inline void View(const int index)
 }
 
 static inline int currentView = 0;
-} // namespace ui::windows::main
+} // namespace sm::ui::windows::main

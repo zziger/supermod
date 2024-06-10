@@ -6,9 +6,9 @@
 #include <supermod/modloader/mod/states/ModState.hpp>
 #include <supermod/ui/Ui.hpp>
 
-bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected, bool border,
-                                   const std::optional<modloader::ModInfo::Dependency>& dependency, bool* hovered,
-                                   bool* active)
+bool sm::ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected, bool border,
+                                       const std::optional<modloader::ModInfo::Dependency>& dependency, bool* hovered,
+                                       bool* active)
 {
     const auto info = mod->GetInfo();
 
@@ -138,7 +138,7 @@ bool ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, b
                 versionStr += " (требуется " + dependency->version.Serialize(true) + ")";
             }
 
-            const auto lowerLine = ::utils::trim(versionStr + " " + info->author);
+            const auto lowerLine = utils::trim(versionStr + " " + info->author);
             if (lowerLine.empty())
                 ImGui::Dummy({Ui::ScaledPx(1), Ui::ScaledPx(6)});
 

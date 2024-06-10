@@ -4,7 +4,7 @@
 #include <bass.h>
 #include <xstring>
 
-namespace game
+namespace sm::game
 {
 struct Sound
 {
@@ -43,4 +43,4 @@ public:
     void LoadSound(const char* name);
 };
 #pragma pack(pop)
-} // namespace game
+} // namespace sm::game

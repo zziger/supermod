@@ -21,7 +21,7 @@
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/ui/windows/windows.hpp>
 
-using namespace ui;
+using namespace sm::ui;
 
 void Ui::LoadFonts()
 {
@@ -301,4 +301,4 @@ void Ui::ImGuiErrorHandler(void* source, const char* msg, ...)
                   buffer);
 }
 
-inline EventManager::Ready $ui_ready([] { Ui::Init(); });
+inline sm::EventManager::Ready $ui_ready([] { Ui::Init(); });

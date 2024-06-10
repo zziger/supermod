@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-bool ui::widgets::ToggleButton(const char* strId, const bool value, const float time, const ImVec2 size)
+bool sm::ui::widgets::ToggleButton(const char* strId, const bool value, const float time, const ImVec2 size)
 {
     static constexpr ImVec4 SLIDER_ACTIVE_COLOR = {0.56f, 0.83f, 0.26f, 1.0f};
     static constexpr ImVec4 SLIDER_ACTIVE_HOVERED_COLOR = {0.64f, 0.83f, 0.34f, 1.0f};

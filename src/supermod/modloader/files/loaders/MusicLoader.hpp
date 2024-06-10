@@ -3,7 +3,7 @@
 
 #include "BaseLoader.hpp"
 
-namespace modloader
+namespace sm::modloader
 {
 class MusicLoader final : public BaseLoader
 {
@@ -17,4 +17,4 @@ private:
 
     [[nodiscard]] std::vector<std::string> GetExtensions() const override { return {".ogg"}; }
 };
-} // namespace modloader
+} // namespace sm::modloader

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ui::windows
+namespace sm::ui::windows
 {
 void DropTarget();
 void Installer();
@@ -10,4 +10,4 @@ void Main();
 void TextureViewer();
 void AnimationViewer();
 void ModelViewer();
-} // namespace ui::windows
+} // namespace sm::ui::windows

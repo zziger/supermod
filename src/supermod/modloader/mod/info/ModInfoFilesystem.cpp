@@ -4,7 +4,9 @@
 #include <supermod/events/StartExecutionEvent.hpp>
 #include <supermod/sdk/DirectX.hpp>
 
-void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
+namespace sm::modloader
+{
+void ModInfoFilesystem::FromPath(const std::filesystem::path& path)
 {
     if (!exists(path))
         throw ModFileError("Папка мода не найдена по пути " + path.string());
@@ -20,7 +22,7 @@ void modloader::ModInfoFilesystem::FromPath(const std::filesystem::path& path)
     UpdateIcon();
 }
 
-void modloader::ModInfoFilesystem::UpdateIcon()
+void ModInfoFilesystem::UpdateIcon()
 {
     const auto id = GetID();
     if (!id.empty() && *sdk::DirectX::d3dDevice && exists(basePath / ICON_FILENAME))
@@ -32,7 +34,8 @@ void modloader::ModInfoFilesystem::UpdateIcon()
     }
 }
 
-void modloader::ModInfoFilesystem::OpenFolder() const
+void ModInfoFilesystem::OpenFolder() const
 {
     ShellExecuteW(nullptr, L"explore", basePath.wstring().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 }
+} // namespace sm::modloader

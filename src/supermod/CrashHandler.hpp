@@ -63,6 +63,8 @@ static LONG WINAPI set_exception_filter(LPTOP_LEVEL_EXCEPTION_FILTER)
 
 inline void InitCrashHandler()
 {
+    using namespace sm;
+
     const auto folder = sdk::Game::GetRootPath() / "crashdumps";
     const auto filePrefix = std::format("{}-", sdk::Game::GetGameVersion());
     dumpsPath = (folder / filePrefix).wstring();

@@ -7,6 +7,8 @@
 #include <supermod/game/textures/TextureLoader.hpp>
 #include <supermod/sdk/DirectX.hpp>
 
+namespace sm::game::loaders
+{
 class JpgLoader
 {
     struct mem_src_mgr
@@ -197,3 +199,4 @@ public:
                                                     textureData->data());
     }
 };
+} // namespace sm::game::loaders

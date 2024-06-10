@@ -6,6 +6,8 @@
 #include <supermod/sdk/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
+namespace sm::modloader
+{
 STDMETHODIMP ZipModDropTarget::QueryInterface(REFIID riid, void** ppv)
 {
     if (IsEqualIID(riid, IID_IDropTarget) || IsEqualIID(riid, IID_IUnknown))
@@ -107,3 +109,4 @@ HRESULT ZipModDropTarget::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
     ReleaseStgMedium(&stgMedium);
     return S_OK;
 }
+} // namespace sm::modloader

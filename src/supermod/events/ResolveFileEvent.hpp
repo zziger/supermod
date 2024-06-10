@@ -6,6 +6,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Game.hpp>
 
+namespace sm
+{
 struct ResolveFileEvent final : IEvent<"resolveFile", ResolveFileEvent>
 {
     const std::filesystem::path absolutePath;
@@ -160,3 +162,4 @@ inline EventManager::Ready $resolve_file_event_hook([] {
     HookManager::RegisterHook("55 8B EC 68 ? ? ? ? 8B 45 ? 50 E8", HOOK_REF(load_music));
     HookManager::RegisterHook("6A ? FF 74 24 ? FF 74 24 ? E8 ? ? ? ? 83 C4 ? C3 CC", HOOK_REF(fopen_));
 });
+} // namespace sm

@@ -2,6 +2,9 @@
 #include <semver/semver.hpp>
 #include <supermod/utils/VersionRange.hpp>
 
+using namespace sm;
+using namespace sm::utils;
+
 TEST(VersionRange, ShouldCheckRangesCorrectly)
 {
     const auto range = VersionRange::Parse(">1.0.0 <2.0.0 || =3.0.0 || >=4.0.0");

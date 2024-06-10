@@ -9,6 +9,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Graphics.hpp>
 
+using namespace sm;
+
 game::Animation*(__thiscall* animation_pool_get_orig)(game::AnimationPool* this_, char* name) = nullptr;
 game::Animation* __fastcall animation_pool_get(game::AnimationPool* this_, void*, char* name)
 {

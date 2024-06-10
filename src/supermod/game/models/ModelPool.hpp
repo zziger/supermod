@@ -4,7 +4,7 @@
 #include <d3d8/d3d8.hpp>
 #include <supermod/Utils.hpp>
 
-namespace game
+namespace sm::game
 {
 struct Model
 {
@@ -48,4 +48,4 @@ public:
 };
 
 ENSURE_SIZE(ModelPool, 0x808);
-} // namespace game
+} // namespace sm::game

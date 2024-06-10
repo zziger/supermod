@@ -5,7 +5,7 @@
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 
-namespace ui::widgets
+namespace sm::ui::widgets
 {
 void ProgressBar(float fraction, const ImVec2& sizeArg = ImVec2(-FLT_MIN, 0), const char* overlay = nullptr);
 void Tooltip(const char* text, ImGuiHoveredFlags flags = ImGuiHoveredFlags_None);
@@ -24,4 +24,4 @@ void Status(const std::shared_ptr<modloader::Mod>& mod);
 void InfoBlock(const std::shared_ptr<modloader::ModInfo>& modInfo);
 bool Description(const std::shared_ptr<modloader::ModInfo>& modInfo);
 } // namespace mods
-} // namespace ui::widgets
+} // namespace sm::ui::widgets

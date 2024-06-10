@@ -6,7 +6,7 @@
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 #include <utility>
 
-namespace modloader
+namespace sm::modloader
 {
 class LuaScriptRuntime : public std::enable_shared_from_this<LuaScriptRuntime>
 {
@@ -118,4 +118,4 @@ public:
 private:
     static inline std::weak_ptr<LuaScriptRuntime> instance;
 };
-} // namespace modloader
+} // namespace sm::modloader

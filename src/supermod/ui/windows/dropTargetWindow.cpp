@@ -6,7 +6,7 @@
 #include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::windows::DropTarget()
+void sm::ui::windows::DropTarget()
 {
     if (modloader::ModInstaller::GetDropTarget().state)
     {

@@ -3,6 +3,8 @@
 
 #include <supermod/sdk/Game.hpp>
 
+namespace sm
+{
 class Config
 {
     const std::filesystem::path path = sdk::Game::GetRootPath() / "modcfg.yml";
@@ -142,3 +144,4 @@ public:
         table["__configSave"] = sol::nil;
     }
 };
+} // namespace sm

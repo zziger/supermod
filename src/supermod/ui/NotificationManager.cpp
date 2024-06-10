@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <supermod/ui/Ui.hpp>
 
-namespace ui
+namespace sm::ui
 {
 std::string Notification::GetHeaderText() const
 {
@@ -137,4 +137,4 @@ void NotificationManager::Notify(const std::string& message, const Notification:
         logLevel = spdlog::level::warn;
     spdlog::log(logLevel, "Notification: {} {}", message, !header.empty() ? std::format("({})", header) : "");
 }
-} // namespace ui
+} // namespace sm::ui

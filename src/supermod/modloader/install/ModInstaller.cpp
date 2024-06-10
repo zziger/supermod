@@ -12,7 +12,9 @@
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/utils/TempManager.hpp>
 
-void modloader::ModInstaller::Init()
+namespace sm::modloader
+{
+void ModInstaller::Init()
 {
     EventManager::On<D3dInitEvent>([] {
         if (FAILED(OleInitialize(nullptr)))
@@ -23,7 +25,7 @@ void modloader::ModInstaller::Init()
     });
 }
 
-void modloader::ModInstaller::ScanCmdline()
+void ModInstaller::ScanCmdline()
 {
     const auto cmdline = GetCommandLineW();
     int argvCount = 0;
@@ -37,8 +39,7 @@ void modloader::ModInstaller::ScanCmdline()
     }
 }
 
-std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info,
-                                                                    const std::filesystem::path& path)
+std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path)
 {
     auto mod = ModManager::FindModByID(info->GetID());
     if (!mod)
@@ -70,7 +71,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
     }
 
     mod->Toggle(false);
-    const auto tempFile = TempManager::GetTempDir(false);
+    const auto tempFile = utils::TempManager::GetTempDir(false);
     std::filesystem::rename(infoFilesystem->basePath, tempFile);
 
     try
@@ -78,7 +79,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
         std::filesystem::rename(path, infoFilesystem->basePath);
         ModManager::ReloadMod(mod);
         mod->Toggle(true);
-        TempManager::RemoveTempDir(tempFile);
+        utils::TempManager::RemoveTempDir(tempFile);
     }
     catch (const std::exception& err)
     {
@@ -91,7 +92,7 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
             if (exists(infoFilesystem->basePath))
                 remove_all(infoFilesystem->basePath);
             std::filesystem::rename(tempFile, infoFilesystem->basePath);
-            TempManager::RemoveTempDir(path);
+            utils::TempManager::RemoveTempDir(path);
         }
         catch (const std::exception& errInner)
         {
@@ -105,3 +106,4 @@ std::shared_ptr<modloader::Mod> modloader::ModInstaller::InstallMod(const std::s
 
     return mod;
 }
+} // namespace sm::modloader

@@ -2,7 +2,7 @@
 #include <IconsMaterialDesign.h>
 #include <supermod/modloader/mod/states/ModState.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModStateWaitingDependenciesLoad final : public ModState
 {
@@ -16,4 +16,4 @@ public:
 private:
     static bool Check(const Mod& mod);
 };
-} // namespace modloader
+} // namespace sm::modloader

@@ -16,6 +16,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Graphics.hpp>
 
+using namespace sm;
+
 static float squarify_dimensions_algorithm(const int a1)
 {
     float v3 = 1;

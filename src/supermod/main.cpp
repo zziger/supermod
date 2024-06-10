@@ -31,6 +31,8 @@
 #include <supermod/ui/UI.hpp>
 #include <supermod/utils/TempManager.hpp>
 
+using namespace sm;
+
 void InitMemory()
 {
     const auto base = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
@@ -48,7 +50,7 @@ void PostInit()
     modloader::ModFileResolver::Init();
     EventManager::Emit(ReadyEvent());
     if (Config::Get().updater.checkAutomatically)
-        UpdateManager::CheckForUpdates();
+        update::UpdateManager::CheckForUpdates();
 }
 
 HOOK_FN(int, load_game, ARGS())
@@ -104,7 +106,7 @@ void Init()
     MH_Initialize();
     sdk::Game::Init();
     game::AssetPool::Init();
-    TempManager::Init();
+    utils::TempManager::Init();
 
     hook_start_execution();
 

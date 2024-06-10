@@ -9,7 +9,7 @@
 #include <supermod/sdk/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::windows::main::SettingsView()
+void sm::ui::windows::main::SettingsView()
 {
     auto& cfg = Config::Get();
 
@@ -18,7 +18,7 @@ void ui::windows::main::SettingsView()
 
     ImGui::SeparatorText("Обновления");
 
-    UpdateManager::RenderMessage();
+    update::UpdateManager::RenderMessage();
     ImGui::Spacing();
     if (ImGui::Checkbox("Проверять автоматически", &cfg.updater.checkAutomatically))
         cfg.Save();

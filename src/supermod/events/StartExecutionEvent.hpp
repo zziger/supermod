@@ -6,6 +6,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
 
+namespace sm
+{
 struct StartExecutionEvent final : IEvent<"startExecution", StartExecutionEvent>
 {
 };
@@ -21,3 +23,4 @@ inline void hook_start_execution()
 {
     HookManager::RegisterHook("55 8B EC 51 8B 45 ? 50 6A ? 6A ? FF 15", HOOK_REF(can_start_game));
 }
+} // namespace sm

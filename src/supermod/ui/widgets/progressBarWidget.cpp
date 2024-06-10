@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-void ui::widgets::ProgressBar(const float fraction, const ImVec2& sizeArg, const char* overlay)
+void sm::ui::widgets::ProgressBar(const float fraction, const ImVec2& sizeArg, const char* overlay)
 {
     const auto window = ImGui::GetCurrentWindow();
     const auto& g = *GImGui;

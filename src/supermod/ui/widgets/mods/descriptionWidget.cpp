@@ -23,7 +23,7 @@ static inline std::map<std::string, std::string> LINK_ICONS = {
     {"steam", ICON_FA_STEAM},
 };
 
-bool ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& modInfo)
+bool sm::ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& modInfo)
 {
     if (!modInfo->description.empty() || !modInfo->socialLinks.empty())
     {
@@ -48,7 +48,7 @@ bool ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& m
             first = false;
 
             if (ImGui::Button(icon.c_str(), ImVec2(Ui::ScaledPx(38), Ui::ScaledPx(38))))
-                ShellExecuteW(nullptr, L"open", ::utils::str_to_wstr(link).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+                ShellExecuteW(nullptr, L"open", utils::str_to_wstr(link).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
         }
 
         ImGui::PopStyleColor();

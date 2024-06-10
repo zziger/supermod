@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <supermod/modloader/mod/Mod.hpp>
 
-class ModImplMock : public modloader::ModImpl
+class ModImplMock : public sm::modloader::ModImpl
 {
 public:
     MOCK_METHOD(void, OnEnabled, (), (override));

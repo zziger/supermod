@@ -5,6 +5,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/Memory.hpp>
 
+using namespace sm;
+
 constexpr int limit = 127;
 
 static char persNames[limit * 64 * 2];

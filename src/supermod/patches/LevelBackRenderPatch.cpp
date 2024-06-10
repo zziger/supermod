@@ -10,6 +10,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
 
+using namespace sm;
+
 HOOK_FN(char, prepare_levelback_stuff, ARGS())
 {
     return 0;

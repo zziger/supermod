@@ -9,6 +9,8 @@
 #include <supermod/sdk/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
+namespace sm
+{
 static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType)
 {
     switch (dwCtrlType)
@@ -168,3 +170,4 @@ void Console::AddToLua(const std::shared_ptr<spdlog::logger>& logger, sol::table
     log["critical"] = sol::as_function([logger](const std::string& msg) { logger->critical(msg); });
     log["game"] = sol::as_function([logger](const std::string& msg) { logger->info(msg); }); // TODO: deprecate
 }
+} // namespace sm

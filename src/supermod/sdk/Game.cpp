@@ -12,7 +12,7 @@
 #include <supermod/memory/Memory.hpp>
 #include <supermod/sdk/DirectX.hpp>
 
-namespace sdk
+namespace sm::sdk
 {
 void Game::Init()
 {
@@ -205,4 +205,4 @@ std::tuple<vector2, bool> Game::World::WorldToScreen(vector2 coords)
 
     return {pos, onScreen};
 }
-} // namespace sdk
+} // namespace sm::sdk

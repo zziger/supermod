@@ -7,6 +7,8 @@
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/modloader/mod/impl/ModImpl.hpp>
 
+namespace sm::mod
+{
 class ModImplInternal final : public modloader::ModImpl
 {
     ForwardGameLogsModule forward_game_logs_module;
@@ -19,3 +21,4 @@ public:
 
     static std::shared_ptr<modloader::Mod> CreateMod();
 };
+} // namespace sm::mod

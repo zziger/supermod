@@ -7,7 +7,7 @@
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 #include <supermod/sdk/DirectX.hpp>
 
-namespace sdk
+namespace sm::sdk
 {
 class Graphics
 {
@@ -39,4 +39,4 @@ public:
                                              void(vector2, vector2)>([](auto... args) { Graphics::Render(args...); });
     }
 };
-} // namespace sdk
+} // namespace sm::sdk

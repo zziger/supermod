@@ -12,6 +12,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Game.hpp>
 
+using namespace sm;
+
 HOOK_FN(inline void, editor_leave_fullscreen, ARGS())
 {
     editor_leave_fullscreen_orig();

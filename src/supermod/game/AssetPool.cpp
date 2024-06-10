@@ -11,7 +11,10 @@
 #include <supermod/sdk/DirectX.hpp>
 #include <supermod/sdk/Game.hpp>
 
-namespace game
+using namespace sm::utils;
+using namespace sm::game::loaders;
+
+namespace sm::game
 {
 void Asset::ReplaceTexture(IDirect3DTexture8* tex)
 {
@@ -455,4 +458,4 @@ std::string AssetPool::MakeAssetKeyUnique(const std::string& key) const
         i++;
     }
 }
-} // namespace game
+} // namespace sm::game

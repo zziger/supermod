@@ -11,6 +11,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
 
+using namespace sm;
+
 static inline int* isPaused;
 
 HOOK_FN(inline int, render_editor, ARGS())

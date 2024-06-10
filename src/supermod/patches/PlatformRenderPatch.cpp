@@ -7,6 +7,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
 
+using namespace sm;
+
 inline void(__thiscall* render_platform_orig)(void*) = nullptr;
 inline void __fastcall render_platform(void* this_, void*)
 {

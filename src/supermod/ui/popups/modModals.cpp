@@ -6,7 +6,7 @@
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/styles/styles.hpp>
 
-void ui::popups::ModModals(const std::shared_ptr<modloader::Mod>& mod)
+void sm::ui::popups::ModModals(const std::shared_ptr<modloader::Mod>& mod)
 {
     ImGui::PushOverrideID(Ui::GetModalsId(mod));
     Ui::FixNextPopupModal();

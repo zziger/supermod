@@ -6,7 +6,7 @@
 #include <supermod/game/AssetPool.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::windows::TextureViewer()
+void sm::ui::windows::TextureViewer()
 {
     static auto pool = game::AssetPool::Instance();
     const auto& io = ImGui::GetIO();

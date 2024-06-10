@@ -6,7 +6,9 @@
 #include <supermod/modloader/mod/states/ModStateDisabled.hpp>
 #include <utility>
 
-modloader::Mod::Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& impl)
+namespace sm::modloader
+{
+Mod::Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& impl)
     : info(std::move(info)),
       impl(std::move(impl)),
       state(std::make_unique<ModStateDisabled>())
@@ -17,13 +19,13 @@ modloader::Mod::Mod(std::shared_ptr<ModInfo> info, std::unique_ptr<ModImpl>&& im
     this->state->Init(*this);
 }
 
-void modloader::Mod::SetInfo(const std::shared_ptr<ModInfo>& newInfo)
+void Mod::SetInfo(const std::shared_ptr<ModInfo>& newInfo)
 {
     assert(info->GetID() == newInfo->GetID() && "Tried to set info with different ID");
     info = newInfo;
 }
 
-void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
+void Mod::SetState(std::unique_ptr<ModState>&& state)
 {
     assert(state && "Tried to set empty state pointer to mod");
 
@@ -35,7 +37,7 @@ void modloader::Mod::SetState(std::unique_ptr<ModState>&& state)
     lastStateUpdate = std::chrono::steady_clock::now();
 }
 
-void modloader::Mod::Toggle(const bool value)
+void Mod::Toggle(const bool value)
 {
     loadingError = "";
     if (!HasFlag(Flag::INTERNAL))
@@ -44,13 +46,14 @@ void modloader::Mod::Toggle(const bool value)
     SetFlag(Flag::ENABLED, value);
 }
 
-void modloader::Mod::Update()
+void Mod::Update()
 {
     state->Update(*this);
 }
 
-void modloader::Mod::Tick() const
+void Mod::Tick() const
 {
     if (IsActive())
         impl->OnTick();
 }
+} // namespace sm::modloader

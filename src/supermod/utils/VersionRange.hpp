@@ -3,6 +3,8 @@
 
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
+namespace sm::utils
+{
 class VersionRange
 {
 public:
@@ -192,3 +194,4 @@ private:
 
     std::vector<ConditionGroup> conditionGroups;
 };
+} // namespace sm::utils

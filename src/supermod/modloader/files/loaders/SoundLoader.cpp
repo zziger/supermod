@@ -6,7 +6,7 @@
 #include <supermod/modloader/files/ModFileResolver.hpp>
 #include <supermod/sdk/Game.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 bool SoundLoader::Load(const std::filesystem::path& path)
 {
@@ -46,4 +46,4 @@ bool SoundLoader::Load(const std::filesystem::path& path)
     spdlog::debug("Reloaded sound {}", filename);
     return true;
 }
-} // namespace modloader
+} // namespace sm::modloader

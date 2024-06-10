@@ -5,7 +5,7 @@
 #include <supermod/modloader/install/ZipModDropTarget.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModInstaller
 {
@@ -31,4 +31,4 @@ public:
 
     static std::shared_ptr<Mod> InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path);
 };
-} // namespace modloader
+} // namespace sm::modloader

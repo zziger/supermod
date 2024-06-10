@@ -11,7 +11,7 @@
 #include <supermod/sdk/DirectX.hpp>
 #include <supermod/sdk/Game.hpp>
 
-namespace dx_utils
+namespace sm::dx_utils
 {
 
 void force_render_tick()
@@ -31,4 +31,4 @@ void force_render_tick()
         DispatchMessageA(&msg);
     }
 }
-} // namespace dx_utils
+} // namespace sm::dx_utils

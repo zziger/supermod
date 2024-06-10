@@ -3,7 +3,7 @@
 
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModInstallRequest
 {
@@ -33,4 +33,4 @@ public:
     virtual void Install() = 0;
     virtual void Cancel() {}
 };
-} // namespace modloader
+} // namespace sm::modloader

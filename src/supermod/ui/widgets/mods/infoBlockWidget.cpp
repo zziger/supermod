@@ -3,7 +3,7 @@
 
 #include <supermod/ui/Ui.hpp>
 
-void ui::widgets::mods::InfoBlock(const std::shared_ptr<modloader::ModInfo>& modInfo)
+void sm::ui::widgets::mods::InfoBlock(const std::shared_ptr<modloader::ModInfo>& modInfo)
 {
     ImGui::Dummy({Ui::ScaledPx(60), Ui::ScaledPx(60)});
     ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), 0x22FFFFFF);

@@ -3,7 +3,7 @@
 
 #include <supermod/modloader/ModManager.hpp>
 
-std::shared_ptr<modloader::Mod> ui::widgets::mods::Reference(
+std::shared_ptr<sm::modloader::Mod> sm::ui::widgets::mods::Reference(
     const std::string& modId, const std::optional<modloader::ModInfo::Dependency>& dependency)
 {
     auto mod = modloader::ModManager::FindModByID(modId);

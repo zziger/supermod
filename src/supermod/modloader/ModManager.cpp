@@ -18,12 +18,14 @@
 #include <supermod/sdk/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
-void modloader::ModManager::Init()
+namespace sm::modloader
+{
+void ModManager::Init()
 {
     if (!exists(sdk::Game::GetModsPath()))
         create_directories(sdk::Game::GetModsPath());
 
-    AddInternalMod(ModImplInternal::CreateMod());
+    AddInternalMod(mod::ModImplInternal::CreateMod());
 
     ScanMods(true);
     SaveConfig();
@@ -33,7 +35,7 @@ void modloader::ModManager::Init()
     EventManager::On<BeforeTickEvent>([] { Tick(); });
 }
 
-void modloader::ModManager::ScanMods(const bool init)
+void ModManager::ScanMods(const bool init)
 {
     const auto modsPath = sdk::Game::GetModsPath();
     if (!exists(modsPath))
@@ -140,7 +142,7 @@ void modloader::ModManager::ScanMods(const bool init)
     }
 }
 
-void modloader::ModManager::Tick()
+void ModManager::Tick()
 {
     UpdateStates();
 
@@ -158,14 +160,14 @@ void modloader::ModManager::Tick()
     UpdateRemovedMods();
 }
 
-std::shared_ptr<modloader::Mod> modloader::ModManager::FindModByID(const std::string& id)
+std::shared_ptr<Mod> ModManager::FindModByID(const std::string& id)
 {
     if (!mods_map.contains(id))
         return nullptr;
     return mods_map[id];
 }
 
-const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetModDependents(const std::string& id)
+const std::vector<std::shared_ptr<Mod>>& ModManager::GetModDependents(const std::string& id)
 {
     static constexpr std::vector<std::shared_ptr<Mod>> empty{};
     if (!dependent_mods.contains(id))
@@ -173,7 +175,7 @@ const std::vector<std::shared_ptr<modloader::Mod>>& modloader::ModManager::GetMo
     return dependent_mods[id];
 }
 
-void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
+void ModManager::AddMod(const std::shared_ptr<Mod>& mod)
 {
     mods.push_back(mod);
     mods_map[mod->GetInfo()->GetID()] = mod;
@@ -182,7 +184,7 @@ void modloader::ModManager::AddMod(const std::shared_ptr<Mod>& mod)
     SaveConfig();
 }
 
-std::shared_ptr<modloader::Mod> modloader::ModManager::CreateMod(const std::filesystem::path& modPath)
+std::shared_ptr<Mod> ModManager::CreateMod(const std::filesystem::path& modPath)
 {
     if (!is_directory(modPath))
         throw Error(std::format("Path {} is not a directory", modPath.string()));
@@ -207,7 +209,7 @@ std::shared_ptr<modloader::Mod> modloader::ModManager::CreateMod(const std::file
     return std::make_shared<Mod>(modInfo, std::move(info));
 }
 
-void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList)
+void ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList)
 {
     mods.erase(std::ranges::remove_if(mods,
                                       [](const std::shared_ptr<Mod>& mod) {
@@ -244,7 +246,7 @@ void modloader::ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& 
     }
 }
 
-void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
+void ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
 {
     assert(newMods.size() == mods.size() && std::ranges::is_permutation(mods, newMods) &&
            "Reordered mods list is different from mods list");
@@ -254,7 +256,7 @@ void modloader::ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>&
     SaveConfig();
 }
 
-void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled)
+void ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled)
 {
     const auto state = mod->IsEnabled();
     if (state == enabled)
@@ -297,7 +299,7 @@ void modloader::ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enab
     SaveConfig();
 }
 
-void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, const bool remove)
+void ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, const bool remove)
 {
     if (remove)
         ToggleMod(mod, false);
@@ -306,7 +308,7 @@ void modloader::ModManager::ScheduleModRemoval(const std::shared_ptr<Mod>& mod, 
     SaveConfig(mod);
 }
 
-void modloader::ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
+void ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
 {
     const auto info = std::dynamic_pointer_cast<ModInfoFilesystem>(mod->GetInfo());
     if (!info)
@@ -318,7 +320,7 @@ void modloader::ModManager::ReloadMod(const std::shared_ptr<Mod>& mod)
     UpdateDeps();
 }
 
-void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
+void ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 {
     if (mod->HasFlag(Mod::Flag::INTERNAL))
         return;
@@ -332,7 +334,7 @@ void modloader::ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
     Config::Get().Save();
 }
 
-void modloader::ModManager::UpdateStates()
+void ModManager::UpdateStates()
 {
     uint8_t tickCounter = 0;
     do
@@ -350,7 +352,7 @@ void modloader::ModManager::UpdateStates()
                      tickCounter);
 }
 
-void modloader::ModManager::UpdateDeps()
+void ModManager::UpdateDeps()
 {
     dependent_mods.clear();
 
@@ -366,7 +368,7 @@ void modloader::ModManager::UpdateDeps()
     }
 }
 
-void modloader::ModManager::UpdateRemovedMods()
+void ModManager::UpdateRemovedMods()
 {
     std::vector<std::shared_ptr<Mod>> removalList{};
     for (const auto& mod : mods)
@@ -379,14 +381,14 @@ void modloader::ModManager::UpdateRemovedMods()
         RemoveMods(removalList);
 }
 
-void modloader::ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)
+void ModManager::AddInternalMod(const std::shared_ptr<Mod>& mod)
 {
     internal_mods.push_back(mod);
     mods_map[mod->GetInfo()->GetID()] = mod;
     mod->SetFlag(Mod::Flag::EXISTS);
 }
 
-void modloader::ModManager::ValidateConfig()
+void ModManager::ValidateConfig()
 {
     auto& cfg = Config::GetYaml();
 
@@ -400,7 +402,7 @@ void modloader::ModManager::ValidateConfig()
     Config::Get().Save();
 }
 
-void modloader::ModManager::SaveConfig()
+void ModManager::SaveConfig()
 {
     ValidateConfig();
 
@@ -422,7 +424,7 @@ void modloader::ModManager::SaveConfig()
     Config::Get().Save();
 }
 
-void modloader::ModManager::PopulateConfig(const std::shared_ptr<Mod>& mod, YAML::Node&& node)
+void ModManager::PopulateConfig(const std::shared_ptr<Mod>& mod, YAML::Node&& node)
 {
     node["enabled"] = mod->IsEnabled();
 
@@ -433,9 +435,10 @@ void modloader::ModManager::PopulateConfig(const std::shared_ptr<Mod>& mod, YAML
 }
 
 #ifdef UNIT_TESTS
-void modloader::ModManager::Reset()
+void ModManager::Reset()
 {
     mods.clear();
     mods_map.clear();
 }
 #endif
+} // namespace sm::modloader

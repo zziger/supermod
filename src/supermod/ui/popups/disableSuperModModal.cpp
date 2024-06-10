@@ -7,7 +7,7 @@
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/styles/styles.hpp>
 
-void ui::popups::DisableSuperMod(const bool restart)
+void sm::ui::popups::DisableSuperMod(const bool restart)
 {
     Ui::FixNextPopupModal();
     if (ImGui::BeginPopupModal("Выключение SuperMod###Disable SuperMod", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -40,7 +40,7 @@ void ui::popups::DisableSuperMod(const bool restart)
     }
 }
 
-void ui::popups::open::DisableSuperMod()
+void sm::ui::popups::open::DisableSuperMod()
 {
     ImGui::OpenPopup("###Disable SuperMod");
 }

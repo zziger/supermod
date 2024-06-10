@@ -1,6 +1,8 @@
 #pragma once
 #include <supermod/pch.hpp>
 
+namespace sm
+{
 struct vector3
 {
     float x;
@@ -103,3 +105,4 @@ struct Command
     std::vector<std::string> args;
     std::string rawArgs;
 };
+} // namespace sm

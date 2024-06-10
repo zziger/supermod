@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <supermod/pch.hpp>
 
-namespace game
+namespace sm::game
 {
 struct LocalizedString
 {
@@ -17,4 +17,4 @@ public:
 
     static LocalizedStringPool* GetInstance();
 };
-} // namespace game
+} // namespace sm::game

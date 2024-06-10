@@ -7,7 +7,7 @@
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
+void sm::ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
 {
     if (ImGui::MenuItem(mod->IsEnabled() ? ICON_MD_POWER_SETTINGS_NEW " Выключить"
                                          : ICON_MD_POWER_SETTINGS_NEW "Включить"))

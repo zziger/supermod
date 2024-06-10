@@ -8,6 +8,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Game.hpp>
 
+using namespace sm;
+
 inline int(__thiscall* update_load_orig)(void* this_, int a2);
 inline int __fastcall update_load(void* this_, void*, int a2)
 {

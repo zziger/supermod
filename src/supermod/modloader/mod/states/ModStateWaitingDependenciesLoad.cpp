@@ -9,13 +9,15 @@
 
 using namespace std::chrono;
 
-void modloader::ModStateWaitingDependenciesLoad::Init(Mod& mod)
+namespace sm::modloader
+{
+void ModStateWaitingDependenciesLoad::Init(Mod& mod)
 {
     if (Check(mod))
         mod.SetState<ModStateEnabled>();
 }
 
-void modloader::ModStateWaitingDependenciesLoad::Update(Mod& mod)
+void ModStateWaitingDependenciesLoad::Update(Mod& mod)
 {
     if (!mod.IsEnabled())
     {
@@ -27,7 +29,7 @@ void modloader::ModStateWaitingDependenciesLoad::Update(Mod& mod)
         mod.SetState<ModStateEnabled>();
 }
 
-std::string modloader::ModStateWaitingDependenciesLoad::GetIcon()
+std::string ModStateWaitingDependenciesLoad::GetIcon()
 {
     auto animatedIcon = ICON_MD_HOURGLASS_TOP;
     if (duration_cast<seconds>(system_clock::now().time_since_epoch()).count() % 2 == 0)
@@ -36,7 +38,7 @@ std::string modloader::ModStateWaitingDependenciesLoad::GetIcon()
     return std::string(ICON_MD_FORMAT_LIST_BULLETED) + animatedIcon;
 }
 
-bool modloader::ModStateWaitingDependenciesLoad::Check(const Mod& mod)
+bool ModStateWaitingDependenciesLoad::Check(const Mod& mod)
 {
     auto deps = mod.GetInfo()->dependencies;
     if (deps.empty())
@@ -46,3 +48,4 @@ bool modloader::ModStateWaitingDependenciesLoad::Check(const Mod& mod)
         return mod && mod->IsActive() && dependency.version.Match(mod->GetInfo()->version);
     });
 }
+} // namespace sm::modloader

@@ -5,7 +5,7 @@
 #include <supermod/Config.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::windows::Watermark()
+void sm::ui::windows::Watermark()
 {
     const auto& cfg = Config::Get().watermark;
     if (!cfg.show)

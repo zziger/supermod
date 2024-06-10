@@ -3,7 +3,7 @@
 
 #include <imgui.h>
 
-void ui::widgets::Tooltip(const char* text, ImGuiHoveredFlags flags)
+void sm::ui::widgets::Tooltip(const char* text, ImGuiHoveredFlags flags)
 {
     constexpr auto anyDelay =
         ImGuiHoveredFlags_DelayNone | ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_DelayNormal;

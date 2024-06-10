@@ -1,5 +1,6 @@
 #include <supermod/modloader/install/ModInstallRequestDiscover.hpp>
-namespace modloader
+
+namespace sm::modloader
 {
 void ModInstallRequestDiscover::Install()
 {
@@ -11,4 +12,4 @@ void ModInstallRequestDiscover::Cancel()
 {
     finished = true;
 }
-} // namespace modloader
+} // namespace sm::modloader

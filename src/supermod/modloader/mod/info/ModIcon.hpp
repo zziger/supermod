@@ -5,7 +5,7 @@
 #include <supermod/data.hpp>
 #include <supermod/game/AssetPool.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 struct ModIcon
 {
@@ -15,4 +15,4 @@ struct ModIcon
     void Draw(ImDrawList* drawList, const ImVec2& from, const ImVec2& to, ImU32 color = IM_COL32_WHITE) const;
     void Draw(const ImVec2& imageSize) const;
 };
-} // namespace modloader
+} // namespace sm::modloader

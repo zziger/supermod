@@ -12,6 +12,8 @@
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/sdk/Game.hpp>
 
+using namespace sm;
+
 static Memory fillOutGrounds;
 static Memory readGrounds;
 static Memory fillOutLimit;

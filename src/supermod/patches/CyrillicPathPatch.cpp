@@ -10,6 +10,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
 
+using namespace sm;
+
 BOOL(__stdcall* SetCurrentDirectoryAOrig)(LPCSTR lpPathName) = nullptr;
 BOOL __stdcall SetCurrentDirectoryAHook(LPCSTR lpPathName)
 {

@@ -9,7 +9,7 @@
 #include <supermod/ui/styles/styles.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
 
-void ui::windows::Installer()
+void sm::ui::windows::Installer()
 {
     const auto requests = modloader::ModInstaller::GetInstallRequests();
     if (requests.empty())

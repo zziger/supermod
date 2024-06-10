@@ -3,6 +3,8 @@
 
 #include <supermod/memory/HookManager.hpp>
 
+namespace sm::mod
+{
 class ForwardGameLogsModule
 {
 public:
@@ -17,3 +19,4 @@ private:
     void OnLoad();
     void OnUnload();
 };
+} // namespace sm::mod

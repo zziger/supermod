@@ -7,7 +7,7 @@
 #include <supermod/memory/Memory.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
-namespace game
+namespace sm::game
 {
 struct AssetMeta
 {
@@ -147,4 +147,4 @@ public:
                 [inst](auto... args) { return inst->LoadAsset(args...); });
     }
 };
-} // namespace game
+} // namespace sm::game

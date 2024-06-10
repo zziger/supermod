@@ -3,7 +3,7 @@
 
 #include "BaseLoader.hpp"
 
-namespace modloader
+namespace sm::modloader
 {
 class TextureLoader final : public BaseLoader
 {
@@ -11,4 +11,4 @@ class TextureLoader final : public BaseLoader
 
     [[nodiscard]] std::vector<std::string> GetExtensions() const override { return {".jpg", ".jpeg", ".png", ".tga"}; }
 };
-} // namespace modloader
+} // namespace sm::modloader

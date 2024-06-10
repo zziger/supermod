@@ -3,6 +3,8 @@
 
 #include <random>
 
+namespace sm::utils
+{
 class TempManager
 {
     static inline std::mt19937 rand{}; // NOLINT(*-msc51-cpp)
@@ -21,3 +23,4 @@ public:
 
     static void Cleanup();
 };
+} // namespace sm::utils

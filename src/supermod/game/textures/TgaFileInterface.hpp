@@ -3,6 +3,8 @@
 
 #include <tga.h>
 
+namespace sm::game::loaders
+{
 class TgaFileInterface final : public tga::FileInterface
 {
 public:
@@ -19,3 +21,4 @@ private:
     bool isOk = true;
     FILE* file = nullptr;
 };
+} // namespace sm::game::loaders

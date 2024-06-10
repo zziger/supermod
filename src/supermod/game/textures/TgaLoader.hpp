@@ -7,6 +7,8 @@
 #include <supermod/sdk/DirectX.hpp>
 #include <tga.h>
 
+namespace sm::game::loaders
+{
 class TgaLoader
 {
 
@@ -83,3 +85,4 @@ public:
                                                     textureData->data());
     }
 };
+} // namespace sm::game::loaders

@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <supermod/pch.hpp>
 
+namespace sm::game
+{
 struct Menu
 {
     wchar_t name[64];
@@ -9,8 +11,6 @@ struct Menu
     int (*render)();
 };
 
-namespace game
-{
 class MenuPool
 {
 public:
@@ -22,4 +22,4 @@ public:
     static MenuPool* GetInstance();
     Menu* GetByName(wchar_t* name);
 };
-} // namespace game
+} // namespace sm::game

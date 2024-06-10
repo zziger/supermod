@@ -5,7 +5,7 @@
 #include <supermod/game/animations/AnimationPool.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::windows::AnimationViewer()
+void sm::ui::windows::AnimationViewer()
 {
     static auto pool = game::AnimationPool::Instance();
     const auto& io = ImGui::GetIO();

@@ -3,6 +3,8 @@
 
 #include <supermod/sdk/Game.hpp>
 
+namespace sm::utils
+{
 std::filesystem::path TempManager::GetTempRoot()
 {
     return sdk::Game::GetRootPath() / TEMP_DIR;
@@ -63,3 +65,4 @@ void TempManager::Cleanup()
         remove_all(root);
     }
 }
+} // namespace sm::utils

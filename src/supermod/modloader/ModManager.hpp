@@ -5,7 +5,7 @@
 
 class ModloaderFixture;
 
-namespace modloader
+namespace sm::modloader
 {
 class ModManager
 {
@@ -68,4 +68,4 @@ private:
     friend class ModloaderFixture;
 #endif
 };
-} // namespace modloader
+} // namespace sm::modloader

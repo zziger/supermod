@@ -4,7 +4,7 @@
 #include <supermod/Utils.hpp>
 #include <supermod/data.hpp>
 
-namespace game
+namespace sm::game
 {
 struct Animation
 {
@@ -39,4 +39,4 @@ public:
 };
 
 ENSURE_SIZE(AnimationPool, 0x1008);
-} // namespace game
+} // namespace sm::game

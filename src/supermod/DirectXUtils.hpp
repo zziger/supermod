@@ -3,7 +3,7 @@
 
 #include <d3d8/d3d8helpers.h>
 
-namespace dx_utils
+namespace sm::dx_utils
 {
 LPDIRECT3DTEXTURE8 load_png(IDirect3DDevice8* device, const char* filename);
 LPDIRECT3DTEXTURE8 load_png_data(IDirect3DDevice8* device, const byte* data, int32_t size);
@@ -11,4 +11,4 @@ LPDIRECT3DTEXTURE8 load_argb_pixel_data(IDirect3DDevice8* device, uint32_t width
 LPDIRECT3DTEXTURE8 load_jpg(IDirect3DDevice8* device, const char* filename);
 bool get_image_dimensions(const std::string& filename, int& x, int& y);
 void force_render_tick();
-} // namespace dx_utils
+} // namespace sm::dx_utils

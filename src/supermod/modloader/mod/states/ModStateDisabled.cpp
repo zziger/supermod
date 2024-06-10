@@ -6,7 +6,9 @@
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/modloader/mod/states/ModStateWaitingDependenciesLoad.hpp>
 
-void modloader::ModStateDisabled::Init(Mod& mod)
+namespace sm::modloader
+{
+void ModStateDisabled::Init(Mod& mod)
 {
     mod.GetImpl()->OnDisabled();
 
@@ -17,9 +19,10 @@ void modloader::ModStateDisabled::Init(Mod& mod)
     }
 }
 
-void modloader::ModStateDisabled::Update(Mod& mod)
+void ModStateDisabled::Update(Mod& mod)
 {
     if (!mod.IsEnabled())
         return;
     mod.SetState<ModStateWaitingDependenciesLoad>();
 }
+} // namespace sm::modloader

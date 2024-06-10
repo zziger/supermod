@@ -8,7 +8,7 @@
 #include <supermod/ui/widgets/widgets.hpp>
 #include <supermod/ui/windows/main_views/views.hpp>
 
-namespace ui
+namespace sm::ui
 {
 bool SelectableIcon(const char* title, const char* icon, const bool selected)
 {
@@ -94,4 +94,4 @@ void windows::Main()
     }
     ImGui::End();
 }
-} // namespace ui
+} // namespace sm::ui

@@ -5,6 +5,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/WindowEvent.hpp>
 
+using namespace sm;
+
 inline EventManager::Ready $render_unfocused_patch([] {
     EventManager::On<WindowEvent>([](WindowEvent& evt) {
         if (evt.msg == WM_ACTIVATE && evt.wParam == WA_INACTIVE)

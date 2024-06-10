@@ -5,6 +5,8 @@
 #include <supermod/data.hpp>
 #include <supermod/exceptions/Error.hpp>
 
+namespace sm::game::loaders
+{
 class TextureLoader
 {
 public:
@@ -83,3 +85,4 @@ public:
         return LoadFromRgbaPixelData(device, size, canvasSizeMultiplier, data.data());
     }
 };
+} // namespace sm::game::loaders

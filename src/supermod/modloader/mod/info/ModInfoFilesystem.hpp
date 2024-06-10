@@ -3,7 +3,7 @@
 
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 struct ModInfoFilesystem final : ModInfo
 {
@@ -34,4 +34,4 @@ struct ModInfoFilesystem final : ModInfo
                                             sol::base_classes, sol::bases<ModInfo>());
     }
 };
-} // namespace modloader
+} // namespace sm::modloader

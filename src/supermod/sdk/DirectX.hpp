@@ -5,7 +5,7 @@
 #include <d3d9.h>
 #include <supermod/memory/Memory.hpp>
 
-namespace sdk
+namespace sm::sdk
 {
 class DirectX
 {
@@ -27,4 +27,4 @@ private:
     static inline std::vector<IDirect3DTexture8*> removedTextures;
     static void ReleaseRemovedTextures();
 };
-} // namespace sdk
+} // namespace sm::sdk

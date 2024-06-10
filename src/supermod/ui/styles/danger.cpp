@@ -5,19 +5,19 @@
 #include <supermod/Utils.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::styles::danger::PushStyle()
+void sm::ui::styles::danger::PushStyle()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, 0x993D3DFF_color);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xB33636FF_color);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, 0xCC2929FF_color);
 }
 
-void ui::styles::danger::PopStyle()
+void sm::ui::styles::danger::PopStyle()
 {
     ImGui::PopStyleColor(3);
 }
 
-void ui::styles::danger::BeginPanel(const char* id)
+void sm::ui::styles::danger::BeginPanel(const char* id)
 {
     ImGui::PushStyleColor(ImGuiCol_ChildBg, 0x993D3D52_color);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {Ui::ScaledPx(15), Ui::ScaledPx(10)});
@@ -26,7 +26,7 @@ void ui::styles::danger::BeginPanel(const char* id)
     PushStyle();
 }
 
-void ui::styles::danger::EndPanel()
+void sm::ui::styles::danger::EndPanel()
 {
     PopStyle();
     ImGui::PopTextWrapPos();
@@ -40,7 +40,7 @@ void ui::styles::danger::EndPanel()
                                               0x993D3DEE, Ui::ScaledPx(3));
 }
 
-void ui::styles::danger::PanelText(const char* text)
+void sm::ui::styles::danger::PanelText(const char* text)
 {
     BeginPanel(text);
     ImGui::Text(text);

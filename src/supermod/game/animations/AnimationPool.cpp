@@ -4,7 +4,7 @@
 #include <supermod/memory/Memory.hpp>
 #include <supermod/sdk/Game.hpp>
 
-namespace game
+namespace sm::game
 {
 Animation* AnimationPool::Get(const std::string& name)
 {
@@ -48,4 +48,4 @@ AnimationPool* AnimationPool::Instance()
     static auto mem = pat.Search();
     return *mem.Get<AnimationPool**>(1);
 }
-} // namespace game
+} // namespace sm::game

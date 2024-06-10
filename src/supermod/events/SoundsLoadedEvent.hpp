@@ -6,6 +6,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
 
+namespace sm
+{
 struct SoundsLoadedEvent final : IEvent<"soundsLoaded", SoundsLoadedEvent>
 {
 };
@@ -23,3 +25,4 @@ inline EventManager::Ready $sounds_loaded_event_hook([] {
     static auto mem = pat.Search().GoToNearCall();
     HookManager::RegisterHook(mem, HOOK_REF(load_sounds));
 });
+} // namespace sm

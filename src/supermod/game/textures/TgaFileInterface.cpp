@@ -1,5 +1,7 @@
 #include <supermod/game/textures/TgaFileInterface.hpp>
 
+namespace sm::game::loaders
+{
 TgaFileInterface::TgaFileInterface(const std::filesystem::path& path)
 {
     if (fopen_s(&file, path.string().c_str(), "rb"))
@@ -46,3 +48,4 @@ void TgaFileInterface::write8(const uint8_t value)
 {
     fputc(value, file);
 }
+} // namespace sm::game::loaders

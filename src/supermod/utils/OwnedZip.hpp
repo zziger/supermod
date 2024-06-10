@@ -1,6 +1,8 @@
 #pragma once
 #include <supermod/pch.hpp>
 
+namespace sm::utils
+{
 class OwnedZip
 {
 public:
@@ -20,3 +22,4 @@ public:
             std::filesystem::remove(path);
     }
 };
+} // namespace sm::utils

@@ -11,14 +11,14 @@
 #include <supermod/sdk/Game.hpp>
 #include <supermod/utils/TempManager.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 void ModInstallRequestZip::Install()
 {
     state = State::INSTALLING;
     error = "";
 
-    auto path = TempManager::GetTempDir();
+    auto path = utils::TempManager::GetTempDir();
 
     progress.show = true;
     progress.message = "Распаковка...";
@@ -65,14 +65,14 @@ void ModInstallRequestZip::Install()
                 catch (const std::exception& err)
                 {
                     spdlog::error("Failed to install zip mod: {}", err.what());
-                    TempManager::RemoveTempDir(path);
+                    utils::TempManager::RemoveTempDir(path);
                     error = err.what();
                     state = State::IDLE;
                 }
                 catch (...)
                 {
                     spdlog::error("Failed to install zip mod: Unknown error");
-                    TempManager::RemoveTempDir(path);
+                    utils::TempManager::RemoveTempDir(path);
                     error = "Unknown error";
                     state = State::IDLE;
                 }
@@ -111,7 +111,7 @@ std::vector<std::shared_ptr<ModInstallRequest>> ModInstallRequestZip::FromZip(co
                                                                               bool remove)
 {
     auto res = std::vector<std::shared_ptr<ModInstallRequest>>{};
-    auto zip = std::make_shared<OwnedZip>(path.string(), remove);
+    auto zip = std::make_shared<utils::OwnedZip>(path.string(), remove);
 
     for (auto& info : zip->zip->infolist())
     {
@@ -135,7 +135,7 @@ std::vector<std::shared_ptr<ModInstallRequest>> ModInstallRequestZip::FromZip(co
 
             const auto assetPool = game::AssetPool::Instance();
             vector2ui iconSize{};
-            if (const auto iconTex = PngLoader::LoadPngBuf(bytes, iconSize, {1, 1}))
+            if (const auto iconTex = game::loaders::PngLoader::LoadPngBuf(bytes, iconSize, {1, 1}))
             {
                 const auto asset = assetPool->LoadAsset(
                     iconTex, assetPool->MakeAssetKeyUnique("$mod:icon:" + modInfo->GetID()), false, iconSize);
@@ -148,4 +148,4 @@ std::vector<std::shared_ptr<ModInstallRequest>> ModInstallRequestZip::FromZip(co
 
     return res;
 }
-} // namespace modloader
+} // namespace sm::modloader

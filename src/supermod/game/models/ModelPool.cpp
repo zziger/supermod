@@ -4,7 +4,7 @@
 #include <supermod/memory/Memory.hpp>
 #include <supermod/sdk/Game.hpp>
 
-namespace game
+namespace sm::game
 {
 void Model::Free() const
 {
@@ -57,4 +57,4 @@ ModelPool* ModelPool::Instance()
     static auto mem = pat.Search();
     return *mem.Get<ModelPool**>(1);
 }
-} // namespace game
+} // namespace sm::game

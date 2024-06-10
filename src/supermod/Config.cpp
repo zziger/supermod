@@ -3,6 +3,8 @@
 
 #include <fstream>
 
+namespace sm
+{
 Config::Config()
 {
     if (exists(path))
@@ -25,3 +27,4 @@ void Config::Save()
     std::ofstream fstream(path);
     fstream << node;
 }
+} // namespace sm

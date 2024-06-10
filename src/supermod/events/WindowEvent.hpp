@@ -5,6 +5,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/memory/HookManager.hpp>
 
+namespace sm
+{
 struct WindowEvent final : ICancellableEvent<"windowEvent", WindowEvent>
 {
     HWND hWnd;
@@ -43,3 +45,4 @@ inline int wndproc(const HWND hWnd, const UINT msg, const WPARAM wParam, const L
 inline EventManager::Ready $window_event_hook([] {
     HookManager::RegisterHook("55 8B EC 51 8B 45 0C 89 45 FC", HOOK_REF_FORCE(wndproc));
 });
+} // namespace sm

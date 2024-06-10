@@ -7,6 +7,8 @@
 #include <supermod/sdk/DirectX.hpp>
 #include <tga.h>
 
+namespace sm::game::loaders
+{
 class PngLoader
 {
 
@@ -59,3 +61,4 @@ public:
         return TextureLoader::LoadFromRgbaPixelData(*sdk::DirectX::d3dDevice, size, canvasSizeMultiplier, buf.data());
     }
 };
+} // namespace sm::game::loaders

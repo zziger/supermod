@@ -2,7 +2,8 @@
 #include <supermod/modloader/mod/impl/ModImplLua.hpp>
 #include <supermod/sdk/Game.hpp>
 
-using namespace modloader;
+using namespace sm;
+using namespace sm::modloader;
 
 class LuaFilesystemFixture : public testing::Test
 {

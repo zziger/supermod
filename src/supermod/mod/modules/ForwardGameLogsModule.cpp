@@ -6,8 +6,11 @@
 #include <supermod/logs/Console.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
 
+namespace sm::mod
+{
 HOOK_FN(int, debug_log, ARGS(char* format, ...))
 {
+
     if (!Config::Get().patches.forwardGameLogs.writeToLog)
         return 0;
     va_list va;
@@ -77,3 +80,4 @@ void ForwardGameLogsModule::OnUnload()
     if (logHook)
         HookManager::UnregisterHook(*logHook);
 }
+} // namespace sm::mod

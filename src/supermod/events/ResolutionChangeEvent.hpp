@@ -3,6 +3,8 @@
 
 #include <supermod/events/EventManager.hpp>
 
+namespace sm
+{
 struct ResolutionChangeEvent final : IEvent<"resolutionChange", ResolutionChangeEvent>
 {
     int x;
@@ -16,3 +18,4 @@ struct ResolutionChangeEvent final : IEvent<"resolutionChange", ResolutionChange
                                                   &ResolutionChangeEvent::y);
     }
 };
+} // namespace sm

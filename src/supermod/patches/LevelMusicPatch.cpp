@@ -8,6 +8,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Game.hpp>
 
+using namespace sm;
+
 const char* (*parse_level_string)(char* a1, const char* str, const char* substr) = nullptr;
 
 HOOK_FN_CONV(inline int, parse_level_int, ARGS(const char* content, const char* key), __cdecl)

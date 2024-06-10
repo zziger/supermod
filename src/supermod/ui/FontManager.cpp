@@ -5,7 +5,7 @@
 #include <fonts/FaBrands.h>
 #include <fonts/MaterialIconsRegular.h>
 
-using namespace ui;
+using namespace sm::ui;
 
 FontManager::FontManager(const float scalingFactor) : scalingFactor(scalingFactor)
 {

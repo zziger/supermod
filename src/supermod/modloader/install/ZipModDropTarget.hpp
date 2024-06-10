@@ -3,6 +3,8 @@
 
 #include <shlobj.h>
 
+namespace sm::modloader
+{
 class ZipModDropTarget final : public IDropTarget
 {
 public:
@@ -23,3 +25,4 @@ public:
 
     STDMETHODIMP Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 };
+} // namespace sm::modloader

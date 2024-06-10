@@ -3,7 +3,7 @@
 
 #include <supermod/memory/Memory.hpp>
 
-namespace game
+namespace sm::game
 {
 MenuPool* MenuPool::GetInstance()
 {
@@ -23,4 +23,4 @@ Menu* MenuPool::GetByName(wchar_t* name)
 
     return nullptr;
 }
-} // namespace game
+} // namespace sm::game

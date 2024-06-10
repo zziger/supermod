@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <supermod/pch.hpp>
 
-namespace game
+namespace sm::game
 {
 struct CachedFile
 {
@@ -24,4 +24,4 @@ public:
     [[nodiscard]] static CachedFile* GetByName(const std::string& name);
     static bool DeleteByName(const std::string& name);
 };
-} // namespace game
+} // namespace sm::game

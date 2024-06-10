@@ -4,7 +4,7 @@
 #include <supermod/Utils.hpp>
 #include <supermod/memory/Memory.hpp>
 
-namespace sdk
+namespace sm::sdk
 {
 void Graphics::SetRenderAsset(game::Asset* asset)
 {
@@ -68,4 +68,4 @@ void Graphics::ResetRenderTransform()
 {
     SetRenderTransform({0, 0, 0});
 }
-} // namespace sdk
+} // namespace sm::sdk

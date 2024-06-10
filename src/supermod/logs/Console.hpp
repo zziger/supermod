@@ -4,6 +4,8 @@
 #include <regex>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
+namespace sm
+{
 class Console
 {
 public:
@@ -42,3 +44,4 @@ public:
 
     static void AddToLua(const std::shared_ptr<spdlog::logger>& logger, sol::table table);
 };
+} // namespace sm

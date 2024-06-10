@@ -11,6 +11,10 @@
 #include <supermod/ui/widgets/widgets.hpp>
 #include <supermod/utils/TempManager.hpp>
 
+using namespace sm::utils;
+
+namespace sm::update
+{
 std::optional<UpdateManager::AvailableUpdate> UpdateManager::GetAvailableUpdate()
 {
     std::lock_guard lock(mutex);
@@ -250,3 +254,4 @@ void UpdateManager::RenderMessage()
     }
     }
 }
+} // namespace sm::update

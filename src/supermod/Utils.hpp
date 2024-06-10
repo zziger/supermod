@@ -9,7 +9,7 @@
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
-namespace utils
+namespace sm::utils
 {
 inline std::string readline()
 {
@@ -143,7 +143,7 @@ inline std::string pluralize(const int count, const std::array<std::string, 3>& 
     ss << count << " " << words[count % 100 > 4 && count % 100 < 20 ? 2 : cases[std::min(count % 10, 5)]];
     return ss.str();
 }
-} // namespace utils
+} // namespace sm::utils
 
 template <typename...>
 struct WhichType;

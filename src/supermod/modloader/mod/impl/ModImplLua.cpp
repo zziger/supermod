@@ -12,7 +12,7 @@
 #include <supermod/sdk/Graphics.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 void ModImplLua::OnEnabled()
 {
@@ -209,4 +209,4 @@ void ModImplLua::Render()
         logger->error("Render error: {}", e.what());
     }
 }
-} // namespace modloader
+} // namespace sm::modloader

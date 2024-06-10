@@ -2,6 +2,8 @@
 #include "lua.hpp"
 #include <supermod/data.hpp>
 
+using namespace sm;
+
 void registerLuaTypes(sol::table lua)
 {
     lua.new_usertype<vector2>("vector2", sol::call_constructor, sol::constructors<vector2(float, float)>(), "x",

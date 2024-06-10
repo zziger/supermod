@@ -3,7 +3,7 @@
 
 #include <supermod/memory/Memory.hpp>
 
-namespace game
+namespace sm::game
 {
 LocalizedStringPool* LocalizedStringPool::GetInstance()
 {
@@ -12,4 +12,4 @@ LocalizedStringPool* LocalizedStringPool::GetInstance()
     static auto mem = pat.Search();
     return *mem.Get<LocalizedStringPool**>(1);
 }
-} // namespace game
+} // namespace sm::game

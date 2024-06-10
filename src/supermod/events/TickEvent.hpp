@@ -6,6 +6,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
 
+namespace sm
+{
 struct BeforeTickEvent final : IEvent<"beforeTick", BeforeTickEvent>
 {
 };
@@ -37,3 +39,4 @@ inline EventManager::Ready $tick_event_hook([] {
     HookManager::RegisterHook("55 8B EC 51 E8 ? ? ? ? 6A ?", HOOK_REF_FORCE(render));
     HookManager::RegisterHook("55 8B EC 83 3D ? ? ? ? ? 75 ? 68", HOOK_REF_FORCE(main_loop));
 });
+} // namespace sm

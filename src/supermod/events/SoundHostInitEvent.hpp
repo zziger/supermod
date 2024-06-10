@@ -6,6 +6,8 @@
 #include <supermod/game/SoundHost.hpp>
 #include <supermod/memory/HookManager.hpp>
 
+namespace sm
+{
 struct SoundHostInitEvent final : IEvent<"soundHostInit", SoundHostInitEvent>
 {
 };
@@ -25,3 +27,4 @@ HOOK_FN_CONV(inline char, soundhost_init, ARGS(), __cdecl)
 inline EventManager::Ready $soundhost_init_event_hook([] {
     HookManager::RegisterHook("55 8B EC A1 ? ? ? ? 50 6A", HOOK_REF(soundhost_init));
 });
+} // namespace sm

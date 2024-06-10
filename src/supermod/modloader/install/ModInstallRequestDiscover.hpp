@@ -5,7 +5,7 @@
 #include <supermod/modloader/install/ModInstallRequest.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModInstallRequestDiscover final : public ModInstallRequest
 {
@@ -22,4 +22,4 @@ private:
     std::string GetInstallActionLabel() override { return "Включить"; }
     std::string GetCancelActionLabel() override { return "Не включать"; }
 };
-} // namespace modloader
+} // namespace sm::modloader

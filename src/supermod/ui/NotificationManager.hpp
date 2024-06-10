@@ -3,7 +3,7 @@
 
 #include <imgui.h>
 
-namespace ui
+namespace sm::ui
 {
 struct Notification
 {
@@ -40,4 +40,4 @@ public:
     static void Notify(const std::string& message, Notification::Type level = Notification::ERR,
                        const std::string& header = "");
 };
-} // namespace ui
+} // namespace sm::ui

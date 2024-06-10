@@ -4,6 +4,8 @@
 #include <supermod/memory/Memory.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
+namespace sm
+{
 class HookManager
 {
 public:
@@ -83,9 +85,10 @@ public:
         table["__removeHook"] = sol::nil;
     }
 };
+} // namespace sm
 
 template <>
-struct std::hash<HookManager::RegisteredHook>
+struct std::hash<sm::HookManager::RegisteredHook>
 {
-    auto operator()(const HookManager::RegisteredHook& mem) const noexcept -> size_t { return mem.id; }
+    auto operator()(const sm::HookManager::RegisteredHook& mem) const noexcept -> size_t { return mem.id; }
 };

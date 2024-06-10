@@ -2,7 +2,7 @@
 #include <IconsMaterialDesign.h>
 #include <supermod/modloader/mod/states/ModState.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModStateDisabled final : public ModState
 {
@@ -13,4 +13,4 @@ public:
     std::string GetLabel() override { return "Выключен"; }
     std::string GetIcon() override { return ICON_MD_RADIO_BUTTON_UNCHECKED; }
 };
-} // namespace modloader
+} // namespace sm::modloader

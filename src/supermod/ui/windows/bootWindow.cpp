@@ -6,7 +6,7 @@
 #include <supermod/ui/popups/popups.hpp>
 #include <supermod/ui/styles/styles.hpp>
 
-void ui::windows::Boot()
+void sm::ui::windows::Boot()
 {
     if (!sdk::Game::bootMenuActive)
         return;

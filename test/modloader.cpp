@@ -5,7 +5,9 @@
 #include <supermod/modloader/mod/states/ModStateWaitingDependentsUnload.hpp>
 #include <supermod/sdk/Game.hpp>
 
-using namespace modloader;
+using namespace sm;
+using namespace sm::utils;
+using namespace sm::modloader;
 
 class ModloaderFixture : public testing::Test
 {

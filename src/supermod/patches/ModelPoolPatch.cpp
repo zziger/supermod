@@ -8,6 +8,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/sdk/Graphics.hpp>
 
+using namespace sm;
+
 game::Model*(__thiscall* model_pool_get_orig)(game::ModelPool* this_, char* name) = nullptr;
 game::Model* __fastcall model_pool_get(game::ModelPool* this_, void*, char* name)
 {

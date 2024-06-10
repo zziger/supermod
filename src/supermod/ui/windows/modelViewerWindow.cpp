@@ -6,7 +6,7 @@
 #include <supermod/game/models/ModelPool.hpp>
 #include <supermod/ui/Ui.hpp>
 
-void ui::windows::ModelViewer()
+void sm::ui::windows::ModelViewer()
 {
     static auto pool = game::ModelPool::Instance();
     const auto& io = ImGui::GetIO();

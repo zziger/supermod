@@ -3,6 +3,8 @@
 #include <cpr/cpr.h>
 #include <semver/semver.hpp>
 
+namespace sm::update
+{
 class UpdateManager
 {
 public:
@@ -47,3 +49,4 @@ public:
     static void RenderMessage();
     static void RenderPopup();
 };
+} // namespace sm::update

@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <supermod/Utils.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class Mod;
 
@@ -33,4 +33,4 @@ public:
 
     virtual void Update(Mod& mod) = 0;
 };
-} // namespace modloader
+} // namespace sm::modloader

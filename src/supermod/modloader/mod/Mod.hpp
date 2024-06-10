@@ -5,7 +5,7 @@
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 #include <supermod/modloader/mod/states/ModState.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class Mod
 {
@@ -71,4 +71,4 @@ public:
     void Update();
     void Tick() const;
 };
-} // namespace modloader
+} // namespace sm::modloader

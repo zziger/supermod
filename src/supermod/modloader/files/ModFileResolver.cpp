@@ -9,7 +9,7 @@
 #include <supermod/modloader/files/loaders/TextureLoader.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 void ModFileResolver::InitLoader(const std::shared_ptr<BaseLoader>& loader)
 {
@@ -124,4 +124,4 @@ void ModFileResolver::LoadFiles(const std::filesystem::path& path)
         LoadFile(relPath);
     }
 }
-} // namespace modloader
+} // namespace sm::modloader

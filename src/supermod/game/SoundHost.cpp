@@ -3,7 +3,7 @@
 
 #include <supermod/memory/Memory.hpp>
 
-namespace game
+namespace sm::game
 {
 SoundHost* SoundHost::GetInstance()
 {
@@ -73,4 +73,4 @@ void SoundHost::LoadSound(const char* name)
     static auto mem = pat.Search();
     mem.Get<char*(__cdecl*)(const char*)>()(name);
 }
-} // namespace game
+} // namespace sm::game

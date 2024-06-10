@@ -6,7 +6,7 @@
 #include <supermod/utils/OwnedZip.hpp>
 #include <utility>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModInstallRequestZip final : public ModInstallRequest
 {
@@ -26,11 +26,11 @@ private:
     std::string error; // lock with mutex
     Progress progress{};
 
-    std::shared_ptr<OwnedZip> zip;
+    std::shared_ptr<utils::OwnedZip> zip;
     std::string zipPath;
 
 public:
-    explicit ModInstallRequestZip(const std::shared_ptr<ModInfo>& modInfo, const std::shared_ptr<OwnedZip>& zip,
+    explicit ModInstallRequestZip(const std::shared_ptr<ModInfo>& modInfo, const std::shared_ptr<utils::OwnedZip>& zip,
                                   std::string zipPath)
         : ModInstallRequest(modInfo),
           zip(zip),
@@ -48,4 +48,4 @@ public:
     static std::vector<std::shared_ptr<ModInstallRequest>> FromZip(const std::filesystem::path& path,
                                                                    bool remove = false);
 };
-} // namespace modloader
+} // namespace sm::modloader

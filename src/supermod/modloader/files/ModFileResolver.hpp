@@ -4,7 +4,7 @@
 #include <supermod/modloader/files/loaders/BaseLoader.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModFileResolver
 {
@@ -33,4 +33,4 @@ public:
     static void LoadFiles(const std::filesystem::path& path);
 };
 
-} // namespace modloader
+} // namespace sm::modloader

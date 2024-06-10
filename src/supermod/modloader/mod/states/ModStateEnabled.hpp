@@ -2,7 +2,7 @@
 #include <IconsMaterialDesign.h>
 #include <supermod/modloader/mod/states/ModState.hpp>
 
-namespace modloader
+namespace sm::modloader
 {
 class ModStateEnabled final : public ModState
 {
@@ -14,4 +14,4 @@ public:
     std::string GetLabel() override { return "Включен"; }
     std::string GetIcon() override { return ICON_MD_CHECK_CIRCLE; }
 };
-} // namespace modloader
+} // namespace sm::modloader

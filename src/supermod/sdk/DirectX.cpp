@@ -6,7 +6,7 @@
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/exceptions/Error.hpp>
 
-namespace sdk
+namespace sm::sdk
 {
 void DirectX::Init()
 {
@@ -65,4 +65,4 @@ void DirectX::ReleaseRemovedTextures()
         texture->Release();
     }
 }
-} // namespace sdk
+} // namespace sm::sdk

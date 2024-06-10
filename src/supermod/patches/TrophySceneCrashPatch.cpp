@@ -12,6 +12,8 @@
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
 
+using namespace sm;
+
 HOOK_FN(inline int, set_random_seed, ARGS(int seed))
 {
     return set_random_seed_orig(seed % 65535);

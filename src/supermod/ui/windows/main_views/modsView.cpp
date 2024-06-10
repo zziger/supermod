@@ -12,7 +12,7 @@
 
 using namespace std::chrono;
 
-void ui::windows::main::ModsView()
+void sm::ui::windows::main::ModsView()
 {
     static std::optional<std::shared_ptr<modloader::Mod>> activeMod;
 

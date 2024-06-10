@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <stack>
 
-namespace ui
+namespace sm::ui
 {
 class FontManager
 {
@@ -33,4 +33,4 @@ private:
     std::stack<float> fontSizeStack;
     void UpdateFontSize();
 };
-} // namespace ui
+} // namespace sm::ui

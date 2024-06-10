@@ -4,6 +4,8 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/modloader/mod/info/ModInfo.hpp>
 
+namespace sm
+{
 template <EventId EventId>
 struct ModEvent : IEvent<EventId, ModEvent<EventId>>
 {
@@ -26,3 +28,4 @@ struct ModUnloadEvent final : ModEvent<"modUnload">
 {
     ModUnloadEvent(modloader::ModInfo modInfo) : ModEvent(std::move(modInfo)) {}
 };
+} // namespace sm

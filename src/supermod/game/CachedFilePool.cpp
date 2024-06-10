@@ -3,7 +3,7 @@
 #include <supermod/Utils.hpp>
 #include <supermod/memory/Memory.hpp>
 
-namespace game
+namespace sm::game
 {
 void CachedFile::ReplaceContent(const std::string& filepath)
 {
@@ -41,4 +41,4 @@ bool CachedFilePool::DeleteByName(const std::string& name)
     static auto mem = pat.Search();
     return mem.Call<char>(found->content) == 1;
 }
-} // namespace game
+} // namespace sm::game

@@ -15,6 +15,8 @@
 #include <supermod/sdk/DirectX.hpp>
 #include <supermod/sdk/Game.hpp>
 
+using namespace sm;
+
 static constexpr long REQUIRED_STYLES = WS_MAXIMIZEBOX | WS_SIZEBOX;
 
 HOOK_FN(inline static int, setup_d3d_params, ARGS())

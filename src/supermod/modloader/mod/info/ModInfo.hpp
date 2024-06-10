@@ -8,7 +8,7 @@
 #include <supermod/utils/VersionRange.hpp>
 #include <utility>
 
-namespace modloader
+namespace sm::modloader
 {
 struct ModInfo
 {
@@ -28,7 +28,7 @@ struct ModInfo
     {
         std::string id;
         std::string name;
-        VersionRange version{};
+        utils::VersionRange version{};
 
         [[nodiscard]] std::string GetName() const { return name.empty() ? id : name; }
 
@@ -89,4 +89,4 @@ struct ModInfo
 private:
     std::string id;
 };
-} // namespace modloader
+} // namespace sm::modloader

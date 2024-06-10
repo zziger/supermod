@@ -4,18 +4,22 @@
 #include <regex>
 #include <supermod/sdk/Game.hpp>
 
-bool modloader::ModInfo::HasDependency(const std::string& id) const
+using namespace sm::utils;
+
+namespace sm::modloader
+{
+bool ModInfo::HasDependency(const std::string& id) const
 {
     return std::ranges::find_if(dependencies, [&](const Dependency& dep) { return dep.id == id; }) !=
            dependencies.end();
 }
 
-modloader::ModInfo::Dependency modloader::ModInfo::AsDependency() const
+ModInfo::Dependency ModInfo::AsDependency() const
 {
     return Dependency{id, title, VersionRange({{{VersionRange::Operator::GREATER_EQUAL, version}}})};
 }
 
-void modloader::ModInfo::Parse(YAML::Node& node)
+void ModInfo::Parse(YAML::Node& node)
 {
     assert(id.empty() && "Tried to parse ModInfo overriding existing data");
 
@@ -85,7 +89,8 @@ void modloader::ModInfo::Parse(YAML::Node& node)
     // todo compatibility check somewhere
 }
 
-std::string modloader::ModInfo::ToString() const
+std::string ModInfo::ToString() const
 {
     return std::format("Mod<{}>", GetID());
 }
+} // namespace sm::modloader

@@ -4,22 +4,23 @@
 #include <supermod/Utils.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 
-void modloader::LuaScriptRuntime::ModPackage::Finalize()
+namespace sm::modloader
+{
+void LuaScriptRuntime::ModPackage::Finalize()
 {
     eventHandler = fenv["__handleEvent"];
     fenv["__handleEvent"] = sol::lua_nil;
 }
 
-void modloader::LuaScriptRuntime::ModPackage::RegisterLuaType(sol::state& lua)
+void LuaScriptRuntime::ModPackage::RegisterLuaType(sol::state& lua)
 {
     lua.new_usertype<ModPackage>(sol::no_constructor, "id", sol::readonly(&ModPackage::id), "fenv",
-                                 sol::readonly(&ModPackage::fenv), "loaded", sol::readonly(&ModPackage::loaded),
-                                 "builtin", sol::readonly(&ModPackage::builtin), "module",
-                                 sol::readonly(&ModPackage::module), "path", sol::readonly(&ModPackage::path), "cpath",
-                                 sol::readonly(&ModPackage::cpath));
+                                 readonly(&ModPackage::fenv), "loaded", readonly(&ModPackage::loaded), "builtin",
+                                 readonly(&ModPackage::builtin), "module", readonly(&ModPackage::module), "path",
+                                 sol::readonly(&ModPackage::path), "cpath", sol::readonly(&ModPackage::cpath));
 }
 
-void modloader::LuaScriptRuntime::Init()
+void LuaScriptRuntime::Init()
 {
     lua.set_panic([](lua_State* L) -> int {
         std::cout << "Lua panic" << std::endl;
@@ -32,7 +33,7 @@ void modloader::LuaScriptRuntime::Init()
 
     registerLuaTypes(lua.globals());
     registerLuaFilesystem(lua.globals());
-    VersionRange::RegisterLuaType(lua);
+    utils::VersionRange::RegisterLuaType(lua);
     ModPackage::RegisterLuaType(lua);
     game::Asset::RegisterLuaType(lua);
     ModInfo::RegisterLuaType(lua);
@@ -46,11 +47,11 @@ void modloader::LuaScriptRuntime::Init()
     get_packages(lua)["imgui"] = lua.script(sdk->read("library/imgui.lua"), "built-in imgui", sol::load_mode::text);
 
     lua.globals()["require"] = sol::lua_nil; // We reimplement require in fenvs. Having it in global scope might lead to
-                                             // some weird nondebuggable bugs
+    // some weird nondebuggable bugs
 }
 
-std::shared_ptr<modloader::LuaScriptRuntime::ModPackage> modloader::LuaScriptRuntime::CreatePackage(
-    const std::string& id, const std::filesystem::path& root)
+std::shared_ptr<LuaScriptRuntime::ModPackage> LuaScriptRuntime::CreatePackage(const std::string& id,
+                                                                              const std::filesystem::path& root)
 {
     assert(!packages.contains(id) && "Package with this id already exists");
 
@@ -61,13 +62,13 @@ std::shared_ptr<modloader::LuaScriptRuntime::ModPackage> modloader::LuaScriptRun
     return package;
 }
 
-void modloader::LuaScriptRuntime::RemovePackage(const std::string& id)
+void LuaScriptRuntime::RemovePackage(const std::string& id)
 {
     luaPackages[id] = sol::lua_nil;
     packages.erase(id);
 }
 
-void modloader::LuaScriptRuntime::AddIntrinsics(const std::shared_ptr<ModPackage>& package)
+void LuaScriptRuntime::AddIntrinsics(const std::shared_ptr<ModPackage>& package)
 {
     auto env = package->fenv;
 
@@ -77,7 +78,7 @@ void modloader::LuaScriptRuntime::AddIntrinsics(const std::shared_ptr<ModPackage
     env["__disableEvent"] = sol::bind_instance(&ModPackage::DisableEvent, package);
 }
 
-void modloader::LuaScriptRuntime::RemoveIntrinsics(const std::shared_ptr<ModPackage>& package)
+void LuaScriptRuntime::RemoveIntrinsics(const std::shared_ptr<ModPackage>& package)
 {
     auto env = package->fenv;
 
@@ -86,3 +87,4 @@ void modloader::LuaScriptRuntime::RemoveIntrinsics(const std::shared_ptr<ModPack
     env["__enableEvent"] = sol::nil;
     env["__disableEvent"] = sol::nil;
 }
+} // namespace sm::modloader

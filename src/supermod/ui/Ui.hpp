@@ -6,7 +6,7 @@
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/ui/FontManager.hpp>
 
-namespace ui
+namespace sm::ui
 {
 class Ui
 {
@@ -36,4 +36,4 @@ public:
     static void Render();
     static ImGuiID GetModalsId(const std::shared_ptr<modloader::Mod>& mod);
 };
-} // namespace ui
+} // namespace sm::ui
