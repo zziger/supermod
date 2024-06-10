@@ -19,6 +19,7 @@
 #include <supermod/events/SoundHostInitEvent.hpp>
 #include <supermod/events/SoundsLoadedEvent.hpp>
 #include <supermod/events/StartExecutionEvent.hpp>
+#include <supermod/io/TempManager.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
@@ -29,7 +30,6 @@
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/sdk/Game.hpp>
 #include <supermod/ui/UI.hpp>
-#include <supermod/utils/TempManager.hpp>
 
 using namespace sm;
 
@@ -106,7 +106,7 @@ void Init()
     MH_Initialize();
     sdk::Game::Init();
     game::AssetPool::Init();
-    utils::TempManager::Init();
+    io::TempManager::Init();
 
     hook_start_execution();
 

@@ -6,7 +6,7 @@
 #include <supermod/sdk/Game.hpp>
 
 using namespace sm;
-using namespace sm::utils;
+using namespace sm::io;
 using namespace sm::modloader;
 
 class ModloaderFixture : public testing::Test

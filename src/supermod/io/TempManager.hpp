@@ -3,7 +3,7 @@
 
 #include <random>
 
-namespace sm::utils
+namespace sm::io
 {
 class TempManager
 {
@@ -23,4 +23,4 @@ public:
 
     static void Cleanup();
 };
-} // namespace sm::utils
+} // namespace sm::io

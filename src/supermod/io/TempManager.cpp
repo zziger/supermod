@@ -1,9 +1,9 @@
+#include <supermod/io/TempManager.hpp>
 #include <supermod/pch.hpp>
-#include <supermod/utils/TempManager.hpp>
 
 #include <supermod/sdk/Game.hpp>
 
-namespace sm::utils
+namespace sm::io
 {
 std::filesystem::path TempManager::GetTempRoot()
 {
@@ -65,4 +65,4 @@ void TempManager::Cleanup()
         remove_all(root);
     }
 }
-} // namespace sm::utils
+} // namespace sm::io

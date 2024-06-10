@@ -4,13 +4,13 @@
 #include <supermod/events/D3dInitEvent.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/TickEvent.hpp>
+#include <supermod/io/TempManager.hpp>
 #include <supermod/logs/Console.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstallRequestZip.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/sdk/Game.hpp>
 #include <supermod/ui/NotificationManager.hpp>
-#include <supermod/utils/TempManager.hpp>
 
 namespace sm::modloader
 {
@@ -71,7 +71,7 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
     }
 
     mod->Toggle(false);
-    const auto tempFile = utils::TempManager::GetTempDir(false);
+    const auto tempFile = io::TempManager::GetTempDir(false);
     std::filesystem::rename(infoFilesystem->basePath, tempFile);
 
     try
@@ -79,7 +79,7 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
         std::filesystem::rename(path, infoFilesystem->basePath);
         ModManager::ReloadMod(mod);
         mod->Toggle(true);
-        utils::TempManager::RemoveTempDir(tempFile);
+        io::TempManager::RemoveTempDir(tempFile);
     }
     catch (const std::exception& err)
     {
@@ -92,7 +92,7 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
             if (exists(infoFilesystem->basePath))
                 remove_all(infoFilesystem->basePath);
             std::filesystem::rename(tempFile, infoFilesystem->basePath);
-            utils::TempManager::RemoveTempDir(path);
+            io::TempManager::RemoveTempDir(path);
         }
         catch (const std::exception& errInner)
         {

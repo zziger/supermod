@@ -1,9 +1,9 @@
 #pragma once
 #include <supermod/pch.hpp>
 
+#include <supermod/io/OwnedZip.hpp>
 #include <supermod/modloader/install/ModInstallRequest.hpp>
 #include <supermod/modloader/mod/info/ModInfo.hpp>
-#include <supermod/utils/OwnedZip.hpp>
 #include <utility>
 
 namespace sm::modloader
@@ -26,11 +26,11 @@ private:
     std::string error; // lock with mutex
     Progress progress{};
 
-    std::shared_ptr<utils::OwnedZip> zip;
+    std::shared_ptr<io::OwnedZip> zip;
     std::string zipPath;
 
 public:
-    explicit ModInstallRequestZip(const std::shared_ptr<ModInfo>& modInfo, const std::shared_ptr<utils::OwnedZip>& zip,
+    explicit ModInstallRequestZip(const std::shared_ptr<ModInfo>& modInfo, const std::shared_ptr<io::OwnedZip>& zip,
                                   std::string zipPath)
         : ModInstallRequest(modInfo),
           zip(zip),

@@ -9,9 +9,9 @@
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/ui/styles/styles.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
-#include <supermod/utils/TempManager.hpp>
+#include <supermod/io/TempManager.hpp>
 
-using namespace sm::utils;
+using namespace sm::io;
 
 namespace sm::update
 {

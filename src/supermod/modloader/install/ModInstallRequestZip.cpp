@@ -4,12 +4,12 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/game/textures/PngLoader.hpp>
+#include <supermod/io/TempManager.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/sdk/DirectX.hpp>
 #include <supermod/sdk/Game.hpp>
-#include <supermod/utils/TempManager.hpp>
 
 namespace sm::modloader
 {
@@ -18,7 +18,7 @@ void ModInstallRequestZip::Install()
     state = State::INSTALLING;
     error = "";
 
-    auto path = utils::TempManager::GetTempDir();
+    auto path = io::TempManager::GetTempDir();
 
     progress.show = true;
     progress.message = "Распаковка...";
@@ -65,14 +65,14 @@ void ModInstallRequestZip::Install()
                 catch (const std::exception& err)
                 {
                     spdlog::error("Failed to install zip mod: {}", err.what());
-                    utils::TempManager::RemoveTempDir(path);
+                    io::TempManager::RemoveTempDir(path);
                     error = err.what();
                     state = State::IDLE;
                 }
                 catch (...)
                 {
                     spdlog::error("Failed to install zip mod: Unknown error");
-                    utils::TempManager::RemoveTempDir(path);
+                    io::TempManager::RemoveTempDir(path);
                     error = "Unknown error";
                     state = State::IDLE;
                 }
@@ -111,7 +111,7 @@ std::vector<std::shared_ptr<ModInstallRequest>> ModInstallRequestZip::FromZip(co
                                                                               bool remove)
 {
     auto res = std::vector<std::shared_ptr<ModInstallRequest>>{};
-    auto zip = std::make_shared<utils::OwnedZip>(path.string(), remove);
+    auto zip = std::make_shared<io::OwnedZip>(path.string(), remove);
 
     for (auto& info : zip->zip->infolist())
     {
