@@ -7,7 +7,7 @@
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/exceptions/Error.hpp>
 #include <supermod/game/Game.hpp>
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/modloader/install/ModInstallRequestDiscover.hpp>
 #include <supermod/modloader/install/ModInstallRequestZip.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
@@ -262,8 +262,8 @@ void ModManager::ToggleMod(const std::shared_ptr<Mod>& mod, bool enabled)
     if (state == enabled)
         return;
 
-    spdlog::info("{} mod {} with dependencies", Console::StyleToggle(enabled ? "Enabling" : "Disabling", enabled),
-                 Console::StyleModName(mod->GetID()));
+    spdlog::info("{} mod {} with dependencies", io::Console::StyleToggle(enabled ? "Enabling" : "Disabling", enabled),
+                 io::Console::StyleModName(mod->GetID()));
 
     if (enabled)
     {

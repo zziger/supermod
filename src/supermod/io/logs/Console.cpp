@@ -1,15 +1,15 @@
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <supermod/Config.hpp>
-#include <supermod/logs/AnsiFileSink.hpp>
-#include <supermod/logs/LogLevelFormatterFlag.hpp>
 #include <supermod/game/Game.hpp>
+#include <supermod/io/logs/AnsiFileSink.hpp>
+#include <supermod/io/logs/LogLevelFormatterFlag.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
-namespace sm
+namespace sm::io
 {
 static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType)
 {
@@ -170,4 +170,4 @@ void Console::AddToLua(const std::shared_ptr<spdlog::logger>& logger, sol::table
     log["critical"] = sol::as_function([logger](const std::string& msg) { logger->critical(msg); });
     log["game"] = sol::as_function([logger](const std::string& msg) { logger->info(msg); }); // TODO: deprecate
 }
-} // namespace sm
+} // namespace sm::io

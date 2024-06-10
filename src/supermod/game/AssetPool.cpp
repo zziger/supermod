@@ -7,7 +7,7 @@
 #include <supermod/game/textures/JpgLoader.hpp>
 #include <supermod/game/textures/PngLoader.hpp>
 #include <supermod/game/textures/TgaLoader.hpp>
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/files/ModFileResolver.hpp>
 
@@ -167,7 +167,8 @@ Asset* AssetPool::LoadGameAsset(const std::filesystem::path& path, bool loadFall
     asset->meta->origName = name;
 
     if (found && !modName.empty())
-        spdlog::debug("Loaded texture {} from mod {}", Console::StyleEmphasise(name), Console::StyleModName(modName));
+        spdlog::debug("Loaded texture {} from mod {}", io::Console::StyleEmphasise(name),
+                      io::Console::StyleModName(modName));
 
     return asset;
 }

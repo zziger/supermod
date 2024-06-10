@@ -4,7 +4,7 @@
 #include <regex>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
-namespace sm
+namespace sm::io
 {
 class Console
 {

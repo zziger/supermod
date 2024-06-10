@@ -5,8 +5,8 @@
 #include <supermod/Config.hpp>
 #include <supermod/UpdateManager.hpp>
 #include <supermod/Utils.hpp>
-#include <supermod/logs/Console.hpp>
 #include <supermod/game/Game.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/ui/Ui.hpp>
 
 void sm::ui::windows::main::SettingsView()
@@ -74,7 +74,7 @@ void sm::ui::windows::main::SettingsView()
         if (ImGui::Checkbox("Отображать консоль", &cfg.console))
         {
             cfg.Save();
-            Console::Update();
+            io::Console::Update();
         }
 
         ImGui::Spacing();
@@ -115,7 +115,7 @@ void sm::ui::windows::main::SettingsView()
                 {
                     cfg.log.level = level;
                     cfg.Save();
-                    Console::Update();
+                    io::Console::Update();
                 }
 
                 if (selected)

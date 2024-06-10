@@ -10,10 +10,10 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/ResolutionChangeEvent.hpp>
 #include <supermod/events/WindowEvent.hpp>
-#include <supermod/logs/Console.hpp>
-#include <supermod/memory/HookManager.hpp>
 #include <supermod/game/DirectX.hpp>
 #include <supermod/game/Game.hpp>
+#include <supermod/io/logs/Console.hpp>
+#include <supermod/memory/HookManager.hpp>
 
 using namespace sm;
 
@@ -46,7 +46,8 @@ HOOK_FN(inline static int, setup_d3d_params, ARGS())
     else
         game::Game::lastResolution = res;
 
-    spdlog::info("Render resolution was set to {}x{}", Console::StyleEmphasise(res.x), Console::StyleEmphasise(res.y));
+    spdlog::info("Render resolution was set to {}x{}", io::Console::StyleEmphasise(res.x),
+                 io::Console::StyleEmphasise(res.y));
 
     ptr[0] = res.x;
     ptr[1] = res.y;

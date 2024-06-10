@@ -5,11 +5,11 @@
 #include <supermod/Config.hpp>
 #include <supermod/Utils.hpp>
 #include <supermod/events/WindowEvent.hpp>
-#include <supermod/logs/Console.hpp>
-#include <supermod/modloader/mod/impl/lua/LuaScriptRuntime.hpp>
-#include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/game/Graphics.hpp>
+#include <supermod/io/logs/Console.hpp>
+#include <supermod/modloader/mod/impl/lua/LuaScriptRuntime.hpp>
+#include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm::modloader
@@ -29,7 +29,7 @@ void ModImplLua::OnEnabled()
     if (!exists(fullPath) || is_directory(fullPath))
         throw Error(std::format("Скрипт {} не найден", fullPath.generic_string()));
 
-    logger = Console::mainLogger->clone("mod " + info->GetID());
+    logger = io::Console::mainLogger->clone("mod " + info->GetID());
     const auto runtime = LuaScriptRuntime::Get();
     auto& lua = runtime->GetLua();
     auto sdk = utils::read_zip_resource(LUA_SDK_ZIP);
@@ -67,7 +67,7 @@ void ModImplLua::OnEnabled()
     try
     {
 
-        Console::AddToLua(logger, package->fenv);
+        io::Console::AddToLua(logger, package->fenv);
         auto game = package->fenv.create("game");
         game::Game::AddToLua(game); // todo: deprecate?
 

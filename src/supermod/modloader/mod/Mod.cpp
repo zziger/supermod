@@ -1,7 +1,7 @@
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/pch.hpp>
 
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/states/ModStateDisabled.hpp>
 #include <utility>
@@ -30,7 +30,7 @@ void Mod::SetState(std::unique_ptr<ModState>&& state)
     assert(state && "Tried to set empty state pointer to mod");
 
     if (!HasFlag(Flag::INTERNAL))
-        spdlog::debug("State update for mod {}: {}", Console::StyleModName(GetInfo()->GetID()), state->GetLabel());
+        spdlog::debug("State update for mod {}: {}", io::Console::StyleModName(GetInfo()->GetID()), state->GetLabel());
     this->state = std::move(state);
     this->state->Init(*this);
     ModManager::MarkDirty(ModManager::DirtyFlag::STATES);
@@ -41,8 +41,8 @@ void Mod::Toggle(const bool value)
 {
     loadingError = "";
     if (!HasFlag(Flag::INTERNAL))
-        spdlog::info("{} mod {}", Console::StyleToggle(value ? "Enabling" : "Disabling", value),
-                     Console::StyleModName(GetID()));
+        spdlog::info("{} mod {}", io::Console::StyleToggle(value ? "Enabling" : "Disabling", value),
+                     io::Console::StyleModName(GetID()));
     SetFlag(Flag::ENABLED, value);
 }
 

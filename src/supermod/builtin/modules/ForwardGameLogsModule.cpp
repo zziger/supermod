@@ -3,7 +3,7 @@
 
 #include <supermod/Config.hpp>
 #include <supermod/Utils.hpp>
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
 
 namespace sm::builtin
@@ -17,7 +17,7 @@ HOOK_FN(int, debug_log, ARGS(char* format, ...))
     va_start(va, format);
     char buffer[1024];
     vsprintf_s(buffer, 1024, format, va);
-    Console::gameLogger->info(buffer);
+    io::Console::gameLogger->info(buffer);
     return 0;
 }
 

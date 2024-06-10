@@ -6,7 +6,7 @@
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstallRequestZip.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
@@ -84,8 +84,8 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
     catch (const std::exception& err)
     {
         ui::NotificationManager::Notify(std::format("Не удалось обновить мод {}.\n{}", info->GetID(), err.what()));
-        spdlog::debug("Failed to install mod {}, attempting to recover state: {}", Console::StyleModName(info->GetID()),
-                      err.what());
+        spdlog::debug("Failed to install mod {}, attempting to recover state: {}",
+                      io::Console::StyleModName(info->GetID()), err.what());
 
         try
         {
@@ -98,7 +98,7 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
         {
             ui::NotificationManager::Notify(
                 std::format("Не удалось вернуть мод {} в прежнее состояние.\n{}", info->GetID(), err.what()));
-            spdlog::error("Failed to recover previous mod {}: {}", Console::StyleModName(info->GetID()),
+            spdlog::error("Failed to recover previous mod {}: {}", io::Console::StyleModName(info->GetID()),
                           errInner.what());
         }
         throw;

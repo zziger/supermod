@@ -21,7 +21,7 @@
 #include <supermod/events/StartExecutionEvent.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
-#include <supermod/logs/Console.hpp>
+#include <supermod/io/logs/Console.hpp>
 #include <supermod/memory/HookManager.hpp>
 #include <supermod/memory/Memory.hpp>
 #include <supermod/modloader/ModManager.hpp>
@@ -94,7 +94,7 @@ HOOK_FN(int, load_game, ARGS())
 void Init()
 {
     auto cwd = std::filesystem::current_path();
-    Console::Initialize();
+    io::Console::Initialize();
     spdlog::info("Loading {} by {}...", styled("SuperMod " SUPERMOD_VERSION, fmt::emphasis::bold),
                  styled("zziger", fmt::emphasis::bold));
 
@@ -165,7 +165,7 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
 
     if (ulReasonForCall == DLL_PROCESS_DETACH)
     {
-        Console::Disable();
+        io::Console::Disable();
         ShowWindow(GetConsoleWindow(), SW_HIDE);
     }
 
