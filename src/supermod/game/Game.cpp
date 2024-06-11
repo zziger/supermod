@@ -1,6 +1,7 @@
 ﻿#include <supermod/game/Game.hpp>
 #include <supermod/pch.hpp>
 
+#include <KnownFolders.h>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 
@@ -122,6 +123,11 @@ std::filesystem::path Game::GetDataPath()
 std::filesystem::path Game::GetModsPath()
 {
     return GetRootPath() / modloader::ModManager::MODS_DIRECTORY;
+}
+
+std::filesystem::path Game::GetAppdataPath()
+{
+    return utils::get_known_folder(FOLDERID_RoamingAppData) / "Super-Cow";
 }
 
 uint64_t Game::GetGameVersion()

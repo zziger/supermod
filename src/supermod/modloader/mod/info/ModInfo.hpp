@@ -86,7 +86,7 @@ struct ModInfo
                                   sol::meta_function::to_string, &ModInfo::ToString);
     }
 
-private:
+protected:
     std::string id;
 };
 } // namespace sm::modloader

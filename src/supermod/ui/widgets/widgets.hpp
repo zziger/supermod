@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/modloader/mod/info/ModInfo.hpp>
+#include <supermod/modloader/mod/info/ModInfoRegistry.hpp>
+#include <supermod/registry/RegistryManager.hpp>
 
 namespace sm::ui::widgets
 {
@@ -19,9 +21,15 @@ std::shared_ptr<modloader::Mod> Reference(
 bool Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected = false, bool border = false,
                 const std::optional<modloader::ModInfo::Dependency>& dependency = std::nullopt, bool* hovered = nullptr,
                 bool* active = nullptr);
+bool SelectableRegistry(const modloader::ModInfoRegistry& info, bool selected = false);
 void ContextMenu(const std::shared_ptr<modloader::Mod>& mod);
 void Status(const std::shared_ptr<modloader::Mod>& mod);
-void InfoBlock(const std::shared_ptr<modloader::ModInfo>& modInfo);
-bool Description(const std::shared_ptr<modloader::ModInfo>& modInfo);
+void InfoBlock(const modloader::ModInfo& modInfo);
+bool Description(const modloader::ModInfo& modInfo);
 } // namespace mods
+
+namespace registry
+{
+void Uploader(const sm::registry::RegistryManager::User& user);
+} // namespace registry
 } // namespace sm::ui::widgets

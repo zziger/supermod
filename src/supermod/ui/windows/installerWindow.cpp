@@ -1,10 +1,10 @@
 #include <supermod/pch.hpp>
 #include <supermod/ui/windows/windows.hpp>
 
+#include <supermod/game/Game.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/install/ModInstallRequest.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
-#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/styles/styles.hpp>
 #include <supermod/ui/widgets/widgets.hpp>
@@ -41,7 +41,7 @@ void sm::ui::windows::Installer()
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize))
     {
-        widgets::mods::InfoBlock(info);
+        widgets::mods::InfoBlock(*info);
         ImGui::Spacing();
 
         if (mod)
@@ -50,7 +50,7 @@ void sm::ui::windows::Installer()
             ImGui::Spacing();
         }
 
-        if (widgets::mods::Description(info))
+        if (widgets::mods::Description(*info))
             ImGui::Spacing();
 
         // TODO: dependencies

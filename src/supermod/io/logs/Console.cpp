@@ -78,7 +78,7 @@ void Console::Initialize()
     SetConsoleTitle(L"SuperMod console");
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
-    SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+    // SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
     if (void* hOut = GetStdHandle(STD_OUTPUT_HANDLE); hOut != INVALID_HANDLE_VALUE)
         if (DWORD dwMode = 0; GetConsoleMode(hOut, &dwMode))
             SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);

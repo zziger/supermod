@@ -4,6 +4,7 @@
 #include <fstream>
 #include <imgui.h>
 #include <locale>
+#include <shlobj_core.h>
 
 #define MAX_INPUT_LENGTH 255
 
@@ -134,6 +135,26 @@ inline std::unique_ptr<miniz_cpp::zip_file> read_zip_resource(const int resource
     FreeResource(resHandle);
 
     return std::make_unique<miniz_cpp::zip_file>(vec);
+}
+
+inline void open_url(const std::string& url)
+{
+    ShellExecuteW(nullptr, L"open", utils::str_to_wstr(url).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+}
+
+inline std::filesystem::path get_known_folder(KNOWNFOLDERID folder)
+{
+    PWSTR pathTmp;
+    const auto hr = SHGetKnownFolderPath(folder, 0, 0, &pathTmp);
+    if (hr != S_OK)
+    {
+        CoTaskMemFree(pathTmp);
+        return {};
+    }
+
+    std::filesystem::path result = pathTmp;
+    CoTaskMemFree(pathTmp);
+    return result;
 }
 
 inline std::string pluralize(const int count, const std::array<std::string, 3>& words)

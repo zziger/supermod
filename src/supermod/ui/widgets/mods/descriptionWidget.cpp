@@ -23,11 +23,11 @@ static inline std::map<std::string, std::string> LINK_ICONS = {
     {"steam", ICON_FA_STEAM},
 };
 
-bool sm::ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo>& modInfo)
+bool sm::ui::widgets::mods::Description(const modloader::ModInfo& modInfo)
 {
-    if (!modInfo->description.empty() || !modInfo->socialLinks.empty())
+    if (!modInfo.description.empty() || !modInfo.socialLinks.empty())
     {
-        ImGui::TextWrapped("%s", modInfo->description.c_str());
+        ImGui::TextWrapped("%s", modInfo.description.c_str());
 
         Ui::PushFont(32, FontManager::FAB);
         ImGui::PushStyleColor(ImGuiCol_Button, 0x0_color);
@@ -35,7 +35,7 @@ bool sm::ui::widgets::mods::Description(const std::shared_ptr<modloader::ModInfo
         const float windowVisible = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x - Ui::ScaledPx(12);
         const auto& style = ImGui::GetStyle();
         bool first = true;
-        for (const auto& [key, link] : modInfo->socialLinks)
+        for (const auto& [key, link] : modInfo.socialLinks)
         {
             const auto& icon = LINK_ICONS.at(key);
             if (icon.empty())

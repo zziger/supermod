@@ -4,9 +4,10 @@
 
 namespace sm::ui::windows::main
 {
-static const std::vector<std::string> VIEW_NAMES = {"Моды", "Настройки", "Инструменты"};
+static const std::vector<std::string> VIEW_NAMES = {"Моды", "Скачать моды", "Настройки", "Инструменты"};
 
 void ModsView();
+void RegistryView();
 void SettingsView();
 void ToolsView();
 
@@ -18,9 +19,12 @@ inline void View(const int index)
         ModsView();
         break;
     case 1:
-        SettingsView();
+        RegistryView();
         break;
     case 2:
+        SettingsView();
+        break;
+    case 3:
         ToolsView();
         break;
     default:

@@ -1,7 +1,10 @@
 #include "main.h"
 
+#include "registry/RegistryManager.hpp"
+
 #include <supermod/pch.hpp>
 
+#include <async/task.h>
 #include <cpr/cpr.h>
 #include <filesystem>
 #include <gdiplus.h>
@@ -20,6 +23,8 @@
 #include <supermod/events/SoundsLoadedEvent.hpp>
 #include <supermod/events/StartExecutionEvent.hpp>
 #include <supermod/game/Game.hpp>
+#include <supermod/io/Async.hpp>
+#include <supermod/io/Http.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/io/logs/Console.hpp>
 #include <supermod/memory/HookManager.hpp>
@@ -45,6 +50,7 @@ void InitMemory()
 
 void PostInit()
 {
+    registry::RegistryManager::Initialize();
     modloader::ModManager::Init();
     modloader::ModInstaller::Init();
     modloader::ModFileResolver::Init();
@@ -104,6 +110,7 @@ void Init()
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 
     MH_Initialize();
+    io::Async::Initialize();
     game::Game::Init();
     game::AssetPool::Init();
     io::TempManager::Init();

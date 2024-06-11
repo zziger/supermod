@@ -73,8 +73,9 @@ void windows::Main()
         ImGui::BeginChild("upper", ImVec2(Ui::ScaledPx(fontSize), (-Ui::ScaledPx(fontSize) - spacing.y * 2) * 2));
         Ui::PushFont(fontSize);
         Tab(ICON_MD_FORMAT_LIST_BULLETED, 0);
-        Tab(ICON_MD_SETTINGS, 1);
-        Tab(ICON_MD_BUILD, 2);
+        Tab(ICON_MD_DOWNLOAD, 1);
+        Tab(ICON_MD_SETTINGS, 2);
+        Tab(ICON_MD_BUILD, 3);
         Ui::PopFont();
         ImGui::EndChild();
 

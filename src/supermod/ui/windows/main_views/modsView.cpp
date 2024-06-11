@@ -2,9 +2,9 @@
 #include <supermod/ui/windows/main_views/views.hpp>
 
 #include <imgui_internal.h>
+#include <supermod/game/Game.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
-#include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/popups/popups.hpp>
 #include <supermod/ui/styles/styles.hpp>
@@ -127,7 +127,7 @@ void sm::ui::windows::main::ModsView()
             const auto mod = *activeMod;
             const auto info = mod->GetInfo();
 
-            widgets::mods::InfoBlock(info);
+            widgets::mods::InfoBlock(*info);
             ImGui::Spacing();
 
             if (!mod->HasFlag(modloader::Mod::Flag::INTERNAL))
@@ -211,7 +211,7 @@ void sm::ui::windows::main::ModsView()
                 ImGui::Spacing();
             }
 
-            if (widgets::mods::Description(info))
+            if (widgets::mods::Description(*info))
                 ImGui::Spacing();
 
             ImGui::Separator();

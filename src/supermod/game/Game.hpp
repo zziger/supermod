@@ -34,6 +34,7 @@ public:
     static void RequestExit();
     static std::filesystem::path GetDataPath();
     static std::filesystem::path GetModsPath();
+    static std::filesystem::path GetAppdataPath();
 
     static semver::version GetSdkVersion() { return semver::version::parse(SUPERMOD_VERSION); }
     static uint64_t GetGameVersion();
