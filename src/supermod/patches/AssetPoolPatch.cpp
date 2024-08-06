@@ -13,8 +13,10 @@
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/ResolveFileEvent.hpp>
 #include <supermod/game/AssetPool.hpp>
-#include <supermod/memory/HookManager.hpp>
 #include <supermod/game/Graphics.hpp>
+#include <supermod/memory/HookManager.hpp>
+#include <supermod/modloader/ModManager.hpp>
+#include <supermod/modloader/files/ModFileResolver.hpp>
 
 using namespace sm;
 
@@ -111,6 +113,20 @@ game::Asset* __fastcall load_texture_obj(game::AssetPool* this_, void*, char* na
     {
         this_->RemoveAsset(secondTex);
         return nullptr;
+    }
+
+    bool dummy;
+    const auto key = game::AssetPool::TrimFileName(name, dummy);
+    const auto dirPath = std::filesystem::path("sprites") / key;
+    if (const auto fullDirPath = game::Game::GetDataPath() / dirPath; exists(fullDirPath) && is_directory(fullDirPath))
+        return nullptr;
+
+    const auto mods = modloader::ModManager::GetMods();
+    for (const auto& mod : mods)
+    {
+        auto path = modloader::ModFileResolver::GetGameFileInMod(mod, dirPath);
+        if (path.has_value() && exists(*path) && is_directory(*path))
+            return nullptr;
     }
 
     spdlog::error("Texture for object {} was not found", name);
