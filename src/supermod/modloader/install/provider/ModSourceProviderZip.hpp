@@ -28,7 +28,7 @@ public:
         std::optional<std::string> installMessage;
         std::optional<std::string> installError;
 
-        ModInstallSourceZip(const std::shared_ptr<ModInstallRequest>& req, const std::shared_ptr<ModInfo>& modInfo,
+        ModInstallSourceZip(const std::weak_ptr<ModInstallRequest>& req, const std::shared_ptr<ModInfo>& modInfo,
                             std::string filename, const std::shared_ptr<io::OwnedZip>& zip, std::string zipPath)
             : ModInstallSource(req),
               filename(std::move(filename)),
@@ -68,5 +68,7 @@ public:
     }
 
     async::task<void> DiscoverMods(std::stop_token stopToken) override;
+
+    std::string GetName() override { return filename; }
 };
 } // namespace sm::modloader

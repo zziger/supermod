@@ -11,10 +11,17 @@
 
 void sm::ui::windows::Installer()
 {
-    if (!modloader::ModInstaller::IsInstallerActive())
-        return;
+    static bool installerOpen = false;
 
-    static bool installerOpen = true;
+    if (!modloader::ModInstaller::IsInstallerActive())
+    {
+        installerOpen = false;
+        return;
+    }
+
+    const bool firstFrame = installerOpen == false;
+    installerOpen = true;
+
     ImVec2 viewportCenter = ImGui::GetMainViewport()->GetCenter();
     auto& style = ImGui::GetStyle();
 
@@ -58,24 +65,39 @@ void sm::ui::windows::Installer()
     {
         ImGui::SetNextWindowSize(ImVec2{795, 595}, ImGuiCond_Appearing);
         ImGui::SetNextWindowPos(viewportCenter, ImGuiCond_Appearing, ImVec2{0.5f, 0.5f});
-        ImGui::SetNextWindowSizeConstraints(ImVec2{700, 500}, ImVec2{FLT_MAX, FLT_MAX});
-        if (ImGui::Begin("Установка модов", &installerOpen,
-                         ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse))
+        ImGui::SetNextWindowSizeConstraints(ImVec2{760, 500}, ImVec2{FLT_MAX, FLT_MAX});
+        if (ImGui::Begin("Установка модов", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse))
         {
-            static auto activeMod = 0; // TODO: something else
-            auto& requests = modloader::ModInstaller::GetCandidateRequests();
-            if (activeMod >= requests.size() || activeMod < 0)
+            static int activeMod = 0;
+            if (firstFrame)
                 activeMod = 0;
 
-            ImVec2 buttonSize(120.f, 0.f);
+            auto& requests = modloader::ModInstaller::GetCandidateRequests();
+            const int numRequests = static_cast<int>(requests.size());
+            const int minIndex = modloader::ModInstaller::providerErrors.empty() ? 0 : -1;
+
+            if (activeMod >= numRequests || activeMod < minIndex)
+                activeMod = minIndex;
+
+            ImVec2 buttonSize(130.f, 0.f);
             auto rightColumnWidthNeeded = buttonSize.x * 3 + style.ItemSpacing.x * 4;
             ImGui::SetNextWindowSizeConstraints(
                 ImVec2{300, 0}, ImVec2{ImGui::GetContentRegionAvail().x - rightColumnWidthNeeded, FLT_MAX});
             ImGui::BeginChild("mod list", ImVec2(300, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX,
                               ImGuiWindowFlags_NoSavedSettings);
             {
+                if (minIndex <= -1)
+                {
+                    ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+                    if (ImGui::Selectable(ICON_MD_WARNING " Ошибки установки", activeMod == -1,
+                                          ImGuiSelectableFlags_NoPadWithHalfSpacing, {0, 50 * Ui::GetScalingFactor()}))
+                    {
+                        activeMod = -1;
+                    }
+                    ImGui::PopStyleVar();
+                }
 
-                for (int i = 0; i < requests.size(); i++)
+                for (int i = 0; i < numRequests; i++)
                 {
                     auto& mod = requests[i];
                     if (!mod->IsCandidate())
@@ -91,7 +113,7 @@ void sm::ui::windows::Installer()
             ImGui::SameLine();
             ImGui::BeginGroup();
             ImGui::BeginChild("mod info", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-            if (activeMod < requests.size())
+            if (activeMod >= 0 && activeMod < numRequests)
             {
                 auto& request = requests[activeMod];
                 auto modInfo = request->GetModInfo();
@@ -149,6 +171,16 @@ void sm::ui::windows::Installer()
                 }
                 ImGui::Spacing();
             }
+            else if (activeMod == -1)
+            {
+                ImGui::TextWrapped("Во время поиска модов для установки произошли следующие ошибки:");
+                ImGui::Spacing();
+                ImGui::Spacing();
+                for (auto& err : modloader::ModInstaller::providerErrors)
+                {
+                    styles::danger::PanelText(err.c_str());
+                }
+            }
             ImGui::EndChild();
 
             if (ImGui::Button("Отмена", buttonSize))
@@ -158,17 +190,23 @@ void sm::ui::windows::Installer()
             float widthNeeded = buttonSize.x + style.ItemSpacing.x + buttonSize.x;
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - widthNeeded);
 
-            ImGui::BeginDisabled(activeMod <= 0);
+            ImGui::BeginDisabled(activeMod <= minIndex);
             if (ImGui::Button("Назад", buttonSize))
                 activeMod--;
             ImGui::EndDisabled();
 
             ImGui::SameLine();
 
-            if (activeMod >= requests.size() - 1)
+            if (activeMod >= numRequests - 1)
             {
-                if (ImGui::Button("Установить"))
-                    modloader::ModInstaller();
+                const auto installBtn =
+                    numRequests == 0 || std::ranges::find_if(requests, [&](const auto& req) {
+                                            return req->activeSource != modloader::ModInstallRequest::DONT_INSTALL;
+                                        }) != requests.end();
+                ImGui::BeginDisabled(numRequests == 0);
+                if (ImGui::Button(installBtn ? "Установить" : "Готово", buttonSize))
+                    modloader::ModInstaller::Install();
+                ImGui::EndDisabled();
             }
             else
             {

@@ -10,7 +10,7 @@ struct ModInstallRequest;
 
 struct ModInstallSource
 {
-    explicit ModInstallSource(const std::shared_ptr<ModInstallRequest>& req) : req(req) {}
+    explicit ModInstallSource(const std::weak_ptr<ModInstallRequest>& req) : req(req) {}
     virtual ~ModInstallSource() = default;
 
     virtual void Update() {}
@@ -23,7 +23,7 @@ struct ModInstallSource
     virtual float GetInstallProgress() = 0;
 
 protected:
-    std::shared_ptr<ModInstallRequest> req;
+    std::weak_ptr<ModInstallRequest> req;
 };
 
 struct ModInstallRequest

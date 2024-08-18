@@ -8,10 +8,13 @@ void sm::modloader::ModSourceProviderZip::ModInstallSourceZip::Update()
     auto countProviders = std::ranges::count_if(providers, [&](const std::shared_ptr<ModSourceProvider>& provider) {
         return std::dynamic_pointer_cast<ModSourceProviderZip>(provider) != nullptr;
     });
-    auto countSources = std::ranges::count_if(req->sources, [&](const std::shared_ptr<ModInstallSource>& source) {
-        auto zipPtr = std::dynamic_pointer_cast<ModInstallSourceZip>(source);
-        return zipPtr != nullptr && zipPtr->filename == filename;
-    });
+    auto countSources =
+        req.expired()
+            ? 0
+            : std::ranges::count_if(req.lock()->sources, [&](const std::shared_ptr<ModInstallSource>& source) {
+                  auto zipPtr = std::dynamic_pointer_cast<ModInstallSourceZip>(source);
+                  return zipPtr != nullptr && zipPtr->filename == filename;
+              });
 
     if (countProviders > 1)
     {
@@ -97,6 +100,8 @@ async::task<void> sm::modloader::ModSourceProviderZip::ModInstallSourceZip::Inst
 
 async::task<void> sm::modloader::ModSourceProviderZip::DiscoverMods(std::stop_token stopToken)
 {
+    bool found = false;
+
     for (auto& info : zip->zip->infolist())
     {
         if (stopToken.stop_requested())
@@ -129,8 +134,11 @@ async::task<void> sm::modloader::ModSourceProviderZip::DiscoverMods(std::stop_to
             }
         }
 
-        auto req = ModInstaller::GetRequest(modInfo->GetID(), true);
-        req->AddSource(std::make_shared<ModInstallSourceZip>(req, modInfo, filename, zip, rootPath));
+        found = true;
+        {
+            auto req = ModInstaller::GetRequest(modInfo->GetID(), true);
+            req->AddSource(std::make_shared<ModInstallSourceZip>(req, modInfo, filename, zip, rootPath));
+        }
         for (const auto& dependency : modInfo->dependencies)
         {
             auto depReq = ModInstaller::GetRequest(dependency.id, false);
@@ -138,5 +146,11 @@ async::task<void> sm::modloader::ModSourceProviderZip::DiscoverMods(std::stop_to
                 depReq->dummyModInfo->title = dependency.name;
         }
     }
+
+    if (!found)
+    {
+        throw std::exception("Не удалось найти моды SuperMod в указанном архиве");
+    }
+
     co_return;
 }

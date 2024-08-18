@@ -137,9 +137,10 @@ void ModManager::ScanMods(const bool init)
         if (file.path().extension() != ".zip")
             continue;
 
-        auto zip = std::make_shared<io::OwnedZip>(file.path().string(), true);
-        ModInstaller::AddProvider(
-            std::make_shared<ModSourceProviderZip>(file.path().filename().string(), zip));
+        EventManager::On<D3dInitEvent>([=] {
+            auto zip = std::make_shared<io::OwnedZip>(file.path().string(), true);
+            ModInstaller::AddProvider(std::make_shared<ModSourceProviderZip>(file.path().filename().string(), std::move(zip)));
+        });
     }
 }
 

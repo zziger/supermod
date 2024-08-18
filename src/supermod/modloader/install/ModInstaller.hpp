@@ -14,12 +14,14 @@ class ModInstaller
     static inline std::vector<std::shared_ptr<ModInstallRequest>> candidateRequests{};
     static inline std::vector<std::shared_ptr<ModSourceProvider>> providers{};
     static inline std::stop_source stopSource{};
-    inline static ZipModDropTarget dropTarget{};
+    static inline ZipModDropTarget dropTarget{};
 
     static inline std::atomic_bool installing = false;
     static inline std::atomic_int installingCurrentRequest = 0;
 
 public:
+    static inline std::vector<std::string> providerErrors{};
+
     static ZipModDropTarget& GetDropTarget() { return dropTarget; }
 
     static bool IsInstallerActive() { return !requests.empty() || !providers.empty(); }
@@ -72,23 +74,55 @@ public:
 
     static async::task<void> AddProviders(const std::initializer_list<std::shared_ptr<ModSourceProvider>>& newProviders)
     {
-        for (auto& provider : newProviders)
-            providers.push_back(provider);
-        stopSource = std::stop_source{};
-        for (auto& provider : newProviders)
-            co_await provider->DiscoverMods(stopSource.get_token());
-        co_await io::Async::ToMain();
-        UpdateCandidates();
+        try
+        {
+            for (auto& provider : newProviders)
+                providers.push_back(provider);
+            stopSource = std::stop_source{};
+            for (auto& provider : newProviders)
+            {
+                try
+                {
+                    co_await provider->DiscoverMods(stopSource.get_token());
+                }
+                catch (std::exception& e)
+                {
+                    providerErrors.push_back("Произошла ошибка при добавлении модов из " + provider->GetName() +
+                                             ": \n" + e.what());
+                }
+            }
+            co_await io::Async::ToMain();
+            UpdateCandidates();
+        }
+        catch (std::exception& e)
+        {
+            providerErrors.emplace_back(e.what());
+        }
         co_return;
     }
 
     static async::task<void> AddProvider(const std::shared_ptr<ModSourceProvider>& newProvider)
     {
-        providers.push_back(newProvider);
-        stopSource = std::stop_source{};
-        co_await newProvider->DiscoverMods(stopSource.get_token());
-        co_await io::Async::ToMain();
-        UpdateCandidates();
+        try
+        {
+            providers.push_back(newProvider);
+            stopSource = std::stop_source{};
+            try
+            {
+                co_await newProvider->DiscoverMods(stopSource.get_token());
+            }
+            catch (std::exception& e)
+            {
+                providerErrors.push_back("Произошла ошибка при добавлении модов из " + newProvider->GetName() + ": \n" +
+                                         e.what());
+            }
+            co_await io::Async::ToMain();
+            UpdateCandidates();
+        }
+        catch (std::exception& e)
+        {
+            providerErrors.emplace_back(e.what());
+        }
         co_return;
     }
 
@@ -130,6 +164,7 @@ public:
         providers.clear();
         requests.clear();
         candidateRequests.clear();
+        providerErrors.clear();
         stopSource.request_stop();
     }
     static std::shared_ptr<Mod> InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path);
