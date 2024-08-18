@@ -6,16 +6,15 @@
 #include <supermod/modloader/mod/states/ModState.hpp>
 #include <supermod/ui/Ui.hpp>
 
-bool sm::ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected, bool border,
+bool sm::ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mod,
+                                       const std::shared_ptr<modloader::ModInfo>& info, bool selected, bool border,
                                        const std::optional<modloader::ModInfo::Dependency>& dependency, bool* hovered,
                                        bool* active)
 {
-    const auto info = mod->GetInfo();
-
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6, 6) * Ui::GetScalingFactor());
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 4) * Ui::GetScalingFactor());
 
-    ImGui::PushID(info->GetID().c_str());
+    ImGui::PushID((info->GetID() + "_selectable").c_str());
 
     const auto frameStart = ImGui::GetCursorScreenPos();
     const auto frameSize = ImVec2{0, 50 * Ui::GetScalingFactor()};
@@ -27,7 +26,7 @@ bool sm::ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mo
     if (hovered)
         *hovered = ImGui::IsItemHovered();
 
-    if (ImGui::BeginPopupContextItem())
+    if (mod != nullptr && ImGui::BeginPopupContextItem())
     {
         ContextMenu(mod);
         ImGui::EndPopup();
@@ -43,9 +42,10 @@ bool sm::ui::widgets::mods::Selectable(const std::shared_ptr<modloader::Mod>& mo
         const auto childStart = ImGui::GetCursorScreenPos();
         const auto drawList = ImGui::GetWindowDrawList();
         auto limitX = childStart.x + ImGui::GetContentRegionAvail().x;
-        const auto mismatchedDependency = dependency && !dependency->version.Match(mod->GetInfo()->version);
+        const auto mismatchedDependency =
+            mod != nullptr && dependency && !dependency->version.Match(mod->GetInfo()->version);
 
-        if (!mod->HasFlag(modloader::Mod::Flag::INTERNAL))
+        if (mod != nullptr && !mod->HasFlag(modloader::Mod::Flag::INTERNAL))
         {
             ImGui::BeginGroup();
             {

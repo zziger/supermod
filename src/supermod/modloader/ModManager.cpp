@@ -1,3 +1,5 @@
+#include "install/provider/ModSourceProviderZip.hpp"
+
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/pch.hpp>
 
@@ -8,10 +10,6 @@
 #include <supermod/exceptions/Error.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/io/logs/Console.hpp>
-#include <supermod/modloader/install/ModInstallRequestDiscover.hpp>
-#include <supermod/modloader/install/ModInstallRequestZip.hpp>
-#include <supermod/modloader/install/ModInstaller.hpp>
-#include <supermod/modloader/install/ZipModDropTarget.hpp>
 #include <supermod/modloader/mod/impl/ModImpl.hpp>
 #include <supermod/modloader/mod/impl/ModImplLua.hpp>
 #include <supermod/modloader/mod/info/ModInfo.hpp>
@@ -129,7 +127,7 @@ void ModManager::ScanMods(const bool init)
             continue;
 
         AddMod(mod);
-        ModInstaller::RequestInstall(std::make_shared<ModInstallRequestDiscover>(mod));
+        mod->Toggle(true);
     }
 
     for (const auto& file : std::filesystem::directory_iterator(modsPath))
@@ -138,7 +136,10 @@ void ModManager::ScanMods(const bool init)
             continue;
         if (file.path().extension() != ".zip")
             continue;
-        ModInstaller::RequestInstall(ModInstallRequestZip::FromZip(file.path(), true));
+
+        auto zip = std::make_shared<io::OwnedZip>(file.path().string(), true);
+        ModInstaller::AddProvider(
+            std::make_shared<ModSourceProviderZip>(file.path().filename().string(), zip));
     }
 }
 

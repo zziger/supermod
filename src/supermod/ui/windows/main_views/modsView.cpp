@@ -42,13 +42,13 @@ void sm::ui::windows::main::ModsView()
             {
                 for (const auto& loadedMod : modloader::ModManager::GetInternalMods())
                 {
-                    if (widgets::mods::Selectable(loadedMod, loadedMod == activeMod))
+                    if (widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(), loadedMod == activeMod))
                         activeMod = loadedMod;
                     ImGui::Spacing();
                 }
                 for (const auto& loadedMod : modloader::ModManager::GetMods())
                 {
-                    if (widgets::mods::Selectable(loadedMod, loadedMod == activeMod))
+                    if (widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(), loadedMod == activeMod))
                         activeMod = loadedMod;
                     ImGui::Spacing();
                 }
@@ -60,7 +60,8 @@ void sm::ui::windows::main::ModsView()
                 {
                     const auto loadedMod = reorderMods[i];
                     bool hovered, active;
-                    widgets::mods::Selectable(loadedMod, false, false, std::nullopt, &hovered, &active);
+                    widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(), false, false, std::nullopt, &hovered,
+                                              &active);
 
                     if (active && !hovered)
                     {

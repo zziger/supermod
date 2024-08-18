@@ -14,7 +14,6 @@
 #include <supermod/events/UIRenderEvent.hpp>
 #include <supermod/events/WindowEvent.hpp>
 #include <supermod/modloader/ModManager.hpp>
-#include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/game/DirectX.hpp>
 #include <supermod/game/Game.hpp>

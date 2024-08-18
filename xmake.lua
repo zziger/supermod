@@ -5,7 +5,7 @@ add_requires("minhook multihook")
 add_requires("lodepng")
 add_requires("libjpeg-turbo")
 add_requires("imgui v1.90.4-docking",
-    { configs = { win32 = true, user_config = path.join(os.curdir(), "src/ImGuiConfig.h") } })
+    { configs = { win32 = true, user_config = path.join(os.curdir(), "src/supermod/ImGuiConfig.hpp") } })
 add_requires("luajit-fork 18926e357d12f7f757227a1ce018876aa8d9fd57")
 add_requires("yaml-cpp 0.7.0")
 add_requires("tga 2022.05.05")

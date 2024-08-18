@@ -9,8 +9,6 @@
 #include <supermod/pch.hpp>
 #include <supermod/registry/RegistryManager.hpp>
 
-#define API_URL "https://supermod.zziger.me/api/v1/"
-
 sm::registry::RegistryManager::User::User(nlohmann::json json)
 {
     id = json["id"].get<int>();

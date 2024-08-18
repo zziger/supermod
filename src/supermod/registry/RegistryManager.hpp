@@ -8,6 +8,8 @@
 #include <semver/semver.hpp>
 #include <supermod/modloader/mod/info/ModInfoRegistry.hpp>
 
+#define API_URL "https://supermod.zziger.me/api/v1/"
+
 namespace sm::registry
 {
 class RegistryManager
@@ -66,6 +68,8 @@ public:
         return user->role == User::ADMIN || user->id == entry.uploader.id;
     }
 
+    static cpr::Bearer GetBearer();
+
 private:
     static inline std::atomic_bool authorizing = false;
     static inline std::stop_source authStopSource;
@@ -75,7 +79,6 @@ private:
     static inline std::optional<User> user;
     static inline std::map<std::string, Entry> entries;
 
-    static cpr::Bearer GetBearer();
     static async::task<void> FetchUser();
     static void SaveToken();
 

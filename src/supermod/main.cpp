@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "modloader/install/ModInstaller.hpp"
 #include "registry/RegistryManager.hpp"
 
 #include <supermod/pch.hpp>
@@ -31,7 +32,6 @@
 #include <supermod/memory/Memory.hpp>
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/files/ModFileResolver.hpp>
-#include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/mod/impl/lua/lua.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/ui/UI.hpp>
@@ -80,12 +80,12 @@ HOOK_FN(int, load_game, ARGS())
         EnableMenuItem(GetSystemMenu(*game::Game::window, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     }
 
-    while (game::Game::bootMenuActive || !modloader::ModInstaller::GetInstallRequests().empty())
+    while (game::Game::bootMenuActive || modloader::ModInstaller::IsInstallerActive())
     {
         auto start = GetTickCount64();
         dx_utils::force_render_tick();
         const auto delta = GetTickCount64() - start;
-        constexpr int needed = 10;
+        constexpr int needed = 5;
 
         if (delta < needed)
             Sleep(needed - delta);

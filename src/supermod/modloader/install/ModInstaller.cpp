@@ -1,44 +1,12 @@
-#include <supermod/modloader/install/ModInstaller.hpp>
-#include <supermod/pch.hpp>
-
 #include <supermod/events/D3dInitEvent.hpp>
-#include <supermod/events/EventManager.hpp>
-#include <supermod/events/TickEvent.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/io/logs/Console.hpp>
-#include <supermod/modloader/ModManager.hpp>
-#include <supermod/modloader/install/ModInstallRequestZip.hpp>
-#include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
-#include <supermod/ui/NotificationManager.hpp>
+#include <supermod/modloader/install/ModInstaller.hpp>
+#include <supermod/modloader/install/provider/ModSourceProviderZip.hpp>
 
 namespace sm::modloader
 {
-void ModInstaller::Init()
-{
-    EventManager::On<D3dInitEvent>([] {
-        if (FAILED(OleInitialize(nullptr)))
-            spdlog::error("Failed to initialize OLE");
-        if (FAILED(RegisterDragDrop(*game::Game::window, &dropTarget)))
-            spdlog::error("Failed to register drag and drop target");
-        ScanCmdline();
-    });
-}
-
-void ModInstaller::ScanCmdline()
-{
-    const auto cmdline = GetCommandLineW();
-    int argvCount = 0;
-    const auto argv = CommandLineToArgvW(cmdline, &argvCount);
-    for (auto i = 0; i < argvCount; i++)
-    {
-        auto path = std::filesystem::path(argv[i]);
-        if (path.extension() != ".zip")
-            continue;
-        RequestInstall(ModInstallRequestZip::FromZip(path, false));
-    }
-}
-
 std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path)
 {
     auto mod = ModManager::FindModByID(info->GetID());
@@ -105,5 +73,29 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
     }
 
     return mod;
+}
+
+void ModInstaller::Init()
+{
+    EventManager::On<D3dInitEvent>([] {
+        if (FAILED(OleInitialize(nullptr)))
+            spdlog::error("Failed to initialize OLE");
+        if (FAILED(RegisterDragDrop(*game::Game::window, &dropTarget)))
+            spdlog::error("Failed to register drag and drop target");
+
+        // In DX init because this initializes mod icons
+        const auto cmdline = GetCommandLineW();
+        int argvCount = 0;
+        const auto argv = CommandLineToArgvW(cmdline, &argvCount);
+        for (auto i = 0; i < argvCount; i++)
+        {
+            auto path = std::filesystem::path(argv[i]);
+            if (path.extension() != ".zip")
+                continue;
+
+            auto zip = std::make_shared<io::OwnedZip>(path.string(), false);
+            AddProvider(std::make_shared<ModSourceProviderZip>(path.filename().string(), zip));
+        }
+    });
 }
 } // namespace sm::modloader

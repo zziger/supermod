@@ -18,7 +18,7 @@ std::shared_ptr<sm::modloader::Mod> sm::ui::widgets::mods::Reference(
     }
     else
     {
-        if (Selectable(mod, false, true, dependency))
+        if (Selectable(mod, mod->GetInfo(), false, true, dependency))
         {
             return mod;
         }

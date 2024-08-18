@@ -1,9 +1,9 @@
 #include <supermod/modloader/install/ZipModDropTarget.hpp>
 #include <supermod/pch.hpp>
 
-#include <supermod/modloader/install/ModInstallRequestZip.hpp>
-#include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/game/Game.hpp>
+#include <supermod/modloader/install/ModInstaller.hpp>
+#include <supermod/modloader/install/provider/ModSourceProviderZip.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 
 namespace sm::modloader
@@ -95,13 +95,9 @@ HRESULT ZipModDropTarget::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
             if (path.extension() == ".zip")
             {
                 *pdwEffect = DROPEFFECT_COPY;
-                auto requests = modloader::ModInstallRequestZip::FromZip(path, false);
-                if (requests.empty())
-                    ui::NotificationManager::Notify(
-                        std::format("В архиве {} не найдено модов для установки", path.filename().string()),
-                        ui::Notification::WARN);
-                for (const auto& request : requests)
-                    modloader::ModInstaller::RequestInstall(request);
+                auto zip = std::make_shared<io::OwnedZip>(path.string(), false);
+                modloader::ModInstaller::AddProvider(
+                    std::make_shared<ModSourceProviderZip>(path.filename().string(), zip));
             }
         }
     }

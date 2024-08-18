@@ -18,7 +18,8 @@ namespace mods
 {
 std::shared_ptr<modloader::Mod> Reference(
     const std::string& modId, const std::optional<modloader::ModInfo::Dependency>& dependency = std::nullopt);
-bool Selectable(const std::shared_ptr<modloader::Mod>& mod, bool selected = false, bool border = false,
+bool Selectable(const std::shared_ptr<modloader::Mod>& mod, const std::shared_ptr<modloader::ModInfo>& info,
+                bool selected = false, bool border = false,
                 const std::optional<modloader::ModInfo::Dependency>& dependency = std::nullopt, bool* hovered = nullptr,
                 bool* active = nullptr);
 bool SelectableRegistry(const modloader::ModInfoRegistry& info, bool selected = false);

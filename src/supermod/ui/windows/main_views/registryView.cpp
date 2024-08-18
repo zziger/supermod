@@ -127,7 +127,9 @@ void sm::ui::windows::main::RegistryView()
             }
 
             ImGui::SameLine();
-            ImGui::Button("Установить");
+            if (ImGui::Button("Установить"))
+            {
+            }
 
             if (!version.verified)
             {
