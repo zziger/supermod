@@ -108,7 +108,6 @@ Config:getNumber(key: string)
 
 ```lua
 Config:getObject(key: string)
-  -> table
 ```
 
 #### Аргументы
@@ -129,10 +128,6 @@ Config:getObject(key: string)
     </tr>
   </tbody>
 </table>
-
-#### Возвращает
-
-- `table` 
 
 ### Метод `Config:getString`
 
