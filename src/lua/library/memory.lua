@@ -85,7 +85,7 @@ function M.withBackup(backup)
     mem.__index = mem
     function mem.at(location, params)
         local oldInstance = M.at(location, params)
-        local instance = setmetatable({}, mem)
+        local instance = setmetatable({}, Memory)
         instance.addr = oldInstance.addr
         instance.unsafe = oldInstance.unsafe
         instance.backup = backup
@@ -167,7 +167,7 @@ end
 ---@param offset number Оффсет от прошлого адреса (в байтах)
 ---@return Memory
 function Memory:add(offset)
-    return self.at(self.addr + offset)
+    return M.at(self.addr + offset)
 end
 
 ---Возвращает функцию по текущему адресу
@@ -202,14 +202,14 @@ end
 ---Читает адрес (int32) по текущему адресу, и возвращает обьект Memory с новым адресом
 ---@return Memory
 function Memory:readOffset()
-    return self.at(self:readInt32())
+    return M.at(self:readInt32())
 end
 
 ---Читает инструкцию вызова по относительному адресу (opcode E8), и возвращает обьект Memory с адресом вызываемой функции
 ---@return Memory
 function Memory:readNearCall()
     local addr = self.addr
-    return self.at(self:add(1):readInt32() + addr + 5)
+    return M.at(self:add(1):readInt32() + addr + 5)
 end
 
 ---Читает int64 по текущему адресу (8 байт)

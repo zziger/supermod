@@ -90,10 +90,11 @@ void ModImplLua::OnEnabled()
             lua.script(sdk->read("library/events.lua"), package->fenv, sol::script_throw_on_error, "built-in events");
         package->builtin["timers"] =
             lua.script(sdk->read("library/timers.lua"), package->fenv, sol::script_throw_on_error, "built-in timers");
+        tick = package->fenv["__tick"];
 
+        auto memText = sdk->read("library/memory.lua");
         HookManager::AddLuaIntrinsics(package->fenv);
-        package->builtin["memory"] =
-            lua.script(sdk->read("library/memory.lua"), package->fenv, sol::script_throw_on_error, "built-in memory");
+        package->builtin["memory"] = lua.script(memText, package->fenv, sol::script_throw_on_error, "built-in memory");
         HookManager::RemoveLuaIntrinsics(package->fenv);
 
         Config::AddLuaIntrinsics(package->fenv, info->GetID());
