@@ -28,7 +28,7 @@ void sm::ui::windows::Installer()
     if (modloader::ModInstaller::IsInstalling())
     {
 
-        ImGui::SetNextWindowSize(ImVec2{600, 0}, ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2{600, 0}, ImGuiCond_Always);
         if (ImGui::Begin("Установка модов", nullptr,
                          ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
         {

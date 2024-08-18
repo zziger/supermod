@@ -131,16 +131,26 @@ public:
         installing = true;
         installingCurrentRequest = 0;
 
-        UpdateCandidates();
         try
         {
+            UpdateCandidates();
             for (int i = 0; i < candidateRequests.size(); i++)
             {
                 installingCurrentRequest = i;
                 auto source = candidateRequests[i]->GetActiveSource();
                 if (source == nullptr)
                     continue;
-                co_await source->Install();
+                try
+                {
+                    co_await source->Install();
+                }
+                catch (std::exception& e)
+                {
+                    installing = false;
+                    ui::NotificationManager::Notify("Ошибка при установке мода " +
+                                                    candidateRequests[i]->GetModInfo()->title + ": " +
+                                                    std::string(e.what()));
+                }
             }
         }
         catch (std::exception& e)
