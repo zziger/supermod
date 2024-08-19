@@ -20,6 +20,7 @@ class ModInstaller
     static inline std::atomic_int installingCurrentRequest = 0;
 
 public:
+    static inline std::mutex errorMutex{};
     static inline std::vector<std::string> providerErrors{};
 
     static ZipModDropTarget& GetDropTarget() { return dropTarget; }
@@ -81,6 +82,7 @@ public:
             stopSource = std::stop_source{};
             for (auto& provider : newProviders)
             {
+                auto name = provider->GetName();
                 try
                 {
                     co_await provider->DiscoverMods(stopSource.get_token());
@@ -107,14 +109,14 @@ public:
         {
             providers.push_back(newProvider);
             stopSource = std::stop_source{};
+            auto name = newProvider->GetName();
             try
             {
                 co_await newProvider->DiscoverMods(stopSource.get_token());
             }
             catch (std::exception& e)
             {
-                providerErrors.push_back("Произошла ошибка при добавлении модов из " + newProvider->GetName() + ": \n" +
-                                         e.what());
+                providerErrors.push_back("Произошла ошибка при добавлении модов из " + name + ": \n" + e.what());
             }
             co_await io::Async::ToMain();
             UpdateCandidates();
@@ -130,6 +132,7 @@ public:
     {
         installing = true;
         installingCurrentRequest = 0;
+        bool installedAny = false;
 
         try
         {
@@ -143,6 +146,7 @@ public:
                 try
                 {
                     co_await source->Install();
+                    installedAny = true;
                 }
                 catch (std::exception& e)
                 {
@@ -167,6 +171,9 @@ public:
         Reset();
 
         installing = false;
+
+        ui::NotificationManager::Notify(installedAny ? "Установка модов завершена" : "Моды не были установлены",
+                                        ui::Notification::INFO);
     }
 
     static void Reset()

@@ -56,8 +56,15 @@ async::task<void> sm::io::Async::Delay(std::chrono::milliseconds duration)
     const auto source = std::make_shared<async::task_completion_source<void>>();
 
     std::thread([=] {
-        Sleep(duration.count() * 1000);
-        source->set_value();
+        try
+        {
+            Sleep(duration.count());
+            source->set_value();
+        }
+        catch (...)
+        {
+            source->set_exception(std::current_exception());
+        }
     }).detach();
 
     return source->task();

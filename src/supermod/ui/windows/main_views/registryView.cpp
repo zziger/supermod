@@ -4,6 +4,8 @@
 #include <imgui_internal.h>
 #include <supermod/game/Game.hpp>
 #include <supermod/modloader/ModManager.hpp>
+#include <supermod/modloader/install/ModInstaller.hpp>
+#include <supermod/modloader/install/provider/ModSourceProviderRegistry.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/registry/RegistryManager.hpp>
 #include <supermod/ui/Ui.hpp>
@@ -129,6 +131,8 @@ void sm::ui::windows::main::RegistryView()
             ImGui::SameLine();
             if (ImGui::Button("Установить"))
             {
+                modloader::ModInstaller::AddProvider(
+                    std::make_shared<modloader::ModSourceProviderRegistry>(info.GetID(), version.version.str()));
             }
 
             if (!version.verified)

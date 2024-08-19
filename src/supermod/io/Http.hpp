@@ -40,6 +40,17 @@ public:
     }
 
     template <typename... Ts>
+    static async::task<cpr::Response> Download(const std::shared_ptr<std::ofstream>& file, Ts&&... args)
+    {
+        const auto source = std::make_shared<async::task_completion_source<cpr::Response>>();
+
+        std::thread([=, ... args = std::move(args)]() mutable {
+            FillSource(source, cpr::Download<Ts...>(*file, std::move(args)...));
+        }).detach();
+        return source->task();
+    }
+
+    template <typename... Ts>
     static async::task<cpr::Response> Get(Ts&&... args)
     {
         const auto source = std::make_shared<async::task_completion_source<cpr::Response>>();
@@ -76,7 +87,8 @@ private:
         if (response.status_code / 100 == 2)
             source->set_value(response);
         else
-            source->set_exception(std::make_exception_ptr(NetworkError(response.status_code, response.text)));
+            source->set_exception(std::make_exception_ptr(
+                NetworkError(response.status_code, response.text.empty() ? response.error.message : response.text)));
     }
 };
 } // namespace sm::io

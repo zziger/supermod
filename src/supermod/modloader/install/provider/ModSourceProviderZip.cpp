@@ -84,15 +84,9 @@ async::task<void> sm::modloader::ModSourceProviderZip::ModInstallSourceZip::Inst
     }
     catch (const std::exception& err)
     {
-        spdlog::error("Failed to install zip mod: {}", err.what());
         io::TempManager::RemoveTempDir(path);
         installError = err.what();
-    }
-    catch (...)
-    {
-        spdlog::error("Failed to install zip mod: Unknown error");
-        io::TempManager::RemoveTempDir(path);
-        installError = "Unknown error";
+        throw;
     }
 
     co_return;
