@@ -139,7 +139,8 @@ void ModManager::ScanMods(const bool init)
 
         EventManager::On<D3dInitEvent>([=] {
             auto zip = std::make_shared<io::OwnedZip>(file.path().string(), true);
-            ModInstaller::AddProvider(std::make_shared<ModSourceProviderZip>(file.path().filename().string(), std::move(zip)));
+            ModInstaller::AddProvider(
+                std::make_shared<ModSourceProviderZip>(file.path().filename().string(), std::move(zip)));
         });
     }
 }
@@ -236,16 +237,37 @@ void ModManager::RemoveMods(const std::vector<std::shared_ptr<Mod>>& removalList
                 continue;
             try
             {
-                remove_all(info->basePath);
+                std::error_code err;
+                std::filesystem::remove_all(info->basePath, err);
+
+                if (err)
+                {
+                    spdlog::error("Failed to remove {}: FS error {}", info->basePath.string(), err.message());
+                    switch (err.value())
+                    {
+                    case 32:
+                        ui::NotificationManager::Notify(
+                            std::format("Не удалось удалить папку мода {}, она занята другим процессом. Убедитесь, что "
+                                        "файлы мода не открыты в какой-либо другой программе",
+                                        info->title));
+                        break;
+                    default:
+                        ui::NotificationManager::Notify(std::format(
+                            "Не удалось удалить папку мода {}. Детали ошибки отправлены в консоль", info->title));
+                        break;
+                    }
+                }
             }
             catch (const std::exception& err)
             {
                 spdlog::error("Failed to remove {}: {}", info->basePath.string(), err.what());
                 ui::NotificationManager::Notify(
-                    std::format("Не удалось удалить папку {}.\n{}", info->basePath.string(), err.what()));
+                    std::format("Не удалось удалить папку мода {}. Детали ошибки отправлены в консоль", info->title));
             }
         }
     }
+
+    ScanMods();
 }
 
 void ModManager::ReorderMods(const std::vector<std::shared_ptr<Mod>>& newMods)
