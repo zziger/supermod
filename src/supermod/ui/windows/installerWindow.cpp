@@ -122,6 +122,27 @@ void sm::ui::windows::Installer()
                 ImGui::Separator();
                 ImGui::Spacing();
 
+                auto existingMod = modloader::ModManager::FindModByID(modInfo->GetID());
+                if (existingMod != nullptr)
+                {
+                    styles::warning::PanelText(
+                        "У вас уже есть этот мод. Текущий мод будет перезаписан новым при установке");
+                    if (existingMod->GetState()->IsActive())
+                    {
+                        styles::warning::BeginPanel("mod enabled warning");
+                        ImGui::Text("Текущий мод должен быть выключен для перезаписи");
+                        if (!existingMod->IsEnabled() && existingMod->IsActive())
+                            widgets::mods::Status(existingMod);
+                        ImGui::Spacing();
+                        if (existingMod->IsEnabled() && ImGui::Button("Выключить"))
+                            modloader::ModManager::ToggleMod(existingMod, false);
+                        styles::warning::EndPanel();
+                    }
+                    ImGui::Spacing();
+                    ImGui::Separator();
+                    ImGui::Spacing();
+                }
+
                 if (request->sources.empty())
                 {
                     styles::warning::PanelText("Мод требуется другими модами, но не был найден в доступных источниках");
