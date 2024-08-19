@@ -16,6 +16,7 @@ class ModInstaller
     static inline std::stop_source stopSource{};
     static inline ZipModDropTarget dropTarget{};
 
+    static inline std::atomic_bool discovering = false;
     static inline std::atomic_bool installing = false;
     static inline std::atomic_int installingCurrentRequest = 0;
 
@@ -27,6 +28,7 @@ public:
 
     static bool IsInstallerActive() { return !requests.empty() || !providers.empty(); }
     static bool IsInstalling() { return installing; }
+    static bool IsDiscovering() { return discovering; }
 
     static std::vector<std::shared_ptr<ModSourceProvider>>& GetProviders() { return providers; }
     static std::vector<std::shared_ptr<ModInstallRequest>>& GetRequests() { return requests; }
@@ -73,40 +75,20 @@ public:
         return newRequest;
     }
 
-    static async::task<void> AddProviders(const std::initializer_list<std::shared_ptr<ModSourceProvider>>& newProviders)
-    {
-        try
-        {
-            for (auto& provider : newProviders)
-                providers.push_back(provider);
-            stopSource = std::stop_source{};
-            for (auto& provider : newProviders)
-            {
-                auto name = provider->GetName();
-                try
-                {
-                    co_await provider->DiscoverMods(stopSource.get_token());
-                }
-                catch (std::exception& e)
-                {
-                    providerErrors.push_back("Произошла ошибка при добавлении модов из " + provider->GetName() +
-                                             ": \n" + e.what());
-                }
-            }
-            co_await io::Async::ToMain();
-            UpdateCandidates();
-        }
-        catch (std::exception& e)
-        {
-            providerErrors.emplace_back(e.what());
-        }
-        co_return;
-    }
-
     static async::task<void> AddProvider(const std::shared_ptr<ModSourceProvider>& newProvider)
     {
+        discovering = true;
         try
         {
+            if (std::ranges::find_if(providers, [&](const std::shared_ptr<ModSourceProvider>& provider) {
+                    return provider->Compare(newProvider);
+                }) != providers.end())
+            {
+                spdlog::debug("Ignored adding provider {} because it was already found in the provider list",
+                              newProvider->GetName());
+                discovering = false;
+                co_return;
+            }
             providers.push_back(newProvider);
             stopSource = std::stop_source{};
             auto name = newProvider->GetName();
@@ -116,7 +98,7 @@ public:
             }
             catch (std::exception& e)
             {
-                providerErrors.push_back("Произошла ошибка при добавлении модов из " + name + ": \n" + e.what());
+                providerErrors.push_back("Произошла ошибка при добавлении модов из \"" + name + "\": \n" + e.what());
             }
             co_await io::Async::ToMain();
             UpdateCandidates();
@@ -125,6 +107,7 @@ public:
         {
             providerErrors.emplace_back(e.what());
         }
+        discovering = false;
         co_return;
     }
 

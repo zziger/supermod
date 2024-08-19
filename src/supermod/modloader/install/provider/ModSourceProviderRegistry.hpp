@@ -64,6 +64,15 @@ public:
 
     async::task<void> DiscoverMods(std::stop_token stopToken) override;
 
-    std::string GetName() override { return modId; }
+    [[nodiscard]] std::string GetName() const override { return "источники SuperMod"; }
+    [[nodiscard]] Type GetType() const override { return Type::REGISTRY; }
+
+    bool Compare(const std::shared_ptr<ModSourceProvider>& other) override
+    {
+        if (this->GetType() != other->GetType())
+            return false;
+        const auto otherRegistry = std::dynamic_pointer_cast<ModSourceProviderRegistry>(other);
+        return this->modId == otherRegistry->modId && this->version == otherRegistry->version;
+    }
 };
 } // namespace sm::modloader

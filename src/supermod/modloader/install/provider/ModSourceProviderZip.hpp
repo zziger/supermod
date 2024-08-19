@@ -69,6 +69,16 @@ public:
 
     async::task<void> DiscoverMods(std::stop_token stopToken) override;
 
-    std::string GetName() override { return filename; }
+    [[nodiscard]] std::string GetName() const override { return "архив " + filename; }
+    [[nodiscard]] Type GetType() const override { return Type::ZIP; }
+
+    bool Compare(const std::shared_ptr<ModSourceProvider>& other) override
+    {
+        if (this->GetType() != other->GetType())
+            return false;
+        const auto otherZip = std::dynamic_pointer_cast<ModSourceProviderZip>(other);
+        return this->zip == otherZip->zip ||
+               (this->zip != nullptr && otherZip->zip != nullptr && this->zip->path == otherZip->zip->path);
+    }
 };
 } // namespace sm::modloader

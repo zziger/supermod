@@ -107,6 +107,11 @@ void sm::ui::windows::Installer()
                         activeMod = i;
                     }
                 }
+
+                if (modloader::ModInstaller::IsDiscovering())
+                {
+                    ImGui::Text("Загрузка...");
+                }
             }
             ImGui::EndChild();
 
@@ -157,11 +162,13 @@ void sm::ui::windows::Installer()
                     }
                     for (int i = 0; i < request->sources.size(); i++)
                     {
+                        ImGui::PushID(i);
                         auto& source = request->sources[i];
                         if (ImGui::RadioButton(source->GetLabel().c_str(), &request->activeSource, i))
                         {
                             modloader::ModInstaller::UpdateCandidates();
                         }
+                        ImGui::PopID();
                     }
                 }
 
