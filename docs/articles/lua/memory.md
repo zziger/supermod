@@ -61,29 +61,14 @@ function memory.at(location: string|number, params?: MemoryParams)
 #### Сигнатура
 
 ```lua
-function memory.restoreBackups(backup: table)
+function memory.restoreBackups()
 ```
 
-#### Аргументы
+### ~~Функция `memory.withBackup`~~ (устарела)
 
-<table>
-  <thead>
-    <tr>
-      <th>Имя</th>
-      <th>Тип</th>
-      <th>Обязателен?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>backup</code></td>
-      <td><code>table</code></td>
-      <td>да</td>
-    </tr>
-  </tbody>
-</table>
-
-### Функция `memory.withBackup`
+{% hint style="warning" %}
+Эта функция устарела и будет удалена в будущих версиях SuperMod.
+{% endhint %}
 
 Возвращает текущий модуль, но привязанный к выбранному хранилищу бекапов
 
