@@ -11,8 +11,14 @@ ffi.cdef [[
 
 local protectionBuf = ffi.new("int32_t[1]")
 
+local backup = {
+    list = {},
+    map = {}
+}
+
 ---@class memory
 local M = {}
+M.__index = M
 
 ---@class Memory
 ---@field addr number
@@ -73,37 +79,41 @@ end
 
 ---Возвращает текущий модуль, но привязанный к выбранному хранилищу бекапов
 ---@return memory
+---@deprecated
 function M.withBackup(backup)
-    if not backup["map"] then
-        backup["map"] = {}
-    end
-    if not backup["list"] then
-        backup["list"] = {}
-    end
-
-    local mem = setmetatable({}, M)
-    mem.__index = mem
-    function mem.at(location, params)
-        local oldInstance = M.at(location, params)
-        local instance = setmetatable({}, Memory)
-        instance.addr = oldInstance.addr
-        instance.unsafe = oldInstance.unsafe
-        instance.backup = backup
-        return instance
-    end
-    return mem
+    return M
+    --if not backup["map"] then
+    --    backup["map"] = {}
+    --end
+    --if not backup["list"] then
+    --    backup["list"] = {}
+    --end
+    --
+    --local mt = {}
+    --mt.__index = mt;
+    --setmetatable(mt, {__index = M})
+    --
+    --function mt.at(location, params)
+    --    print("call fake at")
+    --    local instance = M.at(location, params)
+    --    instance.backup = backup
+    --    return instance
+    --end
+    --
+    --local mem = {}
+    --setmetatable(mem, mt)
+    --return mem
 end
 
 ---Восстанавливает оригинальные байты из бекапа
----@param backup table
-function M.restoreBackups(backup)
+function M.restoreBackups()
     if not backup["list"] then
         return
     end
 
-    backup = backup["list"]
-    for i = #backup, 1, -1 do
-        local entry = backup[i]
+    local backupList = backup["list"]
+    for i = #backupList, 1, -1 do
+        local entry = backupList[i]
         local res = ffi.C.VirtualProtect(entry[1], entry[3], 0x40, protectionBuf)
         if res then
             ffi.copy(ffi.cast("void*", entry[1]), entry[2], entry[3])
@@ -121,21 +131,22 @@ end
 ---@param addr number Адрес
 ---@param size number Кол-во памяти
 function Memory:writeBackup(addr, size)
-    if not self.backup["map"] or (self.backup["map"][addr] and self.backup["map"][addr] >= size) then
+    if not backup["map"] or (backup["map"][addr] and backup["map"][addr] >= size) then
         return
     end
 
     local buf = ffi.new("uint8_t[?]", size)
+
     ffi.copy(buf, ffi.cast("void*", addr), size)
-    table.insert(self.backup["list"], { addr, buf, size })
-    self.backup["map"][addr] = size
+    table.insert(backup["list"], { addr, buf, size })
+    backup["map"][addr] = size
 end
 
 ---@private
 ---@param size number Размер защищённой памяти
 ---@return number? Старый уровень доступа
 function Memory:protect(size)
-    if self.backup then
+    if backup then
         self:writeBackup(self.addr, size)
     end
     
@@ -472,6 +483,7 @@ events.on("_unload", function ()
         v.destroy()
     end
     createdHooks = {}
+    M.restoreBackups()
 end)
 
 --#endregion
