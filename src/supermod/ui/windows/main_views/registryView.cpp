@@ -17,7 +17,7 @@ using namespace std::chrono;
 
 void sm::ui::windows::main::RegistryView()
 {
-    static std::optional<std::string> activeMod;
+    const auto& activeMod = MainWindowState::activeRegistryMod;
     static int activeVersion = 0;
 
     auto& mods = registry::RegistryManager::GetEntries();
@@ -31,10 +31,10 @@ void sm::ui::windows::main::RegistryView()
             for (const auto& loadedMod : mods)
             {
                 if (widgets::mods::SelectableRegistry(loadedMod.second.latestVersion, loadedMod.first == activeMod) &&
-                    loadedMod.second.versions.size() > 0)
+                    !loadedMod.second.versions.empty())
                 {
                     activeVersion = 0;
-                    activeMod = loadedMod.first;
+                    MainWindowState::activeRegistryMod = loadedMod.first;
                 }
                 ImGui::Spacing();
             }
@@ -103,21 +103,29 @@ void sm::ui::windows::main::RegistryView()
             widgets::registry::Uploader(mod.uploader);
             ImGui::Spacing();
 
-            ImGui::SetNextItemWidth(300);
-            auto versionPreview = version.version.str();
-            if (!version.verified)
-            {
-                versionPreview += " " ICON_MD_SAFETY_CHECK;
-            }
+            auto currentMod = modloader::ModManager::FindModByID(mod.id);
 
-            if (ImGui::BeginCombo("##Version", versionPreview.c_str()))
+            auto versionDisplayName = [&](const registry::RegistryManager::EntryVersion& ver,
+                                          bool latest) -> std::string {
+                auto displayName = version.version.str();
+
+                if (currentMod != nullptr && ver.version == currentMod->GetInfo()->version)
+                    displayName += " (Уст.)";
+
+                if (!version.verified)
+                    displayName += " " ICON_MD_SAFETY_CHECK;
+
+                return displayName;
+            };
+
+            ImGui::SetNextItemWidth(300);
+            if (ImGui::BeginCombo("##Version",
+                                  versionDisplayName(version, mod.latestVersionValue == version.version).c_str()))
             {
                 for (int n = 0; n < mod.versions.size(); n++)
                 {
                     const bool is_selected = activeVersion == n;
-                    auto text = mod.versions[n].version.str();
-                    if (!mod.versions[n].verified)
-                        text += " " ICON_MD_SAFETY_CHECK;
+                    auto text = versionDisplayName(mod.versions[n], mod.latestVersionValue == mod.versions[n].version);
                     if (ImGui::Selectable(text.c_str(), is_selected))
                         activeVersion = n;
 
@@ -129,7 +137,9 @@ void sm::ui::windows::main::RegistryView()
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("Установить"))
+            if (ImGui::Button(currentMod != nullptr && currentMod->GetInfo()->version == version.version
+                                  ? "Переустановить"
+                                  : "Установить"))
             {
                 modloader::ModInstaller::AddProvider(
                     std::make_shared<modloader::ModSourceProviderRegistry>(info.GetID(), version.version.str()));

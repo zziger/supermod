@@ -61,6 +61,7 @@ public:
 
     static async::task<void> FetchEntries();
     static std::map<std::string, Entry>& GetEntries() { return entries; }
+    static bool HasEntry(std::string id) { return entries.contains(id); }
     static bool CanManageMod(const Entry& entry)
     {
         if (!user)

@@ -30,10 +30,11 @@ bool SelectableIcon(const char* title, const char* icon, const bool selected)
     return value;
 }
 
-void Tab(const char* icon, const int index)
+void Tab(const char* icon, const windows::main::ViewType type)
 {
-    if (SelectableIcon(windows::main::VIEW_NAMES[index].c_str(), icon, windows::main::currentView == index))
-        windows::main::currentView = index;
+    if (SelectableIcon(windows::main::VIEW_NAMES[static_cast<int>(type)].c_str(), icon,
+                       windows::main::MainWindowState::currentView == type))
+        windows::main::MainWindowState::currentView = type;
 }
 
 void Link(const char* title, const char* icon, const char* url)
@@ -65,17 +66,18 @@ void windows::Main()
     ImGui::SetNextWindowSizeConstraints(ImVec2(500, menuSize + headerSize), ImVec2(FLT_MAX, FLT_MAX));
     Ui::ConstraintWindow("###MainWindow");
 
-    if (ImGui::Begin(std::format("SuperMod / {}###MainWindow", main::VIEW_NAMES[main::currentView]).c_str(),
-                     &Ui::menuOpen))
+    if (ImGui::Begin(
+            std::format("SuperMod / {}###MainWindow", main::VIEW_NAMES[main::MainWindowState::currentView]).c_str(),
+            &Ui::menuOpen))
     {
         ImGui::BeginChild("menu", ImVec2(Ui::ScaledPx(fontSize), 0));
 
         ImGui::BeginChild("upper", ImVec2(Ui::ScaledPx(fontSize), (-Ui::ScaledPx(fontSize) - spacing.y * 2) * 2));
         Ui::PushFont(fontSize);
-        Tab(ICON_MD_FORMAT_LIST_BULLETED, 0);
-        Tab(ICON_MD_DOWNLOAD, 1);
-        Tab(ICON_MD_SETTINGS, 2);
-        Tab(ICON_MD_BUILD, 3);
+        Tab(ICON_MD_FORMAT_LIST_BULLETED, main::MODS);
+        Tab(ICON_MD_DOWNLOAD, main::REGISTRY);
+        Tab(ICON_MD_SETTINGS, main::SETTINGS);
+        Tab(ICON_MD_BUILD, main::TOOLS);
         Ui::PopFont();
         ImGui::EndChild();
 
@@ -89,7 +91,7 @@ void windows::Main()
         ImGui::SameLine();
         ImGui::BeginChild("content", ImVec2(0, 0));
 
-        main::View(main::currentView);
+        main::View(main::MainWindowState::currentView);
 
         ImGui::EndChild();
     }

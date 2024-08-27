@@ -4,6 +4,14 @@
 
 namespace sm::ui::windows::main
 {
+enum ViewType
+{
+    MODS,
+    REGISTRY,
+    SETTINGS,
+    TOOLS
+};
+
 static const std::vector<std::string> VIEW_NAMES = {"Моды", "Скачать моды", "Настройки", "Инструменты"};
 
 void ModsView();
@@ -11,20 +19,20 @@ void RegistryView();
 void SettingsView();
 void ToolsView();
 
-inline void View(const int index)
+inline void View(const ViewType index)
 {
     switch (index)
     {
-    case 0:
+    case MODS:
         ModsView();
         break;
-    case 1:
+    case REGISTRY:
         RegistryView();
         break;
-    case 2:
+    case SETTINGS:
         SettingsView();
         break;
-    case 3:
+    case TOOLS:
         ToolsView();
         break;
     default:
@@ -32,5 +40,9 @@ inline void View(const int index)
     }
 }
 
-static inline int currentView = 0;
+struct MainWindowState
+{
+    static inline ViewType currentView = MODS;
+    static inline std::optional<std::string> activeRegistryMod = std::nullopt;
+};
 } // namespace sm::ui::windows::main

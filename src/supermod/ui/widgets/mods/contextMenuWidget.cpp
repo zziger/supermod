@@ -6,6 +6,7 @@
 #include <supermod/modloader/ModManager.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/ui/Ui.hpp>
+#include <supermod/ui/windows/main_views/views.hpp>
 
 void sm::ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
 {
@@ -40,6 +41,13 @@ void sm::ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& m
     }
     if (mod->IsActive())
         Tooltip("Мод должен быть выключен для перезагрузки", ImGuiHoveredFlags_AllowWhenDisabled);
+
+    if (ImGui::MenuItem(ICON_MD_DOWNLOAD " Показать в загрузке модов", nullptr, false,
+                        sm::registry::RegistryManager::HasEntry(mod->GetID())))
+    {
+        windows::main::MainWindowState::currentView = windows::main::REGISTRY;
+        windows::main::MainWindowState::activeRegistryMod = mod->GetID();
+    }
 
     ImGui::Separator();
 
