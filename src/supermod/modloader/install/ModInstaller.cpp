@@ -7,7 +7,8 @@
 
 namespace sm::modloader
 {
-std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path)
+std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path,
+                                              const bool enable)
 {
     auto mod = ModManager::FindModByID(info->GetID());
     if (!mod)
@@ -46,8 +47,9 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
     {
         std::filesystem::rename(path, infoFilesystem->basePath);
         ModManager::ReloadMod(mod);
-        mod->Toggle(true);
+        mod->Toggle(enable);
         io::TempManager::RemoveTempDir(tempFile);
+        ModManager::SaveConfig();
     }
     catch (const std::exception& err)
     {

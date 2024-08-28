@@ -45,6 +45,7 @@ struct ModInstallRequest
     std::shared_ptr<ModInfo> dummyModInfo;
     std::vector<std::shared_ptr<ModInstallSource>> sources{};
     std::vector<std::string> requiredBy{};
+    bool enableAfterInstall = true;
 
     void AddSource(const std::shared_ptr<ModInstallSource>& source)
     {

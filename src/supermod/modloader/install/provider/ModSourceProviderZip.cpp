@@ -78,9 +78,10 @@ async::task<void> sm::modloader::ModSourceProviderZip::ModInstallSourceZip::Inst
     installMessage = "Установка...";
     installProgress = -1;
 
+    auto enable = req.expired() ? true : req.lock()->enableAfterInstall;
     try
     {
-        ModInstaller::InstallMod(modInfo, path);
+        ModInstaller::InstallMod(modInfo, path, enable);
     }
     catch (const std::exception& err)
     {

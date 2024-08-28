@@ -70,9 +70,11 @@ async::task<void> sm::modloader::ModSourceProviderRegistry::ModInstallSourceRegi
     installProgress = -1;
     io::TempManager::RemoveTempDir(donwloadTempDir);
 
+    auto enable = req.expired() ? true : req.lock()->enableAfterInstall;
+
     try
     {
-        ModInstaller::InstallMod(modInfo, unpackTempDir);
+        ModInstaller::InstallMod(modInfo, unpackTempDir, enable);
     }
     catch (const std::exception& err)
     {

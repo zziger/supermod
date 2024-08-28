@@ -170,6 +170,9 @@ void sm::ui::windows::Installer()
                         }
                         ImGui::PopID();
                     }
+
+                    if (request->activeSource != modloader::ModInstallRequest::DONT_INSTALL)
+                        ImGui::Checkbox("Включить мод после установки", &request->enableAfterInstall);
                 }
 
                 ImGui::Spacing();
