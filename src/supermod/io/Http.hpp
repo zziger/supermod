@@ -80,6 +80,21 @@ public:
         return ToJson(Post(std::forward<Ts>(args)...));
     }
 
+    template <typename... Ts>
+    static async::task<cpr::Response> Patch(Ts&&... args)
+    {
+        const auto source = std::make_shared<async::task_completion_source<cpr::Response>>();
+
+        std::thread([=] { FillSource(source, cpr::Patch(args...)); }).detach();
+        return source->task();
+    }
+
+    template <typename... Ts>
+    static async::task<std::tuple<nlohmann::json, cpr::Response>> PatchJson(Ts&&... args)
+    {
+        return ToJson(Patch(std::forward<Ts>(args)...));
+    }
+
 private:
     static void FillSource(const std::shared_ptr<async::task_completion_source<cpr::Response>>& source,
                            const cpr::Response& response)

@@ -1,3 +1,5 @@
+#include "RegistryManager.hpp"
+
 #include <basen.hpp>
 #include <nlohmann/json.hpp>
 #include <supermod/Utils.hpp>
@@ -8,6 +10,7 @@
 #include <supermod/modloader/mod/info/ModInfoRegistry.hpp>
 #include <supermod/pch.hpp>
 #include <supermod/registry/RegistryManager.hpp>
+#include <supermod/ui/NotificationManager.hpp>
 
 sm::registry::RegistryManager::User::User(nlohmann::json json)
 {
@@ -22,11 +25,34 @@ sm::registry::RegistryManager::User::User(nlohmann::json json)
         role = USER;
 }
 
-sm::registry::RegistryManager::EntryVersion::EntryVersion(nlohmann::json json)
+sm::registry::RegistryManager::EntryVersion::EntryVersion(const std::string& modId, nlohmann::json json)
 {
+    this->modId = modId;
     version = semver::version::parse(json["version"].get<std::string>(), false);
     prerelease = json["prerelease"].get<bool>();
     verified = json["verified"].get<bool>();
+}
+
+async::task<bool> sm::registry::RegistryManager::EntryVersion::SetVerified(const bool verified)
+{
+    auto versionStr = version.str();
+    auto modIdStr = modId;
+    try
+    {
+        const auto jsonBody = std::string("{\"verified\":") + (verified ? "true" : "false") + "}";
+        co_await io::Http::Patch(cpr::Url{API_URL "mods/" + modId + "/versions/" + version.str()}, cpr::Body{jsonBody},
+                                 cpr::Header{{"Content-Type", "application/json"}}, GetBearer());
+        this->verified = verified;
+        co_await FetchEntries();
+    }
+    catch (std::exception& e)
+    {
+        ui::NotificationManager::Notify(
+            std::format("Не удалось изменить мод {}/{}: {}", modIdStr, versionStr, e.what()));
+        co_return false;
+    }
+
+    co_return true;
 }
 
 sm::registry::RegistryManager::Entry::Entry(nlohmann::json json) : uploader(json["uploader"])
@@ -35,9 +61,29 @@ sm::registry::RegistryManager::Entry::Entry(nlohmann::json json) : uploader(json
     id = json["id"].get<std::string>();
     latestVersionValue = semver::version::parse(json["latestVersionValue"].get<std::string>(), false);
     for (const auto& version : json["versions"])
-        versions.emplace_back(version);
+        versions.push_back(std::make_shared<EntryVersion>(id, version));
     latestVersion = {};
     latestVersion.FromJson(json["latestVersion"]);
+}
+
+async::task<bool> sm::registry::RegistryManager::Entry::SetUploaderId(int newUploader)
+{
+    auto modIdStr = id;
+
+    try
+    {
+        const auto jsonBody = nlohmann::json::object({{"uploaderId", newUploader}}).dump();
+        co_await io::Http::Patch(cpr::Url{API_URL "mods/" + id}, cpr::Body{jsonBody},
+                                 cpr::Header{{"Content-Type", "application/json"}}, GetBearer());
+        co_await FetchEntries();
+    }
+    catch (std::exception& e)
+    {
+        ui::NotificationManager::Notify(std::format("Не удалось изменить мод {}: {}", id, e.what()));
+        co_return false;
+    }
+
+    co_return true;
 }
 
 void sm::registry::RegistryManager::Initialize()

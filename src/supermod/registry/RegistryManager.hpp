@@ -33,11 +33,14 @@ public:
 
     struct EntryVersion
     {
-        explicit EntryVersion(nlohmann::json json);
+        explicit EntryVersion(const std::string& modId, nlohmann::json json);
 
+        std::string modId;
         semver::version version;
         bool prerelease;
-        bool verified;
+        std::atomic_bool verified;
+
+        async::task<bool> SetVerified(bool verified);
     };
 
     struct Entry
@@ -46,9 +49,11 @@ public:
 
         std::string id;
         semver::version latestVersionValue;
-        std::vector<EntryVersion> versions;
+        std::vector<std::shared_ptr<EntryVersion>> versions;
         modloader::ModInfoRegistry latestVersion;
         User uploader;
+
+        async::task<bool> SetUploaderId(int newUploader);
     };
 
     static void Initialize();

@@ -14,10 +14,8 @@ using namespace std::chrono;
 
 void sm::ui::windows::main::ModsView()
 {
-    static std::optional<std::shared_ptr<modloader::Mod>> activeMod;
-
-    if (activeMod && !(*activeMod)->HasFlag(modloader::Mod::Flag::EXISTS))
-        activeMod = std::nullopt;
+    if (MainWindowState::activeMod && !(*MainWindowState::activeMod)->HasFlag(modloader::Mod::Flag::EXISTS))
+        MainWindowState::activeMod = std::nullopt;
 
     static bool reorder = false;
     static std::vector<std::shared_ptr<modloader::Mod>> reorderMods{};
@@ -42,14 +40,16 @@ void sm::ui::windows::main::ModsView()
             {
                 for (const auto& loadedMod : modloader::ModManager::GetInternalMods())
                 {
-                    if (widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(), loadedMod == activeMod))
-                        activeMod = loadedMod;
+                    if (widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(),
+                                                  loadedMod == MainWindowState::activeMod))
+                        MainWindowState::activeMod = loadedMod;
                     ImGui::Spacing();
                 }
                 for (const auto& loadedMod : modloader::ModManager::GetMods())
                 {
-                    if (widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(), loadedMod == activeMod))
-                        activeMod = loadedMod;
+                    if (widgets::mods::Selectable(loadedMod, loadedMod->GetInfo(),
+                                                  loadedMod == MainWindowState::activeMod))
+                        MainWindowState::activeMod = loadedMod;
                     ImGui::Spacing();
                 }
             }
@@ -88,7 +88,7 @@ void sm::ui::windows::main::ModsView()
                     reorderMods.push_back(mod);
 
                 reorder = true;
-                activeMod = std::nullopt;
+                MainWindowState::activeMod = std::nullopt;
             }
 
             ImGui::SameLine();
@@ -123,9 +123,9 @@ void sm::ui::windows::main::ModsView()
     ImGui::SameLine();
     ImGui::BeginChild("Mod content", ImVec2(0, 0));
     {
-        if (activeMod && !reorder)
+        if (MainWindowState::activeMod && !reorder)
         {
-            const auto mod = *activeMod;
+            const auto mod = *MainWindowState::activeMod;
             const auto info = mod->GetInfo();
 
             widgets::mods::InfoBlock(*info);

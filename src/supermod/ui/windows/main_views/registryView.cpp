@@ -90,9 +90,9 @@ void sm::ui::windows::main::RegistryView()
     {
         if (activeMod && mods.contains(*activeMod))
         {
-            const auto& mod = mods.find(*activeMod)->second;
+            auto& mod = mods.find(*activeMod)->second;
             const auto info = mod.latestVersion;
-            const auto version = mod.versions[activeVersion];
+            auto version = mod.versions[activeVersion];
 
             widgets::mods::InfoBlock(info);
             ImGui::Spacing();
@@ -107,12 +107,12 @@ void sm::ui::windows::main::RegistryView()
 
             auto versionDisplayName = [&](const registry::RegistryManager::EntryVersion& ver,
                                           bool latest) -> std::string {
-                auto displayName = version.version.str();
+                auto displayName = version->version.str();
 
                 if (currentMod != nullptr && ver.version == currentMod->GetInfo()->version)
                     displayName += " (Уст.)";
 
-                if (!version.verified)
+                if (!version->verified)
                     displayName += " " ICON_MD_SAFETY_CHECK;
 
                 return displayName;
@@ -120,12 +120,13 @@ void sm::ui::windows::main::RegistryView()
 
             ImGui::SetNextItemWidth(300);
             if (ImGui::BeginCombo("##Version",
-                                  versionDisplayName(version, mod.latestVersionValue == version.version).c_str()))
+                                  versionDisplayName(*version, mod.latestVersionValue == version->version).c_str()))
             {
                 for (int n = 0; n < mod.versions.size(); n++)
                 {
                     const bool is_selected = activeVersion == n;
-                    auto text = versionDisplayName(mod.versions[n], mod.latestVersionValue == mod.versions[n].version);
+                    auto text =
+                        versionDisplayName(*mod.versions[n], mod.latestVersionValue == mod.versions[n]->version);
                     if (ImGui::Selectable(text.c_str(), is_selected))
                         activeVersion = n;
 
@@ -137,15 +138,104 @@ void sm::ui::windows::main::RegistryView()
             }
 
             ImGui::SameLine();
-            if (ImGui::Button(currentMod != nullptr && currentMod->GetInfo()->version == version.version
-                                  ? "Переустановить"
-                                  : "Установить"))
+            if (ImGui::Button(currentMod != nullptr && currentMod->GetInfo()->version == version->version
+                                  ? ICON_MD_CLOUD_SYNC " Переустановить"
+                                  : ICON_MD_CLOUD_DOWNLOAD " Установить"))
             {
                 modloader::ModInstaller::AddProvider(
-                    std::make_shared<modloader::ModSourceProviderRegistry>(info.GetID(), version.version.str()));
+                    std::make_shared<modloader::ModSourceProviderRegistry>(info.GetID(), version->version.str()));
             }
 
-            if (!version.verified)
+            const auto existingMod = modloader::ModManager::FindModByID(info.GetID());
+            if (existingMod != nullptr)
+            {
+                popups::ModModals(existingMod);
+            }
+
+            auto modalId = ImHashStr((std::string("modals_registry_") + mod.id).c_str());
+            ImGui::PushOverrideID(modalId);
+            Ui::FixNextPopupModal();
+            if (ImGui::BeginPopupModal("Изменить загрузившего мод пользователя", nullptr,
+                                       ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings))
+            {
+                static int newUploader = 0;
+                ImGui::Text("ID нового пользователя:");
+                ImGui::InputInt("##newId", &newUploader);
+                ImGui::Spacing();
+                ImGui::Spacing();
+
+                if (ImGui::Button("Сохранить"))
+                {
+                    mod.SetUploaderId(newUploader);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Отмена"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::PopID();
+
+            if (ImGui::BeginPopupContextItem("Mod menu"))
+            {
+                ImGui::MenuItem(ICON_MD_CLOUD_DOWNLOAD " Установить без зависимостей");
+                if (existingMod != nullptr)
+                {
+                    ImGui::Separator();
+                    if (ImGui::MenuItem(ICON_MD_LIST " Показать в списке модов"))
+                    {
+                        MainWindowState::currentView = MODS;
+                        MainWindowState::activeMod = existingMod;
+                    }
+
+                    const auto willRemove = existingMod->HasFlag(modloader::Mod::Flag::REMOVAL_SCHEDULED);
+
+                    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, 0xE0422ECC_color);
+                    if (ImGui::MenuItem(willRemove ? ICON_MD_REPLAY " Отменить удаление"
+                                                   : ICON_MD_DELETE " Удалить с компьютера"))
+                    {
+                        if (willRemove)
+                        {
+                            modloader::ModManager::ScheduleModRemoval(existingMod, false);
+                        }
+                        else
+                        {
+                            ImGui::PushOverrideID(Ui::GetModalsId(existingMod));
+                            ImGui::OpenPopup("Удаление мода");
+                            ImGui::PopID();
+                        }
+                    }
+                    ImGui::PopStyleColor();
+                }
+
+                if (auto user = registry::RegistryManager::GetUser();
+                    user.has_value() && user->role == registry::RegistryManager::User::ADMIN)
+                {
+                    ImGui::Separator();
+                    if (ImGui::MenuItem(version->verified ? "Отменить подтверждение" : "Подтвердить версию"))
+                    {
+                        version->SetVerified(!version->verified);
+                    }
+                    if (ImGui::MenuItem("Изменить загрузчика"))
+                    {
+                        ImGui::PushOverrideID(modalId);
+                        ImGui::OpenPopup("Изменить загрузившего мод пользователя");
+                        ImGui::PopID();
+                    }
+                }
+
+                ImGui::EndPopup();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_MD_MORE_HORIZ))
+            {
+                ImGui::OpenPopup("Mod menu");
+            }
+
+            if (!version->verified)
             {
                 ImGui::Spacing();
                 styles::warning::PanelText(ICON_MD_SAFETY_CHECK " Выбранная версия находится на ручной проверке.\n\nДо "
