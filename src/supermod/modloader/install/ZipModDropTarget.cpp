@@ -41,7 +41,7 @@ HRESULT ZipModDropTarget::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
         if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0)
         {
             auto path = std::filesystem::path(filename);
-            if (path.extension() == ".zip")
+            if (path.extension() == ".zip" || path.extension() == ".sprm")
             {
                 zipNames.push_back(path.filename().string());
                 containsZip = true;
@@ -92,7 +92,7 @@ HRESULT ZipModDropTarget::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
         if (DragQueryFile(hDrop, i, filename, MAX_PATH) > 0)
         {
             auto path = std::filesystem::path(filename);
-            if (path.extension() == ".zip")
+            if (path.extension() == ".zip" || path.extension() == ".sprm")
             {
                 *pdwEffect = DROPEFFECT_COPY;
                 auto zip = std::make_shared<io::OwnedZip>(path.string(), false);

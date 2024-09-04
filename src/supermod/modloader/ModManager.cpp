@@ -60,6 +60,7 @@ void ModManager::ScanMods(const bool init)
             spdlog::error("Failed to create mod from {}: {}", file.path().string(), err.what());
             ui::NotificationManager::Notify(
                 std::format("Не удалось загрузить мод из {}.\n{}", file.path().string(), err.what()));
+            continue;
         }
 
         auto id = mod->GetID();
@@ -134,7 +135,7 @@ void ModManager::ScanMods(const bool init)
     {
         if (file.is_directory())
             continue;
-        if (file.path().extension() != ".zip")
+        if (file.path().extension() != ".zip" && file.path().extension() != ".sprm")
             continue;
 
         EventManager::On<D3dInitEvent>([=] {
@@ -356,6 +357,67 @@ void ModManager::SaveConfig(const std::shared_ptr<Mod>& mod)
 
     PopulateConfig(mod, cfg["mods"][id]);
     Config::Get().Save();
+}
+
+std::optional<std::filesystem::path> ModManager::ExportModDialog(const std::shared_ptr<ModInfoFilesystem>& modInfo)
+{
+    const auto currPath = std::filesystem::current_path();
+
+    OPENFILENAMEA file;
+    char szFileName[MAX_PATH] = "";
+    modInfo->GetID().copy(szFileName, MAX_PATH);
+
+    ZeroMemory(&file, sizeof(file));
+
+    file.lStructSize = sizeof(file);
+    file.hwndOwner = *game::Game::window;
+    file.lpstrFilter = "SuperMod Package (*.sprm)\0*.sprm\0ZIP Package (*.zip)\0*.zip\0";
+    file.lpstrFile = szFileName;
+    file.nMaxFile = MAX_PATH;
+    file.lpstrDefExt = "sprm";
+    file.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+
+    if (GetSaveFileNameA(&file))
+    {
+        current_path(currPath);
+        return szFileName;
+    }
+
+    current_path(currPath);
+    return std::nullopt;
+}
+
+async::task<bool> ModManager::PackMod(const std::shared_ptr<ModInfoFilesystem> mod, // NOLINT(*-unnecessary-value-param)
+                                      const std::filesystem::path targetPath)       // NOLINT(*-unnecessary-value-param)
+{
+    co_await io::Async::ToBackground();
+    try
+    {
+        miniz_cpp::zip_file zip;
+
+        for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(mod->basePath))
+        {
+            const auto& absPath = dirEntry.path();
+            auto relPath = relative(absPath, mod->basePath);
+            auto relPathStr = relPath.generic_string();
+            if (dirEntry.is_directory())
+                relPathStr.append("/");
+            zip.write(absPath.string(), relPathStr);
+        }
+
+        std::ofstream stream(targetPath, std::ios::binary | std::ios::trunc);
+        stream.exceptions(std::ofstream::badbit | std::ofstream::failbit);
+
+        zip.save(stream);
+        stream.flush();
+    }
+    catch (std::exception& e)
+    {
+        ui::NotificationManager::Notify(std::string("Не удалось упаковать мод: ") + e.what());
+        co_return false;
+    }
+
+    co_return true;
 }
 
 void ModManager::UpdateStates()

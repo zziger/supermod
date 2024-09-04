@@ -1,4 +1,6 @@
 #pragma once
+#include "mod/info/ModInfoFilesystem.hpp"
+
 #include <supermod/pch.hpp>
 
 #include <supermod/modloader/mod/Mod.hpp>
@@ -45,6 +47,9 @@ public:
 
     static void SaveConfig(const std::shared_ptr<Mod>& mod);
     static void MarkDirty(const DirtyFlag flag) { dirty_flags |= static_cast<uint32_t>(flag); }
+
+    static std::optional<std::filesystem::path> ExportModDialog(const std::shared_ptr<ModInfoFilesystem>& modInfo);
+    static async::task<bool> PackMod(std::shared_ptr<ModInfoFilesystem> mod, std::filesystem::path targetPath);
 
 private:
     static void UpdateStates();

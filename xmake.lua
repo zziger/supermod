@@ -76,6 +76,7 @@ function add_packagelist()
     add_syslinks("d3d9")
     add_syslinks("Ole32")
     add_syslinks("Shcore")
+    add_syslinks("Comdlg32")
     add_links("bass")
 end
 

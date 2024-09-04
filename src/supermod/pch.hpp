@@ -21,6 +21,7 @@
 #include <Windows.h>
 #include <shellapi.h>
 
+#include <async/task.h>
 #include <spdlog/common.h>
 #include <spdlog/fmt/bundled/color.h>
 #include <spdlog/spdlog.h>

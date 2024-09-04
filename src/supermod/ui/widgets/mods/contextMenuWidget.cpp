@@ -51,6 +51,17 @@ void sm::ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& m
 
     ImGui::Separator();
 
+    if (ImGui::MenuItem(ICON_MD_IMPORT_EXPORT " Экспортировать", nullptr, false, !!fsInfo) && fsInfo)
+    {
+        auto path = modloader::ModManager::ExportModDialog(fsInfo);
+        if (path.has_value())
+        {
+            modloader::ModManager::PackMod(fsInfo, *path);
+        }
+    }
+
+    ImGui::Separator();
+
     const auto willRemove = mod->HasFlag(modloader::Mod::Flag::REMOVAL_SCHEDULED);
 
     ImGui::PushStyleColor(ImGuiCol_HeaderHovered, 0xE0422ECC_color);

@@ -26,9 +26,9 @@ void sm::modloader::ModSourceProviderZip::ModInstallSourceZip::Update()
     else
     {
         if (countSources > 1)
-            label = "Установить из архива " + zipPath;
+            label = "Установить из файла " + zipPath;
         else
-            label = "Установить из архива";
+            label = "Установить из файла";
     }
 }
 

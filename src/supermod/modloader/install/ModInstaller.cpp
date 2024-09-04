@@ -92,7 +92,7 @@ void ModInstaller::Init()
         for (auto i = 0; i < argvCount; i++)
         {
             auto path = std::filesystem::path(argv[i]);
-            if (path.extension() != ".zip")
+            if (path.extension() != ".zip" && path.extension() != ".srpm")
                 continue;
 
             auto zip = std::make_shared<io::OwnedZip>(path.string(), false);

@@ -22,10 +22,9 @@ void sm::ui::windows::DropTarget()
             ImGui::PushTextWrapPos(wrapPos);
             Ui::PushFont(20);
             const auto zipNames = modloader::ModInstaller::GetDropTarget().zipNames;
-            const auto zipMsg =
-                zipNames.size() == 1
-                    ? zipNames[0].substr(0, 50) + (zipNames[0].size() > 50 ? "..." : "")
-                    : utils::pluralize(zipNames.size(), {"архива", "архивов", "архивов"}); // TODO: locale
+            const auto zipMsg = zipNames.size() == 1
+                                    ? zipNames[0].substr(0, 50) + (zipNames[0].size() > 50 ? "..." : "")
+                                    : utils::pluralize(zipNames.size(), {"файл", "файла", "файлов"}); // TODO: locale
             const auto msg = std::format("Отпустите курсор для установки {}", zipMsg);
             const auto msgSize = ImGui::CalcTextSize(msg.c_str(), nullptr, false, wrapPos);
 

@@ -49,6 +49,12 @@ void sm::ui::windows::main::RegistryView()
             ImGui::OpenPopup("account");
         }
 
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_MD_REFRESH))
+        {
+            registry::RegistryManager::FetchEntries();
+        }
+
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10) * Ui::GetScalingFactor());
         if (ImGui::BeginPopup("account"))
         {

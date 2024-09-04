@@ -134,14 +134,14 @@ void sm::ui::windows::Installer()
                         "У вас уже есть этот мод. Текущий мод будет перезаписан новым при установке");
                     if (existingMod->GetState()->IsActive())
                     {
-                        styles::warning::BeginPanel("mod enabled warning");
+                        styles::danger::BeginPanel("mod enabled warning");
                         ImGui::Text("Текущий мод должен быть выключен для перезаписи");
                         if (!existingMod->IsEnabled() && existingMod->IsActive())
                             widgets::mods::Status(existingMod);
                         ImGui::Spacing();
                         if (existingMod->IsEnabled() && ImGui::Button("Выключить"))
                             modloader::ModManager::ToggleMod(existingMod, false);
-                        styles::warning::EndPanel();
+                        styles::danger::EndPanel();
                     }
                     ImGui::Spacing();
                     ImGui::Separator();

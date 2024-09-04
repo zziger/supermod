@@ -97,12 +97,19 @@ async::task<void> sm::modloader::ModSourceProviderRegistry::DiscoverMods(std::st
     {
         auto iconResponse = co_await io::Http::Get(cpr::Url{json["cdnIconUrl"]});
         auto decoded = std::vector<byte>(iconResponse.text.begin(), iconResponse.text.end());
-        vector2ui size{};
-        const auto tex = game::loaders::PngLoader::LoadPngBuf(decoded, size, {1, 1});
-        const auto asset = game::AssetPool::Instance()->LoadAsset(
-            tex, game::AssetPool::Instance()->MakeAssetKeyUnique("$builtin:registry:mod:" + modId + ":" + version),
-            true, size);
-        modInfo->icon = ModIcon{game::AssetPool::Instance()->MakeOwned(asset)};
+
+        io::Async::Schedule([=, modInfoWeak = std::weak_ptr(modInfo)]() {
+            if (modInfoWeak.expired())
+                return;
+
+            auto modInfo = modInfoWeak.lock();
+            vector2ui size{};
+            const auto tex = game::loaders::PngLoader::LoadPngBuf(decoded, size, {1, 1});
+            const auto asset = game::AssetPool::Instance()->LoadAsset(
+                tex, game::AssetPool::Instance()->MakeAssetKeyUnique("$builtin:registry:mod:" + modId + ":" + version),
+                true, size);
+            modInfo->icon = ModIcon{game::AssetPool::Instance()->MakeOwned(asset)};
+        });
     }
 
     auto request = ModInstaller::GetRequest(modId, true);
