@@ -17,6 +17,7 @@
 #include <supermod/UpdateManager.hpp>
 #include <supermod/Utils.hpp>
 #include <supermod/builtin/ModImplBuiltin.hpp>
+#include <supermod/constants.hpp>
 #include <supermod/events/D3dInitEvent.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/GameLoadedEvent.hpp>
@@ -130,14 +131,35 @@ void Init()
     EventManager::On<GameLoadedEvent>([] { spdlog::info("Game loading finished!"); });
 }
 
-#define SM_APP_ID "me.zziger.supermod"
-
-void InitPrerequisites()
+void Register()
 {
-    auto exePath = utils::get_exe_path();
-    utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, "Software\\Classes\\" SM_APP_ID "\\shell\\open\\command", "",
-                                       std::format(L"\"{}\" \"%1\"", exePath.c_str()));
-    utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, "Software\\Classes\\.sprm", "", L"" SM_APP_ID);
+    const auto exePath = utils::get_exe_path();
+    const auto argumentStr = std::format(L"\"{}\" \"%1\"", exePath.c_str());
+
+    try
+    {
+        utils::WindowsRegistry::WriteRegSz(
+            HKEY_CURRENT_USER, "Software\\Classes\\" + Constants::PROG_ID + R"(\shell\open\command)", "", argumentStr);
+        utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, "Software\\Classes\\." + Constants::PKG_EXTENSION, "",
+                                           utils::str_to_wstr(Constants::PROG_ID));
+        spdlog::info("Registered extension {}", Constants::PKG_EXTENSION);
+    }
+    catch (std::exception& e)
+    {
+        spdlog::error("Failed to register extension {}: {}", Constants::PKG_EXTENSION, e.what());
+    }
+
+    try
+    {
+        const auto protoBase = "Software\\Classes\\" + Constants::URI_PROTOCOL;
+        utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, protoBase, "", L"URL:SuperMod Protocol");
+        utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, protoBase, "URL Protocol", L"");
+        utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, protoBase + R"(\shell\open\command)", "", argumentStr);
+    }
+    catch (std::exception& e)
+    {
+        spdlog::error("Failed to register protocol {}: {}", Constants::URI_PROTOCOL, e.what());
+    }
 }
 
 BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
@@ -171,7 +193,7 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
         if (shiftPressed)
             game::Game::bootMenuActive = true;
 
-        utils::handle_error(InitPrerequisites, "предварительных операций");
+        utils::handle_error(Register, "регистрации");
         utils::handle_error(InitMemory, "инициализации памяти");
         utils::handle_error(InitCrashHandler, "инициализации обработчика ошибок");
         utils::handle_error(Init, "инициализации мода");
