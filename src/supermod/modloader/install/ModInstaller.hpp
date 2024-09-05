@@ -170,6 +170,7 @@ public:
     static std::shared_ptr<Mod> InstallMod(const std::shared_ptr<ModInfo>& info, const std::filesystem::path& path,
                                            bool enable = true);
 
+    static void InvokeURI(const std::string& uriCommand);
     static void Init();
 };
 } // namespace sm::modloader

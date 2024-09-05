@@ -1,9 +1,13 @@
+#include "provider/ModSourceProviderRegistry.hpp"
+
+#include <supermod/constants.hpp>
 #include <supermod/events/D3dInitEvent.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/io/logs/Console.hpp>
 #include <supermod/modloader/install/ModInstaller.hpp>
 #include <supermod/modloader/install/provider/ModSourceProviderZip.hpp>
+#include <uri.hpp>
 
 namespace sm::modloader
 {
@@ -77,6 +81,22 @@ std::shared_ptr<Mod> ModInstaller::InstallMod(const std::shared_ptr<ModInfo>& in
     return mod;
 }
 
+void ModInstaller::InvokeURI(const std::string& uriCommand)
+{
+    const auto uri = ::uri(uriCommand);
+    assert(uri.get_scheme() == Constants::URI_PROTOCOL);
+    auto command = uri.get_host();
+    auto query = uri.get_query_dictionary();
+
+    if (command == "install")
+    {
+        AddProvider(std::make_shared<ModSourceProviderRegistry>(query["id"], query["version"]));
+        return;
+    }
+
+    ui::NotificationManager::Notify(std::format("Неизвестная URI команда {}", command));
+}
+
 void ModInstaller::Init()
 {
     EventManager::On<D3dInitEvent>([] {
@@ -91,6 +111,13 @@ void ModInstaller::Init()
         const auto argv = CommandLineToArgvW(cmdline, &argvCount);
         for (auto i = 0; i < argvCount; i++)
         {
+            auto str = utils::wstr_to_str(argv[i]);
+            if (str.starts_with(Constants::URI_PROTOCOL))
+            {
+                InvokeURI(str);
+                continue;
+            }
+
             auto path = std::filesystem::path(argv[i]);
             if (path.extension() != ".zip" && path.extension() != ".sprm")
                 continue;

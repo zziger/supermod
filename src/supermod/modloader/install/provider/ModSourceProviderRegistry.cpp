@@ -88,6 +88,13 @@ async::task<void> sm::modloader::ModSourceProviderRegistry::ModInstallSourceRegi
 }
 async::task<void> sm::modloader::ModSourceProviderRegistry::DiscoverMods(std::stop_token stopToken)
 {
+    if (version.empty())
+    {
+        auto [json, response] =
+            co_await io::Http::GetJson(cpr::Url{API_URL "mods/" + modId}, registry::RegistryManager::GetBearer());
+        version = json["latestVersionValue"];
+    }
+
     auto [json, response] = co_await io::Http::GetJson(cpr::Url{API_URL "mods/" + modId + "/versions/" + version},
                                                        registry::RegistryManager::GetBearer());
     auto modInfo = std::make_shared<ModInfoRegistry>();
