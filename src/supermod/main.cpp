@@ -2,6 +2,7 @@
 
 #include "modloader/install/ModInstaller.hpp"
 #include "registry/RegistryManager.hpp"
+#include "utils/WindowsRegistry.hpp"
 
 #include <supermod/pch.hpp>
 
@@ -129,6 +130,16 @@ void Init()
     EventManager::On<GameLoadedEvent>([] { spdlog::info("Game loading finished!"); });
 }
 
+#define SM_APP_ID "me.zziger.supermod"
+
+void InitPrerequisites()
+{
+    auto exePath = utils::get_exe_path();
+    utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, "Software\\Classes\\" SM_APP_ID "\\shell\\open\\command", "",
+                                       std::format(L"\"{}\" \"%1\"", exePath.c_str()));
+    utils::WindowsRegistry::WriteRegSz(HKEY_CURRENT_USER, "Software\\Classes\\.sprm", "", L"" SM_APP_ID);
+}
+
 BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
 {
     if (ulReasonForCall == DLL_PROCESS_ATTACH)
@@ -160,6 +171,7 @@ BOOL APIENTRY main(HMODULE hModule, const DWORD ulReasonForCall, LPVOID)
         if (shiftPressed)
             game::Game::bootMenuActive = true;
 
+        utils::handle_error(InitPrerequisites, "предварительных операций");
         utils::handle_error(InitMemory, "инициализации памяти");
         utils::handle_error(InitCrashHandler, "инициализации обработчика ошибок");
         utils::handle_error(Init, "инициализации мода");

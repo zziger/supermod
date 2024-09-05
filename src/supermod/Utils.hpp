@@ -87,6 +87,13 @@ inline std::string get_module_name()
     return wstr_to_str(dllPath);
 }
 
+inline std::filesystem::path get_exe_path()
+{
+    WCHAR path[MAX_PATH];
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+    return path;
+}
+
 inline void handle_error(std::function<void()> fn, std::string where)
 {
     try
