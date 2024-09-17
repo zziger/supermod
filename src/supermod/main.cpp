@@ -111,7 +111,9 @@ void Init()
 
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 
-    MH_Initialize();
+    const auto res = MH_Initialize();
+    if (res != MH_OK)
+        throw std::runtime_error(std::format("Не удалось инициализировать MinHook (ошибка {})", static_cast<int>(res)));
     io::Async::Initialize();
     game::Game::Init();
     game::AssetPool::Init();

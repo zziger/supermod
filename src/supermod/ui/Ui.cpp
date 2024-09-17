@@ -56,7 +56,7 @@ void Ui::InitImGui()
     io.ConfigDockingWithShift = cfg.imgui.dockingWithShift;
 
     ImGui_ImplWin32_Init(*game::Game::window);
-    ImGui_ImplDX9_Init(game::DirectX::GetDx9());
+    ImGui_ImplDX9_Init(game::DirectX::GetD3D9());
 
     io.IniFilename = imguiIniFilename.c_str();
     io.LogFilename = imguiLogFilename.c_str();

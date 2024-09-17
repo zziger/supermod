@@ -2,6 +2,8 @@
 
 #include <assets/assets.h>
 #include <supermod/Utils.hpp>
+#include <supermod/game/DirectX.hpp>
+#include <supermod/game/Game.hpp>
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 
 namespace sm::modloader
@@ -45,6 +47,14 @@ void LuaScriptRuntime::Init()
     get_packages(lua)["util"] = lua.script(sdk->read("library/util.lua"), "built-in util", sol::load_mode::text);
     lua.script(sdk->read("library/imguicdecl.lua"), "imgui cdef", sol::load_mode::text);
     get_packages(lua)["imgui"] = lua.script(sdk->read("library/imgui.lua"), "built-in imgui", sol::load_mode::text);
+
+    lua.script(sdk->read("internal/bindings/winapi.lua"), "winapi bindings", sol::load_mode::text);
+    get_packages(lua)["winapi"] = lua.script(sdk->read("library/winapi/init.lua"));
+    get_packages(lua)["winapi.com"] = lua.script(sdk->read("library/winapi/com.lua"));
+
+    lua.script(sdk->read("internal/bindings/d3dcommon.lua"), "d3dcommon bindings", sol::load_mode::text);
+    lua.script(sdk->read("internal/bindings/d3d8.lua"), "d3d8 bindings", sol::load_mode::text);
+    lua.script(sdk->read("internal/bindings/d3d9.lua"), "d3d9 bindings", sol::load_mode::text);
 
     lua.globals()["require"] = sol::lua_nil; // We reimplement require in fenvs. Having it in global scope might lead to
     // some weird nondebuggable bugs

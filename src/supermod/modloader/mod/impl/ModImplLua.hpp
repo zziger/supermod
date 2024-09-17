@@ -23,6 +23,8 @@ public:
 
     void OnDisabled() override;
 
+    void OnTick() override;
+
     void RenderUI() override;
 
     void Render() override;

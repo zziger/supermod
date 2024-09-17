@@ -1,4 +1,5 @@
-﻿#include <supermod/game/DirectX.hpp>
+﻿#include <d3dx9shader.h>
+#include <supermod/game/DirectX.hpp>
 #include <supermod/pch.hpp>
 
 #include <d3d8/d3d8to9.hpp>
@@ -46,12 +47,45 @@ void DirectX::RemoveTexture(IDirect3DTexture8* texture)
     removedTextures.push_back(texture);
 }
 
-IDirect3DDevice9* DirectX::GetDx9()
+IDirect3DDevice8* DirectX::GetD3D8()
 {
-    assert(*d3dDevice && "Bruh");
+    assert(*d3dDevice && "D3D is not initialized yet");
+    return dynamic_cast<Direct3DDevice8*>(*d3dDevice);
+}
+
+IDirect3DDevice9* DirectX::GetD3D9()
+{
+    assert(*d3dDevice && "D3D is not initialized yet");
     auto d3d8 = dynamic_cast<Direct3DDevice8*>(*d3dDevice);
-    assert(d3d8 && "Bruh 2");
+    assert(d3d8 && "Failed to get proxied D3D9 instance");
     return d3d8->GetProxyInterface();
+}
+
+void DirectX::AddToLua(sol::table table, sol::state& lua)
+{
+    table["getD3D9"] = [&lua] {
+        if (!*d3dDevice)
+            throw std::runtime_error("DirectX is not initialized yet");
+        const sol::function castFn = get_packages(lua)["ffi"]["cast"];
+        return castFn("IDirect3DDevice9*", reinterpret_cast<intptr_t>(GetD3D9()));
+    };
+    table["getD3D8"] = [&lua] {
+        if (!*d3dDevice)
+            throw std::runtime_error("DirectX is not initialized yet");
+        const sol::function castFn = get_packages(lua)["ffi"]["cast"];
+        return castFn("IDirect3DDevice8*", reinterpret_cast<intptr_t>(GetD3D8()));
+    };
+
+    {
+        const sol::function castFn = get_packages(lua)["ffi"]["cast"];
+        auto d3dx9 = table.create_named("d3dx9");
+
+#define D3DX_EXPOSE(fn) d3dx9[#fn] = castFn(#fn, reinterpret_cast<uintptr_t>(reinterpret_cast<void*>(fn)))
+        D3DX_EXPOSE(D3DXCompileShaderFromFileA);
+        D3DX_EXPOSE(D3DXCompileShaderFromFileW);
+        D3DX_EXPOSE(D3DXCreateEffectFromFileA);
+        D3DX_EXPOSE(D3DXCreateEffectFromFileW);
+    }
 }
 
 void DirectX::ReleaseRemovedTextures()

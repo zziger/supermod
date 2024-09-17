@@ -3,6 +3,7 @@
 
 #include <d3d8/d3d8.hpp>
 #include <d3d9.h>
+#include <sol/table.hpp>
 #include <supermod/memory/Memory.hpp>
 
 namespace sm::game
@@ -21,7 +22,10 @@ public:
 
     static void RemoveTexture(IDirect3DTexture8* texture);
 
-    static IDirect3DDevice9* GetDx9();
+    static IDirect3DDevice8* GetD3D8();
+    static IDirect3DDevice9* GetD3D9();
+
+    static void AddToLua(sol::table table, sol::state& lua);
 
 private:
     static inline std::vector<IDirect3DTexture8*> removedTextures;

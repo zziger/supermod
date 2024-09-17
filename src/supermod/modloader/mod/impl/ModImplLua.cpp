@@ -81,6 +81,11 @@ void ModImplLua::OnEnabled()
             game::Graphics::AddToLua(graphics);
         }
 
+        {
+            const auto directx = package->builtin.create("directx");
+            game::DirectX::AddToLua(directx, lua);
+        }
+
         lua.script(sdk->read("internal/bootstrapper.lua"), package->fenv, sol::script_throw_on_error, "bootstrapper");
         lua.script(sdk->read("library/base.lua"), package->fenv, sol::script_throw_on_error, "internal");
 
@@ -160,24 +165,7 @@ void ModImplLua::OnDisabled()
             std::format("Мод {} не был выгружен полностью. См. консоль для подробностей", info->GetID()));
     }
 }
-
-void ModImplLua::RenderUI()
-{
-    if (!package)
-        return;
-    try
-    {
-        auto render = package->fenv["renderUi"];
-        if (render.is<sol::protected_function>())
-            auto _ = render();
-    }
-    catch (std::exception& e)
-    {
-        logger->error("UI render error: {}", e.what());
-    }
-}
-
-void ModImplLua::Render()
+void ModImplLua::OnTick()
 {
     if (!package)
         return;
@@ -198,6 +186,29 @@ void ModImplLua::Render()
             logger->error("Timer error: {}", e.what());
         }
     }
+}
+
+void ModImplLua::RenderUI()
+{
+    if (!package)
+        return;
+
+    try
+    {
+        auto render = package->fenv["renderUi"];
+        if (render.is<sol::protected_function>())
+            auto _ = render();
+    }
+    catch (std::exception& e)
+    {
+        logger->error("UI render error: {}", e.what());
+    }
+}
+
+void ModImplLua::Render()
+{
+    if (!package)
+        return;
 
     try
     {
