@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "game/DirectX.hpp"
 #include "modloader/install/ModInstaller.hpp"
 #include "registry/RegistryManager.hpp"
 #include "utils/WindowsRegistry.hpp"
@@ -8,6 +9,8 @@
 
 #include <async/task.h>
 #include <cpr/cpr.h>
+#include <d3dx9.h>
+#include <d3dx9shader.h>
 #include <filesystem>
 #include <gdiplus.h>
 #include <locale>
@@ -18,7 +21,8 @@
 #include <supermod/Utils.hpp>
 #include <supermod/builtin/ModImplBuiltin.hpp>
 #include <supermod/constants.hpp>
-#include <supermod/events/D3dInitEvent.hpp>
+#include <supermod/events/DxInitEvent.hpp>
+#include <supermod/events/DxResetEvent.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/GameLoadedEvent.hpp>
 #include <supermod/events/ResolveFileEvent.hpp>

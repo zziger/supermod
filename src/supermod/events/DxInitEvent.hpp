@@ -8,7 +8,7 @@
 
 namespace sm
 {
-struct D3dInitEvent final : IEvent<"d3dInit", D3dInitEvent>
+struct DxInitEvent final : IEvent<"dxInit", DxInitEvent>
 {
 };
 
@@ -17,8 +17,8 @@ HOOK_FN_CONV(inline char, d3d_init, ARGS(HWND a1), __cdecl)
     const auto res = d3d_init_orig(a1);
     if (res)
     {
-        spdlog::trace("D3dInit event");
-        EventManager::Emit(D3dInitEvent{});
+        spdlog::trace("DxInit event");
+        EventManager::Emit(DxInitEvent{});
     }
     return res;
 }

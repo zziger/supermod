@@ -2,7 +2,7 @@
 
 #include <assets/assets.h>
 #include <supermod/UpdateManager.hpp>
-#include <supermod/events/D3dInitEvent.hpp>
+#include <supermod/events/DxInitEvent.hpp>
 #include <supermod/game/textures/PngLoader.hpp>
 #include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/ui/NotificationManager.hpp>
@@ -44,7 +44,7 @@ std::shared_ptr<modloader::Mod> ModImplBuiltin::CreateMod()
     info->version = semver::version::parse(SUPERMOD_VERSION);
     info->description = "Встроенные в мод патчи игры";
 
-    EventManager::On<D3dInitEvent>([info] {
+    EventManager::On<DxInitEvent>([info] {
         const auto iconData = *utils::read_resource(RES_LOGO);
         const std::vector<byte> iconBuf(iconData.begin(), iconData.end());
         vector2ui iconSize{};

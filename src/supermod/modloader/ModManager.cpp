@@ -5,7 +5,7 @@
 
 #include <supermod/Config.hpp>
 #include <supermod/builtin/ModImplBuiltin.hpp>
-#include <supermod/events/D3dInitEvent.hpp>
+#include <supermod/events/DxInitEvent.hpp>
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/exceptions/Error.hpp>
 #include <supermod/game/Game.hpp>
@@ -138,7 +138,7 @@ void ModManager::ScanMods(const bool init)
         if (file.path().extension() != ".zip" && file.path().extension() != ".sprm")
             continue;
 
-        EventManager::On<D3dInitEvent>([=] {
+        EventManager::On<DxInitEvent>([=] {
             auto zip = std::make_shared<io::OwnedZip>(file.path().string(), true);
             ModInstaller::AddProvider(
                 std::make_shared<ModSourceProviderZip>(file.path().filename().string(), std::move(zip)));

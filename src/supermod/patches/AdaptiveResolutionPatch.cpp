@@ -6,7 +6,7 @@
 #include <supermod/pch.hpp>
 
 #include <supermod/Utils.hpp>
-#include <supermod/events/D3dInitEvent.hpp>
+#include <supermod/events/DxInitEvent.hpp>
 #include <supermod/events/EventManager.hpp>
 #include <supermod/events/ResolutionChangeEvent.hpp>
 #include <supermod/events/WindowEvent.hpp>
@@ -83,7 +83,7 @@ inline EventManager::Ready $adaptive_resolution_patch([] {
         }
     });
 
-    EventManager::On<D3dInitEvent>([] {
+    EventManager::On<DxInitEvent>([] {
         if (!game::Game::IsGameFullscreen())
             SetWindowLongA(*game::Game::window, GWL_STYLE,
                            GetWindowLongA(*game::Game::window, GWL_STYLE) | REQUIRED_STYLES);

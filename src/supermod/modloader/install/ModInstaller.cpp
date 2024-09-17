@@ -1,7 +1,7 @@
 #include "provider/ModSourceProviderRegistry.hpp"
 
 #include <supermod/constants.hpp>
-#include <supermod/events/D3dInitEvent.hpp>
+#include <supermod/events/DxInitEvent.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/io/TempManager.hpp>
 #include <supermod/io/logs/Console.hpp>
@@ -99,7 +99,7 @@ void ModInstaller::InvokeURI(const std::string& uriCommand)
 
 void ModInstaller::Init()
 {
-    EventManager::On<D3dInitEvent>([] {
+    EventManager::On<DxInitEvent>([] {
         if (FAILED(OleInitialize(nullptr)))
             spdlog::error("Failed to initialize OLE");
         if (FAILED(RegisterDragDrop(*game::Game::window, &dropTarget)))
