@@ -385,14 +385,14 @@ end
 ---Конвертирует UTF8 строку (char*) в UTF16 строку (wchar_t*)
 ---@param str string | ffi.cdata*
 ---@return ffi.cdata*
-function Memory.toU16(str)
+function M.toU16(str)
     return imgui.FromUTF(str)
 end
 
 ---Конвертирует UTF8 строку (char*) в массив UTF-16 байтов (полезно для ffi.new с wchar_t)
 ---@param str string | ffi.cdata*
 ---@return number[]
-function Memory.toU16Array(str)
+function M.toU16Array(str)
     local u16 = imgui.FromUTF(str)
     local arr = {}
     for i = 0, str:len(), 1 do
@@ -404,14 +404,14 @@ end
 ---Конвертирует UTF16 строку (wchar_t*) в UTF8 строку (char*)
 ---@param wstr ffi.cdata*
 ---@return ffi.cdata*
-function Memory.toU8(wstr)
+function M.toU8(wstr)
     return imgui.ToUTF(wstr)
 end
 
 ---Конвертирует строку (char*) в луа формат
 ---@param cstr ffi.cdata*
 ---@return string
-function Memory.toStr(cstr)
+function M.toStr(cstr)
     return ffi.string(cstr)
 end
 
