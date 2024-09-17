@@ -43,7 +43,7 @@ void sm::ui::windows::Installer()
             if (req != nullptr)
             {
                 auto source = req->GetActiveSource();
-                ImGui::Text("Установка мода %s...", req->GetModInfo()->title);
+                ImGui::Text("Установка мода %s...", req->GetModInfo()->title.c_str());
                 const auto message = source->GetInstallMessage();
                 if (message)
                     ImGui::Text("%s", message->c_str());
