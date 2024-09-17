@@ -97,6 +97,12 @@ function events.on(eventName: string, fn: eventHandler<Event>)
 
 - `fun(eventName: "afterTick", fn: eventHandler<Event>)`
 
+- `fun(eventName: "dxInit", fn: eventHandler<Event>)`
+
+- `fun(eventName: "beforeDxReset", fn: eventHandler<Event>)`
+
+- `fun(eventName: "afterDxReset", fn: eventHandler<Event>)`
+
 - `fun(eventName: "uiRender", fn: eventHandler<Event>)`
 
 - `fun(eventName: "modLoad", fn: eventHandler<ModEvent>)`

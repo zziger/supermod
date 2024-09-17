@@ -64,6 +64,142 @@ function memory.at(location: string|number, params?: MemoryParams)
 function memory.restoreBackups()
 ```
 
+### Функция `memory.toStr`
+
+Конвертирует строку (char*) в луа формат
+
+#### Сигнатура
+
+```lua
+function memory.toStr(cstr: ffi.cdata*)
+  -> string
+```
+
+#### Аргументы
+
+<table>
+  <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Тип</th>
+      <th>Обязателен?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cstr</code></td>
+      <td><code>ffi.cdata*</code></td>
+      <td>да</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Возвращает
+
+- `string` 
+
+### Функция `memory.toU16`
+
+Конвертирует UTF8 строку (char*) в UTF16 строку (wchar_t*)
+
+#### Сигнатура
+
+```lua
+function memory.toU16(str: string|ffi.cdata*)
+  -> ffi.cdata*
+```
+
+#### Аргументы
+
+<table>
+  <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Тип</th>
+      <th>Обязателен?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>str</code></td>
+      <td><code>string</code> или <code>ffi.cdata*</code></td>
+      <td>да</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Возвращает
+
+- `ffi.cdata*` 
+
+### Функция `memory.toU16Array`
+
+Конвертирует UTF8 строку (char*) в массив UTF-16 байтов (полезно для ffi.new с wchar_t)
+
+#### Сигнатура
+
+```lua
+function memory.toU16Array(str: string|ffi.cdata*)
+  -> number[]
+```
+
+#### Аргументы
+
+<table>
+  <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Тип</th>
+      <th>Обязателен?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>str</code></td>
+      <td><code>string</code> или <code>ffi.cdata*</code></td>
+      <td>да</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Возвращает
+
+- `number[]` 
+
+### Функция `memory.toU8`
+
+Конвертирует UTF16 строку (wchar_t*) в UTF8 строку (char*)
+
+#### Сигнатура
+
+```lua
+function memory.toU8(wstr: ffi.cdata*)
+  -> ffi.cdata*
+```
+
+#### Аргументы
+
+<table>
+  <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Тип</th>
+      <th>Обязателен?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>wstr</code></td>
+      <td><code>ffi.cdata*</code></td>
+      <td>да</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Возвращает
+
+- `ffi.cdata*` 
+
 ### ~~Функция `memory.withBackup`~~ (устарела)
 
 {% hint style="warning" %}
@@ -105,142 +241,6 @@ function memory.withBackup(backup: any)
 ---
 
 ## Класс `Memory`
-
-### Функция `Memory.toStr`
-
-Конвертирует строку (char*) в луа формат
-
-#### Сигнатура
-
-```lua
-function Memory.toStr(cstr: ffi.cdata*)
-  -> string
-```
-
-#### Аргументы
-
-<table>
-  <thead>
-    <tr>
-      <th>Имя</th>
-      <th>Тип</th>
-      <th>Обязателен?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>cstr</code></td>
-      <td><code>ffi.cdata*</code></td>
-      <td>да</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Возвращает
-
-- `string` 
-
-### Функция `Memory.toU16`
-
-Конвертирует UTF8 строку (char*) в UTF16 строку (wchar_t*)
-
-#### Сигнатура
-
-```lua
-function Memory.toU16(str: string|ffi.cdata*)
-  -> ffi.cdata*
-```
-
-#### Аргументы
-
-<table>
-  <thead>
-    <tr>
-      <th>Имя</th>
-      <th>Тип</th>
-      <th>Обязателен?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>str</code></td>
-      <td><code>string</code> или <code>ffi.cdata*</code></td>
-      <td>да</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Возвращает
-
-- `ffi.cdata*` 
-
-### Функция `Memory.toU16Array`
-
-Конвертирует UTF8 строку (char*) в массив UTF-16 байтов (полезно для ffi.new с wchar_t)
-
-#### Сигнатура
-
-```lua
-function Memory.toU16Array(str: string|ffi.cdata*)
-  -> number[]
-```
-
-#### Аргументы
-
-<table>
-  <thead>
-    <tr>
-      <th>Имя</th>
-      <th>Тип</th>
-      <th>Обязателен?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>str</code></td>
-      <td><code>string</code> или <code>ffi.cdata*</code></td>
-      <td>да</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Возвращает
-
-- `number[]` 
-
-### Функция `Memory.toU8`
-
-Конвертирует UTF16 строку (wchar_t*) в UTF8 строку (char*)
-
-#### Сигнатура
-
-```lua
-function Memory.toU8(wstr: ffi.cdata*)
-  -> ffi.cdata*
-```
-
-#### Аргументы
-
-<table>
-  <thead>
-    <tr>
-      <th>Имя</th>
-      <th>Тип</th>
-      <th>Обязателен?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>wstr</code></td>
-      <td><code>ffi.cdata*</code></td>
-      <td>да</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Возвращает
-
-- `ffi.cdata*` 
 
 ### Метод `Memory:add`
 

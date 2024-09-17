@@ -12,5 +12,6 @@
 * [Модуль Memory](lua/memory.md)
 * [Модуль Timers](lua/timers.md)
 * [Модуль Filesystem](lua/filesystem.md)
+* [Модуль DirectX](lua/directx.md)
 * [Модуль Graphics](lua/graphics.md)
 * [Модуль Util](lua/util.md)
