@@ -89,6 +89,14 @@ void ModInfo::Parse(YAML::Node& node)
     // todo compatibility check somewhere
 }
 
+void ModInfo::Fixup(YAML::Node& node) const
+{
+    node["version"] = version.str();
+    if (node["lua-script"])
+        node.remove("lua-script");
+    node["main"] = scriptMain;
+}
+
 std::string ModInfo::ToString() const
 {
     return std::format("Mod<{}>", GetID());

@@ -182,6 +182,30 @@ void sm::ui::windows::main::RegistryView()
                 }
                 ImGui::EndPopup();
             }
+
+            Ui::FixNextPopupModal();
+            if (ImGui::BeginPopupModal("Удалить версию мода с сервера", nullptr,
+                                       ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings))
+            {
+                ImGui::Text(std::format("Вы уверены что хотите удалить мод {} версии {} с серверов SuperMod?",
+                                        info.title, info.version.str())
+                                .c_str());
+                ImGui::Text("Это действие нельзя отменить");
+                ImGui::Spacing();
+                ImGui::Spacing();
+
+                if (ImGui::Button("Удалить"))
+                {
+                    registry::RegistryManager::RemoveMod(info.GetID(), info.version.str());
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Отмена"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
             ImGui::PopID();
 
             if (ImGui::BeginPopupContextItem("Mod menu"))
@@ -216,15 +240,29 @@ void sm::ui::windows::main::RegistryView()
                     ImGui::PopStyleColor();
                 }
 
+                if (registry::RegistryManager::CanManageMod(mod))
+                {
+                    ImGui::Separator();
+                    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, 0xE0422ECC_color);
+                    if (ImGui::MenuItem(ICON_MD_DELETE_FOREVER " Удалить с сервера"))
+                    {
+                        ImGui::PushOverrideID(modalId);
+                        ImGui::OpenPopup("Удалить версию мода с сервера");
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                }
+
                 if (auto user = registry::RegistryManager::GetUser();
                     user.has_value() && user->role == registry::RegistryManager::User::ADMIN)
                 {
                     ImGui::Separator();
-                    if (ImGui::MenuItem(version->verified ? "Отменить подтверждение" : "Подтвердить версию"))
+                    if (ImGui::MenuItem(version->verified ? ICON_MD_UNPUBLISHED " Отменить подтверждение"
+                                                          : ICON_MD_CHECK_CIRCLE " Подтвердить версию"))
                     {
                         version->SetVerified(!version->verified);
                     }
-                    if (ImGui::MenuItem("Изменить загрузчика"))
+                    if (ImGui::MenuItem(ICON_MD_MANAGE_ACCOUNTS " Изменить загрузчика"))
                     {
                         ImGui::PushOverrideID(modalId);
                         ImGui::OpenPopup("Изменить загрузившего мод пользователя");

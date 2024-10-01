@@ -57,11 +57,15 @@ async::task<bool> sm::registry::RegistryManager::EntryVersion::SetVerified(const
 
 sm::registry::RegistryManager::Entry::Entry(nlohmann::json json) : uploader(json["uploader"])
 {
-    spdlog::trace("is it {}", json.dump(4));
     id = json["id"].get<std::string>();
     latestVersionValue = semver::version::parse(json["latestVersionValue"].get<std::string>(), false);
     for (const auto& version : json["versions"])
-        versions.push_back(std::make_shared<EntryVersion>(id, version));
+    {
+        auto entry = std::make_shared<EntryVersion>(id, version);
+        versions.push_back(entry);
+        versionStrings.emplace(entry->version.str());
+    }
+
     latestVersion = {};
     latestVersion.FromJson(json["latestVersion"]);
 }
@@ -84,6 +88,11 @@ async::task<bool> sm::registry::RegistryManager::Entry::SetUploaderId(int newUpl
     }
 
     co_return true;
+}
+
+bool sm::registry::RegistryManager::Entry::HasVersion(const std::string& version) const
+{
+    return versionStrings.contains(version);
 }
 
 void sm::registry::RegistryManager::Initialize()
@@ -229,6 +238,14 @@ async::task<void> sm::registry::RegistryManager::FetchEntries()
     {
         spdlog::error("Failed to fetch entries: {}", e.what());
     }
+
+    co_return;
+}
+
+async::task<void> sm::registry::RegistryManager::RemoveMod(const std::string& modId, const std::string& modVersion)
+{
+    co_await io::Http::Delete(cpr::Url{API_URL "mods/" + modId + "/versions/" + modVersion}, GetBearer());
+    co_await FetchEntries();
 
     co_return;
 }

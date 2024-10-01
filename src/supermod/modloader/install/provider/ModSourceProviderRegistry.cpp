@@ -19,7 +19,6 @@ async::task<void> sm::modloader::ModSourceProviderRegistry::ModInstallSourceRegi
                                     cpr::ProgressCallback([this](cpr::cpr_off_t downloadTotal,
                                                                  cpr::cpr_off_t downloadNow, cpr::cpr_off_t uploadTotal,
                                                                  cpr::cpr_off_t uploadNow, intptr_t userdata) -> bool {
-                                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
                                         installProgress =
                                             static_cast<float>(downloadNow) / static_cast<float>(downloadTotal);
                                         return true;

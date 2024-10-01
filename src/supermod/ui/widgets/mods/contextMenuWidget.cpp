@@ -7,6 +7,7 @@
 #include <supermod/modloader/mod/info/ModInfoFilesystem.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/windows/main_views/views.hpp>
+#include <supermod/ui/windows/windows.hpp>
 
 void sm::ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& mod)
 {
@@ -58,6 +59,12 @@ void sm::ui::widgets::mods::ContextMenu(const std::shared_ptr<modloader::Mod>& m
         {
             modloader::ModManager::PackMod(fsInfo, *path);
         }
+    }
+
+    if (ImGui::MenuItem(ICON_MD_CLOUD_UPLOAD " Опубликовать"))
+    {
+        windows::WindowsState::publishModID = mod->GetID();
+        windows::WindowsState::publishModOpened = true;
     }
 
     ImGui::Separator();

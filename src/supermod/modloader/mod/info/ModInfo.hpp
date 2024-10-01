@@ -70,6 +70,8 @@ struct ModInfo
      */
     void Parse(YAML::Node& node);
 
+    void Fixup(YAML::Node& node) const;
+
     void SetIcon(std::optional<ModIcon> icon) { this->icon = std::move(icon); }
     // TODO serialize
 

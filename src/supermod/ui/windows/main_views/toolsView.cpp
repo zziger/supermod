@@ -2,8 +2,10 @@
 #include <supermod/ui/windows/main_views/views.hpp>
 
 #include <IconsMaterialDesign.h>
+#include <d3dx9shader.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <supermod/game/DirectX.hpp>
 #include <supermod/game/Game.hpp>
 #include <supermod/ui/Ui.hpp>
 #include <supermod/ui/popups/popups.hpp>
@@ -48,6 +50,34 @@ void sm::ui::windows::main::ToolsView()
         popups::open::DisableSuperMod();
     }
     styles::danger::PopStyle();
+
+    if (ImGui::Button("amogus"))
+    {
+        LPD3DXBUFFER dxShaderCode;
+        LPD3DXBUFFER errors = NULL;
+        LPD3DXCONSTANTTABLE dxShaderConstantTable = NULL;
+        auto hr = D3DXCompileShaderFromFile(LR"(S:\supercow-mod\src\shaders\test.hlsl)", NULL, NULL, "main", "vs_2_0",
+                                            0, &dxShaderCode, &errors, &dxShaderConstantTable);
+
+        if (FAILED(hr))
+        {
+            spdlog::error("sus dx {}", (const char*)errors->GetBufferPointer());
+            errors->Release();
+        }
+        else
+        {
+            auto constant = dxShaderConstantTable->GetConstant(nullptr, 0);
+            dxShaderConstantTable->SetFloat(game::DirectX::GetD3D9(), constant, 1.0);
+            // const std::array<float, 4> data{1, 0, 1, .5f};
+            // game::DirectX::GetDx9()->SetPixelShaderConstantF(0, &data[0], 1);
+
+            LPDIRECT3DVERTEXSHADER9 dxShader = NULL;
+            game::DirectX::GetD3D9()->CreateVertexShader((DWORD*)dxShaderCode->GetBufferPointer(), &dxShader);
+            dxShaderCode->Release();
+            game::DirectX::GetD3D9()->SetVertexShader(dxShader);
+            game::DirectX::GetD3D9()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+        }
+    }
 
     ImGui::Spacing();
     ImGui::SeparatorText("Окно игры");

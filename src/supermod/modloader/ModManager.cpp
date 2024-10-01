@@ -402,7 +402,18 @@ async::task<bool> ModManager::PackMod(const std::shared_ptr<ModInfoFilesystem> m
             auto relPathStr = relPath.generic_string();
             if (dirEntry.is_directory())
                 relPathStr.append("/");
-            zip.write(absPath.string(), relPathStr);
+            if (relPathStr == ModInfoFilesystem::MANIFEST_FILENAME)
+            {
+                auto node = YAML::LoadFile(absPath.string());
+                mod->Fixup(node);
+                std::stringstream ss;
+                ss << node;
+                zip.writestr(relPathStr, ss.str());
+            }
+            else
+            {
+                zip.write(absPath.string(), relPathStr);
+            }
         }
 
         std::ofstream stream(targetPath, std::ios::binary | std::ios::trunc);

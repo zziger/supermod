@@ -13,10 +13,10 @@
 #include <supermod/events/TickEvent.hpp>
 #include <supermod/events/UIRenderEvent.hpp>
 #include <supermod/events/WindowEvent.hpp>
-#include <supermod/modloader/ModManager.hpp>
-#include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/game/DirectX.hpp>
 #include <supermod/game/Game.hpp>
+#include <supermod/modloader/ModManager.hpp>
+#include <supermod/modloader/mod/Mod.hpp>
 #include <supermod/ui/NotificationManager.hpp>
 #include <supermod/ui/windows/windows.hpp>
 
@@ -139,6 +139,9 @@ void Ui::Render()
             windows::AnimationViewer();
         if (modelViewerOpen)
             windows::ModelViewer();
+        if (windows::WindowsState::publishModOpened)
+            windows::PublishMod();
+
         ui::NotificationManager::Render();
 
         for (const auto& mod : modloader::ModManager::GetMods())

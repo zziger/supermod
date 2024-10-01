@@ -95,6 +95,15 @@ public:
         return ToJson(Patch(std::forward<Ts>(args)...));
     }
 
+    template <typename... Ts>
+    static async::task<cpr::Response> Delete(Ts&&... args)
+    {
+        const auto source = std::make_shared<async::task_completion_source<cpr::Response>>();
+
+        std::thread([=] { FillSource(source, cpr::Delete(args...)); }).detach();
+        return source->task();
+    }
+
 private:
     static void FillSource(const std::shared_ptr<async::task_completion_source<cpr::Response>>& source,
                            const cpr::Response& response)
